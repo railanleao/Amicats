@@ -1,4 +1,4 @@
-# TÍTULO DO PROJETO
+# Amicats
 
 `Tecnologia em Análise e Desenvolvimento de Sistemas`
 
