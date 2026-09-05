@@ -90,3 +90,8 @@ codigo-fonte/**/application-local.yml
 .codex/
 .cursor/
 .aider*
+
+# Arquivos de instrução para agentes de IA gerados automaticamente
+# pelas próprias ferramentas de scaffold (Next.js, Expo) dentro de codigo-fonte/
+codigo-fonte/**/CLAUDE.md
+codigo-fonte/**/AGENTS.md
