@@ -103,12 +103,15 @@ Desenvolver um sistema web e mobile que centralize o prontuário clínico, o con
 
 | Camada | Tecnologia |
 |---|---|
-| Mobile | *a definir* |
-| Web | *a definir* |
-| Back-end | API REST |
-| Banco de dados | *a definir* |
+| Mobile | React Native 0.86 · Expo 57 · TypeScript |
+| Web | Next.js 16 · React 19 · TypeScript |
+| Back-end | Java 21 · Spring Boot 4.1 (API REST) |
+| Banco de dados | PostgreSQL 16 · Flyway (migrations) |
+| Banco local (offline) | SQLite (app mobile) |
+| Contêineres | Docker · Docker Compose |
 | Armazenamento de imagens | *a definir* |
 | Hospedagem | Camada gratuita (restrição orçamentária da ONG) |
+| Qualidade de código | ESLint · Prettier · Spotless · Husky + lint-staged |
 | Versionamento | Git · GitHub |
 | Gestão de tarefas | GitHub Projects |
 
@@ -117,15 +120,16 @@ Desenvolver um sistema web e mobile que centralize o prontuário clínico, o con
 ## 📂 Estrutura do repositório
 
 ```
+├── apresentacao/        # Slides e vídeos das entregas
+├── atas/                # Atas dos encontros e termos assinados com o parceiro
+├── codigo-fonte/        # Código-fonte da solução
+│   ├── backend/         # API REST (Java · Spring Boot)
+│   ├── mobile/          # Aplicação mobile (React Native · Expo)
+│   └── web/             # Painel web (Next.js)
 ├── documentos/          # Documentação do projeto
-│   ├── proex/           # Atas, termos e relatórios de extensão
 │   └── img/             # Imagens usadas na documentação
-├── img/                 # Imagens do README
-├── src/                 # Código-fonte
-│   ├── api/             # Back-end
-│   ├── mobile/          # Aplicação mobile
-│   └── web/             # Painel web
-├── apresentacao/        # Slides das entregas
+├── proex/               # Relatório do APC (extensão)
+├── docker-compose.yml   # Sobe banco, backend e web para desenvolvimento
 └── README.md
 ```
 
