@@ -17,31 +17,40 @@ A solução proposta para a **ONG Amicats** substitui as fichas de papel afixada
 
 ## Arquitetura e Tecnologias
 
-A solução adota uma arquitetura **cliente-servidor em três camadas**, com dois clientes distintos consumindo uma mesma **API REST**:
+A arquitetura foi definida priorizando simplicidade e sustentabilidade de manutenção pela própria ONG, em linha com a restrição de orçamento praticamente nulo e a ausência de equipe técnica. Não há microsserviços, filas de mensagens ou múltiplos bancos de dados: um único backend e um único banco relacional atendem os dois clientes (mobile e web). O ponto central do desenho é separar claramente o que precisa funcionar **offline**, dentro do abrigo, do que funciona **online**, fora dele.
 
-- **Aplicação mobile** — cliente principal, utilizado dentro do abrigo, onde não há computadores nem internet fixa. Responsável pela captura de fotos, pelo registro clínico no local e pelo armazenamento local dos dados enquanto não há conexão.
-- **Painel web** — cliente complementar, utilizado fora do abrigo para gestão, consultas amplas e emissão de relatórios.
-- **API REST** — camada de aplicação que concentra as regras de negócio, o controle de permissões por perfil, a trilha de auditoria e a resolução da sincronização.
-- **Banco de dados relacional em nuvem** — repositório centralizado e único ponto de verdade, acessado exclusivamente pela API.
-- **Armazenamento de objetos** — fotos dos gatos e anexos de prontuário, mantidos fora do banco relacional para conter custo e volume.
+- **App Mobile (React Native)** — usado no abrigo pelos voluntários e veterinários no dia a dia do atendimento. Funciona **offline-first**: todo lançamento de prontuário, medicação e alocação de sala é gravado primeiro em um banco local (SQLite) no próprio celular. Quando há sinal (mesmo instável), o app sincroniza em segundo plano com o backend, enviando as alterações pendentes e baixando o que foi atualizado por outros dispositivos.
+- **Backend (Java / Spring Boot)** — fonte única de verdade dos dados. Expõe uma API REST consumida tanto pelo app mobile (via sincronização) quanto pela web (uso direto, sempre online). Concentra a lógica de negócio, autenticação e o registro de autor/data-hora exigido pela Resolução CFMV nº 1.321/2020.
+- **Banco de Dados (PostgreSQL)** — banco relacional único, hospedado na nuvem junto ao backend, armazenando prontuários, medicações, estoque e alocação das salas.
+- **Web App (Next.js)** — utilizado pela administração/coordenação e pelas clínicas parceiras, sempre a partir de locais com internet estável (fora do abrigo). Por isso não precisa de suporte offline, apenas de conexão direta e online com a API.
+- **Sincronização** — cada dispositivo mobile mantém uma fila local de alterações pendentes; ao reconectar, envia essas alterações ao backend e recebe o que mudou desde a última sincronização. Cada registro carrega autor e timestamp, e a resolução de conflitos é feita por **acréscimo, nunca por sobrescrita**: um ajuste posterior gera um novo lançamento em vez de substituir o registro existente, preservando o histórico auditável exigido para o prontuário e atendendo ao RNF-004 (nenhuma edição silenciosa).
 
-**Estratégia de sincronização.** Como a chácara não dispõe de conexão estável, o cliente mobile mantém uma **base local** e uma **fila de operações pendentes**. Cada registro criado offline recebe identificador local e carimbo de data/hora do dispositivo; ao detectar conectividade, a aplicação envia a fila à API, que aplica as operações e devolve os identificadores definitivos. Um botão de envio manual permite forçar a sincronização. Conflitos são resolvidos por acréscimo, e não por sobrescrita — coerente com a regra de que nenhum registro clínico pode ser alterado silenciosamente.
+```mermaid
+flowchart TB
+    subgraph OFFLINE["🐾 Abrigo — sem internet fixa, sinal móvel instável"]
+        direction LR
+        ACT_VOL(["👤 Voluntários e Veterinários"])
+        APP["App Mobile<br/>React Native"]
+        SQLITE[("Banco Local<br/>SQLite")]
+        ACT_VOL --> APP
+        APP <--> SQLITE
+    end
 
-> 🚧 **Pendente de definição pela equipe:** linguagens, frameworks e provedores de nuvem. A escolha deve observar a restrição orçamentária da organização, privilegiando camadas gratuitas e tecnologias de baixo custo de manutenção.
+    subgraph ONLINE["☁️ Online — backend na nuvem"]
+        direction LR
+        ACT_ADM(["👤 Administração / Coordenação"])
+        ACT_CLIN(["👤 Clínicas Parceiras"])
+        WEB["Web App<br/>Next.js"]
+        API["Backend API<br/>Java / Spring Boot"]
+        PG[("PostgreSQL")]
+        ACT_ADM --> WEB
+        ACT_CLIN --> WEB
+        WEB <-->|"HTTPS / REST"| API
+        API <--> PG
+    end
 
-| Camada | Tecnologia |
-|---|---|
-| Aplicação mobile | *a definir* |
-| Painel web | *a definir* |
-| API | REST — *linguagem/framework a definir* |
-| Banco de dados | Relacional — *SGBD a definir* |
-| Armazenamento de imagens | *a definir* |
-| Hospedagem | Camada gratuita |
-| Versionamento | Git · GitHub |
-
-**Diagrama de componentes:**
-
-![Diagrama de Componentes](img/documentacao/DiagramaComponentes.png)
+    APP -.->|"Sincronização quando há conexão"| API
+```
 
 ## Project Model Canvas
 
@@ -191,256 +200,144 @@ O projeto está restrito pelos itens apresentados na tabela a seguir.
 
 ## Modelo da Base de Dados
 
-O projeto adota **banco de dados relacional**, escolha justificada pela natureza fortemente referencial dos dados (todo registro clínico pertence a um gato, toda dose pertence a uma prescrição) e pela necessidade de integridade transacional na sincronização.
+Banco de dados relacional (PostgreSQL, conforme definido em [Arquitetura e Tecnologias](#arquitetura-e-tecnologias)). O modelo cobre o escopo priorizado na Fase 1 do projeto: prontuário clínico, controle de medicações (prescrição, administração e estoque) e alocação dos animais por sala.
 
-### Modelo Entidade-Relacionamento (MER)
-
-![Modelo Entidade-Relacionamento](img/documentacao/MER.png)
+### MER (Modelo Entidade-Relacionamento)
 
 ```mermaid
 erDiagram
-    USUARIO ||--o{ GATO : cadastra
-    USUARIO ||--o{ PRONTUARIO : registra
-    USUARIO ||--o{ ADMINISTRACAO_DOSE : aplica
-    SALA ||--o{ GATO : aloja
-    GATO ||--o{ HISTORICO_SALA : possui
-    SALA ||--o{ HISTORICO_SALA : recebe
-    GATO ||--o{ PRONTUARIO : possui
-    GATO ||--o{ VACINA : recebe
-    GATO ||--o{ ADOCAO : origina
-    GATO ||--o{ FOTO : possui
-    PRONTUARIO ||--o{ MEDICACAO_PRESCRITA : contem
-    PRONTUARIO ||--o{ ANEXO : possui
-    MEDICACAO_PRESCRITA ||--o{ ADMINISTRACAO_DOSE : gera
-    MEDICAMENTO ||--o{ MEDICACAO_PRESCRITA : referencia
-    MEDICAMENTO ||--o{ ESTOQUE_MEDICAMENTO : possui
-    ADOCAO ||--o| DEVOLUCAO : pode_ter
-    ADOTANTE ||--o{ ADOCAO : realiza
-    VOLUNTARIO }o--o| USUARIO : pode_ser
+    USER ||--o{ ROOM_ALLOCATION : records
+    ROOM ||--o{ ROOM_ALLOCATION : receives
+    ANIMAL ||--o{ ROOM_ALLOCATION : "has history"
+    ROOM ||--o{ ANIMAL : "currently houses"
+
+    ANIMAL ||--o{ APPOINTMENT : has
+    USER ||--o{ APPOINTMENT : attends
+    USER ||--o{ APPOINTMENT : logs
+    PARTNER_CLINIC ||--o{ APPOINTMENT : refers
+
+    APPOINTMENT ||--o{ PRESCRIPTION : generates
+    MEDICATION ||--o{ PRESCRIPTION : "is referenced in"
+    USER ||--o{ PRESCRIPTION : prescribes
+
+    PRESCRIPTION ||--o{ MEDICATION_ADMINISTRATION : originates
+    USER ||--o{ MEDICATION_ADMINISTRATION : administers
+    MEDICATION_BATCH ||--o{ MEDICATION_ADMINISTRATION : "is consumed in"
+
+    MEDICATION ||--o{ MEDICATION_BATCH : has
+    USER ||--o{ MEDICATION_BATCH : registers
+    PARTNER_CLINIC ||--o{ USER : employs
+
+    USER {
+        int id PK
+        string name
+        string email
+        string password_hash
+        string role
+        string crmv
+        int partner_clinic_id FK
+        boolean active
+        datetime created_at
+    }
+
+    PARTNER_CLINIC {
+        int id PK
+        string name
+        string phone
+        string address
+    }
+
+    ROOM {
+        int id PK
+        string code
+        string health_condition
+        string age_group
+        string notes
+    }
+
+    ANIMAL {
+        int id PK
+        string name
+        string sex
+        date estimated_birth_date
+        string health_condition
+        date rescue_date
+        string status
+        int current_room_id FK
+    }
+
+    ROOM_ALLOCATION {
+        int id PK
+        int animal_id FK
+        int room_id FK
+        datetime entry_date
+        datetime exit_date
+        string reason
+        int recorded_by FK
+    }
+
+    APPOINTMENT {
+        int id PK
+        int animal_id FK
+        int veterinarian_id FK
+        int partner_clinic_id FK
+        datetime date_time
+        string type
+        string description
+        int recorded_by FK
+        datetime created_at
+    }
+
+    PRESCRIPTION {
+        int id PK
+        int appointment_id FK
+        int medication_id FK
+        string dosage
+        string administration_route
+        string frequency
+        date start_date
+        date expected_end_date
+        string status
+        string suspension_reason
+        int prescribed_by FK
+    }
+
+    MEDICATION_ADMINISTRATION {
+        int id PK
+        int prescription_id FK
+        int medication_batch_id FK
+        datetime date_time
+        int administered_by FK
+        string notes
+    }
+
+    MEDICATION {
+        int id PK
+        string name
+        string active_ingredient
+        string unit_of_measure
+    }
+
+    MEDICATION_BATCH {
+        int id PK
+        int medication_id FK
+        decimal initial_quantity
+        decimal current_quantity
+        date entry_date
+        date expiration_date
+        string source
+        int recorded_by FK
+    }
 ```
+
+**Decisões de modelagem:**
+
+- **`room_allocation` como histórico, separado de `animal.current_room_id`.** Os gatos são realocados com frequência entre salas conforme evolução do quadro clínico; o histórico completo é mantido em `room_allocation` (com `exit_date` nulo representando a alocação vigente), enquanto `animal.current_room_id` guarda a posição atual para consulta rápida sem precisar varrer o histórico.
+- **`medication_administration` separado de `prescription`.** Uma prescrição define o que deve ser administrado (dosagem, frequência, período); cada dose efetivamente aplicada gera um registro próprio, com autor e horário — isso resolve diretamente a dor relatada de não ser possível confirmar o que já foi dado em um turno anterior.
+- **`medication_batch` controla o estoque por lote, não só por medicamento.** Cada lote tem validade e quantidade próprias; `medication_administration` pode referenciar o lote consumido, permitindo abater o estoque automaticamente e alertar sobre vencimento.
+- **`appointment` distingue quem atendeu de quem registrou.** O veterinário responsável (`veterinarian_id`) pode ser diferente de quem lançou o registro no sistema (`recorded_by`), já que muitas vezes um voluntário digitaliza depois o que foi passado verbalmente — sem perder a rastreabilidade de autoria exigida pela Resolução CFMV.
+- **`user.crmv` e `partner_clinic`.** Atendem à exigência de identificar o médico-veterinário responsável (nome e CRMV) em cada registro, incluindo os casos encaminhados às três clínicas parceiras externas.
 
 ### Projeto Físico da Base de Dados
 
-**usuario**
-
-| Coluna | Tipo | Restrições |
-|---|---|---|
-| id_usuario | INT | PK, AUTO_INCREMENT |
-| nome_completo | VARCHAR(150) | NOT NULL |
-| email | VARCHAR(150) | NOT NULL, UNIQUE |
-| senha_hash | VARCHAR(255) | NOT NULL |
-| telefone | VARCHAR(20) | |
-| foto_url | VARCHAR(500) | |
-| tipo_acesso | ENUM('ADMINISTRADOR','VETERINARIO','AUXILIAR','VISUALIZADOR') | NOT NULL |
-| crmv | VARCHAR(20) | Obrigatório quando tipo_acesso = VETERINARIO |
-| uf_crmv | CHAR(2) | |
-| data_aceite_termos | DATETIME | |
-| ativo | BOOLEAN | NOT NULL, DEFAULT TRUE |
-| data_criacao | DATETIME | NOT NULL |
-
-**voluntario**
-
-| Coluna | Tipo | Restrições |
-|---|---|---|
-| id_voluntario | INT | PK, AUTO_INCREMENT |
-| id_usuario | INT | FK → usuario(id_usuario), NULL |
-| nome_completo | VARCHAR(150) | NOT NULL |
-| telefone | VARCHAR(20) | |
-| email | VARCHAR(150) | |
-| profissao | VARCHAR(100) | |
-| area_atuacao | VARCHAR(100) | |
-| disponibilidade | VARCHAR(200) | |
-| precisa_carona | BOOLEAN | DEFAULT FALSE |
-| observacoes | TEXT | |
-| ativo | BOOLEAN | NOT NULL, DEFAULT TRUE |
-
-**sala**
-
-| Coluna | Tipo | Restrições |
-|---|---|---|
-| id_sala | INT | PK, AUTO_INCREMENT |
-| titulo | VARCHAR(100) | NOT NULL |
-| descricao | TEXT | |
-| foto_capa_url | VARCHAR(500) | |
-| capacidade_maxima | INT | |
-| ativa | BOOLEAN | NOT NULL, DEFAULT TRUE |
-
-**gato**
-
-| Coluna | Tipo | Restrições |
-|---|---|---|
-| id_gato | INT | PK, AUTO_INCREMENT |
-| nome | VARCHAR(100) | NOT NULL |
-| id_sala | INT | FK → sala(id_sala) |
-| sexo | ENUM('MACHO','FEMEA') | |
-| data_nascimento_estimada | DATE | |
-| faixa_etaria | ENUM('FILHOTE','JOVEM','ADULTO','SENIOR') | Derivada da idade |
-| pelagem | VARCHAR(100) | |
-| caracteristicas | TEXT | |
-| status_geral | ENUM('EM_TRATAMENTO','DISPONIVEL_ADOCAO','EM_TRIAGEM','ADOTADO','LAR_TEMPORARIO','EM_CLINICA','OBITO','DESAPARECIDO') | NOT NULL |
-| status_saude | ENUM('SAUDAVEL','FIV','FELV','FIV_FELV','PIF') | NOT NULL |
-| data_exame_fiv_felv | DATE | |
-| gravidade | ENUM('BAIXA','MEDIA','ALTA','MUITO_ALTA') | |
-| status_castracao | ENUM('SIM','NAO','AGENDADA') | |
-| data_castracao | DATE | |
-| microchip | VARCHAR(50) | UNIQUE, NULL |
-| data_resgate | DATE | |
-| condicoes_encontrado | TEXT | |
-| padrinho_madrinha | VARCHAR(150) | |
-| id_usuario_criador | INT | FK → usuario(id_usuario) |
-| data_criacao | DATETIME | NOT NULL |
-
-**historico_sala**
-
-| Coluna | Tipo | Restrições |
-|---|---|---|
-| id_historico | INT | PK, AUTO_INCREMENT |
-| id_gato | INT | FK → gato(id_gato), NOT NULL |
-| id_sala | INT | FK → sala(id_sala), NOT NULL |
-| data_entrada | DATETIME | NOT NULL |
-| data_saida | DATETIME | |
-| id_usuario_registro | INT | FK → usuario(id_usuario) |
-
-**foto**
-
-| Coluna | Tipo | Restrições |
-|---|---|---|
-| id_foto | INT | PK, AUTO_INCREMENT |
-| id_gato | INT | FK → gato(id_gato), NOT NULL |
-| url | VARCHAR(500) | NOT NULL |
-| principal | BOOLEAN | DEFAULT FALSE |
-| data_upload | DATETIME | NOT NULL |
-
-**prontuario**
-
-| Coluna | Tipo | Restrições |
-|---|---|---|
-| id_prontuario | INT | PK, AUTO_INCREMENT |
-| id_gato | INT | FK → gato(id_gato), NOT NULL |
-| titulo_diagnostico | VARCHAR(200) | NOT NULL |
-| origem | ENUM('INTERNO','CLINICA_EXTERNA') | NOT NULL |
-| nome_veterinario | VARCHAR(150) | NOT NULL |
-| crmv_veterinario | VARCHAR(20) | NOT NULL |
-| uf_crmv | CHAR(2) | |
-| local_atendimento | VARCHAR(150) | |
-| data_atendimento | DATETIME | NOT NULL |
-| observacoes | TEXT | |
-| status | ENUM('EM_TRATAMENTO','PAUSADO','CONCLUIDO','CANCELADO') | NOT NULL |
-| id_usuario_registro | INT | FK → usuario(id_usuario), NOT NULL |
-| data_registro | DATETIME | NOT NULL |
-
-**anexo**
-
-| Coluna | Tipo | Restrições |
-|---|---|---|
-| id_anexo | INT | PK, AUTO_INCREMENT |
-| id_prontuario | INT | FK → prontuario(id_prontuario) |
-| id_adocao | INT | FK → adocao(id_adocao) |
-| tipo | ENUM('EXAME','RECEITA','TERMO','OUTRO') | NOT NULL |
-| url | VARCHAR(500) | NOT NULL |
-| data_upload | DATETIME | NOT NULL |
-
-**medicamento**
-
-| Coluna | Tipo | Restrições |
-|---|---|---|
-| id_medicamento | INT | PK, AUTO_INCREMENT |
-| nome | VARCHAR(150) | NOT NULL |
-| apresentacao | VARCHAR(100) | |
-| exige_refrigeracao | BOOLEAN | DEFAULT FALSE |
-| validade_apos_abertura_dias | INT | |
-
-**medicacao_prescrita**
-
-| Coluna | Tipo | Restrições |
-|---|---|---|
-| id_medicacao | INT | PK, AUTO_INCREMENT |
-| id_prontuario | INT | FK → prontuario(id_prontuario), NOT NULL |
-| id_medicamento | INT | FK → medicamento(id_medicamento), NOT NULL |
-| dosagem | VARCHAR(100) | NOT NULL |
-| via | ENUM('ORAL','SUBCUTANEA','TOPICA','OUTRA') | NOT NULL |
-| frequencia_diaria | INT | NOT NULL |
-| duracao_dias | INT | |
-| status | ENUM('ATIVA','SUSPENSA','CONCLUIDA') | NOT NULL |
-| motivo_suspensao | TEXT | Obrigatório quando status = SUSPENSA |
-| data_suspensao | DATETIME | |
-
-**administracao_dose**
-
-| Coluna | Tipo | Restrições |
-|---|---|---|
-| id_administracao | INT | PK, AUTO_INCREMENT |
-| id_medicacao | INT | FK → medicacao_prescrita(id_medicacao), NOT NULL |
-| id_usuario_aplicador | INT | FK → usuario(id_usuario), NOT NULL |
-| data_hora_aplicacao | DATETIME | NOT NULL |
-| observacoes | TEXT | |
-| origem_registro | ENUM('ONLINE','OFFLINE_SINCRONIZADO') | NOT NULL |
-
-**estoque_medicamento**
-
-| Coluna | Tipo | Restrições |
-|---|---|---|
-| id_estoque | INT | PK, AUTO_INCREMENT |
-| id_medicamento | INT | FK → medicamento(id_medicamento), NOT NULL |
-| status | ENUM('FALTANDO','COMPRADO','DOADO','CANCELADO') | NOT NULL |
-| quantidade | DECIMAL(10,2) | |
-| data_entrada | DATE | |
-| data_validade | DATE | |
-| data_abertura | DATE | |
-| nome_doador | VARCHAR(150) | |
-| id_usuario_registro | INT | FK → usuario(id_usuario) |
-
-**vacina**
-
-| Coluna | Tipo | Restrições |
-|---|---|---|
-| id_vacina | INT | PK, AUTO_INCREMENT |
-| id_gato | INT | FK → gato(id_gato), NOT NULL |
-| descricao | VARCHAR(150) | NOT NULL |
-| data_agendada | DATE | |
-| data_realizada | DATE | |
-| id_usuario_registro | INT | FK → usuario(id_usuario) |
-
-**adotante**
-
-| Coluna | Tipo | Restrições |
-|---|---|---|
-| id_adotante | INT | PK, AUTO_INCREMENT |
-| nome_completo | VARCHAR(150) | NOT NULL |
-| cpf | VARCHAR(14) | UNIQUE |
-| telefone | VARCHAR(20) | NOT NULL |
-| telefone_adicional | VARCHAR(20) | |
-| email | VARCHAR(150) | |
-| endereco | VARCHAR(255) | |
-
-**adocao**
-
-| Coluna | Tipo | Restrições |
-|---|---|---|
-| id_adocao | INT | PK, AUTO_INCREMENT |
-| id_gato | INT | FK → gato(id_gato), NOT NULL |
-| id_adotante | INT | FK → adotante(id_adotante), NOT NULL |
-| data_adocao | DATE | NOT NULL |
-| data_revisitacao | DATE | |
-| canal | ENUM('DIRETO_ONG','PARCEIRO') | NOT NULL |
-| observacoes_entrega | TEXT | |
-| ativa | BOOLEAN | NOT NULL, DEFAULT TRUE |
-| id_usuario_registro | INT | FK → usuario(id_usuario) |
-
-**devolucao**
-
-| Coluna | Tipo | Restrições |
-|---|---|---|
-| id_devolucao | INT | PK, AUTO_INCREMENT |
-| id_adocao | INT | FK → adocao(id_adocao), NOT NULL, UNIQUE |
-| data_devolucao | DATE | NOT NULL |
-| motivo | TEXT | NOT NULL |
-| id_usuario_registro | INT | FK → usuario(id_usuario) |
-
-### Regras de integridade e auditoria
-
-- **Exclusão lógica.** Nenhuma tabela permite exclusão física. Salas, usuários, voluntários e adoções possuem campo de situação; prontuários são cancelados por mudança de status (RNF-005).
-- **Rastreabilidade.** Todas as tabelas de registro clínico armazenam o usuário responsável e a data/hora do lançamento. Correções são feitas por novo registro, nunca por sobrescrita (RNF-004).
-- **Retenção.** Registros de prontuário não são removidos da base, atendendo à guarda mínima de cinco anos exigida pela Resolução CFMV nº 1.321/2020 (RNF-009).
-- **Sincronização.** O campo `origem_registro` em `administracao_dose` permite auditar quais lançamentos foram feitos offline e sincronizados posteriormente.
-- **Proteção de dados pessoais.** As tabelas `adotante` e `voluntario` contêm dados pessoais e têm acesso restrito por perfil, conforme a LGPD (RNF-006).
+_A detalhar em etapa seguinte: estrutura definitiva das tabelas, tipos de dados exatos, índices e constraints, a partir do MER acima._
