@@ -13,13 +13,41 @@ A solução proposta para a **ONG Amicats** substitui as fichas de papel afixada
 
 ## Arquitetura e Tecnologias
 
-A solução adota uma arquitetura **cliente-servidor em três camadas**, com dois clientes distintos consumindo uma mesma **API REST**:
+A arquitetura foi definida priorizando simplicidade e sustentabilidade de manutenção pela própria ONG, em linha com a restrição de orçamento praticamente nulo e a ausência de equipe técnica. Não há microsserviços, filas de mensagens ou múltiplos bancos de dados: um único backend e um único banco relacional atendem os dois clientes (mobile e web). O ponto central do desenho é separar claramente o que precisa funcionar **offline**, dentro do abrigo, do que funciona **online**, fora dele.
 
-- **Aplicação mobile** — cliente principal, utilizado dentro do abrigo, onde não há computadores nem internet fixa. Responsável pela captura de fotos, pelo registro clínico no local e pelo armazenamento local dos dados enquanto não há conexão.
-- **Painel web** — cliente complementar, utilizado fora do abrigo para gestão, consultas amplas e emissão de relatórios.
-- **API REST** — camada de aplicação que concentra as regras de negócio, o controle de permissões por perfil, a trilha de auditoria e a resolução da sincronização.
-- **Banco de dados relacional em nuvem** — repositório centralizado e único ponto de verdade, acessado exclusivamente pela API.
-- **Armazenamento de objetos** — fotos dos gatos e anexos de prontuário, mantidos fora do banco relacional para conter custo e volume.
+- **App Mobile (React Native)** — usado no abrigo pelos voluntários e veterinários no dia a dia do atendimento. Funciona **offline-first**: todo lançamento de prontuário, medicação e alocação de sala é gravado primeiro em um banco local (SQLite) no próprio celular. Quando há sinal (mesmo instável), o app sincroniza em segundo plano com o backend, enviando as alterações pendentes e baixando o que foi atualizado por outros dispositivos.
+- **Backend (Java / Spring Boot)** — fonte única de verdade dos dados. Expõe uma API REST consumida tanto pelo app mobile (via sincronização) quanto pela web (uso direto, sempre online). Concentra a lógica de negócio, autenticação e o registro de autor/data-hora exigido pela Resolução CFMV nº 1.321/2020.
+- **Banco de Dados (PostgreSQL)** — banco relacional único, hospedado na nuvem junto ao backend, armazenando prontuários, medicações, estoque e alocação das salas.
+- **Web App (Next.js)** — utilizado pela administração/coordenação e pelas clínicas parceiras, sempre a partir de locais com internet estável (fora do abrigo). Por isso não precisa de suporte offline, apenas de conexão direta e online com a API.
+- **Sincronização** — cada dispositivo mobile mantém uma fila local de alterações pendentes; ao reconectar, envia essas alterações ao backend e recebe o que mudou desde a última sincronização. Cada registro carrega autor e timestamp, e a resolução de conflitos é feita por **acréscimo, nunca por sobrescrita**: um ajuste posterior gera um novo lançamento em vez de substituir o registro existente, preservando o histórico auditável exigido para o prontuário e atendendo ao RNF-004 (nenhuma edição silenciosa).
+
+**Diagrama de componentes:**
+```mermaid
+flowchart TB
+    subgraph OFFLINE["🐾 Abrigo — sem internet fixa, sinal móvel instável"]
+        direction LR
+        ACT_VOL(["👤 Voluntários e Veterinários"])
+        APP["App Mobile<br/>React Native"]
+        SQLITE[("Banco Local<br/>SQLite")]
+        ACT_VOL --> APP
+        APP <--> SQLITE
+    end
+
+    subgraph ONLINE["☁️ Online — backend na nuvem"]
+        direction LR
+        ACT_ADM(["👤 Administração / Coordenação"])
+        ACT_CLIN(["👤 Clínicas Parceiras"])
+        WEB["Web App<br/>Next.js"]
+        API["Backend API<br/>Java / Spring Boot"]
+        PG[("PostgreSQL")]
+        ACT_ADM --> WEB
+        ACT_CLIN --> WEB
+        WEB <-->|"HTTPS / REST"| API
+        API <--> PG
+    end
+
+    APP -.->|"Sincronização quando há conexão"| API
+```
 
 **Estratégia de sincronização.** Como a chácara não dispõe de conexão estável, o cliente mobile mantém uma **base local** e uma **fila de operações pendentes**. Cada registro criado offline recebe identificador local e carimbo de data/hora do dispositivo; ao detectar conectividade, a aplicação envia a fila à API, que aplica as operações e devolve os identificadores definitivos. Um botão de envio manual permite forçar a sincronização. Conflitos são resolvidos por acréscimo, e não por sobrescrita — coerente com a regra de que nenhum registro clínico pode ser alterado silenciosamente.
 
@@ -34,8 +62,6 @@ A solução adota uma arquitetura **cliente-servidor em três camadas**, com doi
 | Armazenamento de imagens | *a definir* |
 | Hospedagem | Camada gratuita |
 | Versionamento | Git · GitHub |
-
-**Diagrama de componentes:**
 
 ## Project Model Canvas
 
@@ -167,9 +193,7 @@ O projeto está restrito pelos itens apresentados na tabela a seguir.
 
 ## Modelo da Base de Dados
 
-O projeto adota **banco de dados relacional**, escolha justificada pela natureza fortemente referencial dos dados (todo registro clínico pertence a um gato, toda dose pertence a uma prescrição) e pela necessidade de integridade transacional na sincronização.
-
-### Modelo Entidade-Relacionamento (MER)
+Banco de dados relacional (PostgreSQL, conforme definido em [Arquitetura e Tecnologias](#arquitetura-e-tecnologias)). O modelo cobre o escopo priorizado na Fase 1 do projeto: prontuário clínico, controle de medicações (prescrição, administração e estoque) e alocação dos animais por sala.
 
 ```mermaid
 erDiagram
@@ -193,6 +217,14 @@ erDiagram
     VOLUNTARIO }o--o| USUARIO : pode_ser
     INSTITUICAO_PARCEIRA }o--o| USUARIO : pode_ser
 ```
+
+**Decisões de modelagem:**
+
+- **`room_allocation` como histórico, separado de `animal.current_room_id`.** Os gatos são realocados com frequência entre salas conforme evolução do quadro clínico; o histórico completo é mantido em `room_allocation` (com `exit_date` nulo representando a alocação vigente), enquanto `animal.current_room_id` guarda a posição atual para consulta rápida sem precisar varrer o histórico.
+- **`medication_administration` separado de `prescription`.** Uma prescrição define o que deve ser administrado (dosagem, frequência, período); cada dose efetivamente aplicada gera um registro próprio, com autor e horário — isso resolve diretamente a dor relatada de não ser possível confirmar o que já foi dado em um turno anterior.
+- **`medication_batch` controla o estoque por lote, não só por medicamento.** Cada lote tem validade e quantidade próprias; `medication_administration` pode referenciar o lote consumido, permitindo abater o estoque automaticamente e alertar sobre vencimento.
+- **`appointment` distingue quem atendeu de quem registrou.** O veterinário responsável (`veterinarian_id`) pode ser diferente de quem lançou o registro no sistema (`recorded_by`), já que muitas vezes um voluntário digitaliza depois o que foi passado verbalmente — sem perder a rastreabilidade de autoria exigida pela Resolução CFMV.
+- **`user.crmv` e `partner_clinic`.** Atendem à exigência de identificar o médico-veterinário responsável (nome e CRMV) em cada registro, incluindo os casos encaminhados às três clínicas parceiras externas.
 
 ### Projeto Físico da Base de Dados
 
