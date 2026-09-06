@@ -69,14 +69,11 @@ Desenvolver um sistema web e mobile que centralize o prontuário clínico, o con
 
 | # | Documento |
 |---|---|
-| 01 | [Documentação de Contexto](documentos/1-Documentação%20de%20Contexto.md) |
-| 02 | [Especificações do Projeto](documentos/2-Especificações%20do%20Projeto.md) |
-| 03 | [Projeto de Interface](documentos/3-Projeto%20de%20Interface.md) |
-| 04 | [Projeto da Base de Dados](documentos/4-Projeto%20da%20Base%20de%20Dados.md) |
-| 05 | [Arquitetura da Solução](documentos/5-Arquitetura%20da%20Solução.md) |
-| 06 | [Plano de Testes de Software](documentos/6-Plano%20de%20Testes%20de%20Software.md) |
-| 07 | [Registro de Testes de Software](documentos/7-Registro%20de%20Testes%20de%20Software.md) |
-| 08 | [Referências](documentos/8-Referências.md) |
+| 01 | [Documentação de Contexto](https://github.com/ICEI-PUC-Minas-PMV-ADS/PMV-ADS-2026-2-E5-PROJ-EMPEXT-T4-G3/blob/feature/doc-especificacoes-do-projeto/documentos/01-Documenta%C3%A7%C3%A3o%20de%20Contexto.md) |
+| 02 | [Especificações do Projeto](https://github.com/ICEI-PUC-Minas-PMV-ADS/PMV-ADS-2026-2-E5-PROJ-EMPEXT-T4-G3/blob/feature/doc-especificacoes-do-projeto/documentos/02-Especifica%C3%A7%C3%A3o%20do%20Projeto.md) |
+| 03 | [Projeto de Interface](https://github.com/ICEI-PUC-Minas-PMV-ADS/PMV-ADS-2026-2-E5-PROJ-EMPEXT-T4-G3/blob/feature/doc-especificacoes-do-projeto/documentos/03-Projeto%20de%20Interface.md) |
+| 04 | [Plano de Testes de Software](https://github.com/ICEI-PUC-Minas-PMV-ADS/PMV-ADS-2026-2-E5-PROJ-EMPEXT-T4-G3/blob/feature/doc-especificacoes-do-projeto/documentos/04-Plano%20de%20Testes%20de%20Software.md) |
+| 05 | [Implantação](https://github.com/ICEI-PUC-Minas-PMV-ADS/PMV-ADS-2026-2-E5-PROJ-EMPEXT-T4-G3/blob/feature/doc-especificacoes-do-projeto/documentos/08-Implanta%C3%A7%C3%A3o.md) |
 
 📁 Atas de reunião, termos e relatórios de extensão estão na pasta [`/atas`](https://github.com/ICEI-PUC-Minas-PMV-ADS/PMV-ADS-2026-2-E5-PROJ-EMPEXT-T4-G3/tree/feature/doc-especificacoes-do-projeto/atas).
 
