@@ -1,10 +1,6 @@
 # Especificações do Projeto
 
-<span style="color:red">Pré-requisitos: <a href="01-Documentação de Contexto.md"> Documentação de Contexto</a></span>
-
-Definição do problema e ideia de solução a partir da perspectiva do usuário.
-
-A solução proposta para a **ONG Amicats** substitui as fichas de papel afixadas nas portas das oito salas do abrigo por um prontuário digital acessível pelo celular, contemplando ainda o controle de medicações, a alocação dos animais por sala e o ciclo de adoção. A especificação a seguir foi construída a partir de entrevista em profundidade com as representantes da organização e da observação do processo manual em uso.
+A solução proposta para a **ONG Amicats** substitui as fichas de papel afixadas nas portas das oito principais salas do abrigo por um prontuário digital acessível pelo celular, contemplando ainda o controle de medicações, a alocação dos animais por sala e o ciclo de adoção. A especificação a seguir foi construída a partir de entrevista em profundidade com as representantes da organização e da observação do processo manual em uso.
 
 ## Usuários
 
@@ -63,9 +59,6 @@ Deve ser desenvolvido a partir do microfundamento: Empreendedorismo e inovação
 | **Riscos** | Baixa aderência da equipe do abrigo ao registro digital; perda de dados antes da sincronização; rotatividade de voluntários; prazo letivo fixo. |
 | **Entregas** | Documentação e requisitos (Etapa 1); protótipo e cadastros base (Etapa 2); núcleo clínico (Etapa 3); adoção e gestão (Etapa 4); homologação e implantação (Etapa 5). |
 
-> **Links Úteis**:
-> Disponíveis em material de apoio do projeto
-
 ## Requisitos
 
 As tabelas que se seguem apresentam os requisitos funcionais e não funcionais que detalham o escopo do projeto.
@@ -85,26 +78,27 @@ A **complexidade** foi estimada pela equipe considerando esforço de implementa�
 |------|------------------------|:----:|:----:|:----:|:----:|
 |RF-001| Permitir autenticação de usuários por login e senha, com recuperação por e-mail ou redefinição pelo Administrador | ALTA | Etapa 2 | | Média |
 |RF-002| Disponibilizar perfis de acesso distintos (Administrador, Médico-Veterinário, Auxiliar e Visualizador) com permissões próprias | ALTA | Etapa 2 | | Alta |
-|RF-003| Exibir aceite de termos de uso no primeiro login, registrando data e hora | BAIXA | Etapa 4 | | Baixa |
-|RF-004| Permitir o cadastro e a edição de usuários do sistema, com foto, nome completo, telefone, e-mail e tipo de acesso | MÉDIA | Etapa 2 | | Baixa |
-|RF-005| Permitir o cadastro do banco de contatos voluntários, com área de atuação, disponibilidade, carona e situação (ativo/inativo) | MÉDIA | Etapa 4 | | Baixa |
-|RF-006| Permitir o cadastro e a edição de salas pela interface, com título, descrição, foto de capa e status | ALTA | Etapa 2 | | Baixa |
-|RF-007| Permitir o cadastro completo do gato, com vínculo à sala atual e registro do histórico de transferências | ALTA | Etapa 2 | | Alta |
+|RF-003| Exibir aceite de termos de uso no primeiro login | BAIXA | Etapa 4 | | Baixa |
+|RF-004| Permitir o cadastro e a edição de usuários do sistema | MÉDIA | Etapa 2 | | Baixa |
+|RF-005| Permitir o cadastro do banco de contatos voluntários | MÉDIA | Etapa 4 | | Baixa |
+|RF-006| Permitir o cadastro e a edição de salas | ALTA | Etapa 2 | | Baixa |
+|RF-007| Permitir o cadastro completo do gato | ALTA | Etapa 2 | | Alta |
 |RF-008| Permitir a captura de foto pela câmera do dispositivo e o upload de múltiplas imagens por gato | ALTA | Etapa 2 | | Média |
-|RF-009| Permitir o cadastro de prescrição no prontuário, com diagnóstico, veterinário, CRMV/UF, data, local, medicação, status e anexos | ALTA | Etapa 3 | | Alta |
-|RF-010| Exibir o histórico clínico completo do gato em ordem cronológica, com detalhamento por registro | ALTA | Etapa 3 | | Média |
-|RF-011| Permitir o registro de atendimento realizado em clínica externa, com anexo do prontuário fornecido pelo parceiro | MÉDIA | Etapa 3 | | Média |
-|RF-012| Permitir a marcação da dose administrada, com responsável, data e hora, e a suspensão da medicação com motivo | ALTA | Etapa 3 | | Alta |
-|RF-013| Permitir o controle de disponibilidade de medicamentos, com status, doador e validade | MÉDIA | Etapa 3 | | Média |
-|RF-014| Permitir o agendamento e o registro de vacinas e castrações, com data prevista e data realizada | MÉDIA | Etapa 4 | | Baixa |
-|RF-015| Permitir o registro de adoção, com dados do adotante, observações da entrega, data de revisitação e anexo do termo | MÉDIA | Etapa 4 | | Média |
-|RF-016| Permitir o registro de devolução, com gato, adotante, data, motivo e anexos, retornando o animal ao registro ativo | MÉDIA | Etapa 4 | | Média |
-|RF-017| Exibir dashboard inicial com lembretes de vacinas e castrações da semana, totais por sala e novos cadastros | MÉDIA | Etapa 4 | | Média |
-|RF-018| Disponibilizar campo de busca por palavra-chave nas listagens e na página inicial | ALTA | Etapa 3 | | Baixa |
-|RF-019| Permitir a exportação de relatórios em tela, PDF ou Excel | BAIXA | Etapa 4 | | Média |
-|RF-020| Manter os dados em edição salvos localmente e sincronizá-los com o servidor de forma automática ou manual | ALTA | Etapa 3 | | Alta |
+|RF-009| Permitir o cadastro de prescrição médica no prontuário | ALTA | Etapa 3 | | Alta |
+|RF-010| Exibir o histórico clínico completo do gato em ordem cronológica | ALTA | Etapa 3 | | Média |
+|RF-011| Permitir o registro de atendimento realizado em clínica externa | MÉDIA | Etapa 3 | | Média |
+|RF-012| Permitir a marcação da medicamentos e doses administradas | ALTA | Etapa 3 | | Alta |
+|RF-013| Permitir o controle de estoque e disponibilidade de medicamentos | MÉDIA | Etapa 3 | | Média |
+|RF-014| Permitir o agendamento e o registro de vacinas, vermífugos e castrações | MÉDIA | Etapa 4 | | Baixa |
+|RF-015| Permitir o registro de adoção | MÉDIA | Etapa 4 | | Média |
+|RF-016| Permitir o registro de devolução | MÉDIA | Etapa 4 | | Média |
+|RF-017| Permitir o registro de instituições parceiras | MÉDIA | Etapa 4 | | Baixa |
+|RF-018| Exibir dashboard na página inicial com atalhos estratégicos | MÉDIA | Etapa 4 | | Média |
+|RF-019| Disponibilizar campo de busca por palavra-chave em todas as páginas de listagens | ALTA | Etapa 3 | | Baixa |
+|RF-020| Permitir a exportação de relatórios em tela, PDF ou Excel | BAIXA | Etapa 4 | | Média |
+|RF-021| Manter os dados em edição salvos localmente e sincronizá-los com o servidor de forma automática ou manual | ALTA | Etapa 3 | | Alta |
 
-### Requisitos não Funcionais
+### Requisitos Não Funcionais
 
 |ID | Descrição do Requisito | Prioridade |
 |-------|-------------------------|:----:|
@@ -138,10 +132,6 @@ O projeto está restrito pelos itens apresentados na tabela a seguir.
 |08| Assistente por IA ou chat para consulta de dados está fora do escopo desta versão |
 |09| O controle de estoque de ração e demais insumos não integra esta versão |
 
-> **Links Úteis**:
-> - [O que são Requisitos Funcionais e Requisitos Não Funcionais?](https://codificar.com.br/requisitos-funcionais-nao-funcionais/)
-> - [O que são requisitos funcionais e requisitos não funcionais?](https://analisederequisitos.com.br/requisitos-funcionais-e-requisitos-nao-funcionais-o-que-sao/)
-
 ## Diagrama de Caso de Uso
 
 ![Diagrama de Casos de Uso](img/documentacao/DiagramaCasosDeUso.png)
@@ -174,20 +164,14 @@ O projeto está restrito pelos itens apresentados na tabela a seguir.
 | UC-12 | Registrar administração de dose | Médico-Veterinário, Auxiliar | Marca a dose aplicada, gravando responsável, data e hora. *«include» UC-09* | RF-012 |
 | UC-13 | Suspender medicação | Médico-Veterinário | Interrompe um tratamento em curso informando obrigatoriamente o motivo. *«extends» UC-09* | RF-012 |
 | UC-14 | Controlar disponibilidade de medicamentos | Administrador, Auxiliar | Atualiza e consulta a situação dos medicamentos, com doador e validade. | RF-013 |
-| UC-15 | Gerenciar vacinas e castrações | Administrador, Médico-Veterinário | Agenda e registra a realização de vacinas e castrações. | RF-014 |
+| UC-15 | Gerenciar vacinas, vermífugos e castrações | Administrador, Médico-Veterinário | Agenda e registra a realização de vacinas, vermífugos e castrações. | RF-014 |
 | UC-16 | Registrar adoção | Administrador | Cadastra a adoção com dados do adotante e anexo do termo de responsabilidade. *«include» UC-06* | RF-015 |
 | UC-17 | Registrar devolução | Administrador | Cadastra a devolução com motivo e anexos, retornando o animal ao registro ativo. *«extends» UC-16* | RF-016 |
-| UC-18 | Consultar dashboard | Todos | Visualiza lembretes da semana, totais por sala e novos cadastros. | RF-017 |
-| UC-19 | Buscar por palavra-chave | Todos | Localiza gatos e registros a partir de termo digitado. | RF-018 |
-| UC-20 | Exportar relatório | Administrador | Gera em tela, PDF ou Excel os relatórios de ficha, prescrições, vacinas e castrações. | RF-019 |
-| UC-21 | Sincronizar dados offline | Serviço de Sincronização | Envia à API a fila de operações registradas sem conexão e confirma a gravação. | RF-020 |
-
-> **Links Úteis**:
-> - [Criando Casos de Uso](https://www.ibm.com/docs/pt-br/elm/6.0?topic=requirements-creating-use-cases)
-> - [Como Criar Diagrama de Caso de Uso: Tutorial Passo a Passo](https://gitmind.com/pt/fazer-diagrama-de-caso-uso.html/)
-> - [Lucidchart](https://www.lucidchart.com/)
-> - [Astah](https://astah.net/)
-> - [Diagrams](https://app.diagrams.net/)
+| UC-18 | Gerenciar instituições parceiras | Administrador, Auxiliar | Mantém a lista de contatos de instituições parceiras por área de atuação e informações importantes | RF-017 |
+| UC-19 | Consultar dashboard | Todos | Visualiza lembretes da semana, totais por sala e novos cadastros. | RF-018 |
+| UC-20 | Buscar por palavra-chave | Todos | Localiza gatos e registros a partir de termo digitado. | RF-019 |
+| UC-21 | Exportar relatório | Administrador | Gera em tela, PDF ou Excel os relatórios de ficha, prescrições, vacinas, vermífugos e castrações. | RF-020 |
+| UC-22 | Sincronizar dados offline | Serviço de Sincronização | Envia à API a fila de operações registradas sem conexão e confirma a gravação. | RF-021 |
 
 ## Modelo da Base de Dados
 
@@ -217,6 +201,7 @@ erDiagram
     ADOCAO ||--o| DEVOLUCAO : pode_ter
     ADOTANTE ||--o{ ADOCAO : realiza
     VOLUNTARIO }o--o| USUARIO : pode_ser
+    INSTITUICAO_PARCEIRA }o--o| USUARIO : pode_ser
 ```
 
 ### Projeto Físico da Base de Dados
@@ -253,6 +238,18 @@ erDiagram
 | precisa_carona | BOOLEAN | DEFAULT FALSE |
 | observacoes | TEXT | |
 | ativo | BOOLEAN | NOT NULL, DEFAULT TRUE |
+
+**instituicao_parceira**
+
+| Coluna | Tipo | Restrições |
+|---|---|---|
+| id_instituicao | INT | PK, AUTO_INCREMENT |
+| nome_instituicao | VARCHAR(150) | NOT NULL |
+| nome_contato | VARCHAR(150) | NOT NULL |
+| telefone_contato | VARCHAR(20) | |
+| email_contato | VARCHAR(150) | |
+| area | VARCHAR(100) | NOT NULL |
+| informacoes_importantes | TEXT | |
 
 **sala**
 
