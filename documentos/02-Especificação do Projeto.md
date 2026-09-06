@@ -1,10 +1,6 @@
 # Especificações do Projeto
 
-<span style="color:red">Pré-requisitos: <a href="01-Documentação de Contexto.md"> Documentação de Contexto</a></span>
-
-Definição do problema e ideia de solução a partir da perspectiva do usuário.
-
-A solução proposta para a **ONG Amicats** substitui as fichas de papel afixadas nas portas das oito salas do abrigo por um prontuário digital acessível pelo celular, contemplando ainda o controle de medicações, a alocação dos animais por sala e o ciclo de adoção. A especificação a seguir foi construída a partir de entrevista em profundidade com as representantes da organização e da observação do processo manual em uso.
+A solução proposta para a **ONG Amicats** substitui as fichas de papel afixadas nas portas das oito principais salas do abrigo por um prontuário digital acessível pelo celular, contemplando ainda o controle de medicações, a alocação dos animais por sala e o ciclo de adoção. A especificação a seguir foi construída a partir de entrevista em profundidade com as representantes da organização e da observação do processo manual em uso.
 
 ## Usuários
 
@@ -25,6 +21,7 @@ A arquitetura foi definida priorizando simplicidade e sustentabilidade de manute
 - **Web App (Next.js)** — utilizado pela administração/coordenação e pelas clínicas parceiras, sempre a partir de locais com internet estável (fora do abrigo). Por isso não precisa de suporte offline, apenas de conexão direta e online com a API.
 - **Sincronização** — cada dispositivo mobile mantém uma fila local de alterações pendentes; ao reconectar, envia essas alterações ao backend e recebe o que mudou desde a última sincronização. Cada registro carrega autor e timestamp, e a resolução de conflitos é feita por **acréscimo, nunca por sobrescrita**: um ajuste posterior gera um novo lançamento em vez de substituir o registro existente, preservando o histórico auditável exigido para o prontuário e atendendo ao RNF-004 (nenhuma edição silenciosa).
 
+**Diagrama de componentes:**
 ```mermaid
 flowchart TB
     subgraph OFFLINE["🐾 Abrigo — sem internet fixa, sinal móvel instável"]
@@ -52,11 +49,21 @@ flowchart TB
     APP -.->|"Sincronização quando há conexão"| API
 ```
 
+**Estratégia de sincronização.** Como a chácara não dispõe de conexão estável, o cliente mobile mantém uma **base local** e uma **fila de operações pendentes**. Cada registro criado offline recebe identificador local e carimbo de data/hora do dispositivo; ao detectar conectividade, a aplicação envia a fila à API, que aplica as operações e devolve os identificadores definitivos. Um botão de envio manual permite forçar a sincronização. Conflitos são resolvidos por acréscimo, e não por sobrescrita — coerente com a regra de que nenhum registro clínico pode ser alterado silenciosamente.
+
+> 🚧 **Pendente de definição pela equipe:** linguagens, frameworks e provedores de nuvem. A escolha deve observar a restrição orçamentária da organização, privilegiando camadas gratuitas e tecnologias de baixo custo de manutenção.
+
+| Camada | Tecnologia |
+|---|---|
+| Aplicação mobile | *a definir* |
+| Painel web | *a definir* |
+| API | REST — *linguagem/framework a definir* |
+| Banco de dados | Relacional — *SGBD a definir* |
+| Armazenamento de imagens | *a definir* |
+| Hospedagem | Camada gratuita |
+| Versionamento | Git · GitHub |
+
 ## Project Model Canvas
-
-Deve ser desenvolvido a partir do microfundamento: Empreendedorismo e inovação.
-
-![Project Model Canvas](img/documentacao/ProjectModelCanvas.png)
 
 | Bloco | Conteúdo |
 |---|---|
@@ -71,9 +78,6 @@ Deve ser desenvolvido a partir do microfundamento: Empreendedorismo e inovação
 | **Restrições** | Ver seção Restrições. |
 | **Riscos** | Baixa aderência da equipe do abrigo ao registro digital; perda de dados antes da sincronização; rotatividade de voluntários; prazo letivo fixo. |
 | **Entregas** | Documentação e requisitos (Etapa 1); protótipo e cadastros base (Etapa 2); núcleo clínico (Etapa 3); adoção e gestão (Etapa 4); homologação e implantação (Etapa 5). |
-
-> **Links Úteis**:
-> Disponíveis em material de apoio do projeto
 
 ## Requisitos
 
@@ -94,26 +98,27 @@ A **complexidade** foi estimada pela equipe considerando esforço de implementa�
 |------|------------------------|:----:|:----:|:----:|:----:|
 |RF-001| Permitir autenticação de usuários por login e senha, com recuperação por e-mail ou redefinição pelo Administrador | ALTA | Etapa 2 | | Média |
 |RF-002| Disponibilizar perfis de acesso distintos (Administrador, Médico-Veterinário, Auxiliar e Visualizador) com permissões próprias | ALTA | Etapa 2 | | Alta |
-|RF-003| Exibir aceite de termos de uso no primeiro login, registrando data e hora | BAIXA | Etapa 4 | | Baixa |
-|RF-004| Permitir o cadastro e a edição de usuários do sistema, com foto, nome completo, telefone, e-mail e tipo de acesso | MÉDIA | Etapa 2 | | Baixa |
-|RF-005| Permitir o cadastro do banco de contatos voluntários, com área de atuação, disponibilidade, carona e situação (ativo/inativo) | MÉDIA | Etapa 4 | | Baixa |
-|RF-006| Permitir o cadastro e a edição de salas pela interface, com título, descrição, foto de capa e status | ALTA | Etapa 2 | | Baixa |
-|RF-007| Permitir o cadastro completo do gato, com vínculo à sala atual e registro do histórico de transferências | ALTA | Etapa 2 | | Alta |
+|RF-003| Exibir aceite de termos de uso no primeiro login | BAIXA | Etapa 4 | | Baixa |
+|RF-004| Permitir o cadastro e a edição de usuários do sistema | MÉDIA | Etapa 2 | | Baixa |
+|RF-005| Permitir o cadastro do banco de contatos voluntários | MÉDIA | Etapa 4 | | Baixa |
+|RF-006| Permitir o cadastro e a edição de salas | ALTA | Etapa 2 | | Baixa |
+|RF-007| Permitir o cadastro completo do gato | ALTA | Etapa 2 | | Alta |
 |RF-008| Permitir a captura de foto pela câmera do dispositivo e o upload de múltiplas imagens por gato | ALTA | Etapa 2 | | Média |
-|RF-009| Permitir o cadastro de prescrição no prontuário, com diagnóstico, veterinário, CRMV/UF, data, local, medicação, status e anexos | ALTA | Etapa 3 | | Alta |
-|RF-010| Exibir o histórico clínico completo do gato em ordem cronológica, com detalhamento por registro | ALTA | Etapa 3 | | Média |
-|RF-011| Permitir o registro de atendimento realizado em clínica externa, com anexo do prontuário fornecido pelo parceiro | MÉDIA | Etapa 3 | | Média |
-|RF-012| Permitir a marcação da dose administrada, com responsável, data e hora, e a suspensão da medicação com motivo | ALTA | Etapa 3 | | Alta |
-|RF-013| Permitir o controle de disponibilidade de medicamentos, com status, doador e validade | MÉDIA | Etapa 3 | | Média |
-|RF-014| Permitir o agendamento e o registro de vacinas e castrações, com data prevista e data realizada | MÉDIA | Etapa 4 | | Baixa |
-|RF-015| Permitir o registro de adoção, com dados do adotante, observações da entrega, data de revisitação e anexo do termo | MÉDIA | Etapa 4 | | Média |
-|RF-016| Permitir o registro de devolução, com gato, adotante, data, motivo e anexos, retornando o animal ao registro ativo | MÉDIA | Etapa 4 | | Média |
-|RF-017| Exibir dashboard inicial com lembretes de vacinas e castrações da semana, totais por sala e novos cadastros | MÉDIA | Etapa 4 | | Média |
-|RF-018| Disponibilizar campo de busca por palavra-chave nas listagens e na página inicial | ALTA | Etapa 3 | | Baixa |
-|RF-019| Permitir a exportação de relatórios em tela, PDF ou Excel | BAIXA | Etapa 4 | | Média |
-|RF-020| Manter os dados em edição salvos localmente e sincronizá-los com o servidor de forma automática ou manual | ALTA | Etapa 3 | | Alta |
+|RF-009| Permitir o cadastro de prescrição médica no prontuário | ALTA | Etapa 3 | | Alta |
+|RF-010| Exibir o histórico clínico completo do gato em ordem cronológica | ALTA | Etapa 3 | | Média |
+|RF-011| Permitir o registro de atendimento realizado em clínica externa | MÉDIA | Etapa 3 | | Média |
+|RF-012| Permitir a marcação da medicamentos e doses administradas | ALTA | Etapa 3 | | Alta |
+|RF-013| Permitir o controle de estoque e disponibilidade de medicamentos | MÉDIA | Etapa 3 | | Média |
+|RF-014| Permitir o agendamento e o registro de vacinas, vermífugos e castrações | MÉDIA | Etapa 4 | | Baixa |
+|RF-015| Permitir o registro de adoção | MÉDIA | Etapa 4 | | Média |
+|RF-016| Permitir o registro de devolução | MÉDIA | Etapa 4 | | Média |
+|RF-017| Permitir o registro de instituições parceiras | MÉDIA | Etapa 4 | | Baixa |
+|RF-018| Exibir dashboard na página inicial com atalhos estratégicos | MÉDIA | Etapa 4 | | Média |
+|RF-019| Disponibilizar campo de busca por palavra-chave em todas as páginas de listagens | ALTA | Etapa 3 | | Baixa |
+|RF-020| Permitir a exportação de relatórios em tela, PDF ou Excel | BAIXA | Etapa 4 | | Média |
+|RF-021| Manter os dados em edição salvos localmente e sincronizá-los com o servidor de forma automática ou manual | ALTA | Etapa 3 | | Alta |
 
-### Requisitos não Funcionais
+### Requisitos Não Funcionais
 
 |ID | Descrição do Requisito | Prioridade |
 |-------|-------------------------|:----:|
@@ -147,13 +152,7 @@ O projeto está restrito pelos itens apresentados na tabela a seguir.
 |08| Assistente por IA ou chat para consulta de dados está fora do escopo desta versão |
 |09| O controle de estoque de ração e demais insumos não integra esta versão |
 
-> **Links Úteis**:
-> - [O que são Requisitos Funcionais e Requisitos Não Funcionais?](https://codificar.com.br/requisitos-funcionais-nao-funcionais/)
-> - [O que são requisitos funcionais e requisitos não funcionais?](https://analisederequisitos.com.br/requisitos-funcionais-e-requisitos-nao-funcionais-o-que-sao/)
-
 ## Diagrama de Caso de Uso
-
-![Diagrama de Casos de Uso](img/documentacao/DiagramaCasosDeUso.png)
 
 ### Atores
 
@@ -183,151 +182,40 @@ O projeto está restrito pelos itens apresentados na tabela a seguir.
 | UC-12 | Registrar administração de dose | Médico-Veterinário, Auxiliar | Marca a dose aplicada, gravando responsável, data e hora. *«include» UC-09* | RF-012 |
 | UC-13 | Suspender medicação | Médico-Veterinário | Interrompe um tratamento em curso informando obrigatoriamente o motivo. *«extends» UC-09* | RF-012 |
 | UC-14 | Controlar disponibilidade de medicamentos | Administrador, Auxiliar | Atualiza e consulta a situação dos medicamentos, com doador e validade. | RF-013 |
-| UC-15 | Gerenciar vacinas e castrações | Administrador, Médico-Veterinário | Agenda e registra a realização de vacinas e castrações. | RF-014 |
+| UC-15 | Gerenciar vacinas, vermífugos e castrações | Administrador, Médico-Veterinário | Agenda e registra a realização de vacinas, vermífugos e castrações. | RF-014 |
 | UC-16 | Registrar adoção | Administrador | Cadastra a adoção com dados do adotante e anexo do termo de responsabilidade. *«include» UC-06* | RF-015 |
 | UC-17 | Registrar devolução | Administrador | Cadastra a devolução com motivo e anexos, retornando o animal ao registro ativo. *«extends» UC-16* | RF-016 |
-| UC-18 | Consultar dashboard | Todos | Visualiza lembretes da semana, totais por sala e novos cadastros. | RF-017 |
-| UC-19 | Buscar por palavra-chave | Todos | Localiza gatos e registros a partir de termo digitado. | RF-018 |
-| UC-20 | Exportar relatório | Administrador | Gera em tela, PDF ou Excel os relatórios de ficha, prescrições, vacinas e castrações. | RF-019 |
-| UC-21 | Sincronizar dados offline | Serviço de Sincronização | Envia à API a fila de operações registradas sem conexão e confirma a gravação. | RF-020 |
-
-> **Links Úteis**:
-> - [Criando Casos de Uso](https://www.ibm.com/docs/pt-br/elm/6.0?topic=requirements-creating-use-cases)
-> - [Como Criar Diagrama de Caso de Uso: Tutorial Passo a Passo](https://gitmind.com/pt/fazer-diagrama-de-caso-uso.html/)
-> - [Lucidchart](https://www.lucidchart.com/)
-> - [Astah](https://astah.net/)
-> - [Diagrams](https://app.diagrams.net/)
+| UC-18 | Gerenciar instituições parceiras | Administrador, Auxiliar | Mantém a lista de contatos de instituições parceiras por área de atuação e informações importantes | RF-017 |
+| UC-19 | Consultar dashboard | Todos | Visualiza lembretes da semana, totais por sala e novos cadastros. | RF-018 |
+| UC-20 | Buscar por palavra-chave | Todos | Localiza gatos e registros a partir de termo digitado. | RF-019 |
+| UC-21 | Exportar relatório | Administrador | Gera em tela, PDF ou Excel os relatórios de ficha, prescrições, vacinas, vermífugos e castrações. | RF-020 |
+| UC-22 | Sincronizar dados offline | Serviço de Sincronização | Envia à API a fila de operações registradas sem conexão e confirma a gravação. | RF-021 |
 
 ## Modelo da Base de Dados
 
 Banco de dados relacional (PostgreSQL, conforme definido em [Arquitetura e Tecnologias](#arquitetura-e-tecnologias)). O modelo cobre o escopo priorizado na Fase 1 do projeto: prontuário clínico, controle de medicações (prescrição, administração e estoque) e alocação dos animais por sala.
 
-### MER (Modelo Entidade-Relacionamento)
-
 ```mermaid
 erDiagram
-    USER ||--o{ ROOM_ALLOCATION : records
-    ROOM ||--o{ ROOM_ALLOCATION : receives
-    ANIMAL ||--o{ ROOM_ALLOCATION : "has history"
-    ROOM ||--o{ ANIMAL : "currently houses"
-
-    ANIMAL ||--o{ APPOINTMENT : has
-    USER ||--o{ APPOINTMENT : attends
-    USER ||--o{ APPOINTMENT : logs
-    PARTNER_CLINIC ||--o{ APPOINTMENT : refers
-
-    APPOINTMENT ||--o{ PRESCRIPTION : generates
-    MEDICATION ||--o{ PRESCRIPTION : "is referenced in"
-    USER ||--o{ PRESCRIPTION : prescribes
-
-    PRESCRIPTION ||--o{ MEDICATION_ADMINISTRATION : originates
-    USER ||--o{ MEDICATION_ADMINISTRATION : administers
-    MEDICATION_BATCH ||--o{ MEDICATION_ADMINISTRATION : "is consumed in"
-
-    MEDICATION ||--o{ MEDICATION_BATCH : has
-    USER ||--o{ MEDICATION_BATCH : registers
-    PARTNER_CLINIC ||--o{ USER : employs
-
-    USER {
-        int id PK
-        string name
-        string email
-        string password_hash
-        string role
-        string crmv
-        int partner_clinic_id FK
-        boolean active
-        datetime created_at
-    }
-
-    PARTNER_CLINIC {
-        int id PK
-        string name
-        string phone
-        string address
-    }
-
-    ROOM {
-        int id PK
-        string code
-        string health_condition
-        string age_group
-        string notes
-    }
-
-    ANIMAL {
-        int id PK
-        string name
-        string sex
-        date estimated_birth_date
-        string health_condition
-        date rescue_date
-        string status
-        int current_room_id FK
-    }
-
-    ROOM_ALLOCATION {
-        int id PK
-        int animal_id FK
-        int room_id FK
-        datetime entry_date
-        datetime exit_date
-        string reason
-        int recorded_by FK
-    }
-
-    APPOINTMENT {
-        int id PK
-        int animal_id FK
-        int veterinarian_id FK
-        int partner_clinic_id FK
-        datetime date_time
-        string type
-        string description
-        int recorded_by FK
-        datetime created_at
-    }
-
-    PRESCRIPTION {
-        int id PK
-        int appointment_id FK
-        int medication_id FK
-        string dosage
-        string administration_route
-        string frequency
-        date start_date
-        date expected_end_date
-        string status
-        string suspension_reason
-        int prescribed_by FK
-    }
-
-    MEDICATION_ADMINISTRATION {
-        int id PK
-        int prescription_id FK
-        int medication_batch_id FK
-        datetime date_time
-        int administered_by FK
-        string notes
-    }
-
-    MEDICATION {
-        int id PK
-        string name
-        string active_ingredient
-        string unit_of_measure
-    }
-
-    MEDICATION_BATCH {
-        int id PK
-        int medication_id FK
-        decimal initial_quantity
-        decimal current_quantity
-        date entry_date
-        date expiration_date
-        string source
-        int recorded_by FK
-    }
+    USUARIO ||--o{ GATO : cadastra
+    USUARIO ||--o{ PRONTUARIO : registra
+    USUARIO ||--o{ ADMINISTRACAO_DOSE : aplica
+    SALA ||--o{ GATO : aloja
+    GATO ||--o{ HISTORICO_SALA : possui
+    SALA ||--o{ HISTORICO_SALA : recebe
+    GATO ||--o{ PRONTUARIO : possui
+    GATO ||--o{ VACINA : recebe
+    GATO ||--o{ ADOCAO : origina
+    GATO ||--o{ FOTO : possui
+    PRONTUARIO ||--o{ MEDICACAO_PRESCRITA : contem
+    PRONTUARIO ||--o{ ANEXO : possui
+    MEDICACAO_PRESCRITA ||--o{ ADMINISTRACAO_DOSE : gera
+    MEDICAMENTO ||--o{ MEDICACAO_PRESCRITA : referencia
+    MEDICAMENTO ||--o{ ESTOQUE_MEDICAMENTO : possui
+    ADOCAO ||--o| DEVOLUCAO : pode_ter
+    ADOTANTE ||--o{ ADOCAO : realiza
+    VOLUNTARIO }o--o| USUARIO : pode_ser
+    INSTITUICAO_PARCEIRA }o--o| USUARIO : pode_ser
 ```
 
 **Decisões de modelagem:**
@@ -340,4 +228,238 @@ erDiagram
 
 ### Projeto Físico da Base de Dados
 
-_A detalhar em etapa seguinte: estrutura definitiva das tabelas, tipos de dados exatos, índices e constraints, a partir do MER acima._
+**usuario**
+
+| Coluna | Tipo | Restrições |
+|---|---|---|
+| id_usuario | INT | PK, AUTO_INCREMENT |
+| nome_completo | VARCHAR(150) | NOT NULL |
+| email | VARCHAR(150) | NOT NULL, UNIQUE |
+| senha_hash | VARCHAR(255) | NOT NULL |
+| telefone | VARCHAR(20) | |
+| foto_url | VARCHAR(500) | |
+| tipo_acesso | ENUM('ADMINISTRADOR','VETERINARIO','AUXILIAR','VISUALIZADOR') | NOT NULL |
+| crmv | VARCHAR(20) | Obrigatório quando tipo_acesso = VETERINARIO |
+| uf_crmv | CHAR(2) | |
+| data_aceite_termos | DATETIME | |
+| ativo | BOOLEAN | NOT NULL, DEFAULT TRUE |
+| data_criacao | DATETIME | NOT NULL |
+
+**voluntario**
+
+| Coluna | Tipo | Restrições |
+|---|---|---|
+| id_voluntario | INT | PK, AUTO_INCREMENT |
+| id_usuario | INT | FK → usuario(id_usuario), NULL |
+| nome_completo | VARCHAR(150) | NOT NULL |
+| telefone | VARCHAR(20) | |
+| email | VARCHAR(150) | |
+| profissao | VARCHAR(100) | |
+| area_atuacao | VARCHAR(100) | |
+| disponibilidade | VARCHAR(200) | |
+| precisa_carona | BOOLEAN | DEFAULT FALSE |
+| observacoes | TEXT | |
+| ativo | BOOLEAN | NOT NULL, DEFAULT TRUE |
+
+**instituicao_parceira**
+
+| Coluna | Tipo | Restrições |
+|---|---|---|
+| id_instituicao | INT | PK, AUTO_INCREMENT |
+| nome_instituicao | VARCHAR(150) | NOT NULL |
+| nome_contato | VARCHAR(150) | NOT NULL |
+| telefone_contato | VARCHAR(20) | |
+| email_contato | VARCHAR(150) | |
+| area | VARCHAR(100) | NOT NULL |
+| informacoes_importantes | TEXT | |
+
+**sala**
+
+| Coluna | Tipo | Restrições |
+|---|---|---|
+| id_sala | INT | PK, AUTO_INCREMENT |
+| titulo | VARCHAR(100) | NOT NULL |
+| descricao | TEXT | |
+| foto_capa_url | VARCHAR(500) | |
+| capacidade_maxima | INT | |
+| ativa | BOOLEAN | NOT NULL, DEFAULT TRUE |
+
+**gato**
+
+| Coluna | Tipo | Restrições |
+|---|---|---|
+| id_gato | INT | PK, AUTO_INCREMENT |
+| nome | VARCHAR(100) | NOT NULL |
+| id_sala | INT | FK → sala(id_sala) |
+| sexo | ENUM('MACHO','FEMEA') | |
+| data_nascimento_estimada | DATE | |
+| faixa_etaria | ENUM('FILHOTE','JOVEM','ADULTO','SENIOR') | Derivada da idade |
+| pelagem | VARCHAR(100) | |
+| caracteristicas | TEXT | |
+| status_geral | ENUM('EM_TRATAMENTO','DISPONIVEL_ADOCAO','EM_TRIAGEM','ADOTADO','LAR_TEMPORARIO','EM_CLINICA','OBITO','DESAPARECIDO') | NOT NULL |
+| status_saude | ENUM('SAUDAVEL','FIV','FELV','FIV_FELV','PIF') | NOT NULL |
+| data_exame_fiv_felv | DATE | |
+| gravidade | ENUM('BAIXA','MEDIA','ALTA','MUITO_ALTA') | |
+| status_castracao | ENUM('SIM','NAO','AGENDADA') | |
+| data_castracao | DATE | |
+| microchip | VARCHAR(50) | UNIQUE, NULL |
+| data_resgate | DATE | |
+| condicoes_encontrado | TEXT | |
+| padrinho_madrinha | VARCHAR(150) | |
+| id_usuario_criador | INT | FK → usuario(id_usuario) |
+| data_criacao | DATETIME | NOT NULL |
+
+**historico_sala**
+
+| Coluna | Tipo | Restrições |
+|---|---|---|
+| id_historico | INT | PK, AUTO_INCREMENT |
+| id_gato | INT | FK → gato(id_gato), NOT NULL |
+| id_sala | INT | FK → sala(id_sala), NOT NULL |
+| data_entrada | DATETIME | NOT NULL |
+| data_saida | DATETIME | |
+| id_usuario_registro | INT | FK → usuario(id_usuario) |
+
+**foto**
+
+| Coluna | Tipo | Restrições |
+|---|---|---|
+| id_foto | INT | PK, AUTO_INCREMENT |
+| id_gato | INT | FK → gato(id_gato), NOT NULL |
+| url | VARCHAR(500) | NOT NULL |
+| principal | BOOLEAN | DEFAULT FALSE |
+| data_upload | DATETIME | NOT NULL |
+
+**prontuario**
+
+| Coluna | Tipo | Restrições |
+|---|---|---|
+| id_prontuario | INT | PK, AUTO_INCREMENT |
+| id_gato | INT | FK → gato(id_gato), NOT NULL |
+| titulo_diagnostico | VARCHAR(200) | NOT NULL |
+| origem | ENUM('INTERNO','CLINICA_EXTERNA') | NOT NULL |
+| nome_veterinario | VARCHAR(150) | NOT NULL |
+| crmv_veterinario | VARCHAR(20) | NOT NULL |
+| uf_crmv | CHAR(2) | |
+| local_atendimento | VARCHAR(150) | |
+| data_atendimento | DATETIME | NOT NULL |
+| observacoes | TEXT | |
+| status | ENUM('EM_TRATAMENTO','PAUSADO','CONCLUIDO','CANCELADO') | NOT NULL |
+| id_usuario_registro | INT | FK → usuario(id_usuario), NOT NULL |
+| data_registro | DATETIME | NOT NULL |
+
+**anexo**
+
+| Coluna | Tipo | Restrições |
+|---|---|---|
+| id_anexo | INT | PK, AUTO_INCREMENT |
+| id_prontuario | INT | FK → prontuario(id_prontuario) |
+| id_adocao | INT | FK → adocao(id_adocao) |
+| tipo | ENUM('EXAME','RECEITA','TERMO','OUTRO') | NOT NULL |
+| url | VARCHAR(500) | NOT NULL |
+| data_upload | DATETIME | NOT NULL |
+
+**medicamento**
+
+| Coluna | Tipo | Restrições |
+|---|---|---|
+| id_medicamento | INT | PK, AUTO_INCREMENT |
+| nome | VARCHAR(150) | NOT NULL |
+| apresentacao | VARCHAR(100) | |
+| exige_refrigeracao | BOOLEAN | DEFAULT FALSE |
+| validade_apos_abertura_dias | INT | |
+
+**medicacao_prescrita**
+
+| Coluna | Tipo | Restrições |
+|---|---|---|
+| id_medicacao | INT | PK, AUTO_INCREMENT |
+| id_prontuario | INT | FK → prontuario(id_prontuario), NOT NULL |
+| id_medicamento | INT | FK → medicamento(id_medicamento), NOT NULL |
+| dosagem | VARCHAR(100) | NOT NULL |
+| via | ENUM('ORAL','SUBCUTANEA','TOPICA','OUTRA') | NOT NULL |
+| frequencia_diaria | INT | NOT NULL |
+| duracao_dias | INT | |
+| status | ENUM('ATIVA','SUSPENSA','CONCLUIDA') | NOT NULL |
+| motivo_suspensao | TEXT | Obrigatório quando status = SUSPENSA |
+| data_suspensao | DATETIME | |
+
+**administracao_dose**
+
+| Coluna | Tipo | Restrições |
+|---|---|---|
+| id_administracao | INT | PK, AUTO_INCREMENT |
+| id_medicacao | INT | FK → medicacao_prescrita(id_medicacao), NOT NULL |
+| id_usuario_aplicador | INT | FK → usuario(id_usuario), NOT NULL |
+| data_hora_aplicacao | DATETIME | NOT NULL |
+| observacoes | TEXT | |
+| origem_registro | ENUM('ONLINE','OFFLINE_SINCRONIZADO') | NOT NULL |
+
+**estoque_medicamento**
+
+| Coluna | Tipo | Restrições |
+|---|---|---|
+| id_estoque | INT | PK, AUTO_INCREMENT |
+| id_medicamento | INT | FK → medicamento(id_medicamento), NOT NULL |
+| status | ENUM('FALTANDO','COMPRADO','DOADO','CANCELADO') | NOT NULL |
+| quantidade | DECIMAL(10,2) | |
+| data_entrada | DATE | |
+| data_validade | DATE | |
+| data_abertura | DATE | |
+| nome_doador | VARCHAR(150) | |
+| id_usuario_registro | INT | FK → usuario(id_usuario) |
+
+**vacina**
+
+| Coluna | Tipo | Restrições |
+|---|---|---|
+| id_vacina | INT | PK, AUTO_INCREMENT |
+| id_gato | INT | FK → gato(id_gato), NOT NULL |
+| descricao | VARCHAR(150) | NOT NULL |
+| data_agendada | DATE | |
+| data_realizada | DATE | |
+| id_usuario_registro | INT | FK → usuario(id_usuario) |
+
+**adotante**
+
+| Coluna | Tipo | Restrições |
+|---|---|---|
+| id_adotante | INT | PK, AUTO_INCREMENT |
+| nome_completo | VARCHAR(150) | NOT NULL |
+| cpf | VARCHAR(14) | UNIQUE |
+| telefone | VARCHAR(20) | NOT NULL |
+| telefone_adicional | VARCHAR(20) | |
+| email | VARCHAR(150) | |
+| endereco | VARCHAR(255) | |
+
+**adocao**
+
+| Coluna | Tipo | Restrições |
+|---|---|---|
+| id_adocao | INT | PK, AUTO_INCREMENT |
+| id_gato | INT | FK → gato(id_gato), NOT NULL |
+| id_adotante | INT | FK → adotante(id_adotante), NOT NULL |
+| data_adocao | DATE | NOT NULL |
+| data_revisitacao | DATE | |
+| canal | ENUM('DIRETO_ONG','PARCEIRO') | NOT NULL |
+| observacoes_entrega | TEXT | |
+| ativa | BOOLEAN | NOT NULL, DEFAULT TRUE |
+| id_usuario_registro | INT | FK → usuario(id_usuario) |
+
+**devolucao**
+
+| Coluna | Tipo | Restrições |
+|---|---|---|
+| id_devolucao | INT | PK, AUTO_INCREMENT |
+| id_adocao | INT | FK → adocao(id_adocao), NOT NULL, UNIQUE |
+| data_devolucao | DATE | NOT NULL |
+| motivo | TEXT | NOT NULL |
+| id_usuario_registro | INT | FK → usuario(id_usuario) |
+
+### Regras de integridade e auditoria
+
+- **Exclusão lógica.** Nenhuma tabela permite exclusão física. Salas, usuários, voluntários e adoções possuem campo de situação; prontuários são cancelados por mudança de status (RNF-005).
+- **Rastreabilidade.** Todas as tabelas de registro clínico armazenam o usuário responsável e a data/hora do lançamento. Correções são feitas por novo registro, nunca por sobrescrita (RNF-004).
+- **Retenção.** Registros de prontuário não são removidos da base, atendendo à guarda mínima de cinco anos exigida pela Resolução CFMV nº 1.321/2020 (RNF-009).
+- **Sincronização.** O campo `origem_registro` em `administracao_dose` permite auditar quais lançamentos foram feitos offline e sincronizados posteriormente.
+- **Proteção de dados pessoais.** As tabelas `adotante` e `voluntario` contêm dados pessoais e têm acesso restrito por perfil, conforme a LGPD (RNF-006).
