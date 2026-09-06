@@ -78,13 +78,11 @@ Desenvolver um sistema web e mobile que centralize o prontuário clínico, o con
 | 07 | [Registro de Testes de Software](documentos/7-Registro%20de%20Testes%20de%20Software.md) |
 | 08 | [Referências](documentos/8-Referências.md) |
 
-📁 Atas de reunião, termos e relatórios de extensão estão na pasta [`documentos/proex`](documentos/proex).
+📁 Atas de reunião, termos e relatórios de extensão estão na pasta [`/atas`](https://github.com/ICEI-PUC-Minas-PMV-ADS/PMV-ADS-2026-2-E5-PROJ-EMPEXT-T4-G3/tree/feature/doc-especificacoes-do-projeto/atas).
 
 ---
 
 ## 🗓️ Cronograma
-
-![Cronograma de execução do projeto](img/documentacao/Cronograma.png)
 
 | Etapa | Período | Entregas principais |
 |---|---|---|
