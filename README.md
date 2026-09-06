@@ -164,6 +164,32 @@ O sistema trata dados pessoais de adotantes, voluntários e profissionais, além
 
 ---
 
+## Apresentação Inicial
+
+![Slide 1 - Apresentação Inicial](documentos/img/apresentacao-inicial/SLIDE_1_APRESENTACAO_INICIAL.png)
+
+![Slide 2 - Apresentação Inicial](documentos/img/apresentacao-inicial/SLIDE_2_APRESENTACAO_INICIAL.png)
+
+![Slide 3 - Apresentação Inicial](documentos/img/apresentacao-inicial/SLIDE_3_APRESENTACAO_INICIAL.png)
+
+![Slide 4 - Apresentação Inicial](documentos/img/apresentacao-inicial/SLIDE_4_APRESENTACAO_INICIAL.png)
+
+![Slide 5 - Apresentação Inicial](documentos/img/apresentacao-inicial/SLIDE_5_APRESENTACAO_INICIAL.png)
+
+![Slide 6 - Apresentação Inicial](documentos/img/apresentacao-inicial/SLIDE_6_APRESENTACAO_INICIAL.png)
+
+![Slide 7 - Apresentação Inicial](documentos/img/apresentacao-inicial/SLIDE_7_APRESENTACAO_INICIAL.png)
+
+![Slide 8 - Apresentação Inicial](documentos/img/apresentacao-inicial/SLIDE_8_APRESENTACAO_INICIAL.png)
+
+![Slide 9 - Apresentação Inicial](documentos/img/apresentacao-inicial/SLIDE_9_APRESENTACAO_INICIAL.png)
+
+![Slide 10 - Apresentação Inicial](documentos/img/apresentacao-inicial/SLIDE_10_APRESENTACAO_INICIAL.png)
+
+![Slide 11 - Apresentação Inicial](documentos/img/apresentacao-inicial/SLIDE_11_APRESENTACAO_INICIAL.png)
+
+---
+
 <p align="center">
 Feito com 💚 por estudantes de ADS da PUC Minas, para os gatos da ONG Amicats.
 </p>
