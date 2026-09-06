@@ -20,12 +20,12 @@ Este projeto substitui o papel por um **prontuário digital acessível pelo celu
 
 | Nome | Papel |
 |---|---|
-| Aliane Amaral | Product Owner — interlocução com a ONG e priorização dos requisitos |
-| Débora Vilaça | Scrum Master — cronograma e remoção de impedimentos |
-| Rian Leão | Desenvolvimento Back-end — API e banco de dados |
-| Wesley da Silva | Desenvolvimento Mobile — aplicação e captura de imagens |
-| Murilo Rezende | Desenvolvimento Web — painel e telas de consulta |
-| Nelson Sinis | Full Stack — autenticação, sincronização offline e integração |
+| Aliane Elias Amaral | Product Owner — interlocução com a ONG e priorização dos requisitos |
+| Déborah de Faria Vilaça | Scrum Master — cronograma e remoção de impedimentos |
+| Murilo Silva Rezende | Desenvolvimento Web — painel e telas de consulta |
+| Nelson Antônio Sinis Júnior | Full Stack — autenticação, sincronização offline e integração |
+| Railan da Silva Leão | Desenvolvimento Back-end — API e banco de dados |
+| Wesley da Silva Teixeira | Desenvolvimento Mobile — aplicação e captura de imagens |
 
 ## 🧑‍🏫 Orientação
 
@@ -39,7 +39,7 @@ Este projeto substitui o papel por um **prontuário digital acessível pelo celu
 
 Desenvolver um sistema web e mobile que centralize o prontuário clínico, o controle de medicações e a alocação dos animais por sala, garantindo rastreabilidade, acesso simultâneo e consulta remota em tempo real, com tolerância a conectividade intermitente.
 
-### Problemas que a solução ataca
+### Problemas que a solução ataca:
 
 | Problema atual | Como o sistema resolve |
 |---|---|
