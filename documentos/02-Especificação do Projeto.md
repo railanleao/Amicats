@@ -65,8 +65,6 @@ flowchart TB
 
 ## Project Model Canvas
 
-Link teste
-
 | Bloco | Conteúdo |
 |---|---|
 | **Justificativas** | Registro clínico em papel que se perde; ausência de continuidade entre veterinários da escala alternada; falta de controle de medicações e estoque; deslocamentos e compras duplicadas; exigência de guarda de prontuário pela Resolução CFMV nº 1.321/2020. |
