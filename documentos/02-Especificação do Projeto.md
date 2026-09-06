@@ -37,13 +37,7 @@ A solução adota uma arquitetura **cliente-servidor em três camadas**, com doi
 
 **Diagrama de componentes:**
 
-![Diagrama de Componentes](img/documentacao/DiagramaComponentes.png)
-
 ## Project Model Canvas
-
-Deve ser desenvolvido a partir do microfundamento: Empreendedorismo e inovação.
-
-![Project Model Canvas](img/documentacao/ProjectModelCanvas.png)
 
 | Bloco | Conteúdo |
 |---|---|
@@ -134,8 +128,6 @@ O projeto está restrito pelos itens apresentados na tabela a seguir.
 
 ## Diagrama de Caso de Uso
 
-![Diagrama de Casos de Uso](img/documentacao/DiagramaCasosDeUso.png)
-
 ### Atores
 
 | Ator | Descrição |
@@ -178,8 +170,6 @@ O projeto está restrito pelos itens apresentados na tabela a seguir.
 O projeto adota **banco de dados relacional**, escolha justificada pela natureza fortemente referencial dos dados (todo registro clínico pertence a um gato, toda dose pertence a uma prescrição) e pela necessidade de integridade transacional na sincronização.
 
 ### Modelo Entidade-Relacionamento (MER)
-
-![Modelo Entidade-Relacionamento](img/documentacao/MER.png)
 
 ```mermaid
 erDiagram
