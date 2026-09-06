@@ -65,6 +65,8 @@ flowchart TB
 
 ## Project Model Canvas
 
+![Project Model Canvas](https://github.com/ICEI-PUC-Minas-PMV-ADS/PMV-ADS-2026-2-E5-PROJ-EMPEXT-T4-G3/blob/feature/doc-especificacoes-do-projeto/documentos/img/Project%20Model%20Canvas%20%E2%80%94%20%20ONG%20de%20Resgate%20de%20Gatos.png)
+
 | Bloco | Conteúdo |
 |---|---|
 | **Justificativas** | Registro clínico em papel que se perde; ausência de continuidade entre veterinários da escala alternada; falta de controle de medicações e estoque; deslocamentos e compras duplicadas; exigência de guarda de prontuário pela Resolução CFMV nº 1.321/2020. |
