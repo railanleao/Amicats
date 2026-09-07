@@ -1,0 +1,13 @@
+{
+  "name": "pmv-ads-2026-2-e5-proj-empext-t4-g3",
+  "private": true,
+  "description": "Sistema de gestão da ONG Amicats — configuração de lint/format compartilhada e git hooks do monorepo.",
+  "scripts": {
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^17.5.0",
+    "prettier": "^3.9.6"
+  }
+}
