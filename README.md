@@ -6,6 +6,8 @@
 
 `EIXO 5 · SEMESTRE 2026/2`
 
+<img src="documentos/img/logomarca-amicats.png" alt="Logomarca Amicats" width="150">
+
 Sistema de gestão para a **ONG Amicats**, organização de proteção animal que mantém em uma chácara mais de 400 gatos resgatados, distribuídos em oito salas separadas por condição de saúde, faixa etária e gravidade clínica.
 
 Hoje todo o controle clínico da ONG é feito à caneta, em fichas de papel afixadas do lado de fora de cada sala. Esse modelo impede a consulta remota e simultânea, dificulta a comunicação entre os veterinários da escala alternada e não oferece qualquer rastreabilidade de tratamentos anteriores. Como a chácara fica distante da cidade e não possui internet fixa, cada deslocamento desnecessário representa custo de tempo, combustível e atraso no atendimento de animais em risco.
