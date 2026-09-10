@@ -6,6 +6,8 @@
 
 `EIXO 5 · SEMESTRE 2026/2`
 
+<img src="documentos/img/logomarca-amicats.png" alt="Logomarca Amicats" width="150">
+
 Sistema de gestão para a **ONG Amicats**, organização de proteção animal que mantém em uma chácara mais de 400 gatos resgatados, distribuídos em oito salas separadas por condição de saúde, faixa etária e gravidade clínica.
 
 Hoje todo o controle clínico da ONG é feito à caneta, em fichas de papel afixadas do lado de fora de cada sala. Esse modelo impede a consulta remota e simultânea, dificulta a comunicação entre os veterinários da escala alternada e não oferece qualquer rastreabilidade de tratamentos anteriores. Como a chácara fica distante da cidade e não possui internet fixa, cada deslocamento desnecessário representa custo de tempo, combustível e atraso no atendimento de animais em risco.
@@ -109,6 +111,29 @@ Desenvolver um sistema web e mobile que centralize o prontuário clínico, o con
 | Qualidade de código | ESLint · Prettier · Spotless · Husky + lint-staged |
 | Versionamento | Git · GitHub |
 | Gestão de tarefas | GitHub Projects |
+
+---
+
+## 📋 Gestão de Tarefas e Fluxo de Trabalho
+
+O andamento das sprints é administrado pelo **GitHub Projects**, onde as tarefas (issues) são organizadas, priorizadas e movidas conforme o progresso:
+
+🔗 [Acessar o quadro do projeto](https://github.com/orgs/ICEI-PUC-Minas-PMV-ADS/projects/3074)
+
+### Fluxo de branches — Git Flow
+
+O versionamento segue o modelo **Git Flow**, com branches permanentes (`main` e `develop`) e branches de apoio criadas a partir de `develop` para cada tarefa, seguindo o padrão `feature/nome-da-tarefa`, além de `release/*` e `hotfix/*` para preparação de versões e correções urgentes.
+
+### Padrão de labels das tarefas
+
+Cada issue recebe 4 categorias de label, para facilitar filtragem e priorização no board:
+
+| Categoria | Exemplos | O que indica |
+|---|---|---|
+| 🧩 Complexidade | `complexidade: baixa` · `média` · `alta` | Dificuldade técnica estimada da tarefa |
+| ⏱️ Esforço | `esforço: baixo` · `médio` · `alto` | Tempo/trabalho estimado para concluir |
+| 🗓️ Sprint | `sprint 1` · `sprint 2` · `sprint 3` · `sprint 4` | A qual sprint do cronograma a tarefa pertence |
+| 🏷️ Tema | `feature` · `bug` · `documentation` | Natureza da tarefa |
 
 ---
 
