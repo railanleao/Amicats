@@ -21,7 +21,7 @@ A arquitetura foi definida priorizando simplicidade e sustentabilidade de manute
 - **Web App (Next.js)** — utilizado pela administração/coordenação e pelas clínicas parceiras, sempre a partir de locais com internet estável (fora do abrigo). Por isso não precisa de suporte offline, apenas de conexão direta e online com a API.
 - **Sincronização** — cada dispositivo mobile mantém uma fila local de alterações pendentes; ao reconectar, envia essas alterações ao backend e recebe o que mudou desde a última sincronização. Cada registro carrega autor e timestamp, e a resolução de conflitos é feita por **acréscimo, nunca por sobrescrita**: um ajuste posterior gera um novo lançamento em vez de substituir o registro existente, preservando o histórico auditável exigido para o prontuário e atendendo ao RNF-004 (nenhuma edição silenciosa).
 
-**Diagrama de componentes:**
+### **Diagrama de componentes:**
 ```mermaid
 flowchart TB
     subgraph OFFLINE["🐾 Abrigo — sem internet fixa, sinal móvel instável"]
@@ -49,7 +49,9 @@ flowchart TB
     APP -.->|"Sincronização quando há conexão"| API
 ```
 
-**Estratégia de sincronização.** Como a chácara não dispõe de conexão estável, o cliente mobile mantém uma **base local** e uma **fila de operações pendentes**. Cada registro criado offline recebe identificador local e carimbo de data/hora do dispositivo; ao detectar conectividade, a aplicação envia a fila à API, que aplica as operações e devolve os identificadores definitivos. Um botão de envio manual permite forçar a sincronização. Conflitos são resolvidos por acréscimo, e não por sobrescrita — coerente com a regra de que nenhum registro clínico pode ser alterado silenciosamente.
+### **Estratégia de sincronização:**
+
+Como a chácara não dispõe de conexão estável, o cliente mobile mantém uma **base local** e uma **fila de operações pendentes**. Cada registro criado offline recebe identificador local e carimbo de data/hora do dispositivo; ao detectar conectividade, a aplicação envia a fila à API, que aplica as operações e devolve os identificadores definitivos. Um botão de envio manual permite forçar a sincronização. Conflitos são resolvidos por acréscimo, e não por sobrescrita — coerente com a regra de que nenhum registro clínico pode ser alterado silenciosamente.
 
 > 🚧 **Pendente de definição pela equipe:** linguagens, frameworks e provedores de nuvem. A escolha deve observar a restrição orçamentária da organização, privilegiando camadas gratuitas e tecnologias de baixo custo de manutenção.
 
