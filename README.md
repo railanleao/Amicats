@@ -114,6 +114,29 @@ Desenvolver um sistema web e mobile que centralize o prontuário clínico, o con
 
 ---
 
+## 📋 Gestão de Tarefas e Fluxo de Trabalho
+
+O andamento das sprints é administrado pelo **GitHub Projects**, onde as tarefas (issues) são organizadas, priorizadas e movidas conforme o progresso:
+
+🔗 [Acessar o quadro do projeto](https://github.com/orgs/ICEI-PUC-Minas-PMV-ADS/projects/3074)
+
+### Fluxo de branches — Git Flow
+
+O versionamento segue o modelo **Git Flow**, com branches permanentes (`main` e `develop`) e branches de apoio criadas a partir de `develop` para cada tarefa, seguindo o padrão `feature/nome-da-tarefa`, além de `release/*` e `hotfix/*` para preparação de versões e correções urgentes.
+
+### Padrão de labels das tarefas
+
+Cada issue recebe 4 categorias de label, para facilitar filtragem e priorização no board:
+
+| Categoria | Exemplos | O que indica |
+|---|---|---|
+| 🧩 Complexidade | `complexidade: baixa` · `média` · `alta` | Dificuldade técnica estimada da tarefa |
+| ⏱️ Esforço | `esforço: baixo` · `médio` · `alto` | Tempo/trabalho estimado para concluir |
+| 🗓️ Sprint | `sprint 1` · `sprint 2` · `sprint 3` · `sprint 4` | A qual sprint do cronograma a tarefa pertence |
+| 🏷️ Tema | `feature` · `bug` · `documentation` | Natureza da tarefa |
+
+---
+
 ## 📂 Estrutura do repositório
 
 ```
