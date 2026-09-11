@@ -67,7 +67,7 @@ Como a chácara não dispõe de conexão estável, o cliente mobile mantém uma 
 
 ## Project Model Canvas
 
-![Project Model Canvas](https://github.com/ICEI-PUC-Minas-PMV-ADS/PMV-ADS-2026-2-E5-PROJ-EMPEXT-T4-G3/blob/feature/doc-especificacoes-do-projeto/documentos/img/Project%20Model%20Canvas%20%E2%80%94%20%20ONG%20de%20Resgate%20de%20Gatos.png)
+![Project Model Canvas](https://github.com/ICEI-PUC-Minas-PMV-ADS/PMV-ADS-2026-2-E5-PROJ-EMPEXT-T4-G3/blob/feature/task-016-doc-adicionar-estimativas-custos-project-model-canvas/documentos/img/Project%20Model%20Canvas.png)
 
 | Bloco | Conteúdo |
 |---|---|
@@ -82,6 +82,8 @@ Como a chácara não dispõe de conexão estável, o cliente mobile mantém uma 
 | **Restrições** | Ver seção Restrições. |
 | **Riscos** | Baixa aderência da equipe do abrigo ao registro digital; perda de dados antes da sincronização; rotatividade de voluntários; prazo letivo fixo. |
 | **Entregas** | Documentação e requisitos (Etapa 1); protótipo e cadastros base (Etapa 2); núcleo clínico (Etapa 3); adoção e gestão (Etapa 4); homologação e implantação (Etapa 5). |
+| **Custos** | Baixo custo operacional; desenvolvimento acadêmico sem contratação; ferramentas e hospedagem gratuitas ou de baixo custo.|
+
 
 ## Requisitos
 
