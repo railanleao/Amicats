@@ -67,7 +67,7 @@ Como a chácara não dispõe de conexão estável, o cliente mobile mantém uma 
 
 ## Project Model Canvas
 
-![Project Model Canvas](https://github.com/ICEI-PUC-Minas-PMV-ADS/PMV-ADS-2026-2-E5-PROJ-EMPEXT-T4-G3/blob/feature/doc-especificacoes-do-projeto/documentos/img/Project%20Model%20Canvas%20%E2%80%94%20%20ONG%20de%20Resgate%20de%20Gatos.png)
+![Project Model Canvas](https://github.com/ICEI-PUC-Minas-PMV-ADS/PMV-ADS-2026-2-E5-PROJ-EMPEXT-T4-G3/blob/feature/task-016-doc-adicionar-estimativas-custos-project-model-canvas/documentos/img/Project%20Model%20Canvas.png)
 
 | Bloco | Conteúdo |
 |---|---|
@@ -82,6 +82,7 @@ Como a chácara não dispõe de conexão estável, o cliente mobile mantém uma 
 | **Restrições** | Ver seção Restrições. |
 | **Riscos** | Baixa aderência da equipe do abrigo ao registro digital; perda de dados antes da sincronização; rotatividade de voluntários; prazo letivo fixo. |
 | **Entregas** | Documentação e requisitos (Etapa 1); autenticação e gestão de usuários (Etapa 2); cadastros base e núcleo clínico (Etapa 3); adoção e gestão (Etapa 4); homologação e implantação (Etapa 5). |
+| **Custos** | Baixo custo operacional; desenvolvimento acadêmico sem contratação; ferramentas e hospedagem gratuitas ou de baixo custo.|
 
 ## Requisitos
 
@@ -101,7 +102,7 @@ A **complexidade** foi estimada pela equipe considerando esforço de implementa�
 |ID    | Descrição do Requisito | Prioridade | Etapa | Responsável | Complexidade |
 |------|------------------------|:----:|:----:|:----:|:----:|
 |RF-001| Permitir autenticação de usuários por login e senha, gestão completa de usuários, gestão dos seus aceites de termos e recuperação de senha por e-mail ou redefinição pelo Administrador | ALTA | Etapa 2 | | Média |
-|RF-002| Cadastramento de perfis de acesso distintos (Administrador, Médico-Veterinário, Auxiliar e Visualizador) com permissões próprias | ALTA | Etapa 2 | | Alta |
+|RF-002| Cadastramento de perfis de acesso distintos (Administrador, Médico-Veterinário, Auxiliar e Visualizador) com permissões próprias | ALTA | Etapa 3 | | Alta |
 |RF-003| Permitir o cadastro do banco de contatos voluntários | MÉDIA | Etapa 4 | | Baixa |
 |RF-004| Permitir o cadastro e a edição de salas | ALTA | Etapa 3 | | Baixa |
 |RF-005| Permitir cadastro completo do gato, com a captura de foto pela câmera do dispositivo, o upload de múltiplas imagens por gato e a transferência do gato entre salas com registro de histórico | ALTA | Etapa 3 | | Média |
