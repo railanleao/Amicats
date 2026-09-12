@@ -50,6 +50,14 @@ E rode a aplicação a partir de `codigo-fonte/backend`:
 
 A API também sobe em `http://localhost:8080`.
 
+## Documentação da API (Swagger)
+
+Com o backend rodando, a documentação interativa da API fica disponível em:
+
+http://localhost:8080/swagger-ui/index.html
+
+Se encontra tratado para abertura automática no navegador ao rodar a API, tanto para Windows/Linux/Mac.
+
 ## Build e testes
 
 ```bash
