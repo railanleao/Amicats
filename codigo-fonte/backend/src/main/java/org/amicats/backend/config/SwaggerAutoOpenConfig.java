@@ -13,12 +13,15 @@ import org.springframework.stereotype.Component;
 public class SwaggerAutoOpenConfig implements ApplicationListener<ApplicationReadyEvent> {
     private static final Logger log = LoggerFactory.getLogger(SwaggerAutoOpenConfig.class);
 
+    @Value("${server.address:localhost}")
+    private String serverHost;
+
     @Value("${server.port:8080}")
     private String serverPort;
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {
-        String url = "http://localhost:" + serverPort + "/swagger-ui/index.html";
+        String url = "http://" + serverHost + ":" + serverPort + "/swagger-ui/index.html";
         String os = System.getProperty("os.name").toLowerCase();
         try {
             if (os.contains("win")) {
