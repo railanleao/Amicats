@@ -172,6 +172,14 @@ cd <repositorio>
 # ...
 ```
 
+## 📘 Documentação da API (Swagger)
+
+Com o backend rodando, a documentação interativa da API fica disponível em:
+
+http://localhost:8080/swagger-ui/index.html
+
+Se encontra tratado para abertura automática no navegador ao rodar a API, tanto para Windows/Linux/Mac.
+
 ---
 
 ## 🔒 Privacidade e conformidade
