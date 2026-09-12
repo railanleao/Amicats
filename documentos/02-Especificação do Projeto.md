@@ -81,7 +81,7 @@ Como a chácara não dispõe de conexão estável, o cliente mobile mantém uma 
 | **Premissas** | Disponibilidade da ONG para validação periódica; uso de celulares pessoais dos voluntários; existência de ao menos janelas intermitentes de conexão. |
 | **Restrições** | Ver seção Restrições. |
 | **Riscos** | Baixa aderência da equipe do abrigo ao registro digital; perda de dados antes da sincronização; rotatividade de voluntários; prazo letivo fixo. |
-| **Entregas** | Documentação e requisitos (Etapa 1); protótipo e cadastros base (Etapa 2); núcleo clínico (Etapa 3); adoção e gestão (Etapa 4); homologação e implantação (Etapa 5). |
+| **Entregas** | Documentação e requisitos (Etapa 1); autenticação e gestão de usuários (Etapa 2); cadastros base e núcleo clínico (Etapa 3); adoção e gestão (Etapa 4); homologação e implantação (Etapa 5). |
 | **Custos** | Baixo custo operacional; desenvolvimento acadêmico sem contratação; ferramentas e hospedagem gratuitas ou de baixo custo.|
 
 ## Requisitos
@@ -91,8 +91,8 @@ As tabelas que se seguem apresentam os requisitos funcionais e não funcionais q
 **Técnica de priorização aplicada — MoSCoW.** Os requisitos foram classificados em quatro categorias a partir das dores relatadas pela organização e da dependência técnica entre funcionalidades:
 
 - **Must Have (ALTA)** — sem estes o sistema não resolve o problema que motivou o projeto. Reúne autenticação e perfis, cadastros base, prontuário, administração de medicamentos e operação offline. Corresponde ao que a ONG identificou como mais urgente: substituir o papel na parede e viabilizar o registro dentro do abrigo, onde não há conexão.
-- **Should Have (MÉDIA)** — agregam valor relevante, mas o sistema entra em operação sem eles. Reúne adoção, devolução, vacinas, banco de voluntários, controle de disponibilidade de medicamentos e dashboard.
-- **Could Have (BAIXA)** — desejáveis, implementados apenas se houver folga de cronograma. Reúne exportação de relatórios e aceite de termos.
+- **Should Have (MÉDIA)** — agregam valor relevante, mas o sistema entra em operação sem eles. Reúne adoção, devolução, vacinas, banco de voluntários, registro de atendimento em clínica externa, controle de disponibilidade de medicamentos, instituições parceiras e dashboard.
+- **Could Have (BAIXA)** — desejáveis, implementados apenas se houver folga de cronograma. Reúne exportação de relatórios.
 - **Won't Have** — explicitamente fora do escopo desta versão, registrado na tabela de Restrições: assistente por IA ou chat para consulta de dados, acesso direto de profissionais externos e controle de estoque de ração e insumos.
 
 A **complexidade** foi estimada pela equipe considerando esforço de implementação, volume de regras de negócio e dependência de infraestrutura externa.
@@ -101,27 +101,22 @@ A **complexidade** foi estimada pela equipe considerando esforço de implementa�
 
 |ID    | Descrição do Requisito | Prioridade | Etapa | Responsável | Complexidade |
 |------|------------------------|:----:|:----:|:----:|:----:|
-|RF-001| Permitir autenticação de usuários por login e senha, com recuperação por e-mail ou redefinição pelo Administrador | ALTA | Etapa 2 | | Média |
-|RF-002| Disponibilizar perfis de acesso distintos (Administrador, Médico-Veterinário, Auxiliar e Visualizador) com permissões próprias | ALTA | Etapa 2 | | Alta |
-|RF-003| Exibir aceite de termos de uso no primeiro login | BAIXA | Etapa 4 | | Baixa |
-|RF-004| Permitir o cadastro e a edição de usuários do sistema | MÉDIA | Etapa 2 | | Baixa |
-|RF-005| Permitir o cadastro do banco de contatos voluntários | MÉDIA | Etapa 4 | | Baixa |
-|RF-006| Permitir o cadastro e a edição de salas | ALTA | Etapa 2 | | Baixa |
-|RF-007| Permitir o cadastro completo do gato | ALTA | Etapa 2 | | Alta |
-|RF-008| Permitir a captura de foto pela câmera do dispositivo e o upload de múltiplas imagens por gato | ALTA | Etapa 2 | | Média |
-|RF-009| Permitir o cadastro de prescrição médica no prontuário | ALTA | Etapa 3 | | Alta |
-|RF-010| Exibir o histórico clínico completo do gato em ordem cronológica | ALTA | Etapa 3 | | Média |
-|RF-011| Permitir o registro de atendimento realizado em clínica externa | MÉDIA | Etapa 3 | | Média |
-|RF-012| Permitir a marcação da medicamentos e doses administradas | ALTA | Etapa 3 | | Alta |
-|RF-013| Permitir o controle de estoque e disponibilidade de medicamentos | MÉDIA | Etapa 3 | | Média |
-|RF-014| Permitir o agendamento e o registro de vacinas, vermífugos e castrações | MÉDIA | Etapa 4 | | Baixa |
-|RF-015| Permitir o registro de adoção | MÉDIA | Etapa 4 | | Média |
-|RF-016| Permitir o registro de devolução | MÉDIA | Etapa 4 | | Média |
-|RF-017| Permitir o registro de instituições parceiras | MÉDIA | Etapa 4 | | Baixa |
-|RF-018| Exibir dashboard na página inicial com atalhos estratégicos | MÉDIA | Etapa 4 | | Média |
-|RF-019| Disponibilizar campo de busca por palavra-chave em todas as páginas de listagens | ALTA | Etapa 3 | | Baixa |
-|RF-020| Permitir a exportação de relatórios em tela, PDF ou Excel | BAIXA | Etapa 4 | | Média |
-|RF-021| Manter os dados em edição salvos localmente e sincronizá-los com o servidor de forma automática ou manual | ALTA | Etapa 3 | | Alta |
+|RF-001| Permitir autenticação de usuários por login e senha, gestão completa de usuários, gestão dos seus aceites de termos e recuperação de senha por e-mail ou redefinição pelo Administrador | ALTA | Etapa 2 | | Média |
+|RF-002| Cadastramento de perfis de acesso distintos (Administrador, Médico-Veterinário, Auxiliar e Visualizador) com permissões próprias | ALTA | Etapa 3 | | Alta |
+|RF-003| Permitir o cadastro do banco de contatos voluntários | MÉDIA | Etapa 4 | | Baixa |
+|RF-004| Permitir o cadastro e a edição de salas | ALTA | Etapa 3 | | Baixa |
+|RF-005| Permitir cadastro completo do gato, com a captura de foto pela câmera do dispositivo, o upload de múltiplas imagens por gato e a transferência do gato entre salas com registro de histórico | ALTA | Etapa 3 | | Média |
+|RF-006| Permitir o cadastro de prescrição médica no prontuário | ALTA | Etapa 3 | | Alta |
+|RF-007| Exibir o histórico clínico completo do gato em ordem cronológica | ALTA | Etapa 3 | | Média |
+|RF-008| Permitir o registro de atendimento realizado em clínica externa | MÉDIA | Etapa 3 | | Média |
+|RF-009| Permitir a marcação da medicamentos e doses administradas | ALTA | Etapa 3 | | Alta |
+|RF-010| Permitir o controle de estoque e disponibilidade de medicamentos | MÉDIA | Etapa 3 | | Média |
+|RF-011| Permitir o agendamento e o registro de vacinas, vermífugos e castrações | MÉDIA | Etapa 4 | | Baixa |
+|RF-012| Permitir o registro e gestão do fluxo de adoção | MÉDIA | Etapa 4 | | Média |
+|RF-013| Permitir o registro de instituições parceiras | MÉDIA | Etapa 4 | | Baixa |
+|RF-014| Exibir dashboard na página inicial com atalhos estratégicos | MÉDIA | Etapa 4 | | Média |
+|RF-015| Permitir a exportação de relatórios | BAIXA | Etapa 4 | | Média |
+|RF-016| Permitir o registro de dados no dispositivo mesmo sem conexão, sincronizando-os com o servidor automaticamente ou por acionamento manual do usuário | ALTA | Etapa 3 | | Alta |
 
 ### Requisitos Não Funcionais
 
@@ -174,27 +169,26 @@ O projeto está restrito pelos itens apresentados na tabela a seguir.
 | ID | Caso de Uso | Ator Principal | Descrição Sucinta | RF |
 |---|---|---|---|---|
 | UC-01 | Autenticar no sistema | Todos | Usuário informa credenciais e obtém acesso conforme o perfil atribuído. | RF-001, RF-002 |
-| UC-02 | Aceitar termos de uso | Todos | No primeiro acesso, o usuário registra o aceite, com data e hora. *«extends» UC-01* | RF-003 |
-| UC-03 | Gerenciar usuários | Administrador | Cadastra, edita e desativa usuários, definindo o tipo de acesso. | RF-004 |
-| UC-04 | Gerenciar voluntários | Administrador | Mantém a lista de contatos voluntários por área de atuação e situação. | RF-005 |
-| UC-05 | Gerenciar salas | Administrador | Cria, edita e desativa salas do abrigo pela interface. | RF-006 |
-| UC-06 | Gerenciar cadastro do gato | Administrador, Médico-Veterinário | Cadastra e edita a ficha do felino, incluindo status de saúde e características. | RF-007 |
-| UC-07 | Registrar fotografia do animal | Administrador, Médico-Veterinário, Auxiliar | Captura pela câmera ou envia imagens vinculadas à ficha do gato. *«extends» UC-06* | RF-008 |
-| UC-08 | Transferir gato de sala | Administrador, Auxiliar | Altera a sala atual do animal, gerando registro no histórico de transferências. | RF-007 |
-| UC-09 | Registrar prescrição | Médico-Veterinário | Cadastra diagnóstico e medicação prescrita, com CRMV, dosagem, via e duração. | RF-009 |
-| UC-10 | Consultar histórico clínico | Todos | Visualiza em ordem cronológica os registros do prontuário do animal. | RF-010 |
-| UC-11 | Anexar prontuário de clínica externa | Administrador | Registra o atendimento realizado em clínica parceira e anexa o documento recebido. | RF-011 |
-| UC-12 | Registrar administração de dose | Médico-Veterinário, Auxiliar | Marca a dose aplicada, gravando responsável, data e hora. *«include» UC-09* | RF-012 |
-| UC-13 | Suspender medicação | Médico-Veterinário | Interrompe um tratamento em curso informando obrigatoriamente o motivo. *«extends» UC-09* | RF-012 |
-| UC-14 | Controlar disponibilidade de medicamentos | Administrador, Auxiliar | Atualiza e consulta a situação dos medicamentos, com doador e validade. | RF-013 |
-| UC-15 | Gerenciar vacinas, vermífugos e castrações | Administrador, Médico-Veterinário | Agenda e registra a realização de vacinas, vermífugos e castrações. | RF-014 |
-| UC-16 | Registrar adoção | Administrador | Cadastra a adoção com dados do adotante e anexo do termo de responsabilidade. *«include» UC-06* | RF-015 |
-| UC-17 | Registrar devolução | Administrador | Cadastra a devolução com motivo e anexos, retornando o animal ao registro ativo. *«extends» UC-16* | RF-016 |
-| UC-18 | Gerenciar instituições parceiras | Administrador, Auxiliar | Mantém a lista de contatos de instituições parceiras por área de atuação e informações importantes | RF-017 |
-| UC-19 | Consultar dashboard | Todos | Visualiza lembretes da semana, totais por sala e novos cadastros. | RF-018 |
-| UC-20 | Buscar por palavra-chave | Todos | Localiza gatos e registros a partir de termo digitado. | RF-019 |
-| UC-21 | Exportar relatório | Administrador | Gera em tela, PDF ou Excel os relatórios de ficha, prescrições, vacinas, vermífugos e castrações. | RF-020 |
-| UC-22 | Sincronizar dados offline | Serviço de Sincronização | Envia à API a fila de operações registradas sem conexão e confirma a gravação. | RF-021 |
+| UC-02 | Aceitar termos de uso | Todos | No primeiro acesso, o usuário registra o aceite, com data e hora. *«extends» UC-01* | RF-001 |
+| UC-03 | Gerenciar usuários | Administrador | Cadastra, edita e desativa usuários, definindo o tipo de acesso. | RF-001, RF-002 |
+| UC-04 | Gerenciar voluntários | Administrador | Mantém a lista de contatos voluntários por área de atuação e situação. | RF-003 |
+| UC-05 | Gerenciar salas | Administrador | Cria, edita e desativa salas do abrigo pela interface. | RF-004 |
+| UC-06 | Gerenciar cadastro do gato | Administrador, Médico-Veterinário | Cadastra e edita a ficha do felino, incluindo status de saúde e características. | RF-005 |
+| UC-07 | Registrar fotografia do animal | Administrador, Médico-Veterinário, Auxiliar | Captura pela câmera ou envia imagens vinculadas à ficha do gato. *«extends» UC-06* | RF-005 |
+| UC-08 | Transferir gato de sala | Administrador, Auxiliar | Altera a sala atual do animal, gerando registro no histórico de transferências. | RF-005 |
+| UC-09 | Registrar prescrição | Médico-Veterinário | Cadastra diagnóstico e medicação prescrita, com CRMV, dosagem, via e duração. | RF-006 |
+| UC-10 | Consultar histórico clínico | Todos | Visualiza em ordem cronológica os registros do prontuário do animal. | RF-007 |
+| UC-11 | Anexar prontuário de clínica externa | Administrador | Registra o atendimento realizado em clínica parceira e anexa o documento recebido. | RF-008 |
+| UC-12 | Registrar administração de dose | Médico-Veterinário, Auxiliar | Marca a dose aplicada, gravando responsável, data e hora. *«include» UC-09* | RF-009 |
+| UC-13 | Suspender medicação | Médico-Veterinário | Interrompe um tratamento em curso informando obrigatoriamente o motivo. *«extends» UC-09* | RF-006 |
+| UC-14 | Controlar disponibilidade de medicamentos | Administrador, Auxiliar | Atualiza e consulta a situação dos medicamentos, com doador e validade. | RF-010 |
+| UC-15 | Gerenciar vacinas, vermífugos e castrações | Administrador, Médico-Veterinário | Agenda e registra a realização de vacinas, vermífugos e castrações. | RF-011 |
+| UC-16 | Registrar adoção | Administrador | Cadastra a adoção com dados do adotante e anexo do termo de responsabilidade. *«include» UC-06* | RF-012 |
+| UC-17 | Registrar devolução | Administrador | Cadastra a devolução com motivo e anexos, retornando o animal ao registro ativo. *«extends» UC-16* | RF-012 |
+| UC-18 | Gerenciar instituições parceiras | Administrador, Auxiliar | Mantém a lista de contatos de instituições parceiras por área de atuação e informações importantes | RF-013 |
+| UC-19 | Consultar dashboard | Todos | Visualiza lembretes da semana, totais por sala e novos cadastros. | RF-014 |
+| UC-20 | Exportar relatório | Administrador | Gera em tela, PDF ou Excel os relatórios de ficha, prescrições, vacinas, vermífugos e castrações. | RF-015 |
+| UC-21 | Sincronizar dados offline | Serviço de Sincronização | Envia à API a fila de operações registradas sem conexão e confirma a gravação. | RF-016 |
 
 ## Modelo da Base de Dados
 

@@ -134,6 +134,7 @@ Cada issue recebe 4 categorias de label, para facilitar filtragem e priorizaçã
 | ⏱️ Esforço | `esforço: baixo` · `médio` · `alto` | Tempo/trabalho estimado para concluir |
 | 🗓️ Sprint | `sprint 1` · `sprint 2` · `sprint 3` · `sprint 4` | A qual sprint do cronograma a tarefa pertence |
 | 🏷️ Tema | `feature` · `bug` · `documentation` | Natureza da tarefa |
+| 📢 Publicação | `main` | Merge branch develop para main pré-entrega/publicação |
 
 ---
 
@@ -188,6 +189,10 @@ O sistema trata dados pessoais de adotantes, voluntários e profissionais, além
 *[Definir licença do projeto.]*
 
 ---
+
+<p align="center">
+Feito com 💚 por estudantes de ADS da PUC Minas, para os gatos da ONG Amicats.
+</p>
 
 ## Apresentação Inicial
 
