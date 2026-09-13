@@ -3,15 +3,15 @@ import * as SecureStore from "expo-secure-store";
 import type { Usuario } from "../types/auth";
 
 const TOKEN_KEY = "amicats.auth.token";
-const USUARIO_KEY = "amicats.auth.usuario";
+const USER_KEY = "amicats.auth.user";
 
-export interface Sessao {
+export interface Session {
   token: string;
-  usuario: Usuario;
+  user: Usuario;
 }
 
-// expo-secure-store não tem implementação na web (usa Keychain/Keystore nativo),
-// então caímos para localStorage nesse ambiente.
+// expo-secure-store has no web implementation (it wraps native Keychain/Keystore),
+// so we fall back to localStorage in that environment.
 const store = Platform.OS === "web" ? webStore() : SecureStore;
 
 function webStore() {
@@ -23,25 +23,25 @@ function webStore() {
   };
 }
 
-export async function salvarSessao(sessao: Sessao): Promise<void> {
-  await store.setItemAsync(TOKEN_KEY, sessao.token);
-  await store.setItemAsync(USUARIO_KEY, JSON.stringify(sessao.usuario));
+export async function saveSession(session: Session): Promise<void> {
+  await store.setItemAsync(TOKEN_KEY, session.token);
+  await store.setItemAsync(USER_KEY, JSON.stringify(session.user));
 }
 
-export async function obterSessao(): Promise<Sessao | null> {
-  const [token, usuarioJson] = await Promise.all([
+export async function getSession(): Promise<Session | null> {
+  const [token, userJson] = await Promise.all([
     store.getItemAsync(TOKEN_KEY),
-    store.getItemAsync(USUARIO_KEY),
+    store.getItemAsync(USER_KEY),
   ]);
 
-  if (!token || !usuarioJson) {
+  if (!token || !userJson) {
     return null;
   }
 
-  return { token, usuario: JSON.parse(usuarioJson) as Usuario };
+  return { token, user: JSON.parse(userJson) as Usuario };
 }
 
-export async function limparSessao(): Promise<void> {
+export async function clearSession(): Promise<void> {
   await store.deleteItemAsync(TOKEN_KEY);
-  await store.deleteItemAsync(USUARIO_KEY);
+  await store.deleteItemAsync(USER_KEY);
 }

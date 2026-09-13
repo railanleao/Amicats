@@ -11,12 +11,14 @@ import { PrimaryButton } from "../components/PrimaryButton";
 import { colors } from "../theme/colors";
 import { radii, spacing } from "../theme/spacing";
 
-interface AceiteTermosScreenProps {
-  onContinuar: () => void;
+interface TermsAcceptanceScreenProps {
+  onContinue: () => void;
 }
 
-export function AceiteTermosScreen({ onContinuar }: AceiteTermosScreenProps) {
-  const [aceito, setAceito] = useState(false);
+export function TermsAcceptanceScreen({
+  onContinue,
+}: TermsAcceptanceScreenProps) {
+  const [accepted, setAccepted] = useState(false);
 
   return (
     <ScrollView contentContainerStyle={styles.content}>
@@ -31,15 +33,15 @@ export function AceiteTermosScreen({ onContinuar }: AceiteTermosScreenProps) {
       </View>
 
       <View style={styles.card}>
-        <Text style={styles.paragrafo}>
+        <Text style={styles.paragraph}>
           Ao acessar o Amicats, você concorda em manter a confidencialidade dos
           dados de gatos, adotantes e voluntários, conforme a LGPD.
         </Text>
-        <Text style={styles.paragrafo}>
+        <Text style={styles.paragraph}>
           Todo registro clínico preserva autor, data e hora, sem edição
           silenciosa (Resolução CFMV nº 1.321/2020).
         </Text>
-        <Text style={styles.paragrafo}>
+        <Text style={styles.paragraph}>
           O uso da câmera e do armazenamento do dispositivo depende de permissão
           explícita concedida por você.
         </Text>
@@ -47,12 +49,14 @@ export function AceiteTermosScreen({ onContinuar }: AceiteTermosScreenProps) {
 
       <TouchableOpacity
         style={styles.checkboxRow}
-        onPress={() => setAceito((valor) => !valor)}
+        onPress={() => setAccepted((value) => !value)}
         accessibilityRole="checkbox"
-        accessibilityState={{ checked: aceito }}
+        accessibilityState={{ checked: accepted }}
       >
-        <View style={[styles.checkbox, aceito ? styles.checkboxMarcado : null]}>
-          {aceito ? (
+        <View
+          style={[styles.checkbox, accepted ? styles.checkboxChecked : null]}
+        >
+          {accepted ? (
             <Ionicons name="checkmark" size={14} color={colors.onPrimary} />
           ) : null}
         </View>
@@ -61,8 +65,8 @@ export function AceiteTermosScreen({ onContinuar }: AceiteTermosScreenProps) {
 
       <PrimaryButton
         title="Continuar"
-        onPress={onContinuar}
-        disabled={!aceito}
+        onPress={onContinue}
+        disabled={!accepted}
       />
     </ScrollView>
   );
@@ -107,7 +111,7 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     gap: spacing.sm + 4,
   },
-  paragrafo: {
+  paragraph: {
     fontSize: 13,
     lineHeight: 20,
     color: colors.ink,
@@ -126,7 +130,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  checkboxMarcado: {
+  checkboxChecked: {
     backgroundColor: colors.primary,
     borderColor: colors.primary,
   },

@@ -9,21 +9,21 @@ import { colors } from "../theme/colors";
 import { spacing } from "../theme/spacing";
 import { isValidEmail } from "../utils/validation";
 
-interface RecuperarSenhaScreenProps {
-  onVoltarLogin: () => void;
+interface ForgotPasswordScreenProps {
+  onBackToLogin: () => void;
 }
 
-export function RecuperarSenhaScreen({
-  onVoltarLogin,
-}: RecuperarSenhaScreenProps) {
+export function ForgotPasswordScreen({
+  onBackToLogin,
+}: ForgotPasswordScreenProps) {
   const [email, setEmail] = useState("");
-  const [erroEmail, setErroEmail] = useState<string>();
-  const [linkEnviado, setLinkEnviado] = useState(false);
+  const [emailError, setEmailError] = useState<string>();
+  const [linkSent, setLinkSent] = useState(false);
 
   function handleSubmit() {
-    const emailValido = isValidEmail(email);
-    setErroEmail(emailValido ? undefined : "Informe um e-mail válido.");
-    setLinkEnviado(emailValido);
+    const isEmailValid = isValidEmail(email);
+    setEmailError(isEmailValid ? undefined : "Informe um e-mail válido.");
+    setLinkSent(isEmailValid);
   }
 
   return (
@@ -43,15 +43,15 @@ export function RecuperarSenhaScreen({
           autoCapitalize="none"
           autoCorrect={false}
           value={email}
-          onChangeText={(texto) => {
-            setEmail(texto);
-            setLinkEnviado(false);
+          onChangeText={(text) => {
+            setEmail(text);
+            setLinkSent(false);
           }}
-          error={erroEmail}
+          error={emailError}
         />
 
-        {linkEnviado ? (
-          <Text style={styles.confirmacao}>
+        {linkSent ? (
+          <Text style={styles.confirmation}>
             Se esse e-mail estiver cadastrado, enviaremos um link de recuperação
             em instantes.
           </Text>
@@ -64,7 +64,7 @@ export function RecuperarSenhaScreen({
 
         <LinkButton
           title="Voltar para o login"
-          onPress={onVoltarLogin}
+          onPress={onBackToLogin}
           tone="muted"
         />
       </View>
@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
   form: {
     gap: spacing.lg,
   },
-  confirmacao: {
+  confirmation: {
     fontSize: 14,
     lineHeight: 20,
     color: colors.primary,

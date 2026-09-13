@@ -12,46 +12,48 @@ import type { LoginCredentials } from "../types/auth";
 import { isValidEmail } from "../utils/validation";
 
 interface LoginScreenProps {
-  onEntrar: (credenciais: LoginCredentials) => Promise<void>;
-  onEsqueciSenha: () => void;
+  onLogin: (credentials: LoginCredentials) => Promise<void>;
+  onForgotPassword: () => void;
 }
 
-export function LoginScreen({ onEntrar, onEsqueciSenha }: LoginScreenProps) {
+export function LoginScreen({ onLogin, onForgotPassword }: LoginScreenProps) {
   const [email, setEmail] = useState("");
-  const [senha, setSenha] = useState("");
-  const [erroEmail, setErroEmail] = useState<string>();
-  const [erroSenha, setErroSenha] = useState<string>();
-  const [erroGeral, setErroGeral] = useState<string>();
-  const [enviando, setEnviando] = useState(false);
+  const [password, setPassword] = useState("");
+  const [emailError, setEmailError] = useState<string>();
+  const [passwordError, setPasswordError] = useState<string>();
+  const [generalError, setGeneralError] = useState<string>();
+  const [submitting, setSubmitting] = useState(false);
 
-  function validar(): boolean {
-    const emailValido = isValidEmail(email);
+  function validate(): boolean {
+    const isEmailValid = isValidEmail(email);
 
-    setErroEmail(emailValido ? undefined : "Informe um e-mail válido.");
-    setErroSenha(senha.length === 0 ? "Informe sua senha." : undefined);
+    setEmailError(isEmailValid ? undefined : "Informe um e-mail válido.");
+    setPasswordError(password.length === 0 ? "Informe sua senha." : undefined);
 
-    return emailValido && senha.length > 0;
+    return isEmailValid && password.length > 0;
   }
 
   async function handleSubmit() {
-    setErroGeral(undefined);
-    if (!validar()) {
+    setGeneralError(undefined);
+    if (!validate()) {
       return;
     }
 
-    setEnviando(true);
+    setSubmitting(true);
     try {
-      await onEntrar({ email: email.trim(), senha });
-    } catch (erro) {
-      if (erro instanceof ApiError && erro.status === 401) {
-        setErroGeral("E-mail ou senha incorretos.");
+      await onLogin({ email: email.trim(), senha: password });
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 401) {
+        setGeneralError("E-mail ou senha incorretos.");
       } else {
-        setErroGeral(
-          erro instanceof ApiError ? erro.message : "Não foi possível entrar.",
+        setGeneralError(
+          error instanceof ApiError
+            ? error.message
+            : "Não foi possível entrar.",
         );
       }
     } finally {
-      setEnviando(false);
+      setSubmitting(false);
     }
   }
 
@@ -69,31 +71,33 @@ export function LoginScreen({ onEntrar, onEsqueciSenha }: LoginScreenProps) {
           autoCorrect={false}
           value={email}
           onChangeText={setEmail}
-          error={erroEmail}
+          error={emailError}
         />
 
         <TextField
           label="Senha"
           placeholder="Sua senha"
           isPassword
-          value={senha}
-          onChangeText={setSenha}
-          error={erroSenha}
+          value={password}
+          onChangeText={setPassword}
+          error={passwordError}
         />
 
         <LinkButton
           title="Esqueci minha senha"
-          onPress={onEsqueciSenha}
+          onPress={onForgotPassword}
           align="flex-end"
-          style={styles.linkEsqueciSenha}
+          style={styles.forgotPasswordLink}
         />
 
-        {erroGeral ? <Text style={styles.erroGeral}>{erroGeral}</Text> : null}
+        {generalError ? (
+          <Text style={styles.generalError}>{generalError}</Text>
+        ) : null}
 
         <PrimaryButton
           title="Entrar"
           onPress={handleSubmit}
-          loading={enviando}
+          loading={submitting}
         />
       </View>
 
@@ -109,10 +113,10 @@ const styles = StyleSheet.create({
   form: {
     gap: spacing.lg,
   },
-  linkEsqueciSenha: {
+  forgotPasswordLink: {
     marginTop: -spacing.md,
   },
-  erroGeral: {
+  generalError: {
     fontSize: 14,
     color: colors.danger,
   },

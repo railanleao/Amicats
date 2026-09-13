@@ -24,7 +24,7 @@ export function TextField({
   style,
   ...inputProps
 }: TextFieldProps) {
-  const [senhaVisivel, setSenhaVisivel] = useState(false);
+  const [passwordVisible, setPasswordVisible] = useState(false);
 
   return (
     <View style={styles.container}>
@@ -35,20 +35,20 @@ export function TextField({
         <TextInput
           style={[styles.input, style]}
           placeholderTextColor={colors.inkFaint}
-          secureTextEntry={isPassword && !senhaVisivel}
+          secureTextEntry={isPassword && !passwordVisible}
           {...inputProps}
         />
         {isPassword ? (
           <TouchableOpacity
-            onPress={() => setSenhaVisivel((visivel) => !visivel)}
+            onPress={() => setPasswordVisible((visible) => !visible)}
             hitSlop={8}
             accessibilityRole="button"
             accessibilityLabel={
-              senhaVisivel ? "Ocultar senha" : "Mostrar senha"
+              passwordVisible ? "Ocultar senha" : "Mostrar senha"
             }
           >
             <Ionicons
-              name={senhaVisivel ? "eye-off-outline" : "eye-outline"}
+              name={passwordVisible ? "eye-off-outline" : "eye-outline"}
               size={20}
               color={colors.inkSoft}
             />

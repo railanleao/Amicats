@@ -1,28 +1,28 @@
 import { useCallback, useEffect, useState } from "react";
 import { login as loginRequest } from "../services/authService";
-import { limparSessao, obterSessao, salvarSessao } from "../storage/authStorage";
+import { clearSession, getSession, saveSession } from "../storage/authStorage";
 import type { LoginCredentials, Usuario } from "../types/auth";
 
 export function useAuth() {
-  const [usuario, setUsuario] = useState<Usuario | null>(null);
-  const [carregandoSessao, setCarregandoSessao] = useState(true);
+  const [user, setUser] = useState<Usuario | null>(null);
+  const [loadingSession, setLoadingSession] = useState(true);
 
   useEffect(() => {
-    obterSessao()
-      .then((sessao) => setUsuario(sessao?.usuario ?? null))
-      .finally(() => setCarregandoSessao(false));
+    getSession()
+      .then((session) => setUser(session?.user ?? null))
+      .finally(() => setLoadingSession(false));
   }, []);
 
-  const entrar = useCallback(async (credenciais: LoginCredentials) => {
-    const resposta = await loginRequest(credenciais);
-    await salvarSessao(resposta);
-    setUsuario(resposta.usuario);
+  const login = useCallback(async (credentials: LoginCredentials) => {
+    const response = await loginRequest(credentials);
+    await saveSession({ token: response.token, user: response.usuario });
+    setUser(response.usuario);
   }, []);
 
-  const sair = useCallback(async () => {
-    await limparSessao();
-    setUsuario(null);
+  const logout = useCallback(async () => {
+    await clearSession();
+    setUser(null);
   }, []);
 
-  return { usuario, carregandoSessao, entrar, sair };
+  return { user, loadingSession, login, logout };
 }

@@ -2,29 +2,32 @@ import { useState } from "react";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { useAuth } from "./src/hooks/useAuth";
+import { ForgotPasswordScreen } from "./src/screens/ForgotPasswordScreen";
 import { HomePlaceholderScreen } from "./src/screens/HomePlaceholderScreen";
 import { LoginScreen } from "./src/screens/LoginScreen";
-import { RecuperarSenhaScreen } from "./src/screens/RecuperarSenhaScreen";
 import { colors } from "./src/theme/colors";
 
-type TelaPublica = "login" | "recuperar-senha";
+type PublicScreen = "login" | "forgot-password";
 
 export default function App() {
-  const { usuario, carregandoSessao, entrar, sair } = useAuth();
-  const [telaPublica, setTelaPublica] = useState<TelaPublica>("login");
+  const { user, loadingSession, login, logout } = useAuth();
+  const [publicScreen, setPublicScreen] = useState<PublicScreen>("login");
 
   return (
     <View style={styles.container}>
-      {carregandoSessao ? (
+      {loadingSession ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator color={colors.primary} />
         </View>
-      ) : usuario ? (
-        <HomePlaceholderScreen usuario={usuario} onSair={sair} />
-      ) : telaPublica === "recuperar-senha" ? (
-        <RecuperarSenhaScreen onVoltarLogin={() => setTelaPublica("login")} />
+      ) : user ? (
+        <HomePlaceholderScreen user={user} onLogout={logout} />
+      ) : publicScreen === "forgot-password" ? (
+        <ForgotPasswordScreen onBackToLogin={() => setPublicScreen("login")} />
       ) : (
-        <LoginScreen onEntrar={entrar} onEsqueciSenha={() => setTelaPublica("recuperar-senha")} />
+        <LoginScreen
+          onLogin={login}
+          onForgotPassword={() => setPublicScreen("forgot-password")}
+        />
       )}
       <StatusBar style="auto" />
     </View>

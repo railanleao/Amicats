@@ -5,19 +5,23 @@ import { spacing } from "../theme/spacing";
 import type { Usuario } from "../types/auth";
 
 interface HomePlaceholderScreenProps {
-  usuario: Usuario;
-  onSair: () => void;
+  user: Usuario;
+  onLogout: () => void;
 }
 
 export function HomePlaceholderScreen({
-  usuario,
-  onSair,
+  user,
+  onLogout,
 }: HomePlaceholderScreenProps) {
   return (
     <View style={styles.container}>
-      <Text style={styles.titulo}>Olá, {usuario.nomeCompleto}</Text>
-      <Text style={styles.subtitulo}>{usuario.tipoAcesso}</Text>
-      <PrimaryButton title="Sair" onPress={onSair} style={styles.botaoSair} />
+      <Text style={styles.title}>Olá, {user.nomeCompleto}</Text>
+      <Text style={styles.subtitle}>{user.tipoAcesso}</Text>
+      <PrimaryButton
+        title="Sair"
+        onPress={onLogout}
+        style={styles.logoutButton}
+      />
     </View>
   );
 }
@@ -31,17 +35,17 @@ const styles = StyleSheet.create({
     padding: spacing.xl,
     gap: spacing.sm,
   },
-  titulo: {
+  title: {
     fontSize: 22,
     fontWeight: "600",
     color: colors.ink,
   },
-  subtitulo: {
+  subtitle: {
     fontSize: 15,
     color: colors.inkSoft,
     marginBottom: spacing.lg,
   },
-  botaoSair: {
+  logoutButton: {
     minWidth: 160,
   },
 });
