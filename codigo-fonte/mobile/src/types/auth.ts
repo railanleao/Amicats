@@ -5,10 +5,14 @@ export interface Usuario {
   idUsuario: number;
   nomeCompleto: string;
   email: string;
+  telefone: string | null;
   fotoUrl: string | null;
   tipoAcesso: TipoAcesso;
   crmv: string | null;
   ufCrmv: string | null;
+  dataAceiteTermos: string | null;
+  ativo: boolean;
+  dataCriacao: string;
 }
 
 export interface LoginCredentials {
