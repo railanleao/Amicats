@@ -1,0 +1,17 @@
+export const colors = {
+  background: "#F3F6F1",
+  surface: "#FFFFFF",
+  border: "#DCE3D8",
+  ink: "#373737",
+  inkSoft: "#6D6D6C",
+  inkFaint: "#9CA39B",
+  primary: "#62785D",
+  primaryPressed: "#4E6249",
+  onPrimary: "#FFFFFF",
+  infoBg: "#E1E9DD",
+  infoBorder: "#CBD6C4",
+  sky: "#6E93A6",
+  sage900: "#2E3A28",
+  danger: "#B3402E",
+  dangerBg: "#F6E6E3",
+};

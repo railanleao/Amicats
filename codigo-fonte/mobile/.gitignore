@@ -5,6 +5,7 @@ node_modules/
 
 # Expo
 .expo/
+.expo-shared/
 dist/
 web-build/
 expo-env.d.ts
@@ -25,12 +26,24 @@ expo-env.d.ts
 npm-debug.*
 yarn-debug.*
 yarn-error.*
+*.log
 
 # macOS
 .DS_Store
 *.pem
 
+# editores
+.vscode/
+.idea/
+*.swp
+
+# ferramentas de IA (uso local, não versionar)
+.claude/
+CLAUDE.md
+AGENTS.md
+
 # local env files
+.env
 .env*.local
 
 # typescript
