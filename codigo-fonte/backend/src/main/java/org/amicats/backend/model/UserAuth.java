@@ -12,7 +12,7 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "user_auth",
+@Table(name = "user_auths",
     indexes = {
         @Index(
             name = "ix_user_auth_email",
