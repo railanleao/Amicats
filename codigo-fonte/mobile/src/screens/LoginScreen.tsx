@@ -1,9 +1,10 @@
 import { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import { StyleSheet, Text, View } from "react-native";
 import { AuthScreenLayout } from "../components/AuthScreenLayout";
+import { Button } from "../components/Button";
 import { InfoBanner } from "../components/InfoBanner";
 import { LinkButton } from "../components/LinkButton";
-import { PrimaryButton } from "../components/PrimaryButton";
 import { TextField } from "../components/TextField";
 import { ApiError } from "../services/api";
 import { DEV_CREDENTIALS } from "../services/authService";
@@ -18,21 +19,15 @@ interface LoginScreenProps {
 }
 
 export function LoginScreen({ onLogin, onForgotPassword }: LoginScreenProps) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [emailError, setEmailError] = useState<string>();
-  const [passwordError, setPasswordError] = useState<string>();
   const [generalError, setGeneralError] = useState<string>();
   const [submitting, setSubmitting] = useState(false);
-
-  function validate(): boolean {
-    const isEmailValid = isValidEmail(email);
-
-    setEmailError(isEmailValid ? undefined : "Informe um e-mail válido.");
-    setPasswordError(password.length === 0 ? "Informe sua senha." : undefined);
-
-    return isEmailValid && password.length > 0;
-  }
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginCredentials>({
+    defaultValues: { email: "", password: "" },
+  });
 
   async function submitLogin(credentials: LoginCredentials) {
     setGeneralError(undefined);
@@ -54,11 +49,8 @@ export function LoginScreen({ onLogin, onForgotPassword }: LoginScreenProps) {
     }
   }
 
-  function handleSubmit() {
-    if (!validate()) {
-      return;
-    }
-    submitLogin({ email: email.trim(), senha: password });
+  function onSubmit(values: LoginCredentials) {
+    submitLogin({ email: values.email.trim(), password: values.password });
   }
 
   return (
@@ -67,24 +59,41 @@ export function LoginScreen({ onLogin, onForgotPassword }: LoginScreenProps) {
       subtitle="Use o e-mail cadastrado pela administração da ONG."
     >
       <View style={styles.form}>
-        <TextField
-          label="E-mail"
-          placeholder="voce@amicats.org.br"
-          keyboardType="email-address"
-          autoCapitalize="none"
-          autoCorrect={false}
-          value={email}
-          onChangeText={setEmail}
-          error={emailError}
+        <Controller
+          control={control}
+          name="email"
+          rules={{
+            validate: (value) =>
+              isValidEmail(value) || "Informe um e-mail válido.",
+          }}
+          render={({ field: { value, onChange } }) => (
+            <TextField
+              label="E-mail"
+              placeholder="voce@amicats.org.br"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              value={value}
+              onChangeText={onChange}
+              error={errors.email?.message}
+            />
+          )}
         />
 
-        <TextField
-          label="Senha"
-          placeholder="Sua senha"
-          isPassword
-          value={password}
-          onChangeText={setPassword}
-          error={passwordError}
+        <Controller
+          control={control}
+          name="password"
+          rules={{ required: "Informe sua senha." }}
+          render={({ field: { value, onChange } }) => (
+            <TextField
+              label="Senha"
+              placeholder="Sua senha"
+              isPassword
+              value={value}
+              onChangeText={onChange}
+              error={errors.password?.message}
+            />
+          )}
         />
 
         <LinkButton
@@ -98,9 +107,9 @@ export function LoginScreen({ onLogin, onForgotPassword }: LoginScreenProps) {
           <Text style={styles.generalError}>{generalError}</Text>
         ) : null}
 
-        <PrimaryButton
+        <Button
           title="Entrar"
-          onPress={handleSubmit}
+          onPress={handleSubmit(onSubmit)}
           loading={submitting}
         />
 

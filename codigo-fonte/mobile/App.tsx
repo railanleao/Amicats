@@ -1,8 +1,6 @@
-import { NavigationContainer } from "@react-navigation/native";
 import { StatusBar } from "expo-status-bar";
 import { ActivityIndicator, Alert, StyleSheet, View } from "react-native";
-import { BottomTabNavigator } from "./src/navigation/BottomTabNavigator";
-import { LoginScreen } from "./src/screens/LoginScreen";
+import { RootNavigator } from "./src/navigation/RootNavigator";
 import { useAuth } from "./src/hooks/useAuth";
 import { colors } from "./src/theme/colors";
 
@@ -18,28 +16,21 @@ export default function App() {
     );
   }
 
-  if (!user) {
-    return (
-      <>
-        <LoginScreen
-          onLogin={login}
-          onForgotPassword={() =>
-            Alert.alert(
-              "Esqueci minha senha",
-              "Entre em contato com a administração da ONG.",
-            )
-          }
-        />
-        <StatusBar style="auto" />
-      </>
-    );
-  }
-
   return (
-    <NavigationContainer>
-      <BottomTabNavigator user={user} onLogout={logout} />
+    <>
+      <RootNavigator
+        user={user}
+        onLogin={login}
+        onLogout={logout}
+        onForgotPassword={() =>
+          Alert.alert(
+            "Esqueci minha senha",
+            "Entre em contato com a administração da ONG.",
+          )
+        }
+      />
       <StatusBar style="auto" />
-    </NavigationContainer>
+    </>
   );
 }
 

@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from "react-native";
-import { OutlineButton } from "../components/OutlineButton";
+import { Button } from "../components/Button";
 import { colors } from "../theme/colors";
 import { spacing } from "../theme/spacing";
 
@@ -13,7 +13,8 @@ export function ComingSoonScreen({ title, onLogout }: ComingSoonScreenProps) {
     <View style={styles.container}>
       <Text style={styles.title}>{title}</Text>
       <Text style={styles.subtitle}>Em breve.</Text>
-      <OutlineButton
+      <Button
+        variant="outline"
         title="Sair"
         onPress={onLogout}
         style={styles.backButton}

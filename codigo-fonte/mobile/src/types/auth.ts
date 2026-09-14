@@ -1,26 +1,25 @@
-export type TipoAcesso =
-  "ADMINISTRADOR" | "VETERINARIO" | "AUXILIAR" | "VISUALIZADOR";
+export type AccessType = "ADMIN" | "VETERINARIAN" | "ASSISTANT" | "VIEWER";
 
-export interface Usuario {
-  idUsuario: number;
-  nomeCompleto: string;
+export interface User {
+  id: number;
+  fullName: string;
   email: string;
-  telefone: string | null;
-  fotoUrl: string | null;
-  tipoAcesso: TipoAcesso;
+  phone: string | null;
+  photoUrl: string | null;
+  accessType: AccessType;
   crmv: string | null;
-  ufCrmv: string | null;
-  dataAceiteTermos: string | null;
-  ativo: boolean;
-  dataCriacao: string;
+  crmvState: string | null;
+  termsAcceptedAt: string | null;
+  active: boolean;
+  createdAt: string;
 }
 
 export interface LoginCredentials {
   email: string;
-  senha: string;
+  password: string;
 }
 
 export interface LoginResponse {
   token: string;
-  usuario: Usuario;
+  user: User;
 }

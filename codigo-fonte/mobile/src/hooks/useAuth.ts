@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
 import { login as loginRequest } from "../services/authService";
 import { clearSession, getSession, saveSession } from "../storage/authStorage";
-import type { LoginCredentials, Usuario } from "../types/auth";
+import type { LoginCredentials, User } from "../types/auth";
 
 export function useAuth() {
-  const [user, setUser] = useState<Usuario | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loadingSession, setLoadingSession] = useState(true);
 
   useEffect(() => {
@@ -15,8 +15,8 @@ export function useAuth() {
 
   const login = useCallback(async (credentials: LoginCredentials) => {
     const response = await loginRequest(credentials);
-    await saveSession({ token: response.token, user: response.usuario });
-    setUser(response.usuario);
+    await saveSession({ token: response.token, user: response.user });
+    setUser(response.user);
   }, []);
 
   const logout = useCallback(async () => {

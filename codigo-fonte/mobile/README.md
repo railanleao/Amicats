@@ -25,7 +25,7 @@ Opcional, só se for rodar em emulador em vez do celular físico:
    ```
 3. Escaneie o QR code exibido no terminal com o app **Expo Go** no celular (Android: dentro do próprio app; iOS: pela câmera nativa).
 
-Por padrão o app aponta para `http://localhost:8080`. Isso funciona ao rodar `npm run web` ou em um emulador, mas não em um celular físico via Expo Go — nesse caso, aponte para o IP da sua máquina na rede local criando um arquivo `.env` na raiz do projeto:
+Por padrão o app aponta para `http://localhost:8080`. Isso funciona ao rodar `npm run web` ou em um emulador, mas não em um celular físico via Expo Go — nesse caso, aponte para o IP da sua máquina na rede local copiando o `.env.example` para `.env` na raiz do projeto e ajustando a variável:
 
 ```
 EXPO_PUBLIC_API_URL=http://SEU_IP_NA_REDE:8080
@@ -70,5 +70,3 @@ Dentro de `src`:
 | `storage`    | Acesso ao banco local (SQLite) usado no modo offline                       |
 | `hooks`      | Hooks React customizados                                                   |
 | `types`      | Tipos e interfaces TypeScript compartilhados                               |
-
-O fluxo de login (tela, navegação, hooks, serviços e tipos) já está implementado; as demais telas (`HomeScreen`, `NewCatScreen`, `NewPrescriptionScreen` e a sincronização offline em `storage`) ainda são scaffolding e serão preenchidas conforme forem implementadas.

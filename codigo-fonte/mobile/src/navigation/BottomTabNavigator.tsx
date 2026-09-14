@@ -3,13 +3,13 @@ import type { RouteProp } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { ComingSoonScreen } from "../screens/ComingSoonScreen";
 import { colors } from "../theme/colors";
-import type { Usuario } from "../types/auth";
+import type { User } from "../types/auth";
 
 export type BottomTabParamList = {
-  Inicio: undefined;
-  Gatos: undefined;
+  Home: undefined;
+  Cats: undefined;
   Doses: undefined;
-  Busca: undefined;
+  Search: undefined;
 };
 
 const Tab = createBottomTabNavigator<BottomTabParamList>();
@@ -18,24 +18,24 @@ const TAB_ICONS: Record<
   keyof BottomTabParamList,
   keyof typeof Ionicons.glyphMap
 > = {
-  Inicio: "home",
-  Gatos: "paw",
+  Home: "home",
+  Cats: "paw",
   Doses: "medkit",
-  Busca: "search",
+  Search: "search",
 };
 
 const TAB_ICONS_OUTLINE: Record<
   keyof BottomTabParamList,
   keyof typeof Ionicons.glyphMap
 > = {
-  Inicio: "home-outline",
-  Gatos: "paw-outline",
+  Home: "home-outline",
+  Cats: "paw-outline",
   Doses: "medkit-outline",
-  Busca: "search-outline",
+  Search: "search-outline",
 };
 
 interface BottomTabNavigatorProps {
-  user: Usuario;
+  user: User;
   onLogout: () => void;
 }
 
@@ -74,16 +74,16 @@ export function BottomTabNavigator({
         },
       })}
     >
-      <Tab.Screen name="Inicio" options={{ title: "Início" }}>
+      <Tab.Screen name="Home" options={{ title: "Início" }}>
         {() => <ComingSoonScreen title="Início" onLogout={onLogout} />}
       </Tab.Screen>
-      <Tab.Screen name="Gatos">
+      <Tab.Screen name="Cats" options={{ title: "Gatos" }}>
         {() => <ComingSoonScreen title="Gatos" onLogout={onLogout} />}
       </Tab.Screen>
       <Tab.Screen name="Doses">
         {() => <ComingSoonScreen title="Doses" onLogout={onLogout} />}
       </Tab.Screen>
-      <Tab.Screen name="Busca">
+      <Tab.Screen name="Search" options={{ title: "Busca" }}>
         {() => <ComingSoonScreen title="Busca" onLogout={onLogout} />}
       </Tab.Screen>
     </Tab.Navigator>

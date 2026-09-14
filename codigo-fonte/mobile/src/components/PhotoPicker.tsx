@@ -51,21 +51,21 @@ export function PhotoPicker({ uri, onChange }: PhotoPickerProps) {
 
   return (
     <View>
-      <View style={styles.photoArea}>
+      <TouchableOpacity
+        style={styles.photoArea}
+        onPress={() => setMenuOpen(true)}
+        accessibilityRole="button"
+        accessibilityLabel="Adicionar foto"
+      >
         {uri ? (
           <Image source={{ uri }} style={styles.photo} />
         ) : (
           <Ionicons name="image-outline" size={40} color={colors.inkFaint} />
         )}
-        <TouchableOpacity
-          style={styles.cameraButton}
-          onPress={() => setMenuOpen(true)}
-          accessibilityRole="button"
-          accessibilityLabel="Adicionar foto"
-        >
+        <View style={styles.cameraBadge}>
           <Ionicons name="camera" size={18} color={colors.ink} />
-        </TouchableOpacity>
-      </View>
+        </View>
+      </TouchableOpacity>
 
       <Modal
         visible={menuOpen}
@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
   },
-  cameraButton: {
+  cameraBadge: {
     position: "absolute",
     bottom: spacing.sm + 2,
     right: spacing.sm + 2,

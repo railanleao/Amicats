@@ -1,18 +1,18 @@
 import { apiRequest } from "./api";
 import type { LoginCredentials, LoginResponse } from "../types/auth";
 
-// Login fake para testar o app sem o backend de autenticação real.
-// Remover quando o endpoint real (`POST /auth/login`) estiver disponível.
+// Fake login to test the app without the real authentication backend.
+// TODO: remove once the real endpoint (`POST /auth/login`) is available.
 export const DEV_CREDENTIALS: LoginCredentials = {
   email: "dev@amicats.org.br",
-  senha: "dev123",
+  password: "dev123",
 };
 
 export function login(credentials: LoginCredentials): Promise<LoginResponse> {
   if (
     __DEV__ &&
     credentials.email === DEV_CREDENTIALS.email &&
-    credentials.senha === DEV_CREDENTIALS.senha
+    credentials.password === DEV_CREDENTIALS.password
   ) {
     return Promise.resolve(createDevResponse());
   }
@@ -26,18 +26,18 @@ export function login(credentials: LoginCredentials): Promise<LoginResponse> {
 function createDevResponse(): LoginResponse {
   return {
     token: "dev-token",
-    usuario: {
-      idUsuario: 0,
-      nomeCompleto: "Usuário de Teste",
+    user: {
+      id: 0,
+      fullName: "Dev User",
       email: DEV_CREDENTIALS.email,
-      telefone: null,
-      fotoUrl: null,
-      tipoAcesso: "ADMINISTRADOR",
+      phone: null,
+      photoUrl: null,
+      accessType: "ADMIN",
       crmv: null,
-      ufCrmv: null,
-      dataAceiteTermos: new Date().toISOString(),
-      ativo: true,
-      dataCriacao: new Date().toISOString(),
+      crmvState: null,
+      termsAcceptedAt: new Date().toISOString(),
+      active: true,
+      createdAt: new Date().toISOString(),
     },
   };
 }

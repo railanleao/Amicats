@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View } from "react-native";
 import { colors } from "../theme/colors";
 import { radii, spacing } from "../theme/spacing";
+import { fontSizes } from "../theme/typography";
 
 interface ReadOnlyFieldProps {
   label: string;
@@ -23,7 +24,7 @@ const styles = StyleSheet.create({
     gap: spacing.xs + 2,
   },
   label: {
-    fontSize: 13,
+    fontSize: fontSizes.sm,
     fontWeight: "600",
     color: colors.ink,
   },
@@ -36,7 +37,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm + 2,
   },
   value: {
-    fontSize: 14,
+    fontSize: fontSizes.md,
     color: colors.ink,
   },
 });

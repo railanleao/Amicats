@@ -4,13 +4,11 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  StyleSheet,
   Text,
   TextStyle,
   View,
 } from "react-native";
-import { colors } from "../theme/colors";
-import { spacing } from "../theme/spacing";
+import { styles } from "./AuthScreenLayout.styles";
 
 interface AuthScreenLayoutProps {
   title: string;
@@ -61,35 +59,3 @@ export function AuthScreenLayout({
     </KeyboardAvoidingView>
   );
 }
-
-const styles = StyleSheet.create({
-  flex: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  content: {
-    flexGrow: 1,
-    padding: spacing.xl,
-    justifyContent: "center",
-    gap: spacing.xl,
-  },
-  logoWrapper: {
-    alignItems: "center",
-  },
-  header: {
-    gap: spacing.xs,
-  },
-  title: {
-    fontSize: 30,
-    fontWeight: "500",
-    color: colors.ink,
-  },
-  subtitle: {
-    fontSize: 15,
-    lineHeight: 22,
-    color: colors.inkSoft,
-  },
-  textCenter: {
-    textAlign: "center",
-  },
-});

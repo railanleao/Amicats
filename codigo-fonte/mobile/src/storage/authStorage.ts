@@ -1,13 +1,13 @@
 import { Platform } from "react-native";
 import * as SecureStore from "expo-secure-store";
-import type { Usuario } from "../types/auth";
+import type { User } from "../types/auth";
 
 const TOKEN_KEY = "amicats.auth.token";
 const USER_KEY = "amicats.auth.user";
 
 export interface Session {
   token: string;
-  user: Usuario;
+  user: User;
 }
 
 // expo-secure-store has no web implementation (it wraps native Keychain/Keystore),
@@ -38,7 +38,7 @@ export async function getSession(): Promise<Session | null> {
     return null;
   }
 
-  return { token, user: JSON.parse(userJson) as Usuario };
+  return { token, user: JSON.parse(userJson) as User };
 }
 
 export async function clearSession(): Promise<void> {

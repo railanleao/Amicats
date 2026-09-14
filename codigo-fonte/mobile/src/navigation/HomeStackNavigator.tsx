@@ -3,7 +3,7 @@ import { HomeScreen } from "../screens/HomeScreen";
 import { NewCatScreen } from "../screens/NewCatScreen";
 import { NewPrescriptionScreen } from "../screens/NewPrescriptionScreen";
 import { colors } from "../theme/colors";
-import type { Usuario } from "../types/auth";
+import type { User } from "../types/auth";
 
 export type HomeStackParamList = {
   Home: undefined;
@@ -22,7 +22,7 @@ const formHeaderOptions = {
 };
 
 interface HomeStackNavigatorProps {
-  user: Usuario;
+  user: User;
 }
 
 export function HomeStackNavigator({ user }: HomeStackNavigatorProps) {
