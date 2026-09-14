@@ -18,7 +18,7 @@ A arquitetura foi definida priorizando simplicidade e sustentabilidade de manute
 - **App Mobile (React Native)** — usado no abrigo pelos voluntários e veterinários no dia a dia do atendimento. Funciona **offline-first**: todo lançamento de prontuário, medicação e alocação de sala é gravado primeiro em um banco local (SQLite) no próprio celular. Quando há sinal (mesmo instável), o app sincroniza em segundo plano com o backend, enviando as alterações pendentes e baixando o que foi atualizado por outros dispositivos.
 - **Backend (Java / Spring Boot)** — fonte única de verdade dos dados. Expõe uma API REST consumida tanto pelo app mobile (via sincronização) quanto pela web (uso direto, sempre online). Concentra a lógica de negócio, autenticação e o registro de autor/data-hora exigido pela Resolução CFMV nº 1.321/2020.
 - **Banco de Dados (PostgreSQL)** — banco relacional único, hospedado na nuvem junto ao backend, armazenando prontuários, medicações, estoque e alocação das salas.
-- **Web App (Next.js)** — utilizado pela administração/coordenação e pelas clínicas parceiras, sempre a partir de locais com internet estável (fora do abrigo). Por isso não precisa de suporte offline, apenas de conexão direta e online com a API.
+- **Web App (Angular)** — utilizado pela administração/coordenação e pelas clínicas parceiras, sempre a partir de locais com internet estável (fora do abrigo). Por isso não precisa de suporte offline, apenas de conexão direta e online com a API.
 - **Sincronização** — cada dispositivo mobile mantém uma fila local de alterações pendentes; ao reconectar, envia essas alterações ao backend e recebe o que mudou desde a última sincronização. Cada registro carrega autor e timestamp, e a resolução de conflitos é feita por **acréscimo, nunca por sobrescrita**: um ajuste posterior gera um novo lançamento em vez de substituir o registro existente, preservando o histórico auditável exigido para o prontuário e atendendo ao RNF-004 (nenhuma edição silenciosa).
 
 ### **Diagrama de componentes:**
@@ -37,7 +37,7 @@ flowchart TB
         direction LR
         ACT_ADM(["👤 Administração / Coordenação"])
         ACT_CLIN(["👤 Clínicas Parceiras"])
-        WEB["Web App<br/>Next.js"]
+        WEB["Web App<br/>Angular"]
         API["Backend API<br/>Java / Spring Boot"]
         PG[("PostgreSQL")]
         ACT_ADM --> WEB
