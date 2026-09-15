@@ -205,33 +205,3 @@ Aplicativo offline-first (React Native) usado por voluntários e equipe dentro d
 ### Busca — Mobile
 
 ![Busca — Mobile](img/telas/mobile/15-busca.png)
-
-### Voluntários — Mobile
-
-![Voluntários — Mobile](img/telas/mobile/16-voluntarios.png)
-
-### Instituições Parceiras — Mobile
-
-![Instituições Parceiras — Mobile](img/telas/mobile/17-instituicoes-parceiras.png)
-
-### Editar Voluntário — Mobile
-
-![Editar Voluntário — Mobile](img/telas/mobile/18-editar-voluntario.png)
-
-### Editar Instituição Parceira — Mobile
-
-![Editar Instituição Parceira — Mobile](img/telas/mobile/19-editar-instituicao-parceira.png)
-
-### Novo Gato — Mobile
-
-![Novo Gato — Mobile](img/telas/mobile/20-novo-gato.png)
-
-### Voluntários — Remoção (Mobile)
-
-Swipe para a esquerda em um voluntário revela as ações **Inativar** e **Excluir**. A exclusão sempre passa pela confirmação abaixo, e a mesma ação está disponível no rodapé da tela de edição, para quem não usa o gesto.
-
-![Voluntários — Remoção (Mobile)](img/telas/mobile/21-voluntarios-remover.png)
-
-### Excluir Voluntário — Mobile
-
-![Excluir Voluntário — Mobile](img/telas/mobile/22-excluir-voluntario.png)
