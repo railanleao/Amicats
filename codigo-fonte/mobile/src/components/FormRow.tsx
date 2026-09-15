@@ -1,6 +1,6 @@
 import { Children, ReactNode } from "react";
-import { StyleSheet, View } from "react-native";
-import { spacing } from "../theme/spacing";
+import { View } from "react-native";
+import { styles } from "./FormRow.styles";
 
 interface FormRowProps {
   children: ReactNode;
@@ -15,13 +15,3 @@ export function FormRow({ children }: FormRowProps) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  row: {
-    flexDirection: "row",
-    gap: spacing.md,
-  },
-  rowItem: {
-    flex: 1,
-  },
-});

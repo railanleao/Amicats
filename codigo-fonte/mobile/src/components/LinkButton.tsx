@@ -1,5 +1,5 @@
-import { StyleSheet, Text, TouchableOpacity, ViewStyle } from "react-native";
-import { colors } from "../theme/colors";
+import { Text, TouchableOpacity, ViewStyle } from "react-native";
+import { styles } from "./LinkButton.styles";
 
 interface LinkButtonProps {
   title: string;
@@ -24,14 +24,3 @@ export function LinkButton({
     </TouchableOpacity>
   );
 }
-
-const styles = StyleSheet.create({
-  text: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: colors.primary,
-  },
-  textMuted: {
-    color: colors.inkSoft,
-  },
-});

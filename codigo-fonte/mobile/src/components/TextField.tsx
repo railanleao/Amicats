@@ -1,6 +1,5 @@
 import { useState } from "react";
 import {
-  StyleSheet,
   Text,
   TextInput,
   TextInputProps,
@@ -9,7 +8,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { colors } from "../theme/colors";
-import { radii, spacing } from "../theme/spacing";
+import { styles } from "./TextField.styles";
 
 interface TextFieldProps extends TextInputProps {
   label: string;
@@ -69,44 +68,3 @@ export function TextField({
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    gap: spacing.xs + 2,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: colors.ink,
-  },
-  inputWrapper: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: colors.surface,
-    borderColor: colors.border,
-    borderWidth: 1.5,
-    borderRadius: radii.sm,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm + 2,
-  },
-  inputWrapperMultiline: {
-    alignItems: "flex-start",
-  },
-  inputWrapperError: {
-    borderColor: colors.danger,
-  },
-  input: {
-    flex: 1,
-    fontSize: 15,
-    color: colors.ink,
-    paddingVertical: 0,
-  },
-  inputMultiline: {
-    minHeight: 60,
-    textAlignVertical: "top",
-  },
-  errorText: {
-    fontSize: 13,
-    color: colors.danger,
-  },
-});

@@ -1,7 +1,7 @@
-import { StyleSheet, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { colors } from "../theme/colors";
-import { radii, spacing } from "../theme/spacing";
+import { styles } from "./InfoBanner.styles";
 
 interface InfoBannerProps {
   icon: keyof typeof Ionicons.glyphMap;
@@ -16,21 +16,3 @@ export function InfoBanner({ icon, text }: InfoBannerProps) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: "row",
-    gap: spacing.sm + 2,
-    backgroundColor: colors.infoBg,
-    borderColor: colors.infoBorder,
-    borderWidth: 1,
-    borderRadius: radii.sm,
-    padding: spacing.md,
-  },
-  text: {
-    flex: 1,
-    fontSize: 13,
-    lineHeight: 19,
-    color: colors.inkSoft,
-  },
-});

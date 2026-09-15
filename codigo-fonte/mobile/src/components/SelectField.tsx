@@ -1,15 +1,8 @@
 import { useState } from "react";
-import {
-  FlatList,
-  Modal,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { FlatList, Modal, Text, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { colors } from "../theme/colors";
-import { radii, spacing } from "../theme/spacing";
+import { styles } from "./SelectField.styles";
 
 export interface SelectOption {
   label: string;
@@ -92,70 +85,3 @@ export function SelectField({
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    gap: spacing.xs + 2,
-  },
-  label: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: colors.ink,
-  },
-  field: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    backgroundColor: colors.surface,
-    borderColor: colors.border,
-    borderWidth: 1.5,
-    borderRadius: radii.sm,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm + 2,
-  },
-  fieldError: {
-    borderColor: colors.danger,
-  },
-  value: {
-    fontSize: 14,
-    color: colors.ink,
-  },
-  placeholder: {
-    fontSize: 14,
-    color: colors.inkFaint,
-  },
-  errorText: {
-    fontSize: 13,
-    color: colors.danger,
-  },
-  backdrop: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.3)",
-    justifyContent: "flex-end",
-  },
-  sheet: {
-    backgroundColor: colors.surface,
-    borderTopLeftRadius: radii.md,
-    borderTopRightRadius: radii.md,
-    padding: spacing.lg,
-    maxHeight: "60%",
-  },
-  sheetTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: colors.ink,
-    marginBottom: spacing.sm,
-  },
-  option: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingVertical: spacing.sm + 4,
-    borderTopColor: colors.border,
-    borderTopWidth: StyleSheet.hairlineWidth,
-  },
-  optionText: {
-    fontSize: 15,
-    color: colors.ink,
-  },
-});

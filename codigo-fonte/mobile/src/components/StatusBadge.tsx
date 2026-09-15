@@ -1,6 +1,5 @@
-import { StyleSheet, Text, View } from "react-native";
-import { colors } from "../theme/colors";
-import { radii, spacing } from "../theme/spacing";
+import { Text, View } from "react-native";
+import { styles } from "./StatusBadge.styles";
 
 interface StatusBadgeProps {
   label: string;
@@ -26,27 +25,3 @@ export function StatusBadge({ label, tone }: StatusBadgeProps) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  badge: {
-    borderRadius: radii.sm,
-    paddingVertical: 3,
-    paddingHorizontal: spacing.sm + 2,
-  },
-  badgeWarning: {
-    backgroundColor: colors.warningBg,
-  },
-  badgeDanger: {
-    backgroundColor: colors.dangerBg,
-  },
-  text: {
-    fontSize: 12,
-    fontWeight: "600",
-  },
-  textWarning: {
-    color: colors.warning,
-  },
-  textDanger: {
-    color: colors.danger,
-  },
-});

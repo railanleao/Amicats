@@ -1,7 +1,6 @@
-import { StyleSheet, Text, View } from "react-native";
-import { colors } from "../theme/colors";
-import { radii, spacing } from "../theme/spacing";
+import { Text, View } from "react-native";
 import { StatusBadge } from "./StatusBadge";
+import { styles } from "./DoseCard.styles";
 
 interface DoseCardProps {
   catName: string;
@@ -37,28 +36,3 @@ export function DoseCard({
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  card: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    backgroundColor: colors.surface,
-    borderColor: colors.border,
-    borderWidth: 1,
-    borderRadius: radii.md,
-    padding: spacing.md,
-  },
-  info: {
-    gap: 2,
-  },
-  title: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: colors.ink,
-  },
-  subtitle: {
-    fontSize: 12,
-    color: colors.inkSoft,
-  },
-});
