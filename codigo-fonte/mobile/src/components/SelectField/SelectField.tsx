@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { FlatList, Modal, Text, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { colors } from "../theme/colors";
+import { colors } from "../../theme/colors";
 import { styles } from "./SelectField.styles";
 
 export interface SelectOption {

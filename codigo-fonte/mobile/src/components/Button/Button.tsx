@@ -4,7 +4,7 @@ import {
   TouchableOpacity,
   ViewStyle,
 } from "react-native";
-import { colors } from "../theme/colors";
+import { colors } from "../../theme/colors";
 import { styles } from "./Button.styles";
 
 interface ButtonProps {

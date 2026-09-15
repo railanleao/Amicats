@@ -1,5 +1,5 @@
 import { Text, View } from "react-native";
-import { StatusBadge } from "./StatusBadge";
+import { StatusBadge } from "../StatusBadge";
 import { styles } from "./DoseCard.styles";
 
 interface DoseCardProps {
