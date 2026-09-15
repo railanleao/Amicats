@@ -1,1 +1,45 @@
-/* You can add global styles to this file, and also import other style files */
+:root {
+  --color-ink: #1a1a1a;
+  --color-ink-soft: #5b5b5b;
+  --color-ink-faint: #9a9a9a;
+  --color-bg: #f2f6f1;
+  --color-surface: #ffffff;
+  --color-border: #e0e0e0;
+
+  --color-sage-50: #f2f6f1;
+  --color-sage-100: #dfe9dc;
+  --color-sage-300: #a9c4a4;
+  --color-sage-500: #8aac8b;
+  --color-sage-700: #5c795a;
+  --color-sage-900: #354a34;
+
+  --color-coral-dark: #c76a44;
+  --color-danger: #c2564a;
+  --color-danger-bg: #f5e4e1;
+
+  --font-display: "Fraunces", Georgia, serif;
+  --font-body: "Karla", Arial, sans-serif;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--color-ink);
+  background: var(--color-bg);
+}
+
+a {
+  color: inherit;
+}

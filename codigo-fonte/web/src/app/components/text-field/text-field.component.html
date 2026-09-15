@@ -1,0 +1,14 @@
+<div class="text-field">
+  <label [for]="inputId">{{ label }}</label>
+  <input
+    [id]="inputId"
+    [type]="type"
+    [formControl]="control"
+    [autocomplete]="autocomplete"
+    class="text-field__input"
+    [class.text-field__input--invalid]="control.invalid && control.touched"
+  />
+  @if (control.invalid && control.touched && errorMessage) {
+    <span class="text-field__error">{{ errorMessage }}</span>
+  }
+</div>
