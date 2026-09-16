@@ -26,7 +26,7 @@ public class UserAuth {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_user_auth")
-    private Integer Id;
+    private Integer id;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(
@@ -41,17 +41,17 @@ public class UserAuth {
         unique = true,
         length = 150
     )
-    private String Email;
+    private String email;
 
     @Column(
         name = "Password_Hash",
         nullable = false,
         length = 255
     )
-    private String PasswordHash;
+    private String passwordHash;
 
     public Integer getId() {
-        return Id;
+        return id;
     }
 
     public User getUser() {
@@ -59,10 +59,10 @@ public class UserAuth {
     }
 
     public String getEmail() {
-        return Email;
+        return email;
     }
 
     public String getPasswordHash() {
-        return PasswordHash;
+        return passwordHash;
     }
 }

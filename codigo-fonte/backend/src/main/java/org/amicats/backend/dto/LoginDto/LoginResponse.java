@@ -6,6 +6,5 @@ public record LoginResponse(
     String token,
     Integer id,
     String name,
-    String email,
-    AccessType AccessType
+    AccessType accessType
 ) {}

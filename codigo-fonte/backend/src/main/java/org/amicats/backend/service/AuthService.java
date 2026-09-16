@@ -4,29 +4,29 @@ import org.amicats.backend.dto.LoginDto.LoginRequest;
 import org.amicats.backend.dto.LoginDto.LoginResponse;
 import org.amicats.backend.model.User;
 import org.amicats.backend.model.UserAuth;
-import org.amicats.backend.repository.UsuarioAuthRepositorio;
+import org.amicats.backend.repository.UserAuthRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AuthService {
 
-    private final UsuarioAuthRepositorio usuarioAuthRepositorio;
+    private final UserAuthRepository userAuthRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
 
     public AuthService(
-        UsuarioAuthRepositorio usuarioAuthRepositorio,
+        UserAuthRepository userAuthRepository,
         PasswordEncoder passwordEncoder,
         JwtService jwtService) {
 
-        this.usuarioAuthRepositorio = usuarioAuthRepositorio;
+        this.userAuthRepository = userAuthRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
     }
     public LoginResponse login(LoginRequest request) {
 
-        UserAuth auth = usuarioAuthRepositorio
+        UserAuth auth = userAuthRepository
             .findByEmail(request.email())
             .orElseThrow(() ->
                 new RuntimeException("Email ou senha inválidos")
@@ -36,24 +36,23 @@ public class AuthService {
             throw new RuntimeException("Usuário inativo");
         }
 
-        boolean senhaValida = passwordEncoder.matches(
+        boolean isValid = passwordEncoder.matches(
             request.password(),
             auth.getPasswordHash()
         );
 
-        if (!senhaValida) {
+        if (!isValid) {
             throw new RuntimeException("Email ou senha inválidos");
         }
 
         User user = auth.getUser();
 
-        String token = jwtService.gerarToken(user, auth);
+        String token = jwtService.generateJwtToken(user, auth);
 
         return new LoginResponse(
             token,
             user.getId(),
             user.getFullName(),
-            auth.getEmail(),
             user.getAccessType()
         );
     }

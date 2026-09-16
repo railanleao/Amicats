@@ -2,6 +2,9 @@ package org.amicats.backend.model;
 
 import java.time.LocalDateTime;
 import org.amicats.backend.model.Enum.AccessType;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -18,65 +21,66 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_user")
-    private Integer Id;
+    private Integer id;
 
     @Column(name = "full_name", nullable = false, length = 150)
-    private String full_name;
+    private String fullName;
 
     @Column(nullable = false, unique = true, length = 150)
     private String email;
 
     @Column(name = "phone_number", length = 20)
-    private String phone_number;
+    private String phoneNumber;
 
     @Column(name = "image_url", length = 500)
-    private String image_url;
+    private String imageUrl;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "access_type", nullable = false)
-    private AccessType access_type;
+    private AccessType accessType;
 
     @Column(length = 20)
     private String crmv;
 
     @Column(name = "uf_crmv", length = 2)
-    private String uf_crmv;
+    private String ufCrmv;
 
     @Column(name = "date_acceptance_terms")
-    private LocalDateTime date_acceptance_terms;
+    private LocalDateTime dateAcceptanceTerms;
 
     @Column(nullable = false)
     private Boolean active;
 
     @Column(name = "created_at", nullable = false)
-    private LocalDateTime created_at;
+    private LocalDateTime createdAt;
 
     protected User() {}
 
     public User(String fullName, String email, String phoneNumber, String imageUrl,
         AccessType accessType, String crmv, String ufCrmv, LocalDateTime dateAcceptanceTerms) {
-            this.full_name = fullName;
+            this.fullName = fullName;
             this.email = email;
-            this.phone_number = phoneNumber;
-            this.image_url = imageUrl;
-            this.access_type = accessType;
+            this.phoneNumber = phoneNumber;
+            this.imageUrl = imageUrl;
+            this.accessType = accessType;
             this.crmv = crmv;
-            this.uf_crmv = ufCrmv;
-            this.date_acceptance_terms = dateAcceptanceTerms;
+            this.ufCrmv = ufCrmv;
+            this.dateAcceptanceTerms = dateAcceptanceTerms;
             this.active = true;
-            this.created_at = LocalDateTime.now();
+            this.createdAt = LocalDateTime.now();
         }
     // getters
     public Integer getId() {
-        return Id;
+        return id;
     }
 
     public String getFullName() {
-        return full_name;
+        return fullName;
     }
 
     public AccessType getAccessType() {
-        return access_type;
+        return accessType;
     }
 
     public boolean IsActive() {
@@ -88,6 +92,6 @@ public class User {
     }
 
     public void ChengeFullName(String fullName) {
-        this.full_name = fullName;
+        this.fullName = fullName;
     }
 }

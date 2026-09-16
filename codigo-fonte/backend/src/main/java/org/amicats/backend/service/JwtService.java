@@ -19,7 +19,7 @@ public class JwtService {
         this.jwtEncoder = jwtEncoder;
     }
 
-    public String gerarToken(User user, UserAuth auth) {
+    public String generateJwtToken(User user, UserAuth auth) {
 
         Instant now = Instant.now();
 
@@ -29,7 +29,7 @@ public class JwtService {
             .expiresAt(now.plus(1, ChronoUnit.HOURS))
             .subject(user.getId().toString())
             .claim("email", auth.getEmail())
-            .claim("nome", user.getFullName())
+            .claim("name", user.getFullName())
             .claim("role", user.getAccessType().name())
             .build();
 
