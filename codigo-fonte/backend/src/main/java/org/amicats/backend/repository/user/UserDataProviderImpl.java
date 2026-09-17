@@ -1,5 +1,7 @@
 package org.amicats.backend.repository.user;
 
+import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.amicats.backend.domain.entity.User;
 import org.amicats.backend.domain.entity.UserAuth;
@@ -26,5 +28,20 @@ public class UserDataProviderImpl implements UserDataProvider {
     @Override
     public UserAuth saveUserAuth(UserAuth userAuth) {
         return userAuthRepository.save(userAuth);
+    }
+
+    @Override
+    public Optional<User> findById(Integer id) {
+        return userRepository.findById(id);
+    }
+
+    @Override
+    public List<User> findAll() {
+        return userRepository.findAll();
+    }
+
+    @Override
+    public Optional<String> findEmailByUserId(Integer userId) {
+        return userAuthRepository.findEmailByUserId(userId);
     }
 }

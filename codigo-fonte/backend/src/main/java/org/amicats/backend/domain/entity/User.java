@@ -1,6 +1,8 @@
 package org.amicats.backend.domain.entity;
 
 import java.time.LocalDateTime;
+
+import lombok.Setter;
 import org.amicats.backend.domain.enums.AccessType;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
@@ -20,6 +22,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "users")
 @Getter
+@Setter(onMethod_ = @Deprecated)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User {
 
