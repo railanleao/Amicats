@@ -12,13 +12,11 @@ import org.springframework.context.annotation.Scope;
 @AllArgsConstructor
 public class ReadUserFactory {
 
-    private UserDataProvider userDataProvider;
+  private UserDataProvider userDataProvider;
 
-    @Bean("ReadUserUseCase")
-    @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-    public ReadUserUseCase criar() {
-        return ReadUserUseCase.builder()
-                .userDataProvider(userDataProvider)
-                .build();
-    }
+  @Bean("ReadUserUseCase")
+  @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+  public ReadUserUseCase create() {
+    return ReadUserUseCase.builder().userDataProvider(userDataProvider).build();
+  }
 }

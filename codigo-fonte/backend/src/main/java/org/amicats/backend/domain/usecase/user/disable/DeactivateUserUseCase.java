@@ -9,13 +9,15 @@ import org.springframework.transaction.annotation.Transactional;
 @Builder
 public class DeactivateUserUseCase {
 
-    private UserDataProvider userDataProvider;
+  private UserDataProvider userDataProvider;
 
-    @Transactional
-    public void execute(Integer id) {
-        User user = userDataProvider.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado: " + id));
-        user.deactive();
-        userDataProvider.saveUser(user);
-    }
+  @Transactional
+  public void execute(Integer id) {
+    User user =
+        userDataProvider
+            .findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado: " + id));
+    user.deactive();
+    userDataProvider.saveUser(user);
+  }
 }

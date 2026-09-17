@@ -1,10 +1,10 @@
 package org.amicats.backend.service;
 
+import org.amicats.backend.domain.entity.User;
+import org.amicats.backend.domain.entity.UserAuth;
 import org.amicats.backend.domain.usecase.userauth.LoginRequest;
 import org.amicats.backend.domain.usecase.userauth.LoginResponse;
 import org.amicats.backend.exception.InvalidCredentialsException;
-import org.amicats.backend.domain.entity.User;
-import org.amicats.backend.domain.entity.UserAuth;
 import org.amicats.backend.repository.user.UserAuthRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -15,52 +15,45 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class AuthService {
 
-    private final UserAuthRepository userAuthRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final JwtService jwtService;
+  private final UserAuthRepository userAuthRepository;
+  private final PasswordEncoder passwordEncoder;
+  private final JwtService jwtService;
 
-    public AuthService(
-        UserAuthRepository userAuthRepository,
-        PasswordEncoder passwordEncoder,
-        JwtService jwtService) {
+  public AuthService(
+      UserAuthRepository userAuthRepository,
+      PasswordEncoder passwordEncoder,
+      JwtService jwtService) {
 
-        this.userAuthRepository = userAuthRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtService = jwtService;
-    }
-    @Transactional(readOnly = true)
-    public LoginResponse login(LoginRequest request) {
+    this.userAuthRepository = userAuthRepository;
+    this.passwordEncoder = passwordEncoder;
+    this.jwtService = jwtService;
+  }
 
-        UserAuth auth = userAuthRepository
+  @Transactional(readOnly = true)
+  public LoginResponse login(LoginRequest request) {
+
+    UserAuth auth =
+        userAuthRepository
             .findByEmail(request.email())
-            .orElseThrow(() ->
-                new ResponseStatusException(
-                    HttpStatus.UNAUTHORIZED,
-                    "Email ou senha inválidos")
-            );
-        
-        User user = auth.getUser();
+            .orElseThrow(
+                () ->
+                    new ResponseStatusException(
+                        HttpStatus.UNAUTHORIZED, "Email ou senha inválidos"));
 
-        if (!user.isActive()) {
-            throw new InvalidCredentialsException();
-        }
+    User user = auth.getUser();
 
-        boolean isValid = passwordEncoder.matches(
-            request.password(),
-            auth.getPasswordHash()
-        );
-
-        if (!isValid) {
-            throw new InvalidCredentialsException();
-        }
-
-        String token = jwtService.generateJwtToken(user, auth);
-
-        return new LoginResponse(
-            token,
-            user.getId(),
-            user.getFullName(),
-            user.getAccessType()
-        );
+    if (!user.isActive()) {
+      throw new InvalidCredentialsException();
     }
+
+    boolean isValid = passwordEncoder.matches(request.password(), auth.getPasswordHash());
+
+    if (!isValid) {
+      throw new InvalidCredentialsException();
+    }
+
+    String token = jwtService.generateJwtToken(user, auth);
+
+    return new LoginResponse(token, user.getId(), user.getFullName(), user.getAccessType());
+  }
 }

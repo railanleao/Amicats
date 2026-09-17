@@ -16,19 +16,16 @@ public class OpenApiConfig {
   @Bean
   public OpenAPI apiInfo() {
     return new OpenAPI()
-            .info(
-                    new Info()
-                            .title("Amicats API")
-                            .version("1.0.0")
-                            .description("API REST da ONG Amicats"))
-            .components(
-                    new Components()
-                            .addSecuritySchemes(
-                                    BEARER_SCHEME_NAME,
-                                    new SecurityScheme()
-                                            .type(SecurityScheme.Type.HTTP)
-                                            .scheme("bearer")
-                                            .bearerFormat("JWT")))
-            .addSecurityItem(new SecurityRequirement().addList(BEARER_SCHEME_NAME));
+        .info(
+            new Info().title("Amicats API").version("1.0.0").description("API REST da ONG Amicats"))
+        .components(
+            new Components()
+                .addSecuritySchemes(
+                    BEARER_SCHEME_NAME,
+                    new SecurityScheme()
+                        .type(SecurityScheme.Type.HTTP)
+                        .scheme("bearer")
+                        .bearerFormat("JWT")))
+        .addSecurityItem(new SecurityRequirement().addList(BEARER_SCHEME_NAME));
   }
 }

@@ -12,13 +12,11 @@ import org.springframework.context.annotation.Scope;
 @AllArgsConstructor
 public class DeactivateUserFactory {
 
-    private UserDataProvider userDataProvider;
+  private UserDataProvider userDataProvider;
 
-    @Bean("DeactivateUserUseCase")
-    @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-    public DeactivateUserUseCase criar() {
-        return DeactivateUserUseCase.builder()
-                .userDataProvider(userDataProvider)
-                .build();
-    }
+  @Bean("DeactivateUserUseCase")
+  @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+  public DeactivateUserUseCase create() {
+    return DeactivateUserUseCase.builder().userDataProvider(userDataProvider).build();
+  }
 }

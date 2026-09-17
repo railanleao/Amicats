@@ -5,9 +5,9 @@ import jakarta.validation.constraints.NotNull;
 import org.amicats.backend.domain.enums.AccessType;
 
 public record UpdateUserInput(
-        @NotBlank String fullName,
-        String phoneNumber,
-        String imageUrl,
-        @NotNull AccessType accessType,
-        String crmv,
-        String ufCrmv) {}
+    @NotBlank String fullName,
+    String phoneNumber,
+    String imageUrl,
+    @NotNull AccessType accessType,
+    String crmv,
+    String ufCrmv) {}

@@ -12,36 +12,36 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class UserDataProviderImpl implements UserDataProvider {
 
-    private final UserRepository userRepository;
-    private final UserAuthRepository userAuthRepository;
+  private final UserRepository userRepository;
+  private final UserAuthRepository userAuthRepository;
 
-    @Override
-    public boolean existsByEmail(String email) {
-        return userAuthRepository.findByEmail(email).isPresent();
-    }
+  @Override
+  public boolean existsByEmail(String email) {
+    return userAuthRepository.findByEmail(email).isPresent();
+  }
 
-    @Override
-    public User saveUser(User user) {
-        return userRepository.save(user);
-    }
+  @Override
+  public User saveUser(User user) {
+    return userRepository.save(user);
+  }
 
-    @Override
-    public UserAuth saveUserAuth(UserAuth userAuth) {
-        return userAuthRepository.save(userAuth);
-    }
+  @Override
+  public UserAuth saveUserAuth(UserAuth userAuth) {
+    return userAuthRepository.save(userAuth);
+  }
 
-    @Override
-    public Optional<User> findById(Integer id) {
-        return userRepository.findById(id);
-    }
+  @Override
+  public Optional<User> findById(Integer id) {
+    return userRepository.findById(id);
+  }
 
-    @Override
-    public List<User> findAll() {
-        return userRepository.findAll();
-    }
+  @Override
+  public List<User> findAll() {
+    return userRepository.findAll();
+  }
 
-    @Override
-    public Optional<String> findEmailByUserId(Integer userId) {
-        return userAuthRepository.findEmailByUserId(userId);
-    }
+  @Override
+  public Optional<String> findEmailByUserId(Integer userId) {
+    return userAuthRepository.findEmailByUserId(userId);
+  }
 }

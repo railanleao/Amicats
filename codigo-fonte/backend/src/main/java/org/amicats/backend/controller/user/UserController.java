@@ -12,19 +12,19 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/users")
 public interface UserController {
 
-    @GetMapping
-    List<ReadUserOutput> list();
+  @GetMapping
+  List<ReadUserOutput> list();
 
-    @GetMapping("/{id}")
-    ReadUserOutput findById(@PathVariable Integer id);
+  @GetMapping("/{id}")
+  ReadUserOutput findById(@PathVariable Integer id);
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    ReadUserOutput create(@Valid @RequestBody CreateUserInput input);
+  @PostMapping
+  @ResponseStatus(HttpStatus.CREATED)
+  ReadUserOutput create(@Valid @RequestBody CreateUserInput input);
 
-    @PutMapping("/{id}")
-    ReadUserOutput update(@PathVariable Integer id, @Valid @RequestBody UpdateUserInput input);
+  @PutMapping("/{id}")
+  ReadUserOutput update(@PathVariable Integer id, @Valid @RequestBody UpdateUserInput input);
 
-    @PatchMapping("/{id}/deactivate")
-    ResponseEntity<Void> deactivate(@PathVariable Integer id);
+  @PatchMapping("/{id}")
+  ResponseEntity<Void> deactivate(@PathVariable Integer id);
 }

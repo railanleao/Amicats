@@ -6,12 +6,11 @@ import jakarta.validation.constraints.NotNull;
 import org.amicats.backend.domain.enums.AccessType;
 
 public record CreateUserInput(
-        @NotBlank String fullName,
-        @NotBlank @Email String email,
-        @NotBlank String password,
-        String phoneNumber,
-        String imageUrl,
-        @NotNull AccessType accessType,
-        String crmv,
-        String ufCrmv
-) {}
+    @NotBlank String fullName,
+    @NotBlank @Email String email,
+    @NotBlank String password,
+    String phoneNumber,
+    String imageUrl,
+    @NotNull AccessType accessType,
+    String crmv,
+    String ufCrmv) {}

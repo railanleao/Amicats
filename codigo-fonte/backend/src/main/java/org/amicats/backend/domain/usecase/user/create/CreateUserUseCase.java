@@ -12,28 +12,29 @@ import org.springframework.transaction.annotation.Transactional;
 @Builder
 public class CreateUserUseCase {
 
-    private UserDataProvider userDataProvider;
-    private PasswordEncoder passwordEncoder;
+  private UserDataProvider userDataProvider;
+  private PasswordEncoder passwordEncoder;
 
-    @Transactional
-    public ReadUserOutput execute(CreateUserInput input) {
-        if (userDataProvider.existsByEmail(input.email())) {
-            throw new EmailAlreadyRegisteredException(input.email());
-        }
-
-        User user = new User(
-                input.fullName(),
-                input.phoneNumber(),
-                input.imageUrl(),
-                input.accessType(),
-                input.crmv(),
-                input.ufCrmv(),
-                null);
-        userDataProvider.saveUser(user);
-
-        UserAuth auth = new UserAuth(user, input.email(), passwordEncoder.encode(input.password()));
-        userDataProvider.saveUserAuth(auth);
-
-        return ReadUserOutput.from(user, input.email());
+  @Transactional
+  public ReadUserOutput execute(CreateUserInput input) {
+    if (userDataProvider.existsByEmail(input.email())) {
+      throw new EmailAlreadyRegisteredException(input.email());
     }
+
+    User user =
+        new User(
+            input.fullName(),
+            input.phoneNumber(),
+            input.imageUrl(),
+            input.accessType(),
+            input.crmv(),
+            input.ufCrmv(),
+            null);
+    userDataProvider.saveUser(user);
+
+    UserAuth auth = new UserAuth(user, input.email(), passwordEncoder.encode(input.password()));
+    userDataProvider.saveUserAuth(auth);
+
+    return ReadUserOutput.from(user, input.email());
+  }
 }

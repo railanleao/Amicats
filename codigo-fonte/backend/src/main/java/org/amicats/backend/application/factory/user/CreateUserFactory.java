@@ -13,15 +13,15 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @AllArgsConstructor
 public class CreateUserFactory {
 
-    private UserDataProvider userDataProvider;
-    private PasswordEncoder passwordEncoder;
+  private UserDataProvider userDataProvider;
+  private PasswordEncoder passwordEncoder;
 
-    @Bean("CreateUserUseCase")
-    @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-    public CreateUserUseCase criar() {
-        return CreateUserUseCase.builder()
-                .userDataProvider(userDataProvider)
-                .passwordEncoder(passwordEncoder)
-                .build();
-    }
+  @Bean("CreateUserUseCase")
+  @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+  public CreateUserUseCase create() {
+    return CreateUserUseCase.builder()
+        .userDataProvider(userDataProvider)
+        .passwordEncoder(passwordEncoder)
+        .build();
+  }
 }
