@@ -1,13 +1,19 @@
 import { useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
-import { AuthScreenLayout } from "../components/AuthScreenLayout";
-import { InfoBanner } from "../components/InfoBanner";
-import { LinkButton } from "../components/LinkButton";
-import { PrimaryButton } from "../components/PrimaryButton";
-import { TextField } from "../components/TextField";
-import { colors } from "../theme/colors";
-import { spacing } from "../theme/spacing";
+import { Controller, useForm } from "react-hook-form";
+import { Text, View } from "react-native";
+import {
+  AuthScreenLayout,
+  Button,
+  InfoBanner,
+  LinkButton,
+  TextField,
+} from "../components";
 import { isValidEmail } from "../utils/validation";
+import { styles } from "./ForgotPasswordScreen.styles";
+
+interface ForgotPasswordFormValues {
+  email: string;
+}
 
 interface ForgotPasswordScreenProps {
   onBackToLogin: () => void;
@@ -16,38 +22,47 @@ interface ForgotPasswordScreenProps {
 export function ForgotPasswordScreen({
   onBackToLogin,
 }: ForgotPasswordScreenProps) {
-  const [email, setEmail] = useState("");
-  const [emailError, setEmailError] = useState<string>();
   const [linkSent, setLinkSent] = useState(false);
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<ForgotPasswordFormValues>({
+    defaultValues: { email: "" },
+  });
 
-  function handleSubmit() {
-    const isEmailValid = isValidEmail(email);
-    setEmailError(isEmailValid ? undefined : "Informe um e-mail válido.");
-    setLinkSent(isEmailValid);
+  function onSubmit() {
+    setLinkSent(true);
   }
 
   return (
     <AuthScreenLayout
       title="Recuperar senha"
       subtitle="Informe o e-mail cadastrado. Vamos enviar um link para você criar uma nova senha."
-      logoSize={76}
-      titleAlign="center"
-      titleStyle={styles.title}
-      subtitleStyle={styles.subtitle}
     >
       <View style={styles.form}>
-        <TextField
-          label="E-mail"
-          placeholder="voce@amicats.org.br"
-          keyboardType="email-address"
-          autoCapitalize="none"
-          autoCorrect={false}
-          value={email}
-          onChangeText={(text) => {
-            setEmail(text);
-            setLinkSent(false);
+        <Controller
+          control={control}
+          name="email"
+          rules={{
+            validate: (value) =>
+              isValidEmail(value) || "Informe um e-mail válido.",
           }}
-          error={emailError}
+          render={({ field: { value, onChange } }) => (
+            <TextField
+              label="E-mail"
+              placeholder="voce@amicats.org.br"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              value={value}
+              onChangeText={(text) => {
+                onChange(text);
+                setLinkSent(false);
+              }}
+              error={errors.email?.message}
+            />
+          )}
         />
 
         {linkSent ? (
@@ -57,9 +72,9 @@ export function ForgotPasswordScreen({
           </Text>
         ) : null}
 
-        <PrimaryButton
+        <Button
           title="Enviar link de recuperação"
-          onPress={handleSubmit}
+          onPress={handleSubmit(onSubmit)}
         />
 
         <LinkButton
@@ -76,21 +91,3 @@ export function ForgotPasswordScreen({
     </AuthScreenLayout>
   );
 }
-
-const styles = StyleSheet.create({
-  title: {
-    fontSize: 26,
-  },
-  subtitle: {
-    fontSize: 14,
-    lineHeight: 21,
-  },
-  form: {
-    gap: spacing.lg,
-  },
-  confirmation: {
-    fontSize: 14,
-    lineHeight: 20,
-    color: colors.primary,
-  },
-});
