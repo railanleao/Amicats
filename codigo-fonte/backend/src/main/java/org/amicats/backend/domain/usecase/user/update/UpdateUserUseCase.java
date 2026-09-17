@@ -15,7 +15,7 @@ public class UpdateUserUseCase {
     @Transactional
     public ReadUserOutput execute(Integer id, UpdateUserInput input) {
         User user = userDataProvider.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado: " + id));
 
         user.setFullName(input.fullName());
         user.setAccessType(input.accessType());

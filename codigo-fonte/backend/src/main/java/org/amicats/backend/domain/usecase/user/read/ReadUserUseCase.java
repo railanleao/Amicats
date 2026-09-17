@@ -15,7 +15,7 @@ public class ReadUserUseCase {
     @Transactional(readOnly = true)
     public ReadUserOutput findById(Integer id) {
         User user = userDataProvider.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado: " + id));
         String email = userDataProvider.findEmailByUserId(user.getId()).orElse(null);
         return ReadUserOutput.from(user, email);
     }

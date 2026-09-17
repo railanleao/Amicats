@@ -14,7 +14,7 @@ public class DeactivateUserUseCase {
     @Transactional
     public void execute(Integer id) {
         User user = userDataProvider.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado: " + id));
         user.deactive();
         userDataProvider.saveUser(user);
     }
