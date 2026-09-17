@@ -1,25 +1,38 @@
-import { ReactNode } from "react";
+import {ReactNode} from "react";
 import {
   Image,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  StyleSheet,
   Text,
+  TextStyle,
   View,
 } from "react-native";
-import { styles } from "./AuthScreenLayout.styles";
+import {colors} from "../theme/colors";
+import {spacing} from "../theme/spacing";
 
 interface AuthScreenLayoutProps {
   title: string;
   subtitle: string;
+  logoSize?: number;
+  titleAlign?: "left" | "center";
+  titleStyle?: TextStyle;
+  subtitleStyle?: TextStyle;
   children: ReactNode;
 }
 
 export function AuthScreenLayout({
-  title,
-  subtitle,
-  children,
-}: AuthScreenLayoutProps) {
+                                   title,
+                                   subtitle,
+                                   logoSize = 96,
+                                   titleAlign = "left",
+                                   titleStyle,
+                                   subtitleStyle,
+                                   children,
+                                 }: AuthScreenLayoutProps) {
+  const alignStyle = titleAlign === "center" ? styles.textCenter : null;
+
   return (
     <KeyboardAvoidingView
       style={styles.flex}
@@ -31,14 +44,16 @@ export function AuthScreenLayout({
       >
         <View style={styles.logoWrapper}>
           <Image
-            source={require("../../../assets/logo-amicats.png")}
-            style={styles.logo}
+            source={require("../../assets/logo-amicats.png")}
+            style={{width: logoSize, height: logoSize, resizeMode: "contain"}}
           />
         </View>
 
         <View style={styles.header}>
-          <Text style={styles.title}>{title}</Text>
-          <Text style={styles.subtitle}>{subtitle}</Text>
+          <Text style={[styles.title, alignStyle, titleStyle]}>{title}</Text>
+          <Text style={[styles.subtitle, alignStyle, subtitleStyle]}>
+            {subtitle}
+          </Text>
         </View>
 
         {children}
@@ -46,3 +61,35 @@ export function AuthScreenLayout({
     </KeyboardAvoidingView>
   );
 }
+
+const styles = StyleSheet.create({
+  flex: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  content: {
+    flexGrow: 1,
+    padding: spacing.xl,
+    justifyContent: "center",
+    gap: spacing.xl,
+  },
+  logoWrapper: {
+    alignItems: "center",
+  },
+  header: {
+    gap: spacing.xs,
+  },
+  title: {
+    fontSize: 30,
+    fontWeight: "500",
+    color: colors.ink,
+  },
+  subtitle: {
+    fontSize: 15,
+    lineHeight: 22,
+    color: colors.inkSoft,
+  },
+  textCenter: {
+    textAlign: "center",
+  },
+});
