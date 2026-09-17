@@ -5,6 +5,19 @@ on:
     branches: [develop, main]
 
 jobs:
+  guardrails:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: "Verifica remoção de arquivos em pastas protegidas (ex: migrations)"
+        run: ./scripts/check-protected-paths.sh "origin/${{ github.event.pull_request.base.ref }}" "${{ github.event.pull_request.head.sha }}"
+
+      - name: Valida a sintaxe do docker-compose.yml
+        run: docker compose config --quiet
+
   backend:
     runs-on: ubuntu-latest
     services:
