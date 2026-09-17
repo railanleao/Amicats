@@ -14,4 +14,6 @@ export const colors = {
   sage900: "#2E3A28",
   danger: "#B3402E",
   dangerBg: "#F6E6E3",
+  warning: "#8A6D1F",
+  warningBg: "#F6ECCF",
 };

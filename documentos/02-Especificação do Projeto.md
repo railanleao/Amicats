@@ -18,7 +18,7 @@ A arquitetura foi definida priorizando simplicidade e sustentabilidade de manute
 - **App Mobile (React Native)** — usado no abrigo pelos voluntários e veterinários no dia a dia do atendimento. Funciona **offline-first**: todo lançamento de prontuário, medicação e alocação de sala é gravado primeiro em um banco local (SQLite) no próprio celular. Quando há sinal (mesmo instável), o app sincroniza em segundo plano com o backend, enviando as alterações pendentes e baixando o que foi atualizado por outros dispositivos.
 - **Backend (Java / Spring Boot)** — fonte única de verdade dos dados. Expõe uma API REST consumida tanto pelo app mobile (via sincronização) quanto pela web (uso direto, sempre online). Concentra a lógica de negócio, autenticação e o registro de autor/data-hora exigido pela Resolução CFMV nº 1.321/2020.
 - **Banco de Dados (PostgreSQL)** — banco relacional único, hospedado na nuvem junto ao backend, armazenando prontuários, medicações, estoque e alocação das salas.
-- **Web App (Next.js)** — utilizado pela administração/coordenação e pelas clínicas parceiras, sempre a partir de locais com internet estável (fora do abrigo). Por isso não precisa de suporte offline, apenas de conexão direta e online com a API.
+- **Web App (Angular)** — utilizado pela administração/coordenação e pelas clínicas parceiras, sempre a partir de locais com internet estável (fora do abrigo). Por isso não precisa de suporte offline, apenas de conexão direta e online com a API.
 - **Sincronização** — cada dispositivo mobile mantém uma fila local de alterações pendentes; ao reconectar, envia essas alterações ao backend e recebe o que mudou desde a última sincronização. Cada registro carrega autor e timestamp, e a resolução de conflitos é feita por **acréscimo, nunca por sobrescrita**: um ajuste posterior gera um novo lançamento em vez de substituir o registro existente, preservando o histórico auditável exigido para o prontuário e atendendo ao RNF-004 (nenhuma edição silenciosa).
 
 ### **Diagrama de componentes:**
@@ -37,7 +37,7 @@ flowchart TB
         direction LR
         ACT_ADM(["👤 Administração / Coordenação"])
         ACT_CLIN(["👤 Clínicas Parceiras"])
-        WEB["Web App<br/>Next.js"]
+        WEB["Web App<br/>Angular"]
         API["Backend API<br/>Java / Spring Boot"]
         PG[("PostgreSQL")]
         ACT_ADM --> WEB
@@ -224,6 +224,7 @@ erDiagram
 - **`medication_batch` controla o estoque por lote, não só por medicamento.** Cada lote tem validade e quantidade próprias; `medication_administration` pode referenciar o lote consumido, permitindo abater o estoque automaticamente e alertar sobre vencimento.
 - **`appointment` distingue quem atendeu de quem registrou.** O veterinário responsável (`veterinarian_id`) pode ser diferente de quem lançou o registro no sistema (`recorded_by`), já que muitas vezes um voluntário digitaliza depois o que foi passado verbalmente — sem perder a rastreabilidade de autoria exigida pela Resolução CFMV.
 - **`user.crmv` e `partner_clinic`.** Atendem à exigência de identificar o médico-veterinário responsável (nome e CRMV) em cada registro, incluindo os casos encaminhados às três clínicas parceiras externas.
+- **Apadrinhamento como colunas de `gato`, não como entidade própria.** Cada gato tem no máximo um padrinho ou madrinha, e o que a ONG precisa registrar é quem é a pessoa (`padrinho_nome`), como falar com ela (`padrinho_telefone`) e o que ela se comprometeu a custear (`padrinho_custeio`, texto livre — ração, exames, medicação). Não há controle financeiro de valores nem histórico de apadrinhamentos anteriores no escopo atual; se isso for necessário depois, o conjunto vira uma tabela `apadrinhamento` ligada a `gato`.
 
 ### Projeto Físico da Base de Dados
 
@@ -304,7 +305,9 @@ erDiagram
 | microchip | VARCHAR(50) | UNIQUE, NULL |
 | data_resgate | DATE | |
 | condicoes_encontrado | TEXT | |
-| padrinho_madrinha | VARCHAR(150) | |
+| padrinho_nome | VARCHAR(150) | |
+| padrinho_telefone | VARCHAR(20) | |
+| padrinho_custeio | TEXT | O que o padrinho custeia (ração, exames, medicação) |
 | id_usuario_criador | INT | FK → usuario(id_usuario) |
 | data_criacao | DATETIME | NOT NULL |
 

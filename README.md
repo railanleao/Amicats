@@ -101,7 +101,7 @@ Desenvolver um sistema web e mobile que centralize o prontuário clínico, o con
 | Camada | Tecnologia |
 |---|---|
 | Mobile | React Native 0.86 · Expo 57 · TypeScript |
-| Web | Next.js 16 · React 19 · TypeScript |
+| Web | Angular 19 · TypeScript |
 | Back-end | Java 21 · Spring Boot 4.1 (API REST) |
 | Banco de dados | PostgreSQL 16 · Flyway (migrations) |
 | Banco local (offline) | SQLite (app mobile) |
@@ -146,7 +146,7 @@ Cada issue recebe 4 categorias de label, para facilitar filtragem e priorizaçã
 ├── codigo-fonte/        # Código-fonte da solução
 │   ├── backend/         # API REST (Java · Spring Boot)
 │   ├── mobile/          # Aplicação mobile (React Native · Expo)
-│   └── web/             # Painel web (Next.js)
+│   └── web/             # Painel web (Angular)
 ├── documentos/          # Documentação do projeto
 │   └── img/             # Imagens usadas na documentação
 ├── proex/               # Relatório do APC (extensão)

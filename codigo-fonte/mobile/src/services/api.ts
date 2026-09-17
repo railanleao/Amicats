@@ -46,15 +46,16 @@ export async function apiRequest<T>(
   return (await response.json()) as T;
 }
 
+const DEFAULT_ERROR_MESSAGE =
+  "Não foi possível completar a solicitação. Tente novamente.";
+
 async function extractErrorMessage(response: Response): Promise<string> {
   try {
     const data = await response.json();
-    if (typeof data?.message === "string") {
-      return data.message;
-    }
+    return typeof data?.message === "string"
+      ? data.message
+      : DEFAULT_ERROR_MESSAGE;
   } catch {
-    // resposta sem corpo JSON
+    return DEFAULT_ERROR_MESSAGE;
   }
-
-  return "Não foi possível completar a solicitação. Tente novamente.";
 }

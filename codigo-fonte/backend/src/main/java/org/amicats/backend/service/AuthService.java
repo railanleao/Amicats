@@ -2,11 +2,14 @@ package org.amicats.backend.service;
 
 import org.amicats.backend.dto.LoginDto.LoginRequest;
 import org.amicats.backend.dto.LoginDto.LoginResponse;
+import org.amicats.backend.exception.InvalidCredentialsException;
 import org.amicats.backend.model.User;
 import org.amicats.backend.model.UserAuth;
 import org.amicats.backend.repository.UserAuthRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class AuthService {
@@ -29,11 +32,15 @@ public class AuthService {
         UserAuth auth = userAuthRepository
             .findByEmail(request.email())
             .orElseThrow(() ->
-                new RuntimeException("Email ou senha inválidos")
+                new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED,
+                    "Email ou senha inválidos")
             );
+        
+        User user = auth.getUser();
 
-        if (!auth.getUser().IsActive()) {
-            throw new RuntimeException("Usuário inativo");
+        if (!user.isActive()) {
+            throw new InvalidCredentialsException();
         }
 
         boolean isValid = passwordEncoder.matches(
@@ -42,10 +49,8 @@ public class AuthService {
         );
 
         if (!isValid) {
-            throw new RuntimeException("Email ou senha inválidos");
+            throw new InvalidCredentialsException();
         }
-
-        User user = auth.getUser();
 
         String token = jwtService.generateJwtToken(user, auth);
 

@@ -83,15 +83,15 @@ public class User {
         return accessType;
     }
 
-    public boolean IsActive() {
+    public boolean isActive() {
         return active;
     }
 
-    public void Deactive() {
+    public void deactive() {
         this.active = false;
     }
 
-    public void ChengeFullName(String fullName) {
+    public void chengeFullName(String fullName) {
         this.fullName = fullName;
     }
 }
