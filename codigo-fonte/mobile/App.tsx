@@ -1,20 +1,47 @@
+import { useState } from "react";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Alert, StyleSheet, View } from "react-native";
+import { RootNavigator } from "./src/navigation/RootNavigator";
+import { useAuth } from "./src/hooks/useAuth";
+import { colors } from "./src/theme/colors";
 
 export default function App() {
+  const { user, loadingSession, login, logout } = useAuth();
+
+  if (loadingSession) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color={colors.primary} />
+        <StatusBar style="auto" />
+      </View>
+    );
+  }
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
+    <>
+      <RootNavigator
+        user={user}
+        onLogin={login}
+        onLogout={logout}
+        onForgotPassword={() =>
+          Alert.alert(
+            "Esqueci minha senha",
+            "Entre em contato com a administração da ONG.",
+          )
+        }
+      />
       <StatusBar style="auto" />
-    </View>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  center: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: colors.background,
     alignItems: "center",
     justifyContent: "center",
+    gap: 12,
   },
 });
