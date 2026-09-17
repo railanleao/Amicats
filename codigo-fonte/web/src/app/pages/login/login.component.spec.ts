@@ -1,6 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Router } from '@angular/router';
+import { Router, provideRouter } from '@angular/router';
 import { Subject, throwError } from 'rxjs';
 
 import { LoginResponse } from '../../models/auth.model';
@@ -22,6 +22,7 @@ describe('LoginComponent (unit)', () => {
     await TestBed.configureTestingModule({
       imports: [LoginComponent],
       providers: [
+        provideRouter([]),
         { provide: AuthService, useValue: authServiceSpy },
         { provide: Router, useValue: routerSpy },
       ],
