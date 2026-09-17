@@ -1,18 +1,12 @@
-import { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
-import { Text, View } from "react-native";
-import {
-  AuthScreenLayout,
-  Button,
-  InfoBanner,
-  LinkButton,
-  TextField,
-} from "../components";
-import { ApiError } from "../services/api";
-import { DEV_CREDENTIALS } from "../services/authService";
-import type { LoginCredentials } from "../types/auth";
-import { isValidEmail } from "../utils/validation";
-import { styles } from "./LoginScreen.styles";
+import { useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import { Text, View } from 'react-native';
+import { AuthScreenLayout, Button, InfoBanner, LinkButton, TextField } from '../components';
+import { ApiError } from '../services/api';
+import { DEV_CREDENTIALS } from '../services/authService';
+import type { LoginCredentials } from '../types/auth';
+import { isValidEmail } from '../utils/validation';
+import { styles } from './LoginScreen.styles';
 
 interface LoginScreenProps {
   onLogin: (credentials: LoginCredentials) => Promise<void>;
@@ -27,7 +21,7 @@ export function LoginScreen({ onLogin, onForgotPassword }: LoginScreenProps) {
     handleSubmit,
     formState: { errors },
   } = useForm<LoginCredentials>({
-    defaultValues: { email: "", password: "" },
+    defaultValues: { email: '', password: '' },
   });
 
   async function submitLogin(credentials: LoginCredentials) {
@@ -37,13 +31,9 @@ export function LoginScreen({ onLogin, onForgotPassword }: LoginScreenProps) {
       await onLogin(credentials);
     } catch (error) {
       if (error instanceof ApiError && error.status === 401) {
-        setGeneralError("E-mail ou senha incorretos.");
+        setGeneralError('E-mail ou senha incorretos.');
       } else {
-        setGeneralError(
-          error instanceof ApiError
-            ? error.message
-            : "Não foi possível entrar.",
-        );
+        setGeneralError(error instanceof ApiError ? error.message : 'Não foi possível entrar.');
       }
     } finally {
       setSubmitting(false);
@@ -55,18 +45,13 @@ export function LoginScreen({ onLogin, onForgotPassword }: LoginScreenProps) {
   }
 
   return (
-    <AuthScreenLayout
-      title="Entrar"
-      subtitle="Use o e-mail cadastrado pela administração da ONG."
-      centerHeader
-    >
+    <AuthScreenLayout title="Entrar" subtitle="Use o e-mail cadastrado pela administração da ONG." titleAlign="center">
       <View style={styles.form}>
         <Controller
           control={control}
           name="email"
           rules={{
-            validate: (value) =>
-              isValidEmail(value) || "Informe um e-mail válido.",
+            validate: (value) => isValidEmail(value) || 'Informe um e-mail válido.',
           }}
           render={({ field: { value, onChange } }) => (
             <TextField
@@ -85,7 +70,7 @@ export function LoginScreen({ onLogin, onForgotPassword }: LoginScreenProps) {
         <Controller
           control={control}
           name="password"
-          rules={{ required: "Informe sua senha." }}
+          rules={{ required: 'Informe sua senha.' }}
           render={({ field: { value, onChange } }) => (
             <TextField
               label="Senha"
@@ -98,36 +83,16 @@ export function LoginScreen({ onLogin, onForgotPassword }: LoginScreenProps) {
           )}
         />
 
-        <LinkButton
-          title="Esqueci minha senha"
-          onPress={onForgotPassword}
-          align="flex-end"
-          style={styles.forgotPasswordLink}
-        />
+        <LinkButton title="Esqueci minha senha" onPress={onForgotPassword} align="flex-end" style={styles.forgotPasswordLink} />
 
-        {generalError ? (
-          <Text style={styles.generalError}>{generalError}</Text>
-        ) : null}
+        {generalError ? <Text style={styles.generalError}>{generalError}</Text> : null}
 
-        <Button
-          title="Entrar"
-          onPress={handleSubmit(onSubmit)}
-          loading={submitting}
-        />
+        <Button title="Entrar" onPress={handleSubmit(onSubmit)} loading={submitting} />
 
-        {__DEV__ ? (
-          <LinkButton
-            title="Entrar como dev"
-            onPress={() => submitLogin(DEV_CREDENTIALS)}
-            tone="muted"
-          />
-        ) : null}
+        {__DEV__ ? <LinkButton title="Entrar como dev" onPress={() => submitLogin(DEV_CREDENTIALS)} tone="muted" /> : null}
       </View>
 
-      <InfoBanner
-        icon="shield-outline"
-        text="Acesso restrito à equipe da ONG. Clínicas parceiras não têm login próprio."
-      />
+      <InfoBanner icon="shield-outline" text="Acesso restrito à equipe da ONG. Clínicas parceiras não têm login próprio." />
     </AuthScreenLayout>
   );
 }

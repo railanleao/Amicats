@@ -1,15 +1,9 @@
-import { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
-import { Text, View } from "react-native";
-import {
-  AuthScreenLayout,
-  Button,
-  InfoBanner,
-  LinkButton,
-  TextField,
-} from "../components";
-import { isValidEmail } from "../utils/validation";
-import { styles } from "./ForgotPasswordScreen.styles";
+import { useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import { Text, View } from 'react-native';
+import { AuthScreenLayout, Button, InfoBanner, LinkButton, TextField } from '../components';
+import { isValidEmail } from '../utils/validation';
+import { styles } from './ForgotPasswordScreen.styles';
 
 interface ForgotPasswordFormValues {
   email: string;
@@ -19,16 +13,14 @@ interface ForgotPasswordScreenProps {
   onBackToLogin: () => void;
 }
 
-export function ForgotPasswordScreen({
-  onBackToLogin,
-}: ForgotPasswordScreenProps) {
+export function ForgotPasswordScreen({ onBackToLogin }: ForgotPasswordScreenProps) {
   const [passwordSent, setPasswordSent] = useState(false);
   const {
     control,
     handleSubmit,
     formState: { errors },
   } = useForm<ForgotPasswordFormValues>({
-    defaultValues: { email: "" },
+    defaultValues: { email: '' },
   });
 
   function onSubmit() {
@@ -39,15 +31,14 @@ export function ForgotPasswordScreen({
     <AuthScreenLayout
       title="Recuperar senha"
       subtitle="Informe o e-mail cadastrado. Se ele estiver ativo, enviaremos uma senha temporária para você acessar o sistema."
-      centerHeader
+      titleAlign="center"
     >
       <View style={styles.form}>
         <Controller
           control={control}
           name="email"
           rules={{
-            validate: (value) =>
-              isValidEmail(value) || "Informe um e-mail válido.",
+            validate: (value) => isValidEmail(value) || 'Informe um e-mail válido.',
           }}
           render={({ field: { value, onChange } }) => (
             <TextField
@@ -67,22 +58,12 @@ export function ForgotPasswordScreen({
         />
 
         {passwordSent ? (
-          <Text style={styles.confirmation}>
-            Se esse e-mail estiver cadastrado, enviaremos uma senha temporária
-            em instantes.
-          </Text>
+          <Text style={styles.confirmation}>Se esse e-mail estiver cadastrado, enviaremos uma senha temporária em instantes.</Text>
         ) : null}
 
-        <Button
-          title="Enviar senha temporária"
-          onPress={handleSubmit(onSubmit)}
-        />
+        <Button title="Enviar senha temporária" onPress={handleSubmit(onSubmit)} />
 
-        <LinkButton
-          title="Voltar para o login"
-          onPress={onBackToLogin}
-          tone="muted"
-        />
+        <LinkButton title="Voltar para o login" onPress={onBackToLogin} tone="muted" />
       </View>
 
       <InfoBanner
