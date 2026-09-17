@@ -20,6 +20,12 @@
   --font-display: "Fraunces", Georgia, serif;
   --font-body: "Karla", Arial, sans-serif;
 
+  --text-xs: 13px;
+  --text-sm: 15px;
+  --text-base: 16px;
+  --text-lg: 22px;
+  --text-xl: 34px;
+
   --radius-sm: 6px;
   --radius-md: 10px;
 }
