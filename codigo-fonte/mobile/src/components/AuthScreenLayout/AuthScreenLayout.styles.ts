@@ -25,6 +25,9 @@ export const styles = StyleSheet.create({
   header: {
     gap: spacing.xs,
   },
+  headerCentered: {
+    alignItems: "center",
+  },
   title: {
     fontSize: fontSizes.display,
     fontWeight: "500",
@@ -34,5 +37,8 @@ export const styles = StyleSheet.create({
     fontSize: fontSizes.lg,
     lineHeight: 22,
     color: colors.inkSoft,
+  },
+  textCentered: {
+    textAlign: "center",
   },
 });

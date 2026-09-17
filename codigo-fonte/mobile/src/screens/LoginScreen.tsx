@@ -58,6 +58,7 @@ export function LoginScreen({ onLogin, onForgotPassword }: LoginScreenProps) {
     <AuthScreenLayout
       title="Entrar"
       subtitle="Use o e-mail cadastrado pela administração da ONG."
+      centerHeader
     >
       <View style={styles.form}>
         <Controller
@@ -124,8 +125,8 @@ export function LoginScreen({ onLogin, onForgotPassword }: LoginScreenProps) {
       </View>
 
       <InfoBanner
-        icon="shield-checkmark-outline"
-        text="Acesso restrito à equipe da ONG. Profissionais de clínicas parceiras não têm login próprio — seus registros são inseridos por um usuário interno autorizado."
+        icon="shield-outline"
+        text="Acesso restrito à equipe da ONG. Clínicas parceiras não têm login próprio."
       />
     </AuthScreenLayout>
   );

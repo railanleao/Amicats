@@ -12,12 +12,14 @@ import { styles } from "./AuthScreenLayout.styles";
 interface AuthScreenLayoutProps {
   title: string;
   subtitle: string;
+  centerHeader?: boolean;
   children: ReactNode;
 }
 
 export function AuthScreenLayout({
   title,
   subtitle,
+  centerHeader = false,
   children,
 }: AuthScreenLayoutProps) {
   return (
@@ -36,9 +38,13 @@ export function AuthScreenLayout({
           />
         </View>
 
-        <View style={styles.header}>
-          <Text style={styles.title}>{title}</Text>
-          <Text style={styles.subtitle}>{subtitle}</Text>
+        <View style={[styles.header, centerHeader && styles.headerCentered]}>
+          <Text style={[styles.title, centerHeader && styles.textCentered]}>
+            {title}
+          </Text>
+          <Text style={[styles.subtitle, centerHeader && styles.textCentered]}>
+            {subtitle}
+          </Text>
         </View>
 
         {children}

@@ -22,7 +22,7 @@ interface ForgotPasswordScreenProps {
 export function ForgotPasswordScreen({
   onBackToLogin,
 }: ForgotPasswordScreenProps) {
-  const [linkSent, setLinkSent] = useState(false);
+  const [passwordSent, setPasswordSent] = useState(false);
   const {
     control,
     handleSubmit,
@@ -32,13 +32,14 @@ export function ForgotPasswordScreen({
   });
 
   function onSubmit() {
-    setLinkSent(true);
+    setPasswordSent(true);
   }
 
   return (
     <AuthScreenLayout
       title="Recuperar senha"
-      subtitle="Informe o e-mail cadastrado. Vamos enviar um link para você criar uma nova senha."
+      subtitle="Informe o e-mail cadastrado. Se ele estiver ativo, enviaremos uma senha temporária para você acessar o sistema."
+      centerHeader
     >
       <View style={styles.form}>
         <Controller
@@ -58,22 +59,22 @@ export function ForgotPasswordScreen({
               value={value}
               onChangeText={(text) => {
                 onChange(text);
-                setLinkSent(false);
+                setPasswordSent(false);
               }}
               error={errors.email?.message}
             />
           )}
         />
 
-        {linkSent ? (
+        {passwordSent ? (
           <Text style={styles.confirmation}>
-            Se esse e-mail estiver cadastrado, enviaremos um link de recuperação
+            Se esse e-mail estiver cadastrado, enviaremos uma senha temporária
             em instantes.
           </Text>
         ) : null}
 
         <Button
-          title="Enviar link de recuperação"
+          title="Enviar senha temporária"
           onPress={handleSubmit(onSubmit)}
         />
 
