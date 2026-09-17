@@ -3,8 +3,8 @@ package org.amicats.backend.service;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
-import org.amicats.backend.model.User;
-import org.amicats.backend.model.UserAuth;
+import org.amicats.backend.domain.entity.User;
+import org.amicats.backend.domain.entity.UserAuth;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwsHeader;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;

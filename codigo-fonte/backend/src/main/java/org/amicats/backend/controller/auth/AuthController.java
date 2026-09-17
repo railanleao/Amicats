@@ -1,7 +1,7 @@
-package org.amicats.backend.controller.Auth;
+package org.amicats.backend.controller.auth;
 
-import org.amicats.backend.dto.LoginDto.LoginRequest;
-import org.amicats.backend.dto.LoginDto.LoginResponse;
+import org.amicats.backend.domain.usecase.userauth.LoginRequest;
+import org.amicats.backend.domain.usecase.userauth.LoginResponse;
 import org.amicats.backend.service.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

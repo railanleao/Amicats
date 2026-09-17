@@ -1,4 +1,4 @@
-package org.amicats.backend.dto.LoginDto;
+package org.amicats.backend.domain.usecase.userauth;
 
 public record LoginRequest(
     String email,

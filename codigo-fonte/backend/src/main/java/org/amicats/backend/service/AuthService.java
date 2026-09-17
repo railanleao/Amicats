@@ -1,11 +1,11 @@
 package org.amicats.backend.service;
 
-import org.amicats.backend.dto.LoginDto.LoginRequest;
-import org.amicats.backend.dto.LoginDto.LoginResponse;
+import org.amicats.backend.domain.usecase.userauth.LoginRequest;
+import org.amicats.backend.domain.usecase.userauth.LoginResponse;
 import org.amicats.backend.exception.InvalidCredentialsException;
-import org.amicats.backend.model.User;
-import org.amicats.backend.model.UserAuth;
-import org.amicats.backend.repository.UserAuthRepository;
+import org.amicats.backend.domain.entity.User;
+import org.amicats.backend.domain.entity.UserAuth;
+import org.amicats.backend.repository.user.UserAuthRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

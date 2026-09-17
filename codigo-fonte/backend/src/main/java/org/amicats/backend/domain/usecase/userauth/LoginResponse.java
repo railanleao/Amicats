@@ -1,6 +1,6 @@
-package org.amicats.backend.dto.LoginDto;
+package org.amicats.backend.domain.usecase.userauth;
 
-import org.amicats.backend.model.Enum.AccessType;
+import org.amicats.backend.domain.enums.AccessType;
 
 public record LoginResponse(
     String token,

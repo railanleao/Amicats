@@ -1,4 +1,4 @@
-package org.amicats.backend.model.Enum;
+package org.amicats.backend.domain.enums;
 
 public enum AccessType {
     Administrator, 

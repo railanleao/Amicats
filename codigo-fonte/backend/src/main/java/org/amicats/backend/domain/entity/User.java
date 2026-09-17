@@ -1,7 +1,7 @@
-package org.amicats.backend.model;
+package org.amicats.backend.domain.entity;
 
 import java.time.LocalDateTime;
-import org.amicats.backend.model.Enum.AccessType;
+import org.amicats.backend.domain.enums.AccessType;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -13,9 +13,14 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-@Entity 
+@Entity
 @Table(name = "users")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User {
 
     @Id
@@ -46,37 +51,24 @@ public class User {
     @Column(name = "date_acceptance_terms")
     private LocalDateTime dateAcceptanceTerms;
 
+    @Getter(AccessLevel.NONE)
     @Column(nullable = false)
     private Boolean active;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    protected User() {}
-
     public User(String fullName, String phoneNumber, String imageUrl,
-        AccessType accessType, String crmv, String ufCrmv, LocalDateTime dateAcceptanceTerms) {
-            this.fullName = fullName;
-            this.phoneNumber = phoneNumber;
-            this.imageUrl = imageUrl;
-            this.accessType = accessType;
-            this.crmv = crmv;
-            this.ufCrmv = ufCrmv;
-            this.dateAcceptanceTerms = dateAcceptanceTerms;
-            this.active = true;
-            this.createdAt = LocalDateTime.now();
-        }
-    // getters
-    public Integer getId() {
-        return id;
-    }
-
-    public String getFullName() {
-        return fullName;
-    }
-
-    public AccessType getAccessType() {
-        return accessType;
+                AccessType accessType, String crmv, String ufCrmv, LocalDateTime dateAcceptanceTerms) {
+        this.fullName = fullName;
+        this.phoneNumber = phoneNumber;
+        this.imageUrl = imageUrl;
+        this.accessType = accessType;
+        this.crmv = crmv;
+        this.ufCrmv = ufCrmv;
+        this.dateAcceptanceTerms = dateAcceptanceTerms;
+        this.active = true;
+        this.createdAt = LocalDateTime.now();
     }
 
     public boolean isActive() {
@@ -87,7 +79,7 @@ public class User {
         this.active = false;
     }
 
-    public void chengeFullName(String fullName) {
+    public void changeFullName(String fullName) {
         this.fullName = fullName;
     }
 }
