@@ -1,17 +1,17 @@
-import {StyleSheet, Text, View} from "react-native";
-import {Ionicons} from "@expo/vector-icons";
-import {colors} from "../theme/colors";
-import {radii, spacing} from "../theme/spacing";
+import { StyleSheet, Text, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { colors } from '../../theme/colors';
+import { radii, spacing } from '../../theme/spacing';
 
 interface InfoBannerProps {
   icon: keyof typeof Ionicons.glyphMap;
   text: string;
 }
 
-export function InfoBanner({icon, text}: InfoBannerProps) {
+export function InfoBanner({ icon, text }: InfoBannerProps) {
   return (
     <View style={styles.container}>
-      <Ionicons name={icon} size={18} color={colors.sky}/>
+      <Ionicons name={icon} size={18} color={colors.sky} />
       <Text style={styles.text}>{text}</Text>
     </View>
   );
@@ -19,7 +19,7 @@ export function InfoBanner({icon, text}: InfoBannerProps) {
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: "row",
+    flexDirection: 'row',
     gap: spacing.sm + 2,
     backgroundColor: colors.infoBg,
     borderColor: colors.infoBorder,

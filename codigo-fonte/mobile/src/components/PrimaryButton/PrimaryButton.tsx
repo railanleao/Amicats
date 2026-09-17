@@ -1,12 +1,6 @@
-import {
-  ActivityIndicator,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  ViewStyle,
-} from "react-native";
-import {colors} from "../theme/colors";
-import {radii, spacing} from "../theme/spacing";
+import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, ViewStyle } from 'react-native';
+import { colors } from '../../theme/colors';
+import { radii, spacing } from '../../theme/spacing';
 
 interface PrimaryButtonProps {
   title: string;
@@ -16,13 +10,7 @@ interface PrimaryButtonProps {
   style?: ViewStyle;
 }
 
-export function PrimaryButton({
-                                title,
-                                onPress,
-                                loading,
-                                disabled,
-                                style,
-                              }: PrimaryButtonProps) {
+export function PrimaryButton({ title, onPress, loading, disabled, style }: PrimaryButtonProps) {
   const isDisabled = disabled || loading;
 
   return (
@@ -33,19 +21,15 @@ export function PrimaryButton({
       activeOpacity={0.85}
       accessibilityRole="button"
     >
-      {loading ? (
-        <ActivityIndicator color={colors.onPrimary}/>
-      ) : (
-        <Text style={styles.text}>{title}</Text>
-      )}
+      {loading ? <ActivityIndicator color={colors.onPrimary} /> : <Text style={styles.text}>{title}</Text>}
     </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
   button: {
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: colors.primary,
     borderRadius: radii.sm,
     paddingVertical: spacing.md,
@@ -56,6 +40,6 @@ const styles = StyleSheet.create({
   text: {
     color: colors.onPrimary,
     fontSize: 15,
-    fontWeight: "700",
+    fontWeight: '700',
   },
 });

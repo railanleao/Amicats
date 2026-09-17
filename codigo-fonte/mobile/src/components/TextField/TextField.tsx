@@ -1,15 +1,8 @@
-import {useState} from "react";
-import {
-  StyleSheet,
-  Text,
-  TextInput,
-  TextInputProps,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import {Ionicons} from "@expo/vector-icons";
-import {colors} from "../theme/colors";
-import {radii, spacing} from "../theme/spacing";
+import { useState } from 'react';
+import { StyleSheet, Text, TextInput, TextInputProps, TouchableOpacity, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { colors } from '../../theme/colors';
+import { radii, spacing } from '../../theme/spacing';
 
 interface TextFieldProps extends TextInputProps {
   label: string;
@@ -17,21 +10,13 @@ interface TextFieldProps extends TextInputProps {
   isPassword?: boolean;
 }
 
-export function TextField({
-                            label,
-                            error,
-                            isPassword,
-                            style,
-                            ...inputProps
-                          }: TextFieldProps) {
+export function TextField({ label, error, isPassword, style, ...inputProps }: TextFieldProps) {
   const [passwordVisible, setPasswordVisible] = useState(false);
 
   return (
     <View style={styles.container}>
       <Text style={styles.label}>{label}</Text>
-      <View
-        style={[styles.inputWrapper, error ? styles.inputWrapperError : null]}
-      >
+      <View style={[styles.inputWrapper, error ? styles.inputWrapperError : null]}>
         <TextInput
           style={[styles.input, style]}
           placeholderTextColor={colors.inkFaint}
@@ -43,15 +28,9 @@ export function TextField({
             onPress={() => setPasswordVisible((visible) => !visible)}
             hitSlop={8}
             accessibilityRole="button"
-            accessibilityLabel={
-              passwordVisible ? "Ocultar senha" : "Mostrar senha"
-            }
+            accessibilityLabel={passwordVisible ? 'Ocultar senha' : 'Mostrar senha'}
           >
-            <Ionicons
-              name={passwordVisible ? "eye-off-outline" : "eye-outline"}
-              size={20}
-              color={colors.inkSoft}
-            />
+            <Ionicons name={passwordVisible ? 'eye-off-outline' : 'eye-outline'} size={20} color={colors.inkSoft} />
           </TouchableOpacity>
         ) : null}
       </View>
@@ -66,12 +45,12 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: '600',
     color: colors.ink,
   },
   inputWrapper: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: colors.surface,
     borderColor: colors.border,
     borderWidth: 1.5,
