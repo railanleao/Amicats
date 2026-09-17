@@ -11,22 +11,23 @@ describe('LoginComponent (unit)', () => {
   let fixture: ComponentFixture<LoginComponent>;
   let component: LoginComponent;
   let authServiceSpy: jasmine.SpyObj<AuthService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let router: Router;
 
   beforeEach(async () => {
     authServiceSpy = jasmine.createSpyObj<AuthService>('AuthService', [
       'login',
     ]);
-    routerSpy = jasmine.createSpyObj<Router>('Router', ['navigateByUrl']);
 
     await TestBed.configureTestingModule({
       imports: [LoginComponent],
       providers: [
         provideRouter([]),
         { provide: AuthService, useValue: authServiceSpy },
-        { provide: Router, useValue: routerSpy },
       ],
     }).compileComponents();
+
+    router = TestBed.inject(Router);
+    spyOn(router, 'navigateByUrl').and.resolveTo(true);
 
     fixture = TestBed.createComponent(LoginComponent);
     component = fixture.componentInstance;
@@ -89,7 +90,7 @@ describe('LoginComponent (unit)', () => {
     subject.next(mockUser());
     subject.complete();
 
-    expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('/');
+    expect(router.navigateByUrl).toHaveBeenCalledWith('/');
   });
 
   it('shows an invalid-credentials message on a 401 response and does not navigate', () => {
@@ -103,7 +104,7 @@ describe('LoginComponent (unit)', () => {
     component.onSubmit();
 
     expect(component.errorMessage()).toBe('E-mail ou senha inválidos.');
-    expect(routerSpy.navigateByUrl).not.toHaveBeenCalled();
+    expect(router.navigateByUrl).not.toHaveBeenCalled();
     expect(component.loading()).toBeFalse();
   });
 
@@ -120,7 +121,7 @@ describe('LoginComponent (unit)', () => {
     expect(component.errorMessage()).toBe(
       'Não foi possível entrar. Tente novamente em instantes.',
     );
-    expect(routerSpy.navigateByUrl).not.toHaveBeenCalled();
+    expect(router.navigateByUrl).not.toHaveBeenCalled();
     expect(component.loading()).toBeFalse();
   });
 });
