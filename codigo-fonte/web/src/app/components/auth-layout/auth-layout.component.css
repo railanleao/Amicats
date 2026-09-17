@@ -1,0 +1,27 @@
+.auth-layout {
+  display: flex;
+  min-height: 100vh;
+  background: var(--color-surface);
+}
+
+.auth-layout__brand {
+  flex: 0 0 520px;
+}
+
+.auth-layout__content {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 56px;
+}
+
+@media (max-width: 900px) {
+  .auth-layout {
+    flex-direction: column;
+  }
+
+  .auth-layout__brand {
+    flex-basis: auto;
+  }
+}

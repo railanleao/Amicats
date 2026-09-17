@@ -1,14 +1,13 @@
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { Text, View } from "react-native";
 import {
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  Text,
-  View,
-} from "react-native";
-import { Button, InfoBanner, LinkButton, TextField } from "../components";
+  AuthScreenLayout,
+  Button,
+  InfoBanner,
+  LinkButton,
+  TextField,
+} from "../components";
 import { ApiError } from "../services/api";
 import { DEV_CREDENTIALS } from "../services/authService";
 import type { LoginCredentials } from "../types/auth";
@@ -56,97 +55,78 @@ export function LoginScreen({ onLogin, onForgotPassword }: LoginScreenProps) {
   }
 
   return (
-    <KeyboardAvoidingView
-      style={styles.flex}
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    <AuthScreenLayout
+      title="Entrar"
+      subtitle="Use o e-mail cadastrado pela administração da ONG."
     >
-      <ScrollView
-        contentContainerStyle={styles.content}
-        keyboardShouldPersistTaps="handled"
-      >
-        <View style={styles.logoWrapper}>
-          <Image
-            source={require("../../assets/logo-amicats.png")}
-            style={styles.logo}
-          />
-        </View>
-
-        <View style={styles.header}>
-          <Text style={styles.title}>Entrar</Text>
-          <Text style={styles.subtitle}>
-            Use o e-mail cadastrado pela administração da ONG.
-          </Text>
-        </View>
-
-        <View style={styles.form}>
-          <Controller
-            control={control}
-            name="email"
-            rules={{
-              validate: (value) =>
-                isValidEmail(value) || "Informe um e-mail válido.",
-            }}
-            render={({ field: { value, onChange } }) => (
-              <TextField
-                label="E-mail"
-                placeholder="voce@amicats.org.br"
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoCorrect={false}
-                value={value}
-                onChangeText={onChange}
-                error={errors.email?.message}
-              />
-            )}
-          />
-
-          <Controller
-            control={control}
-            name="password"
-            rules={{ required: "Informe sua senha." }}
-            render={({ field: { value, onChange } }) => (
-              <TextField
-                label="Senha"
-                placeholder="Sua senha"
-                isPassword
-                value={value}
-                onChangeText={onChange}
-                error={errors.password?.message}
-              />
-            )}
-          />
-
-          <LinkButton
-            title="Esqueci minha senha"
-            onPress={onForgotPassword}
-            align="flex-end"
-            style={styles.forgotPasswordLink}
-          />
-
-          {generalError ? (
-            <Text style={styles.generalError}>{generalError}</Text>
-          ) : null}
-
-          <Button
-            title="Entrar"
-            onPress={handleSubmit(onSubmit)}
-            loading={submitting}
-          />
-
-          {__DEV__ ? (
-            <LinkButton
-              title="Entrar como dev"
-              onPress={() => submitLogin(DEV_CREDENTIALS)}
-              tone="muted"
+      <View style={styles.form}>
+        <Controller
+          control={control}
+          name="email"
+          rules={{
+            validate: (value) =>
+              isValidEmail(value) || "Informe um e-mail válido.",
+          }}
+          render={({ field: { value, onChange } }) => (
+            <TextField
+              label="E-mail"
+              placeholder="voce@amicats.org.br"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              value={value}
+              onChangeText={onChange}
+              error={errors.email?.message}
             />
-          ) : null}
-        </View>
-
-        <InfoBanner
-          icon="shield-checkmark-outline"
-          text="Acesso restrito à equipe da ONG. Profissionais de clínicas parceiras não têm login próprio — seus registros são inseridos por um usuário interno autorizado."
+          )}
         />
-      </ScrollView>
-    </KeyboardAvoidingView>
+
+        <Controller
+          control={control}
+          name="password"
+          rules={{ required: "Informe sua senha." }}
+          render={({ field: { value, onChange } }) => (
+            <TextField
+              label="Senha"
+              placeholder="Sua senha"
+              isPassword
+              value={value}
+              onChangeText={onChange}
+              error={errors.password?.message}
+            />
+          )}
+        />
+
+        <LinkButton
+          title="Esqueci minha senha"
+          onPress={onForgotPassword}
+          align="flex-end"
+          style={styles.forgotPasswordLink}
+        />
+
+        {generalError ? (
+          <Text style={styles.generalError}>{generalError}</Text>
+        ) : null}
+
+        <Button
+          title="Entrar"
+          onPress={handleSubmit(onSubmit)}
+          loading={submitting}
+        />
+
+        {__DEV__ ? (
+          <LinkButton
+            title="Entrar como dev"
+            onPress={() => submitLogin(DEV_CREDENTIALS)}
+            tone="muted"
+          />
+        ) : null}
+      </View>
+
+      <InfoBanner
+        icon="shield-checkmark-outline"
+        text="Acesso restrito à equipe da ONG. Profissionais de clínicas parceiras não têm login próprio — seus registros são inseridos por um usuário interno autorizado."
+      />
+    </AuthScreenLayout>
   );
 }
