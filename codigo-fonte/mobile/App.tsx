@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { ActivityIndicator, Alert, StyleSheet, View } from "react-native";
 import { RootNavigator } from "./src/navigation/RootNavigator";
