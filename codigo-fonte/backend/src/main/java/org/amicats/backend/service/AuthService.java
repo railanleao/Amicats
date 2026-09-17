@@ -9,6 +9,7 @@ import org.amicats.backend.repository.UserAuthRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
@@ -27,6 +28,7 @@ public class AuthService {
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
     }
+    @Transactional(readOnly = true)
     public LoginResponse login(LoginRequest request) {
 
         UserAuth auth = userAuthRepository

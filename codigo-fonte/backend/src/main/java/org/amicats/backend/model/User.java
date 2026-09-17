@@ -26,9 +26,6 @@ public class User {
     @Column(name = "full_name", nullable = false, length = 150)
     private String fullName;
 
-    @Column(nullable = false, unique = true, length = 150)
-    private String email;
-
     @Column(name = "phone_number", length = 20)
     private String phoneNumber;
 
@@ -57,10 +54,9 @@ public class User {
 
     protected User() {}
 
-    public User(String fullName, String email, String phoneNumber, String imageUrl,
+    public User(String fullName, String phoneNumber, String imageUrl,
         AccessType accessType, String crmv, String ufCrmv, LocalDateTime dateAcceptanceTerms) {
             this.fullName = fullName;
-            this.email = email;
             this.phoneNumber = phoneNumber;
             this.imageUrl = imageUrl;
             this.accessType = accessType;
