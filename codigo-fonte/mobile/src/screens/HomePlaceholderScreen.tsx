@@ -1,11 +1,11 @@
 import { StyleSheet, Text, View } from "react-native";
-import { PrimaryButton } from "../components/PrimaryButton";
+import { Button } from "../components";
 import { colors } from "../theme/colors";
 import { spacing } from "../theme/spacing";
-import type { Usuario } from "../types/auth";
+import type { User } from "../types/auth";
 
 interface HomePlaceholderScreenProps {
-  user: Usuario;
+  user: User;
   onLogout: () => void;
 }
 
@@ -15,9 +15,10 @@ export function HomePlaceholderScreen({
 }: HomePlaceholderScreenProps) {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Olá, {user.nomeCompleto}</Text>
-      <Text style={styles.subtitle}>{user.tipoAcesso}</Text>
-      <PrimaryButton
+      <Text style={styles.title}>Olá, {user.fullName}</Text>
+      <Text style={styles.subtitle}>{user.accessType}</Text>
+      <Button
+        variant="outline"
         title="Sair"
         onPress={onLogout}
         style={styles.logoutButton}

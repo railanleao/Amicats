@@ -7,7 +7,7 @@ import {
   View,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { PrimaryButton } from "../components/PrimaryButton";
+import { Button } from "../components";
 import { colors } from "../theme/colors";
 import { radii, spacing } from "../theme/spacing";
 
@@ -63,11 +63,7 @@ export function TermsAcceptanceScreen({
         <Text style={styles.checkboxLabel}>Li e aceito os termos.</Text>
       </TouchableOpacity>
 
-      <PrimaryButton
-        title="Continuar"
-        onPress={onContinue}
-        disabled={!accepted}
-      />
+      <Button title="Continuar" onPress={onContinue} disabled={!accepted} />
     </ScrollView>
   );
 }

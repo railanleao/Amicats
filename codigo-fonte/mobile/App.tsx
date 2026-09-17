@@ -1,7 +1,5 @@
-import { useState } from "react";
-import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { StatusBar } from "expo-status-bar";
-import { ActivityIndicator, Alert, StyleSheet, View } from "react-native";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { RootNavigator } from "./src/navigation/RootNavigator";
 import { useAuth } from "./src/hooks/useAuth";
 import { colors } from "./src/theme/colors";
@@ -20,17 +18,7 @@ export default function App() {
 
   return (
     <>
-      <RootNavigator
-        user={user}
-        onLogin={login}
-        onLogout={logout}
-        onForgotPassword={() =>
-          Alert.alert(
-            "Esqueci minha senha",
-            "Entre em contato com a administração da ONG.",
-          )
-        }
-      />
+      <RootNavigator user={user} onLogin={login} onLogout={logout} />
       <StatusBar style="auto" />
     </>
   );
