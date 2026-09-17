@@ -10,40 +10,46 @@ import org.amicats.backend.domain.usecase.user.create.CreateUserInput;
 import org.amicats.backend.domain.usecase.user.read.ReadUserOutput;
 import org.amicats.backend.domain.usecase.user.update.UpdateUserInput;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
 public class UserControllerImpl implements UserController {
 
-    private final CreateUserFactory createUserFactory;
-    private final ReadUserFactory readUserFactory;
-    private final UpdateUserFactory updateUserFactory;
-    private final DeactivateUserFactory deactivateUserFactory;
+  private final CreateUserFactory createUserFactory;
+  private final ReadUserFactory readUserFactory;
+  private final UpdateUserFactory updateUserFactory;
+  private final DeactivateUserFactory deactivateUserFactory;
 
-    @Override
-    public List<ReadUserOutput> list() {
-        return readUserFactory.criar().findAll();
-    }
+  @Override
+  @PreAuthorize("hasRole('Administrator')")
+  public List<ReadUserOutput> list() {
+    return readUserFactory.create().findAll();
+  }
 
-    @Override
-    public ReadUserOutput findById(Integer id) {
-        return readUserFactory.criar().findById(id);
-    }
+  @Override
+  @PreAuthorize("hasRole('Administrator')")
+  public ReadUserOutput findById(Integer id) {
+    return readUserFactory.create().findById(id);
+  }
 
-    @Override
-    public ReadUserOutput create(CreateUserInput input) {
-        return createUserFactory.criar().execute(input);
-    }
+  @Override
+  @PreAuthorize("hasRole('Administrator')")
+  public ReadUserOutput create(CreateUserInput input) {
+    return createUserFactory.create().execute(input);
+  }
 
-    @Override
-    public ReadUserOutput update(Integer id, UpdateUserInput input) {
-        return updateUserFactory.criar().execute(id, input);
-    }
+  @Override
+  @PreAuthorize("hasRole('Administrator')")
+  public ReadUserOutput update(Integer id, UpdateUserInput input) {
+    return updateUserFactory.create().execute(id, input);
+  }
 
-    @Override
-    public ResponseEntity<Void> deactivate(Integer id) {
-        deactivateUserFactory.criar().execute(id);
-        return ResponseEntity.noContent().build();
-    }
+  @Override
+  @PreAuthorize("hasRole('Administrator')")
+  public ResponseEntity<Void> deactivate(Integer id) {
+    deactivateUserFactory.create().execute(id);
+    return ResponseEntity.noContent().build();
+  }
 }
