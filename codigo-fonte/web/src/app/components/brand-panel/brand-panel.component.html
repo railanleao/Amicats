@@ -1,0 +1,20 @@
+<div class="brand-panel">
+  <div class="brand-panel__plate">
+    <img
+      src="logo-amicats.png"
+      alt="Amicats"
+      class="brand-panel__logo"
+    />
+  </div>
+
+  <p class="brand-panel__quote">{{ quote }}</p>
+
+  <div class="brand-panel__stats">
+    @for (stat of stats; track stat.label) {
+      <div class="brand-panel__stat">
+        <div class="brand-panel__stat-value">{{ stat.value }}</div>
+        <div class="brand-panel__stat-label">{{ stat.label }}</div>
+      </div>
+    }
+  </div>
+</div>

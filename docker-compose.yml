@@ -23,11 +23,14 @@ services:
     container_name: amicats-backend
     restart: unless-stopped
     environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-dev}
       DB_HOST: postgres
       DB_PORT: 5432
       DB_NAME: ${DB_NAME:-amicats}
       DB_USER: ${DB_USER:-amicats}
       DB_PASSWORD: ${DB_PASSWORD:-amicats}
+      JWT_SECRET: ${JWT_SECRET}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:4200}
     ports:
       - "${BACKEND_PORT:-8080}:8080"
     depends_on:
