@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
@@ -14,6 +14,27 @@ export class TextFieldComponent {
   @Input() type: 'text' | 'email' | 'password' = 'text';
   @Input() autocomplete = 'on';
   @Input() errorMessages: Record<string, string> = {};
+
+  private readonly passwordVisible = signal(false);
+
+  get isPasswordField(): boolean {
+    return this.type === 'password';
+  }
+
+  get effectiveType(): 'text' | 'email' | 'password' {
+    if (!this.isPasswordField) {
+      return this.type;
+    }
+    return this.passwordVisible() ? 'text' : 'password';
+  }
+
+  get isPasswordVisible(): boolean {
+    return this.passwordVisible();
+  }
+
+  togglePasswordVisibility(): void {
+    this.passwordVisible.update((visible) => !visible);
+  }
 
   get errorMessage(): string | null {
     const errors = this.control.errors;

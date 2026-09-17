@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 
 import { LoginRequest, LoginResponse, User } from '../../models/auth.model';
@@ -12,6 +12,7 @@ export class AuthService {
   private readonly user = signal<User | null>(null);
 
   readonly currentUser = this.user.asReadonly();
+  readonly isAuthenticated = computed(() => this.token() !== null);
 
   login(credentials: LoginRequest): Observable<LoginResponse> {
     return this.http
@@ -21,7 +22,11 @@ export class AuthService {
 
   setSession(response: LoginResponse): void {
     this.token.set(response.token);
-    this.user.set(response.user);
+    this.user.set({
+      id: response.id,
+      name: response.name,
+      accessType: response.accessType,
+    });
   }
 
   getToken(): string | null {

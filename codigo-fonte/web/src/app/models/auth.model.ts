@@ -1,15 +1,19 @@
+export type AccessType = 'Administrator' | 'Veterinarian' | 'Assistant' | 'Viewer';
+
 export interface LoginRequest {
   email: string;
   password: string;
 }
 
 export interface User {
-  id: string;
+  id: number;
   name: string;
-  email: string;
+  accessType: AccessType;
 }
 
 export interface LoginResponse {
   token: string;
-  user: User;
+  id: number;
+  name: string;
+  accessType: AccessType;
 }

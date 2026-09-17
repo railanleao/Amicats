@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -61,9 +62,11 @@ export class LoginComponent {
       )
       .subscribe({
         next: () => this.router.navigateByUrl('/'),
-        error: () =>
+        error: (error: HttpErrorResponse) =>
           this.errorMessage.set(
-            'Não foi possível entrar. Verifique suas credenciais.',
+            error.status === 401
+              ? 'E-mail ou senha inválidos.'
+              : 'Não foi possível entrar. Tente novamente em instantes.',
           ),
       });
   }

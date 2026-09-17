@@ -10,13 +10,17 @@
 .brand-panel__plate {
   display: inline-flex;
   align-self: flex-start;
-  padding: 22px 28px;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
   border-radius: var(--radius-md);
   background: var(--color-sage-50);
-  font-family: var(--font-display);
-  font-size: 24px;
-  font-weight: 600;
-  color: var(--color-sage-900);
+}
+
+.brand-panel__logo {
+  width: 96px;
+  height: 96px;
+  display: block;
 }
 
 .brand-panel__quote {

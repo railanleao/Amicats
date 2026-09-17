@@ -37,7 +37,9 @@ describe('AuthService (integration)', () => {
     };
     const mockResponse: LoginResponse = {
       token: 'fake-jwt-token',
-      user: { id: '1', name: 'Marina Alves', email: credentials.email },
+      id: 1,
+      name: 'Marina Alves',
+      accessType: 'Assistant',
     };
 
     let receivedResponse: LoginResponse | undefined;
@@ -53,7 +55,12 @@ describe('AuthService (integration)', () => {
 
     expect(receivedResponse).toEqual(mockResponse);
     expect(service.getToken()).toBe(mockResponse.token);
-    expect(service.currentUser()).toEqual(mockResponse.user);
+    expect(service.isAuthenticated()).toBeTrue();
+    expect(service.currentUser()).toEqual({
+      id: mockResponse.id,
+      name: mockResponse.name,
+      accessType: mockResponse.accessType,
+    });
   });
 
   it('propagates a network error without storing a session', () => {
@@ -73,5 +80,6 @@ describe('AuthService (integration)', () => {
     expect(receivedError).toBeTruthy();
     expect(service.getToken()).toBeNull();
     expect(service.currentUser()).toBeNull();
+    expect(service.isAuthenticated()).toBeFalse();
   });
 });

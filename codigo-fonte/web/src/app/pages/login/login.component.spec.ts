@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { Subject, throwError } from 'rxjs';
@@ -35,10 +36,12 @@ describe('LoginComponent (unit)', () => {
     component.form.setValue({ email, password });
   }
 
-  function mockUser(email: string): LoginResponse {
+  function mockUser(): LoginResponse {
     return {
       token: 'fake-jwt-token',
-      user: { id: '1', name: 'Marina Alves', email },
+      id: 1,
+      name: 'Marina Alves',
+      accessType: 'Assistant',
     };
   }
 
@@ -70,7 +73,7 @@ describe('LoginComponent (unit)', () => {
     component.onSubmit();
     expect(component.loading()).toBeTrue();
 
-    subject.next(mockUser('marina.alves@amicats.org.br'));
+    subject.next(mockUser());
     subject.complete();
 
     expect(component.loading()).toBeFalse();
@@ -82,22 +85,39 @@ describe('LoginComponent (unit)', () => {
     authServiceSpy.login.and.returnValue(subject);
 
     component.onSubmit();
-    subject.next(mockUser('marina.alves@amicats.org.br'));
+    subject.next(mockUser());
     subject.complete();
 
     expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('/');
   });
 
-  it('shows a generic error message and does not navigate on failure', () => {
+  it('shows an invalid-credentials message on a 401 response and does not navigate', () => {
     setFormValue('marina.alves@amicats.org.br', 'senha-forte');
     authServiceSpy.login.and.returnValue(
-      throwError(() => new Error('network error')),
+      throwError(
+        () => new HttpErrorResponse({ status: 401, statusText: 'Unauthorized' }),
+      ),
+    );
+
+    component.onSubmit();
+
+    expect(component.errorMessage()).toBe('E-mail ou senha inválidos.');
+    expect(routerSpy.navigateByUrl).not.toHaveBeenCalled();
+    expect(component.loading()).toBeFalse();
+  });
+
+  it('shows a generic error message and does not navigate on an unexpected failure', () => {
+    setFormValue('marina.alves@amicats.org.br', 'senha-forte');
+    authServiceSpy.login.and.returnValue(
+      throwError(
+        () => new HttpErrorResponse({ status: 500, statusText: 'Server Error' }),
+      ),
     );
 
     component.onSubmit();
 
     expect(component.errorMessage()).toBe(
-      'Não foi possível entrar. Verifique suas credenciais.',
+      'Não foi possível entrar. Tente novamente em instantes.',
     );
     expect(routerSpy.navigateByUrl).not.toHaveBeenCalled();
     expect(component.loading()).toBeFalse();
