@@ -143,6 +143,22 @@ describe('AuthService (integration)', () => {
     expect(service.isAuthenticated()).toBeFalse();
   });
 
+  it('posts to /auth/forgot-password and does not touch the session', () => {
+    const request_ = { email: 'marina.alves@amicats.org.br' };
+
+    let completed = false;
+    service.forgotPassword(request_).subscribe(() => (completed = true));
+
+    const request = httpMock.expectOne(`${environment.apiUrl}/auth/forgot-password`);
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual(request_);
+
+    request.flush(null, { status: 204, statusText: 'No Content' });
+
+    expect(completed).toBeTrue();
+    expect(service.isAuthenticated()).toBeFalse();
+  });
+
   it('restores the session from a previous page load', () => {
     const mockResponse: LoginResponse = {
       token: 'fake-jwt-token-4',

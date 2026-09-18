@@ -25,3 +25,7 @@ export interface ChangePasswordRequest {
   newPassword: string;
   confirmNewPassword: string;
 }
+
+export interface ForgotPasswordRequest {
+  email: string;
+}
