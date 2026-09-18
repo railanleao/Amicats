@@ -67,6 +67,8 @@ describe('LoginComponent (integration)', () => {
       id: 1,
       name: 'Marina Alves',
       accessType: 'Assistant',
+      termsAccepted: true,
+      mustChangePassword: false,
     };
     request.flush(mockResponse);
 
