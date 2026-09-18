@@ -1,0 +1,132 @@
+<aside class="sidebar">
+
+  <!-- LOGO -->
+  <div class="logo">
+
+    <div class="logo-icon">
+      🐈
+    </div>
+
+    <span>Amicats</span>
+
+  </div>
+
+
+  <!-- MENU -->
+  <nav class="navigation">
+
+    <!-- GERAL -->
+    <div class="menu-section">
+
+      <span class="section-title">
+        GERAL
+      </span>
+
+      <a class="menu-item">
+        <span class="menu-icon">▦</span>
+        <span>Dashboard</span>
+      </a>
+
+    </div>
+
+
+    <!-- CADASTROS -->
+    <div class="menu-section">
+
+      <span class="section-title">
+        CADASTROS
+      </span>
+
+      <a class="menu-item active">
+        <span class="menu-icon">♙</span>
+        <span>Usuários</span>
+      </a>
+
+      <a class="menu-item">
+        <span class="menu-icon">⌂</span>
+        <span>Salas</span>
+      </a>
+
+      <a class="menu-item">
+        <span class="menu-icon">♟</span>
+        <span>Gatos</span>
+      </a>
+
+      <a class="menu-item">
+        <span class="menu-icon">♧</span>
+        <span>Voluntários</span>
+      </a>
+
+    </div>
+
+
+    <!-- CLÍNICO -->
+    <div class="menu-section">
+
+      <span class="section-title">
+        CLÍNICO
+      </span>
+
+      <a class="menu-item">
+        <span class="menu-icon">▤</span>
+        <span>Prontuários</span>
+      </a>
+
+      <a class="menu-item">
+        <span class="menu-icon">━</span>
+        <span>Medicamentos</span>
+      </a>
+
+      <a class="menu-item">
+        <span class="menu-icon">♢</span>
+        <span>Vacinas</span>
+      </a>
+
+    </div>
+
+
+    <!-- GESTÃO -->
+    <div class="menu-section">
+
+      <span class="section-title">
+        GESTÃO
+      </span>
+
+      <a class="menu-item">
+        <span class="menu-icon">♡</span>
+        <span>Adoções</span>
+      </a>
+
+      <a class="menu-item">
+        <span class="menu-icon">▥</span>
+        <span>Relatórios</span>
+      </a>
+    </div>
+
+  </nav>
+
+
+  <!-- USUÁRIO LOGADO -->
+  <div class="profile">
+
+    <div class="avatar">
+      {{ usuarioLogado.nome.charAt(0) }}
+    </div>
+
+    <div class="profile-info">
+      <strong>{{ usuarioLogado.nome }}</strong>
+      <span>{{ usuarioLogado.perfil }}</span>
+    </div>
+
+    <button
+      type="button"
+      class="logout"
+      (click)="desconectar()"
+      title="Desconectar"
+    >
+      ↪
+    </button>
+
+  </div>
+
+</aside>

@@ -1,0 +1,240 @@
+<app-dashboard-layout>
+  <div class="page">
+    <header class="header">
+      <h1>Usuários</h1>
+      <button
+        class="new-user-button"
+        type="button"
+        (click)="abrirFormulario()"
+      >
+        <span class="plus">+</span>
+        Novo usuário
+      </button>
+    </header>
+
+
+    <main class="content">
+      <app-table
+        [users]="users"
+        (editar)="editarUsuario($event)"
+        (excluir)="excluirUsuario($event)"
+      ></app-table>
+    </main>
+
+
+    @if (mostrarFormulario) {
+      <div class="modal-overlay">
+        <div class="modal">
+
+          <!-- CABEÇALHO -->
+
+          <div class="modal-header">
+            <div>
+              <h2>
+                {{ modoEdicao ? 'Alterar usuário' : 'Novo usuário' }}
+              </h2>
+              <p>
+                {{
+                  modoEdicao
+                    ? 'Altere os dados do usuário.'
+                    : 'Preencha os dados para cadastrar um novo usuário.'
+                }}
+              </p>
+            </div>
+
+            <button
+              type="button"
+              class="close-button"
+              (click)="fecharFormulario()"
+            >
+              ×
+            </button>
+          </div>
+
+          <!-- CONTEÚDO -->
+
+          <form
+            class="form"
+            (ngSubmit)="cadastrarUsuario()"
+          >
+
+            <!-- ÁREA DA FOTO -->
+
+            <div class="photo-area">
+
+              <input
+                id="foto"
+                type="file"
+                accept="image/*"
+                (change)="selecionarFoto($event)"
+                hidden
+              >
+
+              <!-- FOTO CLICÁVEL -->
+
+              <label
+                for="foto"
+                class="photo-container"
+                title="Adicionar foto"
+              >
+                @if (novoUsuario.foto) {
+                  <img
+                    class="profile-photo"
+                    [src]="novoUsuario.foto"
+                    alt="Foto do usuário"
+                  >
+                } @else {
+                  <div class="photo-placeholder">
+                    <span class="photo-icon">👤</span>
+                  </div>
+                }
+              </label>
+
+              <!-- TEXTO CLICÁVEL -->
+
+              <label
+                for="foto"
+                class="photo-button"
+              >
+                {{
+                  novoUsuario.foto
+                    ? 'Alterar foto'
+                    : 'Adicionar foto'
+                }}
+              </label>
+
+              <span class="photo-help">    JPG, PNG ou GIF  </span>
+
+            </div>
+
+            <!-- CAMPOS -->
+
+            <div class="fields-area">
+
+              <!-- NOME -->
+
+              <div class="form-group">
+                <label for="nome">
+                  Nome do usuário
+                </label>
+                <input
+                  id="nome"
+                  type="text"
+                  name="nome"
+                  [(ngModel)]="novoUsuario.nome"
+                  placeholder="Digite o nome do usuário"
+                  required
+                >
+              </div>
+
+              <!-- E-MAIL -->
+
+              <div class="form-group">
+                <label for="email">
+                  E-mail
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  name="email"
+                  [(ngModel)]="novoUsuario.email"
+                  placeholder="exemplo@gmail.com"
+                  pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+                  required
+                >
+                @if (
+                  novoUsuario.email &&
+                  !emailValido()
+                  ) {
+                  <small class="error-message">
+                    Digite um e-mail válido.
+                  </small>
+                }
+              </div>
+
+              <!-- TELEFONE -->
+
+              <div class="form-group">
+                <label for="telefone">
+                  Telefone
+                </label>
+                <input
+                  id="telefone"
+                  type="tel"
+                  name="telefone"
+                  [(ngModel)]="novoUsuario.telefone"
+                  (input)="formatarTelefoneInput()"
+                  placeholder="(DDD) 99999-9999"
+                  maxlength="15"
+                  required
+                >
+              </div>
+
+              <!-- PERFIL -->
+
+              <div class="form-group">
+                <label for="perfil">
+                  Perfil
+                </label>
+                <select
+                  id="perfil"
+                  name="perfil"
+                  [(ngModel)]="novoUsuario.perfil"
+                >
+                  <option value="Administrador">
+                    Administrador
+                  </option>
+                  <option value="Veterinário">
+                    Veterinário
+                  </option>
+                  <option value="Voluntário">
+                    Voluntário
+                  </option>
+                </select>
+              </div>
+
+              <!-- STATUS -->
+
+              <div class="form-group status-group">
+                <label for="status">Status</label>
+
+                <select
+                  id="status"
+                  name="status"
+                  [(ngModel)]="novoUsuario.status"
+                >
+                  <option value="Ativo">Ativo</option>
+                  <option value="Inativo">Inativo</option>
+                </select>
+              </div>
+
+              <!-- BOTÕES -->
+
+              <div class="form-actions">
+                <button
+                  type="button"
+                  class="cancel-button"
+                  (click)="fecharFormulario()"
+                >
+                  Cancelar
+                </button>
+
+                <button
+                  type="submit"
+                  class="save-button"
+                >
+                  {{
+                    modoEdicao
+                      ? 'Salvar alterações'
+                      : 'Cadastrar usuário'
+                  }}
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    }
+  </div>
+
+</app-dashboard-layout>

@@ -1,0 +1,121 @@
+<div class="table-wrapper">
+  <table>
+    <thead>
+    <tr>
+      <th>USUÁRIO</th>
+      <th>E-MAIL</th>
+      <th>TELEFONE</th>
+      <th>PERFIL</th>
+      <th>STATUS</th>
+      <th class="actions-column"></th>
+    </tr>
+    </thead>
+
+    <tbody>
+      @for (user of users; track $index) {
+        <tr>
+
+          <!-- USUÁRIO -->
+
+          <td>
+            <div class="user-info">
+              @if (user.foto) {
+
+                <img
+                  class="user-avatar"
+                  [src]="user.foto"
+                  [alt]="'Foto de ' + user.nome"
+                >
+
+              } @else {
+
+                <div class="user-avatar">
+
+                  <span>👤</span>
+
+                </div>
+
+              }
+              <strong>
+                {{ user.nome }}
+              </strong>
+            </div>
+          </td>
+
+          <!-- E-MAIL -->
+
+          <td>
+            {{ user.email }}
+          </td>
+
+          <!-- TELEFONE -->
+
+          <td>
+            {{ formatarTelefone(user.telefone) }}
+          </td>
+
+          <!-- PERFIL -->
+
+          <td>
+            {{ user.perfil }}
+          </td>
+
+          <!-- STATUS -->
+
+          <td>
+            <span
+              class="status"
+              [class.active]="user.status === 'Ativo'"
+              [class.inactive]="user.status === 'Inativo'"
+            >
+              {{ user.status }}
+            </span>
+          </td>
+
+          <!-- AÇÕES -->
+
+          <td class="actions">
+            <button
+              type="button"
+              class="dots-button"
+              (click)="abrirMenu($index)"
+            >
+              ⋮
+            </button>
+
+
+            @if (menuAberto === $index) {
+              <div class="action-menu">
+                <button
+                  type="button"
+                  (click)="editarUsuario($index)"
+                >
+                  <span>✎</span>
+                  Alterar
+                </button>
+
+                <button
+                  type="button"
+                  class="delete-option"
+                  (click)="excluirUsuario($index)"
+                >
+                  <span>🗑</span>
+                  Excluir
+                </button>
+              </div>
+            }
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+
+
+  @if (users.length === 0) {
+    <div class="empty">
+      <p>
+        Nenhum usuário cadastrado.
+      </p>
+    </div>
+  }
+</div>

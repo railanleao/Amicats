@@ -1,0 +1,162 @@
+.table-wrapper {
+  width: 100%;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e4e9e3;
+  overflow: visible;
+}
+
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+thead {
+  background: #deebda;
+}
+
+th {
+  padding: 16px 20px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 700;
+  color: #69736a;
+  letter-spacing: 0.5px;
+}
+
+td {
+  padding: 17px 20px;
+  border-top: 1px solid #edf0ec;
+  font-size: 14px;
+  color: #4d554e;
+}
+
+tbody tr {
+  position: relative;
+}
+
+tbody tr:hover {
+  background: #fafcf9;
+}
+
+/* USUÁRIO */
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-info strong {
+  color: #263229;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #e8eee6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+}
+
+/* STATUS */
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 11px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status.active {
+  background: #e5f1e3;
+  color: #4d7b4d;
+}
+
+.status.inactive {
+  background: #eeeeee;
+  color: #777777;
+}
+
+/* AÇÕES */
+
+.actions-column {
+  width: 50px;
+}
+
+.actions {
+  position: relative;
+  width: 50px;
+  text-align: center;
+}
+
+.dots-button {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 22px;
+  color: #69736a;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.dots-button:hover {
+  background: #eef2ec;
+}
+
+/* MENU */
+
+.action-menu {
+  position: absolute;
+  right: 15px;
+  top: 45px;
+  width: 145px;
+  background: #ffffff;
+  border: 1px solid #e0e5df;
+  border-radius: 8px;
+  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.12);
+  z-index: 20;
+  overflow: hidden;
+}
+
+.action-menu button {
+  width: 100%;
+  border: none;
+  background: transparent;
+  padding: 11px 14px;
+  text-align: left;
+  cursor: pointer;
+  font-size: 13px;
+  color: #3f4941;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.action-menu button:hover {
+  background: #f4f7f3;
+}
+
+.action-menu .delete-option {
+  color: #b34b4b;
+}
+
+.action-menu .delete-option:hover {
+  background: #fff1f1;
+}
+
+/* VAZIO */
+
+.empty {
+  padding: 40px;
+  text-align: center;
+  color: #8a928b;
+}
