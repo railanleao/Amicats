@@ -1,5 +1,5 @@
 # Editor configuration, see https://editorconfig.org
-# Espelha o Spotless (googleJavaFormat) configurado no pom.xml.
+# Mirrors the Spotless (googleJavaFormat) config in pom.xml.
 root = true
 
 [*]
