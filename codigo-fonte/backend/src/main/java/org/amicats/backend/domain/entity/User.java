@@ -89,4 +89,12 @@ public class User {
   public void changeFullName(String fullName) {
     this.fullName = fullName;
   }
+
+  public boolean hasAcceptedTerms() {
+    return dateAcceptanceTerms != null;
+  }
+
+  public void acceptTerms() {
+    this.dateAcceptanceTerms = LocalDateTime.now();
+  }
 }

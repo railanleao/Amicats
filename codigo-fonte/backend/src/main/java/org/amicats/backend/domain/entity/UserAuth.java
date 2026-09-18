@@ -37,9 +37,21 @@ public class UserAuth {
   @Column(name = "password_hash", nullable = false, length = 255)
   private String passwordHash;
 
+  @Column(name = "must_change_password", nullable = false)
+  private boolean mustChangePassword;
+
   public UserAuth(User user, String email, String passwordHash) {
     this.user = user;
     this.email = email;
     this.passwordHash = passwordHash;
+    this.mustChangePassword = false;
+  }
+
+  public void changePasswordHash(String newPasswordHash) {
+    this.passwordHash = newPasswordHash;
+  }
+
+  public void setMustChangePassword(boolean mustChangePassword) {
+    this.mustChangePassword = mustChangePassword;
   }
 }
