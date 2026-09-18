@@ -18,16 +18,19 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
  * Rate-limits requests per IP, with a dedicated (stricter) bucket for the routes that verify a
- * secret — /auth/login and /auth/change-password, both classic brute-force targets, the second one
- * for anyone who stole a valid JWT but doesn't know the current password — and a general bucket for
- * the rest of the API. In-memory, per instance: enough for this system's scale, with no need for
- * Redis/new infra; the trade-off is that the limit isn't shared across multiple backend instances
- * running at the same time (not the case for this project today).
+ * secret or trigger an email — /auth/login and /auth/change-password are classic brute-force
+ * targets (the second one for anyone who stole a valid JWT but doesn't know the current password),
+ * and /auth/forgot-password sends a real email per call, so without a strict limit it could be used
+ * to spam a victim's inbox or brute-force account enumeration through response timing — and a
+ * general bucket for the rest of the API. In-memory, per instance: enough for this system's scale,
+ * with no need for Redis/new infra; the trade-off is that the limit isn't shared across multiple
+ * backend instances running at the same time (not the case for this project today).
  */
 @Component
 public class RateLimitFilter extends OncePerRequestFilter {
 
-  private static final Set<String> SENSITIVE_PATHS = Set.of("/auth/login", "/auth/change-password");
+  private static final Set<String> SENSITIVE_PATHS =
+      Set.of("/auth/login", "/auth/change-password", "/auth/forgot-password");
 
   @Value("${app.rate-limit.sensitive.capacity:5}")
   private int sensitiveCapacity;

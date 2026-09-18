@@ -23,7 +23,16 @@ function webStore() {
   };
 }
 
+// Kept in memory so apiRequest can attach the Authorization header synchronously,
+// since SecureStore/localStorage access is always async.
+let currentToken: string | null = null;
+
+export function getToken(): string | null {
+  return currentToken;
+}
+
 export async function saveSession(session: Session): Promise<void> {
+  currentToken = session.token;
   await store.setItemAsync(TOKEN_KEY, session.token);
   await store.setItemAsync(USER_KEY, JSON.stringify(session.user));
 }
@@ -38,10 +47,12 @@ export async function getSession(): Promise<Session | null> {
     return null;
   }
 
+  currentToken = token;
   return { token, user: JSON.parse(userJson) as User };
 }
 
 export async function clearSession(): Promise<void> {
+  currentToken = null;
   await store.deleteItemAsync(TOKEN_KEY);
   await store.deleteItemAsync(USER_KEY);
 }

@@ -1,24 +1,37 @@
 import { useState } from "react";
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { Button } from "../components";
+import { Button, Checkbox } from "../components";
+import { ApiError } from "../services/api";
 import { colors } from "../theme/colors";
-import { radii, spacing } from "../theme/spacing";
+import { radii } from "../theme/spacing";
 
 interface TermsAcceptanceScreenProps {
-  onContinue: () => void;
+  onContinue: () => Promise<void>;
 }
 
 export function TermsAcceptanceScreen({
   onContinue,
 }: TermsAcceptanceScreenProps) {
   const [accepted, setAccepted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string>();
+
+  async function handleContinue() {
+    setError(undefined);
+    setSubmitting(true);
+    try {
+      await onContinue();
+    } catch (err) {
+      setError(
+        err instanceof ApiError
+          ? err.message
+          : "Não foi possível registrar o aceite. Tente novamente.",
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
   return (
     <ScrollView contentContainerStyle={styles.content}>
@@ -26,10 +39,12 @@ export function TermsAcceptanceScreen({
         <View style={styles.iconWrapper}>
           <Ionicons name="paw" size={22} color={colors.background} />
         </View>
-        <Text style={styles.title}>Termos de uso e responsabilidade</Text>
-        <Text style={styles.subtitle}>
-          Leia com atenção antes de continuar.
-        </Text>
+        <View style={styles.headerText}>
+          <Text style={styles.title}>Termos de uso e responsabilidade</Text>
+          <Text style={styles.subtitle}>
+            Leia com atenção antes de continuar.
+          </Text>
+        </View>
       </View>
 
       <View style={styles.card}>
@@ -47,23 +62,20 @@ export function TermsAcceptanceScreen({
         </Text>
       </View>
 
-      <TouchableOpacity
-        style={styles.checkboxRow}
-        onPress={() => setAccepted((value) => !value)}
-        accessibilityRole="checkbox"
-        accessibilityState={{ checked: accepted }}
-      >
-        <View
-          style={[styles.checkbox, accepted ? styles.checkboxChecked : null]}
-        >
-          {accepted ? (
-            <Ionicons name="checkmark" size={14} color={colors.onPrimary} />
-          ) : null}
-        </View>
-        <Text style={styles.checkboxLabel}>Li e aceito os termos.</Text>
-      </TouchableOpacity>
+      <Checkbox
+        label="Li e aceito os termos."
+        checked={accepted}
+        onToggle={() => setAccepted((value) => !value)}
+      />
 
-      <Button title="Continuar" onPress={onContinue} disabled={!accepted} />
+      {error ? <Text style={styles.generalError}>{error}</Text> : null}
+
+      <Button
+        title="Continuar"
+        onPress={handleContinue}
+        disabled={!accepted}
+        loading={submitting}
+      />
     </ScrollView>
   );
 }
@@ -72,13 +84,15 @@ const styles = StyleSheet.create({
   content: {
     flexGrow: 1,
     backgroundColor: colors.background,
-    padding: spacing.xl,
-    gap: spacing.lg,
+    paddingHorizontal: 24,
+    paddingTop: 12,
+    paddingBottom: 28,
+    gap: 18,
     justifyContent: "center",
   },
   header: {
     alignItems: "center",
-    gap: spacing.sm + 2,
+    gap: 10,
   },
   iconWrapper: {
     alignItems: "center",
@@ -88,14 +102,20 @@ const styles = StyleSheet.create({
     borderRadius: radii.sm,
     backgroundColor: colors.sage900,
   },
+  headerText: {
+    alignItems: "center",
+    gap: 4,
+  },
   title: {
     fontSize: 20,
     fontWeight: "600",
+    lineHeight: 24,
     color: colors.ink,
     textAlign: "center",
   },
   subtitle: {
-    fontSize: 13,
+    fontSize: 12.5,
+    lineHeight: 16,
     color: colors.inkSoft,
     textAlign: "center",
   },
@@ -104,34 +124,16 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     borderWidth: 1,
     borderRadius: radii.sm,
-    padding: spacing.md,
-    gap: spacing.sm + 4,
+    padding: 14,
+    gap: 12,
   },
   paragraph: {
-    fontSize: 13,
-    lineHeight: 20,
+    fontSize: 12.5,
+    lineHeight: 19,
     color: colors.ink,
   },
-  checkboxRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.sm + 2,
-  },
-  checkbox: {
-    width: 20,
-    height: 20,
-    borderRadius: 6,
-    borderWidth: 1.5,
-    borderColor: colors.border,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  checkboxChecked: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
-  },
-  checkboxLabel: {
+  generalError: {
     fontSize: 13,
-    color: colors.ink,
+    color: colors.danger,
   },
 });

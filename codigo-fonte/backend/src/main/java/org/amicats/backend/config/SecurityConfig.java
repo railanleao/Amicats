@@ -44,7 +44,8 @@ public class SecurityConfig {
     // this, the ONBOARDING_PENDING token (which can only reach /auth/accept-terms and
     // /auth/change-password) hits the anyRequest() rule and the client gets 403 instead of the
     // real business error.
-    List<String> publicPaths = new ArrayList<>(List.of("/auth/login", "/error"));
+    List<String> publicPaths =
+        new ArrayList<>(List.of("/auth/login", "/auth/forgot-password", "/error"));
 
     boolean isProd = Arrays.asList(env.getActiveProfiles()).contains("prod");
     if (!isProd) {

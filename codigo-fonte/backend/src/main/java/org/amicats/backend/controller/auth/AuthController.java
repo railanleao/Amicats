@@ -2,10 +2,12 @@ package org.amicats.backend.controller.auth;
 
 import jakarta.validation.Valid;
 import org.amicats.backend.domain.usecase.userauth.ChangePasswordRequest;
+import org.amicats.backend.domain.usecase.userauth.ForgotPasswordRequest;
 import org.amicats.backend.domain.usecase.userauth.LoginRequest;
 import org.amicats.backend.domain.usecase.userauth.LoginResponse;
 import org.amicats.backend.service.AuthService;
 import org.amicats.backend.service.PasswordChangeService;
+import org.amicats.backend.service.PasswordResetService;
 import org.amicats.backend.service.TermsAcceptanceService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -23,15 +25,18 @@ public class AuthController {
   private final AuthService authService;
   private final TermsAcceptanceService termsAcceptanceService;
   private final PasswordChangeService passwordChangeService;
+  private final PasswordResetService passwordResetService;
 
   public AuthController(
       AuthService authService,
       TermsAcceptanceService termsAcceptanceService,
-      PasswordChangeService passwordChangeService) {
+      PasswordChangeService passwordChangeService,
+      PasswordResetService passwordResetService) {
 
     this.authService = authService;
     this.termsAcceptanceService = termsAcceptanceService;
     this.passwordChangeService = passwordChangeService;
+    this.passwordResetService = passwordResetService;
   }
 
   @PostMapping("/login")
@@ -40,6 +45,19 @@ public class AuthController {
     LoginResponse response = authService.login(request);
 
     return ResponseEntity.ok(response);
+  }
+
+  /**
+   * Always responds 204, whether the email exists, belongs to an active user, or was already
+   * requested recently (cooldown) — never reveals anything about account existence, which is the
+   * central guarantee of this endpoint against account enumeration.
+   */
+  @PostMapping("/forgot-password")
+  public ResponseEntity<Void> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+
+    passwordResetService.forgotPassword(request.email());
+
+    return ResponseEntity.noContent().build();
   }
 
   @PostMapping("/accept-terms")
