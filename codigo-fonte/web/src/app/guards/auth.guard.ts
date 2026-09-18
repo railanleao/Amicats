@@ -7,9 +7,17 @@ export const authGuard: CanActivateFn = () => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
-  if (authService.isAuthenticated()) {
-    return true;
+  if (!authService.isAuthenticated()) {
+    return router.parseUrl('/login');
   }
 
-  return router.parseUrl('/login');
+  if (!authService.termsAccepted()) {
+    return router.parseUrl('/termos-de-uso');
+  }
+
+  if (authService.mustChangePassword()) {
+    return router.parseUrl('/definir-nova-senha');
+  }
+
+  return true;
 };
