@@ -5,7 +5,7 @@ import { useAuth } from "./src/hooks/useAuth";
 import { colors } from "./src/theme/colors";
 
 export default function App() {
-  const { user, loadingSession, login, logout } = useAuth();
+  const { user, loadingSession, login, logout, acceptTerms, changePassword } = useAuth();
 
   if (loadingSession) {
     return (
@@ -18,7 +18,13 @@ export default function App() {
 
   return (
     <>
-      <RootNavigator user={user} onLogin={login} onLogout={logout} />
+      <RootNavigator
+        user={user}
+        onLogin={login}
+        onLogout={logout}
+        onAcceptTerms={acceptTerms}
+        onChangePassword={changePassword}
+      />
       <StatusBar style="auto" />
     </>
   );

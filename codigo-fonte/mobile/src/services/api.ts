@@ -1,4 +1,8 @@
+import { getToken } from "../storage/authStorage";
+import { emitUnauthorized } from "./authEvents";
+
 const API_URL = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:8080";
+const LOGIN_PATH = "/auth/login";
 
 export class ApiError extends Error {
   constructor(
@@ -20,11 +24,15 @@ export async function apiRequest<T>(
   options: RequestOptions = {},
 ): Promise<T> {
   let response: Response;
+  const token = getToken();
 
   try {
     response = await fetch(`${API_URL}${path}`, {
       method: options.method ?? "GET",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
       body:
         options.body !== undefined ? JSON.stringify(options.body) : undefined,
     });
@@ -36,6 +44,11 @@ export async function apiRequest<T>(
 
   if (!response.ok) {
     const message = await extractErrorMessage(response);
+
+    if (response.status === 401 && path !== LOGIN_PATH) {
+      emitUnauthorized();
+    }
+
     throw new ApiError(message, response.status);
   }
 
