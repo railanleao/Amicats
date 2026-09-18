@@ -1,0 +1,55 @@
+<div class="terms-page">
+  <div class="terms-card">
+    <div class="terms-card__header">
+      <div class="terms-card__icon">
+        <svg width="22" height="22" viewBox="0 0 24 24">
+          <path d="M6 9 L4 3 L9 6.5 Z" fill="var(--color-sage-50)" />
+          <path d="M18 9 L20 3 L15 6.5 Z" fill="var(--color-sage-50)" />
+          <circle cx="12" cy="13" r="7" fill="var(--color-sage-50)" />
+        </svg>
+      </div>
+      <h1>Termos de uso e responsabilidade</h1>
+      <p>Leia com atenção antes de continuar. O aceite fica registrado com data e hora.</p>
+    </div>
+
+    @if (errorMessage()) {
+      <div class="terms-card__error" role="alert">{{ errorMessage() }}</div>
+    }
+
+    <div class="terms-card__text">
+      <p>
+        Ao acessar o sistema Amicats, você concorda em manter a confidencialidade dos dados de
+        gatos, adotantes e voluntários, em conformidade com a LGPD.
+      </p>
+      <p>
+        Todo registro clínico deve preservar autor, data e hora, sem edição silenciosa, conforme a
+        Resolução CFMV nº 1.321/2020.
+      </p>
+      <p>
+        O uso da câmera e do armazenamento do dispositivo depende de permissão explícita concedida
+        por você no aparelho.
+      </p>
+      <p>
+        Nenhum registro é excluído fisicamente — apenas desativado, preservando o histórico
+        auditável do abrigo.
+      </p>
+    </div>
+
+    <label class="terms-card__checkbox-row">
+      <input
+        type="checkbox"
+        [checked]="accepted()"
+        (change)="toggleAccepted()"
+      />
+      <span>Li e aceito os termos de uso e responsabilidade.</span>
+    </label>
+
+    <app-submit-button
+      label="Continuar"
+      loadingLabel="Registrando aceite..."
+      [loading]="loading()"
+      [disabled]="!accepted()"
+      (click)="onContinue()"
+    />
+  </div>
+</div>

@@ -16,4 +16,12 @@ export interface LoginResponse {
   id: number;
   name: string;
   accessType: AccessType;
+  termsAccepted: boolean;
+  mustChangePassword: boolean;
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+  confirmNewPassword: string;
 }
