@@ -225,6 +225,7 @@ erDiagram
 - **`appointment` distingue quem atendeu de quem registrou.** O veterinário responsável (`veterinarian_id`) pode ser diferente de quem lançou o registro no sistema (`recorded_by`), já que muitas vezes um voluntário digitaliza depois o que foi passado verbalmente — sem perder a rastreabilidade de autoria exigida pela Resolução CFMV.
 - **`user.crmv` e `partner_clinic`.** Atendem à exigência de identificar o médico-veterinário responsável (nome e CRMV) em cada registro, incluindo os casos encaminhados às três clínicas parceiras externas.
 - **Apadrinhamento como colunas de `gato`, não como entidade própria.** Cada gato tem no máximo um padrinho ou madrinha, e o que a ONG precisa registrar é quem é a pessoa (`padrinho_nome`), como falar com ela (`padrinho_telefone`) e o que ela se comprometeu a custear (`padrinho_custeio`, texto livre — ração, exames, medicação). Não há controle financeiro de valores nem histórico de apadrinhamentos anteriores no escopo atual; se isso for necessário depois, o conjunto vira uma tabela `apadrinhamento` ligada a `gato`.
+- **`usuario.senha_temporaria_pendente`.** Marca que a senha atual foi definida por outra pessoa (o Administrador, no cadastro) e precisa ser trocada pelo próprio usuário no primeiro acesso — junto com `data_aceite_termos` nulo, é o que dispara o fluxo obrigatório de aceite de termos + definição de nova senha antes de liberar qualquer outra rota do sistema.
 
 ### Projeto Físico da Base de Dados
 
@@ -242,6 +243,7 @@ erDiagram
 | crmv | VARCHAR(20) | Obrigatório quando tipo_acesso = VETERINARIO |
 | uf_crmv | CHAR(2) | |
 | data_aceite_termos | DATETIME | |
+| senha_temporaria_pendente | BOOLEAN | NOT NULL, DEFAULT FALSE |
 | ativo | BOOLEAN | NOT NULL, DEFAULT TRUE |
 | data_criacao | DATETIME | NOT NULL |
 

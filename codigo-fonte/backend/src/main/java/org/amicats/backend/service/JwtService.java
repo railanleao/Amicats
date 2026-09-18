@@ -33,6 +33,8 @@ public class JwtService {
             .claim("email", auth.getEmail())
             .claim("name", user.getFullName())
             .claim("role", user.getAccessType().name())
+            .claim("termsAccepted", user.hasAcceptedTerms())
+            .claim("mustChangePassword", auth.isMustChangePassword())
             .build();
 
     JwsHeader header = JwsHeader.with(MacAlgorithm.HS256).build();
