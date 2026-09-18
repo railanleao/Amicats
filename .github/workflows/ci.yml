@@ -78,3 +78,25 @@ jobs:
 
       - name: Unit tests (headless Chrome)
         run: npx ng test --watch=false --browsers=ChromeHeadless
+
+  mobile:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: codigo-fonte/mobile
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: codigo-fonte/mobile/package-lock.json
+
+      - run: npm ci
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Lint
+        run: npm run lint
