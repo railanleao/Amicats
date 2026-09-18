@@ -17,12 +17,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
- * Limita a taxa de requisições por IP, com um bucket dedicado (mais restrito) para as rotas que
- * verificam um segredo — /auth/login e /auth/change-password, ambos alvo clássico de força bruta, o
- * segundo por quem tiver roubado um JWT válido mas não souber a senha atual — e um bucket geral
- * para o resto da API. Em memória, por instância: suficiente para o porte do sistema, sem exigir
- * Redis/infra nova; o trade-off é que o limite não é compartilhado entre múltiplas instâncias do
- * backend rodando ao mesmo tempo (não é o caso deste projeto hoje).
+ * Rate-limits requests per IP, with a dedicated (stricter) bucket for the routes that verify a
+ * secret — /auth/login and /auth/change-password, both classic brute-force targets, the second one
+ * for anyone who stole a valid JWT but doesn't know the current password — and a general bucket for
+ * the rest of the API. In-memory, per instance: enough for this system's scale, with no need for
+ * Redis/new infra; the trade-off is that the limit isn't shared across multiple backend instances
+ * running at the same time (not the case for this project today).
  */
 @Component
 public class RateLimitFilter extends OncePerRequestFilter {
@@ -66,12 +66,12 @@ public class RateLimitFilter extends OncePerRequestFilter {
   }
 
   /**
-   * request.getRequestURI() é comparado exatamente contra SENSITIVE_PATHS, mas o roteamento do
-   * Spring/Tomcat aceita variações que o texto puro não reconheceria como a mesma rota — barra
-   * final (/auth/login/) e maiúsculas/minúsculas (/AUTH/LOGIN) continuam caindo no controller de
-   * login normalmente, então sem normalizar aqui alguém contornava o bucket restrito só variando a
-   * URL. Confirmado manualmente: com a capacidade do bucket sensitive já esgotada em /auth/login,
-   * /auth/login/ e /AUTH/LOGIN ainda passavam.
+   * request.getRequestURI() is compared exactly against SENSITIVE_PATHS, but Spring/Tomcat routing
+   * accepts variations that plain text wouldn't recognize as the same route — a trailing slash
+   * (/auth/login/) and different casing (/AUTH/LOGIN) still reach the login controller normally, so
+   * without normalizing here someone could dodge the restricted bucket just by varying the URL.
+   * Confirmed manually: with the sensitive bucket's capacity already exhausted on /auth/login,
+   * /auth/login/ and /AUTH/LOGIN were still getting through.
    */
   private String normalizedPath(HttpServletRequest request) {
     String path = request.getRequestURI().toLowerCase(Locale.ROOT);
@@ -91,10 +91,10 @@ public class RateLimitFilter extends OncePerRequestFilter {
   }
 
   /**
-   * Usa só o IP de conexão direta (request.getRemoteAddr()), nunca X-Forwarded-For — o backend hoje
-   * é exposto direto, sem proxy reverso na frente (ver docker-compose.yml), e confiar nesse
-   * cabeçalho sem um proxy confiável configurado deixaria qualquer cliente burlar o limite só
-   * inventando um valor diferente a cada requisição.
+   * Uses only the direct connection IP (request.getRemoteAddr()), never X-Forwarded-For — the
+   * backend is exposed directly today, with no reverse proxy in front (see docker-compose.yml), and
+   * trusting that header without a configured trusted proxy would let any client dodge the limit by
+   * just making up a different value on every request.
    */
   private String clientIp(HttpServletRequest request) {
     return request.getRemoteAddr();

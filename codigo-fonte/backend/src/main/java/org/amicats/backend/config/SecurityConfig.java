@@ -38,11 +38,12 @@ public class SecurityConfig {
   SecurityFilterChain securityFilterChain(
       HttpSecurity http, Environment env, RateLimitFilter rateLimitFilter) throws Exception {
 
-    // "/error" precisa ficar liberado: quando um handler autenticado lança uma exceção (ex.:
-    // senha atual errada em /auth/change-password), o container encaminha a resposta pra cá via
-    // response.sendError(...), e esse forward passa pela cadeia de segurança de novo. Sem isso, o
-    // token ONBOARDING_PENDING (que só pode acessar /auth/accept-terms e /auth/change-password)
-    // esbarra na regra de anyRequest() e o cliente recebe 403 no lugar do erro de negócio real.
+    // "/error" has to stay public: when an authenticated handler throws an exception (e.g. wrong
+    // current password on /auth/change-password), the container forwards the response here via
+    // response.sendError(...), and that forward goes through the security chain again. Without
+    // this, the ONBOARDING_PENDING token (which can only reach /auth/accept-terms and
+    // /auth/change-password) hits the anyRequest() rule and the client gets 403 instead of the
+    // real business error.
     List<String> publicPaths = new ArrayList<>(List.of("/auth/login", "/error"));
 
     boolean isProd = Arrays.asList(env.getActiveProfiles()).contains("prod");
@@ -86,10 +87,10 @@ public class SecurityConfig {
   }
 
   /**
-   * Além da authority normal de papel (ROLE_...), concede a authority técnica ONBOARDING_PENDING
-   * quando o token ainda não tem os termos aceitos ou está com uma senha temporária pendente de
-   * troca — é o que bloqueia o acesso a qualquer rota que não seja /auth/accept-terms ou
-   * /auth/change-password até o onboarding terminar.
+   * On top of the normal role authority (ROLE_...), grants the technical ONBOARDING_PENDING
+   * authority when the token doesn't have the terms accepted yet or still has a temporary password
+   * pending change — this is what blocks access to any route other than /auth/accept-terms or
+   * /auth/change-password until onboarding is complete.
    */
   @Bean
   JwtAuthenticationConverter jwtAuthenticationConverter() {

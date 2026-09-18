@@ -24,19 +24,18 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
- * Sobe o contexto Spring inteiro (SecurityConfig, RateLimitFilter, controllers reais) num servidor
- * HTTP de verdade — diferente dos testes unitários das outras classes, que mockam as dependências e
- * não provam que a cadeia de segurança está de fato ligada do jeito certo. Cobre especificamente
- * dois bugs reais encontrados nesta sessão: o /error devolvendo 403 em vez do erro de negócio
- * (mesma authority ONBOARDING_PENDING bloqueando o forward de erro), e o PATCH sendo obrigatório em
- * /auth/change-password.
+ * Boots the whole Spring context (SecurityConfig, RateLimitFilter, real controllers) on a real HTTP
+ * server — unlike the other classes' unit tests, which mock the dependencies and don't prove the
+ * security chain is actually wired up correctly. Specifically covers two real bugs found in this
+ * session: /error returning 403 instead of the business error (the same ONBOARDING_PENDING
+ * authority blocking the error forward), and PATCH being required on /auth/change-password.
  */
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-    // Capacidade de rate limit bem acima do normal: os vários métodos desta classe batem no
-    // mesmo bucket "sensitive" (mesmo IP, mesmo minuto), e o rate limit em si já tem cobertura
-    // dedicada e determinística em RateLimitFilterTest — aqui o foco é a integração ponta a
-    // ponta, não o limite de requisições.
+    // Rate limit capacity well above normal: this class's several methods hit the same
+    // "sensitive" bucket (same IP, same minute), and rate limiting itself already has
+    // dedicated, deterministic coverage in RateLimitFilterTest — the focus here is the
+    // end-to-end integration, not the request limit.
     properties = {"app.rate-limit.sensitive.capacity=1000", "app.rate-limit.default.capacity=1000"})
 class AuthOnboardingFlowIntegrationTest {
 
@@ -106,8 +105,8 @@ class AuthOnboardingFlowIntegrationTest {
                 "currentPassword", "senha-errada",
                 "newPassword", NEW_PASSWORD,
                 "confirmNewPassword", NEW_PASSWORD));
-    // Regressão do bug do /error: sem o fix, uma exceção de negócio aqui voltava 403
-    // (bloqueada pela mesma authority ONBOARDING_PENDING) em vez do 400 de verdade.
+    // Regression test for the /error bug: without the fix, a business exception here used to
+    // come back as 403 (blocked by the same ONBOARDING_PENDING authority) instead of a real 400.
     assertThat(wrongPassword.statusCode()).isEqualTo(400);
 
     HttpResponse<String> changePassword =
@@ -137,8 +136,8 @@ class AuthOnboardingFlowIntegrationTest {
 
   @Test
   void loginRejectsAnOversizedPasswordWithBadRequest() throws Exception {
-    // BCrypt trunca em 72 bytes de qualquer forma; sem esse limite, o passwordEncoder.matches(...)
-    // aceitaria um payload gigante e gastaria processamento à toa a cada tentativa.
+    // BCrypt truncates at 72 bytes anyway; without this limit, passwordEncoder.matches(...) would
+    // accept a huge payload and waste processing on every attempt.
     String oversizedPassword = "a".repeat(5000);
 
     HttpResponse<String> response =
