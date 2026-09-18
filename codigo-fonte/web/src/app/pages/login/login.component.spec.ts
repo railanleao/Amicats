@@ -44,6 +44,8 @@ describe('LoginComponent (unit)', () => {
       id: 1,
       name: 'Marina Alves',
       accessType: 'Assistant',
+      termsAccepted: true,
+      mustChangePassword: false,
     };
   }
 
