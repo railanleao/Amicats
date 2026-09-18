@@ -5,146 +5,162 @@
       <button
         class="new-user-button"
         type="button"
-        (click)="abrirFormulario()"
+        (click)="openForm()"
       >
         <span class="plus">+</span>
         Novo usuário
       </button>
     </header>
 
+    <app-table
+      [users]="users"
+      (edit)="editUser($event)"
+      (delete)="deleteUser($event)"
+    ></app-table>
 
-    <main class="content">
-      <app-table
-        [users]="users"
-        (editar)="editarUsuario($event)"
-        (excluir)="excluirUsuario($event)"
-      ></app-table>
-    </main>
-
-
-    @if (mostrarFormulario) {
+    @if (showForm) {
       <div class="modal-overlay">
         <div class="modal">
-
-          <!-- CABEÇALHO -->
-
           <div class="modal-header">
             <div>
               <h2>
-                {{ modoEdicao ? 'Alterar usuário' : 'Novo usuário' }}
+                {{ editMode ? 'Alterar usuário' : 'Novo usuário' }}
               </h2>
               <p>
                 {{
-                  modoEdicao
+                  editMode
                     ? 'Altere os dados do usuário.'
                     : 'Preencha os dados para cadastrar um novo usuário.'
                 }}
               </p>
             </div>
-
             <button
               type="button"
               class="close-button"
-              (click)="fecharFormulario()"
+              (click)="closeForm()"
             >
               ×
             </button>
           </div>
 
-          <!-- CONTEÚDO -->
-
           <form
             class="form"
-            (ngSubmit)="cadastrarUsuario()"
+            [formGroup]="userForm"
+            (ngSubmit)="registerUser()"
           >
 
-            <!-- ÁREA DA FOTO -->
+            <!-- PHOTO -->
 
             <div class="photo-area">
-
               <input
                 id="foto"
                 type="file"
                 accept="image/*"
-                (change)="selecionarFoto($event)"
+                (change)="selectPhoto($event)"
                 hidden
               >
-
-              <!-- FOTO CLICÁVEL -->
 
               <label
                 for="foto"
                 class="photo-container"
                 title="Adicionar foto"
               >
-                @if (novoUsuario.foto) {
+
+                @if (userPhoto) {
+
                   <img
                     class="profile-photo"
-                    [src]="novoUsuario.foto"
+                    [src]="userPhoto"
                     alt="Foto do usuário"
                   >
+
                 } @else {
+
                   <div class="photo-placeholder">
                     <span class="photo-icon">👤</span>
                   </div>
-                }
-              </label>
 
-              <!-- TEXTO CLICÁVEL -->
+                }
+
+              </label>
 
               <label
                 for="foto"
                 class="photo-button"
               >
+                <span>📷</span>
+
                 {{
-                  novoUsuario.foto
+                  userPhoto
                     ? 'Alterar foto'
                     : 'Adicionar foto'
                 }}
+
               </label>
 
-              <span class="photo-help">    JPG, PNG ou GIF  </span>
+              <span class="photo-help">
+                JPG, PNG ou GIF
+              </span>
 
+              @if (userPhoto) {
+
+                <button
+                  type="button"
+                  class="remove-photo"
+                  (click)="removePhoto()"
+                >
+                  Remover foto
+                </button>
+              }
             </div>
 
-            <!-- CAMPOS -->
+            <!-- FIELDS -->
 
             <div class="fields-area">
 
-              <!-- NOME -->
+              <!-- NAME -->
 
               <div class="form-group">
                 <label for="nome">
-                  Nome do usuário
+                  Nome
                 </label>
                 <input
                   id="nome"
                   type="text"
-                  name="nome"
-                  [(ngModel)]="novoUsuario.nome"
+                  formControlName="name"
                   placeholder="Digite o nome do usuário"
-                  required
                 >
+                @if (
+                  userForm.controls.name.touched &&
+                  userForm.controls.name.invalid
+                  ) {
+
+                  <small class="error-message">
+                    Digite o nome do usuário.
+                  </small>
+
+                }
+
               </div>
 
               <!-- E-MAIL -->
 
               <div class="form-group">
+
                 <label for="email">
                   E-mail
                 </label>
+
                 <input
                   id="email"
                   type="email"
-                  name="email"
-                  [(ngModel)]="novoUsuario.email"
-                  placeholder="exemplo@gmail.com"
-                  pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
-                  required
+                  formControlName="email"
+                  placeholder="Digite o e-mail"
                 >
+
                 @if (
-                  novoUsuario.email &&
-                  !emailValido()
+                  userForm.controls.email.touched &&
+                  userForm.controls.email.hasError('pattern')
                   ) {
                   <small class="error-message">
                     Digite um e-mail válido.
@@ -152,7 +168,7 @@
                 }
               </div>
 
-              <!-- TELEFONE -->
+              <!-- PHONE -->
 
               <div class="form-group">
                 <label for="telefone">
@@ -161,25 +177,31 @@
                 <input
                   id="telefone"
                   type="tel"
-                  name="telefone"
-                  [(ngModel)]="novoUsuario.telefone"
-                  (input)="formatarTelefoneInput()"
-                  placeholder="(DDD) 99999-9999"
+                  formControlName="phone"
+                  (input)="formatPhoneInput()"
+                  placeholder="(31) 99999-9999"
                   maxlength="15"
-                  required
                 >
+                @if (
+                  userForm.controls.phone.touched &&
+                  userForm.controls.phone.invalid
+                  ) {
+                  <small class="error-message">
+                    Digite o telefone.
+                  </small>
+                }
               </div>
 
-              <!-- PERFIL -->
+              <!-- PROFILE -->
 
               <div class="form-group">
-                <label for="perfil">
+
+                <label for="profile">
                   Perfil
                 </label>
                 <select
-                  id="perfil"
-                  name="perfil"
-                  [(ngModel)]="novoUsuario.perfil"
+                  id="profile"
+                  formControlName="profile"
                 >
                   <option value="Administrador">
                     Administrador
@@ -196,25 +218,29 @@
               <!-- STATUS -->
 
               <div class="form-group status-group">
-                <label for="status">Status</label>
-
+                <label for="status">
+                  Status
+                </label>
                 <select
                   id="status"
-                  name="status"
-                  [(ngModel)]="novoUsuario.status"
+                  formControlName="status"
                 >
-                  <option value="Ativo">Ativo</option>
-                  <option value="Inativo">Inativo</option>
+                  <option value="Ativo">
+                    Ativo
+                  </option>
+                  <option value="Inativo">
+                    Inativo
+                  </option>
                 </select>
               </div>
 
-              <!-- BOTÕES -->
+              <!-- BUTTONS -->
 
               <div class="form-actions">
                 <button
                   type="button"
                   class="cancel-button"
-                  (click)="fecharFormulario()"
+                  (click)="closeForm()"
                 >
                   Cancelar
                 </button>
@@ -224,7 +250,7 @@
                   class="save-button"
                 >
                   {{
-                    modoEdicao
+                    editMode
                       ? 'Salvar alterações'
                       : 'Cadastrar usuário'
                   }}
@@ -236,5 +262,4 @@
       </div>
     }
   </div>
-
 </app-dashboard-layout>

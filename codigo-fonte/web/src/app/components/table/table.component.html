@@ -15,29 +15,24 @@
       @for (user of users; track $index) {
         <tr>
 
-          <!-- USUÁRIO -->
+          <!-- USER -->
 
           <td>
             <div class="user-info">
-              @if (user.foto) {
+              @if (user.photo) {
 
                 <img
                   class="user-avatar"
-                  [src]="user.foto"
-                  [alt]="'Foto de ' + user.nome"
+                  [src]="user.photo"
+                  [alt]="'Foto de ' + user.name"
                 >
-
               } @else {
-
                 <div class="user-avatar">
-
                   <span>👤</span>
-
                 </div>
-
               }
               <strong>
-                {{ user.nome }}
+                {{ user.name }}
               </strong>
             </div>
           </td>
@@ -48,16 +43,16 @@
             {{ user.email }}
           </td>
 
-          <!-- TELEFONE -->
+          <!-- PHONE -->
 
           <td>
-            {{ formatarTelefone(user.telefone) }}
+            {{ formatPhone(user.phone) }}
           </td>
 
-          <!-- PERFIL -->
+          <!-- PROFILE -->
 
           <td>
-            {{ user.perfil }}
+            {{ user.profile }}
           </td>
 
           <!-- STATUS -->
@@ -72,23 +67,23 @@
             </span>
           </td>
 
-          <!-- AÇÕES -->
+          <!-- ACTION -->
 
           <td class="actions">
             <button
               type="button"
               class="dots-button"
-              (click)="abrirMenu($index)"
+              (click)="openMenu($index)"
             >
               ⋮
             </button>
 
 
-            @if (menuAberto === $index) {
+            @if (openMenuIndex === $index) {
               <div class="action-menu">
                 <button
                   type="button"
-                  (click)="editarUsuario($index)"
+                  (click)="editUser($index)"
                 >
                   <span>✎</span>
                   Alterar
@@ -97,7 +92,7 @@
                 <button
                   type="button"
                   class="delete-option"
-                  (click)="excluirUsuario($index)"
+                  (click)="deleteUser($index)"
                 >
                   <span>🗑</span>
                   Excluir

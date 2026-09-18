@@ -40,7 +40,7 @@ tbody tr:hover {
   background: #fafcf9;
 }
 
-/* USUÁRIO */
+/* USER */
 
 .user-info {
   display: flex;
@@ -86,7 +86,7 @@ tbody tr:hover {
   color: #777777;
 }
 
-/* AÇÕES */
+/* ACTIONS */
 
 .actions-column {
   width: 50px;
@@ -153,7 +153,7 @@ tbody tr:hover {
   background: #fff1f1;
 }
 
-/* VAZIO */
+/* EMPTY */
 
 .empty {
   padding: 40px;
