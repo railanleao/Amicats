@@ -10,6 +10,7 @@ import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -40,6 +41,9 @@ public class UserAuth {
   @Column(name = "must_change_password", nullable = false)
   private boolean mustChangePassword;
 
+  @Column(name = "password_reset_last_requested_at")
+  private LocalDateTime passwordResetLastRequestedAt;
+
   public UserAuth(User user, String email, String passwordHash) {
     this.user = user;
     this.email = email;
@@ -53,5 +57,9 @@ public class UserAuth {
 
   public void setMustChangePassword(boolean mustChangePassword) {
     this.mustChangePassword = mustChangePassword;
+  }
+
+  public void setPasswordResetLastRequestedAt(LocalDateTime timestamp) {
+    this.passwordResetLastRequestedAt = timestamp;
   }
 }
