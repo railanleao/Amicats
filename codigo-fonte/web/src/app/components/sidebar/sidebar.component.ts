@@ -10,8 +10,8 @@ import { AuthService } from '../../services/resources/auth.service';
 })
 export class SidebarComponent {
   userLogged = {
-    name: 'Camila Andrade',
-    profile: 'Administradora',
+    name: 'Nome Aqui',
+    profile: 'Função Aqui',
   };
 
   constructor(

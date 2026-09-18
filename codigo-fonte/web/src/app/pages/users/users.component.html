@@ -1,265 +1,69 @@
 <app-dashboard-layout>
+
   <div class="page">
     <header class="header">
       <h1>Usuários</h1>
       <button
         class="new-user-button"
         type="button"
-        (click)="openForm()"
       >
         <span class="plus">+</span>
         Novo usuário
       </button>
     </header>
 
-    <app-table
-      [users]="users"
-      (edit)="editUser($event)"
-      (delete)="deleteUser($event)"
-    ></app-table>
-
-    @if (showForm) {
-      <div class="modal-overlay">
-        <div class="modal">
-          <div class="modal-header">
-            <div>
-              <h2>
-                {{ editMode ? 'Alterar usuário' : 'Novo usuário' }}
-              </h2>
-              <p>
-                {{
-                  editMode
-                    ? 'Altere os dados do usuário.'
-                    : 'Preencha os dados para cadastrar um novo usuário.'
-                }}
-              </p>
-            </div>
-            <button
-              type="button"
-              class="close-button"
-              (click)="closeForm()"
-            >
-              ×
-            </button>
-          </div>
-
-          <form
-            class="form"
-            [formGroup]="userForm"
-            (ngSubmit)="registerUser()"
-          >
-
-            <!-- PHOTO -->
-
-            <div class="photo-area">
-              <input
-                id="foto"
-                type="file"
-                accept="image/*"
-                (change)="selectPhoto($event)"
-                hidden
-              >
-
-              <label
-                for="foto"
-                class="photo-container"
-                title="Adicionar foto"
-              >
-
-                @if (userPhoto) {
-
+    <main class="content">
+      @if (users.length > 0) {
+        <div class="users-list">
+          @for (user of users; track $index) {
+            <div class="user-card">
+              <div class="user-info">
+                @if (user.photo) {
                   <img
-                    class="profile-photo"
-                    [src]="userPhoto"
-                    alt="Foto do usuário"
+                    class="user-avatar"
+                    [src]="user.photo"
+                    [alt]="'Foto de ' + user.name"
                   >
 
                 } @else {
-
-                  <div class="photo-placeholder">
-                    <span class="photo-icon">👤</span>
+                  <div class="user-avatar">
+                    <span>👤</span>
                   </div>
-
                 }
-
-              </label>
-
-              <label
-                for="foto"
-                class="photo-button"
-              >
-                <span>📷</span>
-
-                {{
-                  userPhoto
-                    ? 'Alterar foto'
-                    : 'Adicionar foto'
-                }}
-
-              </label>
-
-              <span class="photo-help">
-                JPG, PNG ou GIF
-              </span>
-
-              @if (userPhoto) {
-
-                <button
-                  type="button"
-                  class="remove-photo"
-                  (click)="removePhoto()"
-                >
-                  Remover foto
-                </button>
-              }
-            </div>
-
-            <!-- FIELDS -->
-
-            <div class="fields-area">
-
-              <!-- NAME -->
-
-              <div class="form-group">
-                <label for="nome">
-                  Nome
-                </label>
-                <input
-                  id="nome"
-                  type="text"
-                  formControlName="name"
-                  placeholder="Digite o nome do usuário"
-                >
-                @if (
-                  userForm.controls.name.touched &&
-                  userForm.controls.name.invalid
-                  ) {
-
-                  <small class="error-message">
-                    Digite o nome do usuário.
-                  </small>
-
-                }
-
+                <div class="user-data">
+                  <strong>{{ user.name }}</strong>
+                  <span>{{ user.email }}</span>
+                </div>
               </div>
 
-              <!-- E-MAIL -->
-
-              <div class="form-group">
-
-                <label for="email">
-                  E-mail
-                </label>
-
-                <input
-                  id="email"
-                  type="email"
-                  formControlName="email"
-                  placeholder="Digite o e-mail"
+              <div class="user-details">
+                <span>{{ user.phone }}</span>
+                <span>{{ user.profile }}</span>
+                <span
+                  class="status"
+                  [class.active]="user.status === 'Active'"
+                  [class.inactive]="user.status === 'Inactive'"
                 >
-
-                @if (
-                  userForm.controls.email.touched &&
-                  userForm.controls.email.hasError('pattern')
-                  ) {
-                  <small class="error-message">
-                    Digite um e-mail válido.
-                  </small>
-                }
-              </div>
-
-              <!-- PHONE -->
-
-              <div class="form-group">
-                <label for="telefone">
-                  Telefone
-                </label>
-                <input
-                  id="telefone"
-                  type="tel"
-                  formControlName="phone"
-                  (input)="formatPhoneInput()"
-                  placeholder="(31) 99999-9999"
-                  maxlength="15"
-                >
-                @if (
-                  userForm.controls.phone.touched &&
-                  userForm.controls.phone.invalid
-                  ) {
-                  <small class="error-message">
-                    Digite o telefone.
-                  </small>
-                }
-              </div>
-
-              <!-- PROFILE -->
-
-              <div class="form-group">
-
-                <label for="profile">
-                  Perfil
-                </label>
-                <select
-                  id="profile"
-                  formControlName="profile"
-                >
-                  <option value="Administrador">
-                    Administrador
-                  </option>
-                  <option value="Veterinário">
-                    Veterinário
-                  </option>
-                  <option value="Voluntário">
-                    Voluntário
-                  </option>
-                </select>
-              </div>
-
-              <!-- STATUS -->
-
-              <div class="form-group status-group">
-                <label for="status">
-                  Status
-                </label>
-                <select
-                  id="status"
-                  formControlName="status"
-                >
-                  <option value="Ativo">
+                  @if (user.status === 'Active') {
                     Ativo
-                  </option>
-                  <option value="Inativo">
+                  } @else {
                     Inativo
-                  </option>
-                </select>
-              </div>
-
-              <!-- BUTTONS -->
-
-              <div class="form-actions">
-                <button
-                  type="button"
-                  class="cancel-button"
-                  (click)="closeForm()"
-                >
-                  Cancelar
-                </button>
-
-                <button
-                  type="submit"
-                  class="save-button"
-                >
-                  {{
-                    editMode
-                      ? 'Salvar alterações'
-                      : 'Cadastrar usuário'
-                  }}
-                </button>
+                  }
+                </span>
               </div>
             </div>
-          </form>
+          }
         </div>
-      </div>
-    }
+
+      } @else {
+
+        <div class="empty">
+          <p>Nenhum usuário cadastrado.</p>
+        </div>
+      }
+
+    </main>
+
   </div>
+
 </app-dashboard-layout>

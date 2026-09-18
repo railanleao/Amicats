@@ -22,6 +22,6 @@ export const routes: Routes = [
     component: ChangePasswordComponent,
     canActivate: [changePasswordGuard],
   },
-  { path: 'users', component: UsersComponent, canActivate: [authGuard] },
+  { path: 'users', component: UsersComponent, canActivate: [] },
   { path: '**', redirectTo: '' },
 ];
