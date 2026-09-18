@@ -16,9 +16,9 @@
   flex-shrink: 0;
 }
 
-/* LOGO */
+/* LOGOTYPE */
 
-.logo {
+.logotype {
   display: flex;
   align-items: center;
 
@@ -34,7 +34,7 @@
   font-weight: bold;
 }
 
-.logo-icon {
+.logotype-icon {
   width: 40px;
   height: 40px;
 
@@ -49,7 +49,7 @@
   font-size: 20px;
 }
 
-/* NAVEGAÇÃO */
+/* NAVIGATION */
 
 .navigation {
   display: flex;
@@ -63,7 +63,7 @@
   gap: 4px;
 }
 
-/* TÍTULO DAS SEÇÕES */
+/* SECTION TITLES */
 
 .section-title {
   margin-left: 10px;
@@ -74,7 +74,7 @@
   letter-spacing: 1px;
 }
 
-/* ITEM DO MENU */
+/* MENU ITEM */
 
 .menu-item {
   height: 38px;
@@ -95,7 +95,7 @@
   background-color: rgba(255, 255, 255, 0.08);
 }
 
-/* ITEM ATIVO */
+/* ACTIVE ITEM */
 
 .menu-item.active {
   background-color: #698866;
@@ -103,7 +103,7 @@
   font-weight: 700;
 }
 
-/* ÍCONES */
+/* ICONS */
 
 .menu-icon {
   width: 19px;
@@ -113,7 +113,7 @@
   font-size: 17px;
 }
 
-/* PERFIL */
+/* PROFILE */
 
 .profile {
   margin-top: auto;

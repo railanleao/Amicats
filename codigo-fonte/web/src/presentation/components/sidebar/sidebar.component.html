@@ -1,9 +1,9 @@
 <aside class="sidebar">
 
-  <!-- LOGO -->
-  <div class="logo">
+  <!-- LOGOTYPE -->
+  <div class="logotype">
 
-    <div class="logo-icon">
+    <div class="logotype-icon">
       🐈
     </div>
 
@@ -15,7 +15,7 @@
   <!-- MENU -->
   <nav class="navigation">
 
-    <!-- GERAL -->
+    <!-- GENERAL -->
     <div class="menu-section">
 
       <span class="section-title">
@@ -30,7 +30,7 @@
     </div>
 
 
-    <!-- CADASTROS -->
+    <!-- REGISTRATIONS -->
     <div class="menu-section">
 
       <span class="section-title">
@@ -60,7 +60,7 @@
     </div>
 
 
-    <!-- CLÍNICO -->
+    <!-- CLINICAL -->
     <div class="menu-section">
 
       <span class="section-title">
@@ -85,7 +85,7 @@
     </div>
 
 
-    <!-- GESTÃO -->
+    <!-- MANAGEMENT -->
     <div class="menu-section">
 
       <span class="section-title">
@@ -106,22 +106,22 @@
   </nav>
 
 
-  <!-- USUÁRIO LOGADO -->
+  <!-- LOGGED-IN USER -->
   <div class="profile">
 
     <div class="avatar">
-      {{ usuarioLogado.nome.charAt(0) }}
+      {{ userLogged.name.charAt(0) }}
     </div>
 
     <div class="profile-info">
-      <strong>{{ usuarioLogado.nome }}</strong>
-      <span>{{ usuarioLogado.perfil }}</span>
+      <strong>{{ userLogged.name }}</strong>
+      <span>{{ userLogged.profile }}</span>
     </div>
 
     <button
       type="button"
       class="logout"
-      (click)="desconectar()"
+      (click)="disconnect()"
       title="Desconectar"
     >
       ↪
