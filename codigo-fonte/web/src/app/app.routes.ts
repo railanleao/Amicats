@@ -10,8 +10,15 @@ import { TermsAcceptanceComponent } from './pages/terms-acceptance/terms-accepta
 import { UsersComponent } from './pages/users/users.component';
 
 export const routes: Routes = [
-  { path: '', component: HomeComponent, canActivate: [authGuard] },
-  { path: 'login', component: LoginComponent },
+  {
+    path: '',
+    component: HomeComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'login',
+    component: LoginComponent,
+  },
   {
     path: 'termos-de-uso',
     component: TermsAcceptanceComponent,
@@ -22,6 +29,13 @@ export const routes: Routes = [
     component: ChangePasswordComponent,
     canActivate: [changePasswordGuard],
   },
-  { path: 'users', component: UsersComponent, canActivate: [authGuard] },
-  { path: '**', redirectTo: '' },
+  {
+    path: 'users',
+    component: UsersComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: '**',
+    redirectTo: '',
+  },
 ];
