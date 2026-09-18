@@ -33,6 +33,7 @@ public class CreateUserUseCase {
     userDataProvider.saveUser(user);
 
     UserAuth auth = new UserAuth(user, input.email(), passwordEncoder.encode(input.password()));
+    auth.setMustChangePassword(true);
     userDataProvider.saveUserAuth(auth);
 
     return ReadUserOutput.from(user, input.email());

@@ -12,6 +12,8 @@ public interface UserAuthRepository extends JpaRepository<UserAuth, Integer> {
 
   Optional<UserAuth> findByEmail(String email);
 
+  Optional<UserAuth> findByUser_Id(Integer userId);
+
   @Query("select ua.email from UserAuth ua where ua.user.id = :userId")
   Optional<String> findEmailByUserId(@Param("userId") Integer userId);
 }
