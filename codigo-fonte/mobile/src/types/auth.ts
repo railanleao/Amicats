@@ -1,17 +1,11 @@
-export type AccessType = "ADMIN" | "VETERINARIAN" | "ASSISTANT" | "VIEWER";
+export type AccessType = "Administrator" | "Veterinarian" | "Assistant" | "Viewer";
 
 export interface User {
   id: number;
   fullName: string;
-  email: string;
-  phone: string | null;
-  photoUrl: string | null;
   accessType: AccessType;
-  crmv: string | null;
-  crmvState: string | null;
-  termsAcceptedAt: string | null;
-  active: boolean;
-  createdAt: string;
+  termsAccepted: boolean;
+  mustChangePassword: boolean;
 }
 
 export interface LoginCredentials {
@@ -21,5 +15,15 @@ export interface LoginCredentials {
 
 export interface LoginResponse {
   token: string;
-  user: User;
+  id: number;
+  name: string;
+  accessType: AccessType;
+  termsAccepted: boolean;
+  mustChangePassword: boolean;
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+  confirmNewPassword: string;
 }
