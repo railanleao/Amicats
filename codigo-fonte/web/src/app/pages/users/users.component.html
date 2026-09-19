@@ -1,69 +1,145 @@
 <app-dashboard-layout>
-
   <div class="page">
-    <header class="header">
+    <header class="page-header">
       <h1>Usuários</h1>
-      <button
-        class="new-user-button"
-        type="button"
-      >
-        <span class="plus">+</span>
+      <button type="button" class="new-button">
+        <span>＋</span>
         Novo usuário
       </button>
     </header>
 
-    <main class="content">
-      @if (users.length > 0) {
-        <div class="users-list">
-          @for (user of users; track $index) {
-            <div class="user-card">
-              <div class="user-info">
-                @if (user.photo) {
-                  <img
-                    class="user-avatar"
-                    [src]="user.photo"
-                    [alt]="'Foto de ' + user.name"
-                  >
-
-                } @else {
-                  <div class="user-avatar">
-                    <span>👤</span>
-                  </div>
-                }
-                <div class="user-data">
-                  <strong>{{ user.name }}</strong>
-                  <span>{{ user.email }}</span>
-                </div>
-              </div>
-
-              <div class="user-details">
-                <span>{{ user.phone }}</span>
-                <span>{{ user.profile }}</span>
-                <span
-                  class="status"
-                  [class.active]="user.status === 'Active'"
-                  [class.inactive]="user.status === 'Inactive'"
-                >
-                  @if (user.status === 'Active') {
-                    Ativo
-                  } @else {
-                    Inativo
-                  }
-                </span>
-              </div>
-            </div>
-          }
+    <section class="users-container">
+      <div class="toolbar">
+        <div class="search-box">
+          <span class="search-icon">⌕</span>
+          <input
+            type="text"
+            placeholder="Buscar por nome ou e-mail..."
+            (input)="onSearch($event)"
+          />
         </div>
 
-      } @else {
+        <button
+          type="button"
+          class="filter-button"
+          (click)="toggleFilters()"
+        >
+          <span>☷</span>
+          Filtros
+        </button>
+      </div>
 
-        <div class="empty">
-          <p>Nenhum usuário cadastrado.</p>
+      @if (showFilters) {
+        <div class="filter-panel">
+          <div class="filter-field">
+            <label for="profile">Função</label>
+
+            <select
+              id="profile"
+              (change)="onProfileChange($event)"
+            >
+              <option value="">Todas as funções</option>
+              <option value="Administrator">Administrador</option>
+              <option value="Veterinary">Veterinário</option>
+              <option value="Volunteer">Voluntário</option>
+              <option value="Viewer">Visualizador</option>
+            </select>
+          </div>
+          <div class="filter-field">
+            <label for="status">Status</label>
+            <select
+              id="status"
+              (change)="onStatusChange($event)"
+            >
+              <option value="">Todos os status</option>
+              <option value="Active">Ativo</option>
+              <option value="Inactive">Inativo</option>
+            </select>
+          </div>
         </div>
       }
+      <div class="table-header">
+          <span>USUÁRIO</span>
+          <span>E-MAIL</span>
+          <span>TELEFONE</span>
+          <span>FUNÇÃO</span>
+          <span>STATUS</span>
+      </div>
+      <div class="users-list">
+        @for (user of filteredUsers; track user.email) {
+          <div
+            class="user-row"
+            [class.inactive-row]="user.status === 'Inactive'"
+          >
+            <div class="user-name">
+              @if (user.photo) {
+                <img
+                  [src]="user.photo"
+                  [alt]="'Foto de ' + user.name"
+                >
+              } @else {
+                <div class="user-avatar">
+                  👤
+                </div>
+              }
 
-    </main>
+              <span>{{ user.name }}</span>
+            </div>
 
+            <span>{{ user.email }}</span>
+            <span>{{ user.phone }}</span>
+
+            <span
+              class="profile"
+              [class.administrator]="user.profile === 'Administrator'"
+              [class.veterinarian]="user.profile === 'Veterinary'"
+              [class.volunteer]="user.profile === 'Volunteer'"
+              [class.viewer]="user.profile === 'Viewer'"
+            >
+            @if (user.profile === 'Administrator') {
+             Administrador
+            } @else if (user.profile === 'Veterinary') {
+             Veterinário
+            } @else if (user.profile === 'Volunteer') {
+             Voluntário
+            } @else if (user.profile === 'Viewer') {
+             Visualizador
+            }
+            </span>
+
+            <span
+              class="status"
+              [class.active]="user.status === 'Active'"
+              [class.inactive]="user.status === 'Inactive'"
+            >
+            @if (user.status === 'Active') {
+             Ativo
+            } @else {
+             Inativo
+            }
+            </span>
+
+            <div class="actions">
+              <button
+                type="button"
+                class="edit-button"
+                title="Editar usuário"
+              >
+                ✎
+              </button>
+
+              <button
+                type="button"
+                class="delete-button"
+                [title]="user.status === 'Active' ? 'Desativar usuário' : 'Ativar usuário'"
+                (click)="toggleUserStatus(user)"
+              >
+                <span>{{ user.status === 'Active' ? '−' : '+' }}</span>
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
   </div>
-
 </app-dashboard-layout>
