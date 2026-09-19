@@ -1,10 +1,10 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
-import { Subject, throwError } from 'rxjs';
+import {ComponentFixture, TestBed, fakeAsync, tick} from '@angular/core/testing';
+import {provideRouter} from '@angular/router';
+import {Subject, throwError} from 'rxjs';
 
-import { PagedResult, User, UserSearchParams } from '../../models/user.model';
-import { UserService } from '../../services/resources/user.service';
-import { UsersComponent } from './users.component';
+import {PagedResult, User, UserSearchParams} from '../../models/user.model';
+import {UserService} from '../../services/resources/user.service';
+import {UsersComponent} from './users.component';
 
 describe('UsersComponent (unit)', () => {
   let fixture: ComponentFixture<UsersComponent>;
@@ -41,16 +41,20 @@ describe('UsersComponent (unit)', () => {
   }
 
   function pagedResult(content: User[], page = 0, totalPages = 1): PagedResult<User> {
-    return { content, page, size: 20, totalElements: content.length, totalPages };
+    return {content, page, size: 20, totalElements: content.length, totalPages};
   }
 
   beforeEach(async () => {
-    userServiceSpy = jasmine.createSpyObj<UserService>('UserService', ['list', 'deactivate']);
+    userServiceSpy = jasmine.createSpyObj<UserService>('UserService', [
+      'list',
+      'deactivate',
+      'activate',
+    ]);
     userServiceSpy.list.and.returnValue(new Subject<PagedResult<User>>());
 
     await TestBed.configureTestingModule({
       imports: [UsersComponent],
-      providers: [provideRouter([]), { provide: UserService, useValue: userServiceSpy }],
+      providers: [provideRouter([]), {provide: UserService, useValue: userServiceSpy}],
     }).compileComponents();
 
     fixture = TestBed.createComponent(UsersComponent);
@@ -95,13 +99,13 @@ describe('UsersComponent (unit)', () => {
   it('debounces search input and requests page zero with the typed term', fakeAsync(() => {
     userServiceSpy.list.calls.reset();
 
-    component.onSearch({ target: { value: 'carla' } } as unknown as Event);
+    component.onSearch({target: {value: 'carla'}} as unknown as Event);
     tick(299);
     expect(userServiceSpy.list).not.toHaveBeenCalled();
 
     tick(1);
     expect(userServiceSpy.list).toHaveBeenCalledWith(
-      jasmine.objectContaining({ search: 'carla', page: 0 }),
+      jasmine.objectContaining({search: 'carla', page: 0}),
     );
   }));
 
@@ -109,10 +113,10 @@ describe('UsersComponent (unit)', () => {
     component.onPageChange(2);
     userServiceSpy.list.calls.reset();
 
-    component.onProfileChange({ target: { value: 'Veterinarian' } } as unknown as Event);
+    component.onProfileChange({target: {value: 'Veterinarian'}} as unknown as Event);
 
     expect(userServiceSpy.list).toHaveBeenCalledWith(
-      jasmine.objectContaining({ accessType: 'Veterinarian', page: 0 }),
+      jasmine.objectContaining({accessType: 'Veterinarian', page: 0}),
     );
   });
 
@@ -120,10 +124,10 @@ describe('UsersComponent (unit)', () => {
     component.onPageChange(2);
     userServiceSpy.list.calls.reset();
 
-    component.onStatusChange({ target: { value: 'Active' } } as unknown as Event);
+    component.onStatusChange({target: {value: 'Active'}} as unknown as Event);
 
     expect(userServiceSpy.list).toHaveBeenCalledWith(
-      jasmine.objectContaining({ active: true, page: 0 }),
+      jasmine.objectContaining({active: true, page: 0}),
     );
   });
 
@@ -133,7 +137,7 @@ describe('UsersComponent (unit)', () => {
     component.onPageChange(1);
 
     expect(component.page()).toBe(1);
-    expect(userServiceSpy.list).toHaveBeenCalledWith(jasmine.objectContaining({ page: 1 }));
+    expect(userServiceSpy.list).toHaveBeenCalledWith(jasmine.objectContaining({page: 1}));
   });
 
   it('does not open the confirmation dialog for an already inactive user', () => {
@@ -189,5 +193,53 @@ describe('UsersComponent (unit)', () => {
 
     expect(component.errorMessage()).toBe('Não foi possível desativar o usuário. Tente novamente.');
     expect(component.userPendingDeactivation()).toBeNull();
+  });
+
+  it('does not open the reactivation dialog for an active user', () => {
+    component.requestReactivation(mockUsers()[0]);
+
+    expect(component.userPendingReactivation()).toBeNull();
+  });
+
+  it('opens the reactivation dialog for an inactive user without calling the API yet', () => {
+    component.requestReactivation(mockUsers()[1]);
+
+    expect(component.userPendingReactivation()).toEqual(mockUsers()[1]);
+    expect(userServiceSpy.activate).not.toHaveBeenCalled();
+  });
+
+  it('closes the reactivation dialog without calling the API when cancelled', () => {
+    component.requestReactivation(mockUsers()[1]);
+
+    component.cancelReactivation();
+
+    expect(component.userPendingReactivation()).toBeNull();
+    expect(userServiceSpy.activate).not.toHaveBeenCalled();
+  });
+
+  it('reactivates the user, reloads the list and closes the dialog on confirmation', () => {
+    userServiceSpy.activate.and.returnValue(new Subject<void>());
+    userServiceSpy.list.calls.reset();
+    userServiceSpy.list.and.returnValue(new Subject<PagedResult<User>>());
+    const target = mockUsers()[1];
+
+    component.requestReactivation(target);
+    component.confirmReactivation();
+    (userServiceSpy.activate.calls.mostRecent().returnValue as Subject<void>).next();
+
+    expect(userServiceSpy.activate).toHaveBeenCalledWith(target.id);
+    expect(userServiceSpy.list).toHaveBeenCalled();
+    expect(component.userPendingReactivation()).toBeNull();
+  });
+
+  it('shows an error message and closes the dialog when reactivation fails', () => {
+    userServiceSpy.activate.and.returnValue(throwError(() => new Error('server error')));
+
+    component.requestReactivation(mockUsers()[1]);
+    component.confirmReactivation();
+
+    expect(component.errorMessage()).toBe('Não foi possível reativar o usuário. Tente novamente.');
+    expect(component.userPendingReactivation()).toBeNull();
+    expect(component.activatingId()).toBeNull();
   });
 });

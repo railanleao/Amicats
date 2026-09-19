@@ -79,6 +79,16 @@
   background: var(--color-coral-dark);
 }
 
+.confirm-dialog__confirm--success {
+  background: var(--color-sage-700);
+  color: var(--color-sage-50);
+}
+
+.confirm-dialog__confirm--success:hover:not(:disabled) {
+  background: var(--color-sage-700);
+  filter: brightness(0.9);
+}
+
 .confirm-dialog__cancel:disabled,
 .confirm-dialog__confirm:disabled {
   opacity: 0.6;
