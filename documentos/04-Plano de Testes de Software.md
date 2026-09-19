@@ -1491,6 +1491,244 @@ Nenhum usuário é excluído fisicamente (RNF-005). Para repetir os testes, cria
   </tr>
 </table>
 
+<table>
+  <tr>
+    <th colspan="2" width="1000">CT-004 - S<br>Cadastro de usuário com perfil de acesso</th>
+  </tr>
+  <tr>
+    <td width="150"><strong>Descrição</strong></td>
+    <td>Este caso de teste verifica se um Administrador consegue cadastrar um novo usuário e atribuir corretamente um dos perfis de acesso disponíveis no sistema.</td>
+  </tr>
+  <tr>
+    <td><strong>Responsável Caso de Teste</strong></td>
+    <td width="430">Railan Leão</td>
+  </tr>
+  <tr>
+    <td><strong>Tipo do Teste</strong></td>
+    <td width="430">Sucesso</td>
+  </tr>
+  <tr>
+    <td><strong>Requisitos associados</strong></td>
+    <td>RF de Gestão de Usuários: Permitir ao Administrador cadastrar usuários e definir seu perfil de acesso.</td>
+  </tr>
+  <tr>
+    <td><strong>Passos</strong></td>
+    <td>
+      1. Autenticar-se no sistema com um usuário Administrador.<br>
+      2. Acessar a funcionalidade de gestão de usuários.<br>
+      3. Selecionar a opção de cadastro de usuário.<br>
+      4. Preencher os dados obrigatórios do novo usuário.<br>
+      5. Selecionar um perfil de acesso entre Administrator, Veterinarian, Assistant ou Viewer.<br>
+      6. Confirmar o cadastro.
+    </td>
+  </tr>
+  <tr>
+    <td><strong>Dados de teste</strong></td>
+    <td>
+      - <strong>Nome:</strong> Rafael Nogueira<br>
+      - <strong>E-mail:</strong> rafael@amicats.org.br<br>
+      - <strong>Perfil:</strong> Veterinarian<br>
+      - <strong>Situação:</strong> Ativo
+    </td>
+  </tr>
+  <tr>
+    <td><strong>Critérios de êxito</strong></td>
+    <td>O sistema deve cadastrar o usuário com sucesso, associar o perfil de acesso selecionado e disponibilizá-lo na listagem de usuários.</td>
+  </tr>
+</table>
+
+<br>
+
+<table>
+  <tr>
+    <th colspan="2" width="1000">CT-005 - I01<br>Cadastro de usuário com e-mail já existente</th>
+  </tr>
+  <tr>
+    <td width="150"><strong>Descrição</strong></td>
+    <td>Este caso de teste verifica se o sistema impede o cadastro de um novo usuário utilizando um endereço de e-mail já associado a outro usuário.</td>
+  </tr>
+  <tr>
+    <td><strong>Responsável Caso de Teste</strong></td>
+    <td width="430">Railan Leão</td>
+  </tr>
+  <tr>
+    <td><strong>Tipo do Teste</strong></td>
+    <td width="430">Insucesso</td>
+  </tr>
+  <tr>
+    <td><strong>Requisitos associados</strong></td>
+    <td>RF de Gestão de Usuários: Garantir que cada usuário possua um e-mail único no sistema.</td>
+  </tr>
+  <tr>
+    <td><strong>Passos</strong></td>
+    <td>
+      1. Autenticar-se no sistema com um usuário Administrador.<br>
+      2. Acessar a funcionalidade de gestão de usuários.<br>
+      3. Selecionar a opção de cadastro de usuário.<br>
+      4. Preencher os dados do novo usuário.<br>
+      5. Informar um e-mail já cadastrado no sistema.<br>
+      6. Selecionar um perfil de acesso.<br>
+      7. Tentar confirmar o cadastro.
+    </td>
+  </tr>
+  <tr>
+    <td><strong>Dados de teste</strong></td>
+    <td>
+      - <strong>Nome:</strong> Novo Usuário<br>
+      - <strong>E-mail:</strong> E-mail já existente na base de dados<br>
+      - <strong>Perfil:</strong> Assistant
+    </td>
+  </tr>
+  <tr>
+    <td><strong>Critérios de êxito</strong></td>
+    <td>O sistema deve impedir o cadastro duplicado e informar que o endereço de e-mail já está registrado.</td>
+  </tr>
+</table>
+
+<br>
+
+<table>
+  <tr>
+    <th colspan="2" width="1000">CT-006 - S<br>Alteração do perfil de acesso de um usuário</th>
+  </tr>
+  <tr>
+    <td width="150"><strong>Descrição</strong></td>
+    <td>Este caso de teste verifica se um Administrador consegue alterar o perfil de acesso de um usuário já cadastrado.</td>
+  </tr>
+  <tr>
+    <td><strong>Responsável Caso de Teste</strong></td>
+    <td width="430">Railan Leão</td>
+  </tr>
+  <tr>
+    <td><strong>Tipo do Teste</strong></td>
+    <td width="430">Sucesso</td>
+  </tr>
+  <tr>
+    <td><strong>Requisitos associados</strong></td>
+    <td>RF de Gestão de Usuários: Permitir ao Administrador editar os dados e o perfil de acesso dos usuários.</td>
+  </tr>
+  <tr>
+    <td><strong>Passos</strong></td>
+    <td>
+      1. Autenticar-se no sistema com um usuário Administrador.<br>
+      2. Acessar a gestão de usuários.<br>
+      3. Localizar um usuário cadastrado.<br>
+      4. Selecionar a opção de edição.<br>
+      5. Alterar o perfil de acesso do usuário.<br>
+      6. Salvar as alterações.<br>
+      7. Verificar os dados atualizados do usuário.
+    </td>
+  </tr>
+  <tr>
+    <td><strong>Dados de teste</strong></td>
+    <td>
+      - <strong>Perfil atual:</strong> Viewer<br>
+      - <strong>Novo perfil:</strong> Assistant
+    </td>
+  </tr>
+  <tr>
+    <td><strong>Critérios de êxito</strong></td>
+    <td>O sistema deve salvar a alteração e o usuário deve passar a possuir o novo perfil de acesso definido pelo Administrador.</td>
+  </tr>
+</table>
+
+<br>
+
+<table>
+  <tr>
+    <th colspan="2" width="1000">CT-007 - S<br>Inativação de usuário</th>
+  </tr>
+  <tr>
+    <td width="150"><strong>Descrição</strong></td>
+    <td>Este caso de teste verifica se um Administrador consegue inativar um usuário e se o usuário inativado perde a possibilidade de autenticação no sistema.</td>
+  </tr>
+  <tr>
+    <td><strong>Responsável Caso de Teste</strong></td>
+    <td width="430">Railan Leão</td>
+  </tr>
+  <tr>
+    <td><strong>Tipo do Teste</strong></td>
+    <td width="430">Sucesso</td>
+  </tr>
+  <tr>
+    <td><strong>Requisitos associados</strong></td>
+    <td>RF de Gestão de Usuários: Permitir ao Administrador inativar usuários cadastrados.</td>
+  </tr>
+  <tr>
+    <td><strong>Passos</strong></td>
+    <td>
+      1. Autenticar-se no sistema com um usuário Administrador.<br>
+      2. Acessar a gestão de usuários.<br>
+      3. Localizar um usuário ativo.<br>
+      4. Selecionar a opção de inativação.<br>
+      5. Confirmar a operação.<br>
+      6. Verificar que o usuário passou para a situação de inativo.<br>
+      7. Tentar realizar login utilizando as credenciais do usuário inativado.
+    </td>
+  </tr>
+  <tr>
+    <td><strong>Dados de teste</strong></td>
+    <td>
+      - <strong>Usuário:</strong> Usuário previamente cadastrado e ativo.<br>
+      - <strong>Perfil:</strong> Veterinarian, Assistant ou Viewer.<br>
+      - <strong>Situação inicial:</strong> Ativo.
+    </td>
+  </tr>
+  <tr>
+    <td><strong>Critérios de êxito</strong></td>
+    <td>O sistema deve alterar a situação do usuário para inativo, mantê-lo registrado na base de dados e impedir novas autenticações enquanto permanecer inativo.</td>
+  </tr>
+</table>
+
+<br>
+
+<table>
+  <tr>
+    <th colspan="2" width="1000">CT-008 - S<br>Busca e filtragem de usuários por perfil e situação</th>
+  </tr>
+  <tr>
+    <td width="150"><strong>Descrição</strong></td>
+    <td>Este caso de teste verifica se o Administrador consegue consultar e filtrar os usuários cadastrados de acordo com os critérios disponibilizados pela gestão de usuários.</td>
+  </tr>
+  <tr>
+    <td><strong>Responsável Caso de Teste</strong></td>
+    <td width="430">Railan Leão</td>
+  </tr>
+  <tr>
+    <td><strong>Tipo do Teste</strong></td>
+    <td width="430">Sucesso</td>
+  </tr>
+  <tr>
+    <td><strong>Requisitos associados</strong></td>
+    <td>RF de Gestão de Usuários: Permitir a consulta, busca e filtragem dos usuários cadastrados.</td>
+  </tr>
+  <tr>
+    <td><strong>Passos</strong></td>
+    <td>
+      1. Autenticar-se no sistema com um usuário Administrador.<br>
+      2. Acessar a gestão de usuários.<br>
+      3. Visualizar a listagem de usuários cadastrados.<br>
+      4. Informar um termo de busca por nome ou e-mail.<br>
+      5. Selecionar um perfil de acesso como filtro.<br>
+      6. Selecionar a situação ativo ou inativo.<br>
+      7. Executar a consulta.<br>
+      8. Verificar os usuários apresentados.
+    </td>
+  </tr>
+  <tr>
+    <td><strong>Dados de teste</strong></td>
+    <td>
+      - <strong>Busca:</strong> Nome ou e-mail de usuário existente.<br>
+      - <strong>Perfil:</strong> Administrator, Veterinarian, Assistant ou Viewer.<br>
+      - <strong>Situação:</strong> Ativo ou Inativo.
+    </td>
+  </tr>
+  <tr>
+    <td><strong>Critérios de êxito</strong></td>
+    <td>O sistema deve apresentar somente os usuários que correspondam aos critérios de busca e filtros informados, mantendo corretamente os dados de nome, e-mail, perfil e situação.</td>
+  </tr>
+</table>
+
 ### ETAPA 3
 Criar casos de teste da etapa 3
 
