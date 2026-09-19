@@ -2,12 +2,13 @@ package org.amicats.backend.domain.usecase.user.update;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import org.amicats.backend.domain.enums.AccessType;
 
 public record UpdateUserInput(
-    @NotBlank String fullName,
-    String phoneNumber,
-    String imageUrl,
+    @NotBlank @Size(max = 150) String fullName,
+    @Size(max = 20) String phoneNumber,
     @NotNull AccessType accessType,
-    String crmv,
-    String ufCrmv) {}
+    @Size(max = 20) String crmv,
+    @Pattern(regexp = "[A-Za-z]{2}") String ufCrmv) {}

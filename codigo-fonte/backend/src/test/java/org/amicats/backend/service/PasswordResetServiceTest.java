@@ -57,7 +57,7 @@ class PasswordResetServiceTest {
   @Test
   void doesNothingWhenTheUserIsInactive() {
     User user = activeUser();
-    user.deactive();
+    user.deactivate();
     UserAuth auth = authFor(user);
     when(userAuthRepository.findByEmail("marina.alves@amicats.org.br"))
         .thenReturn(Optional.of(auth));

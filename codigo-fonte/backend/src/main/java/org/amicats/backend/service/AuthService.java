@@ -29,7 +29,7 @@ public class AuthService {
     this.jwtService = jwtService;
   }
 
-  @Transactional(readOnly = true)
+  @Transactional
   public LoginResponse login(LoginRequest request) {
 
     UserAuth auth =
@@ -51,6 +51,8 @@ public class AuthService {
     if (!isValid) {
       throw new InvalidCredentialsException();
     }
+
+    user.registerLogin();
 
     String token = jwtService.generateJwtToken(user, auth);
 

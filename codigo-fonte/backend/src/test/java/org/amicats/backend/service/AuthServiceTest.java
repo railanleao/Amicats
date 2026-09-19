@@ -68,7 +68,7 @@ class AuthServiceTest {
   @Test
   void rejectsInactiveUser() {
     User user = new User("Marina Alves", null, null, AccessType.Administrator, null, null, null);
-    user.deactive();
+    user.deactivate();
     UserAuth auth = new UserAuth(user, "marina.alves@amicats.org.br", "hash");
 
     when(userAuthRepository.findByEmail("marina.alves@amicats.org.br"))
@@ -87,5 +87,20 @@ class AuthServiceTest {
     assertThatThrownBy(
             () -> authService.login(new LoginRequest("desconhecido@amicats.org.br", "qualquer")))
         .isInstanceOf(ResponseStatusException.class);
+  }
+
+  @Test
+  void registersLastLoginOnSuccessfulLogin() {
+    User user = new User("Marina Alves", null, null, AccessType.Administrator, null, null, null);
+    UserAuth auth = new UserAuth(user, "marina.alves@amicats.org.br", "hash");
+
+    when(userAuthRepository.findByEmail("marina.alves@amicats.org.br"))
+        .thenReturn(Optional.of(auth));
+    when(passwordEncoder.matches("senha-forte", "hash")).thenReturn(true);
+    when(jwtService.generateJwtToken(user, auth)).thenReturn("token");
+
+    authService.login(new LoginRequest("marina.alves@amicats.org.br", "senha-forte"));
+
+    assertThat(user.getLastLoginAt()).isNotNull();
   }
 }

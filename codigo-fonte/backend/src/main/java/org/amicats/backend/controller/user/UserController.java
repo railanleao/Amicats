@@ -5,9 +5,12 @@ import org.amicats.backend.domain.enums.AccessType;
 import org.amicats.backend.domain.usecase.common.PagedResult;
 import org.amicats.backend.domain.usecase.user.create.CreateUserInput;
 import org.amicats.backend.domain.usecase.user.read.ReadUserOutput;
+import org.amicats.backend.domain.usecase.user.status.ChangeUserStatusInput;
 import org.amicats.backend.domain.usecase.user.update.UpdateUserInput;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("/users")
@@ -29,8 +32,14 @@ public interface UserController {
   ReadUserOutput create(@Valid @RequestBody CreateUserInput input);
 
   @PutMapping("/{id}")
-  ReadUserOutput update(@PathVariable Integer id, @Valid @RequestBody UpdateUserInput input);
+  ReadUserOutput update(
+      @PathVariable Integer id,
+      @Valid @RequestBody UpdateUserInput input,
+      @AuthenticationPrincipal Jwt jwt);
 
-  @PatchMapping("/{id}")
-  ResponseEntity<Void> deactivate(@PathVariable Integer id);
+  @PatchMapping("/{id}/status")
+  ResponseEntity<Void> changeStatus(
+      @PathVariable Integer id,
+      @Valid @RequestBody ChangeUserStatusInput input,
+      @AuthenticationPrincipal Jwt jwt);
 }
