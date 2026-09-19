@@ -20,56 +20,57 @@
           <app-user-avatar
             [name]="form.controls.fullName.value"
             [userId]="userId"
-            [hasPhoto]="hasPhoto"
+            [hasPhoto]="isEditing && hasPhoto"
+            [previewUrl]="pendingPhotoUrl()"
             [version]="photoVersion()"
             [size]="64"
           />
 
-          @if (isEditing) {
-            <div class="avatar-actions">
-              <input
-                #photoInput
-                type="file"
-                class="visually-hidden"
-                accept="image/png,image/jpeg"
-                (change)="onPhotoSelected($event)"
-              />
-              <div class="avatar-actions__buttons">
+          <div class="avatar-actions">
+            <input
+              #photoInput
+              type="file"
+              class="visually-hidden"
+              accept="image/png,image/jpeg"
+              (change)="onPhotoSelected($event)"
+            />
+            <div class="avatar-actions__buttons">
+              <button
+                type="button"
+                class="secondary-button"
+                [disabled]="photoBusy()"
+                (click)="photoInput.click()"
+              >
+                {{ photoBusy() ? 'Enviando...' : 'Alterar foto' }}
+              </button>
+              @if (hasPhoto) {
                 <button
                   type="button"
-                  class="secondary-button"
+                  class="link-button"
                   [disabled]="photoBusy()"
-                  (click)="photoInput.click()"
+                  (click)="removePhoto()"
                 >
-                  {{ photoBusy() ? 'Enviando...' : 'Alterar foto' }}
+                  Remover foto
                 </button>
-                @if (hasPhoto) {
-                  <button
-                    type="button"
-                    class="link-button"
-                    [disabled]="photoBusy()"
-                    (click)="removePhoto()"
-                  >
-                    Remover foto
-                  </button>
-                }
-              </div>
-              <span class="field-hint">JPG ou PNG, até 5 MB</span>
-              @if (photoError()) {
-                <span class="field-error" role="alert">{{ photoError() }}</span>
               }
             </div>
-          } @else {
-            <span class="field-hint">
-              Você poderá adicionar a foto depois de cadastrar o usuário.
-            </span>
-          }
+            <span class="field-hint">JPG ou PNG, até 5 MB</span>
+            @if (photoError()) {
+              <span class="field-error" role="alert">{{ photoError() }}</span>
+            }
+          </div>
         </div>
 
         @if (justCreated) {
           <div class="feedback feedback--success" role="status">
-            Usuário cadastrado. Para enviar o primeiro acesso por e-mail, use "Redefinir senha"
-            abaixo.
+            Usuário cadastrado. Enviamos uma senha temporária para o e-mail informado.
+          </div>
+        }
+
+        @if (photoFailed) {
+          <div class="feedback feedback--error" role="alert">
+            O usuário foi cadastrado, mas a foto não pôde ser enviada. Escolha a foto novamente em
+            "Alterar foto".
           </div>
         }
 

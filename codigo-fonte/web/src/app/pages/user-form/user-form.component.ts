@@ -4,7 +4,7 @@ import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { finalize } from 'rxjs';
+import { Observable, catchError, finalize, map, of, switchMap } from 'rxjs';
 
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { SubmitButtonComponent } from '../../components/submit-button/submit-button.component';
@@ -53,6 +53,7 @@ export class UserFormComponent {
   readonly title = this.isEditing ? 'Editar usuário' : 'Novo usuário';
   readonly submitLabel = this.isEditing ? 'Salvar alterações' : 'Cadastrar usuário';
   readonly justCreated = this.isEditing && history.state?.created === true;
+  readonly photoFailed = this.isEditing && history.state?.photoFailed === true;
 
   readonly accessTypeOptions = (Object.keys(ACCESS_TYPE_LABELS) as AccessType[]).map((value) => ({
     value,
@@ -68,6 +69,8 @@ export class UserFormComponent {
   readonly photoVersion = signal(0);
   readonly photoBusy = signal(false);
   readonly photoError = signal<string | null>(null);
+  readonly pendingPhoto = signal<File | null>(null);
+  readonly pendingPhotoUrl = signal<string | null>(null);
 
   readonly statusDialog = signal<'deactivate' | 'activate' | null>(null);
   readonly statusSaving = signal(false);
@@ -129,6 +132,8 @@ export class UserFormComponent {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((accessType) => this.applyCrmvRules(accessType));
 
+    this.destroyRef.onDestroy(() => this.releasePendingPhoto());
+
     if (this.isEditing) {
       this.loadUser();
     }
@@ -147,7 +152,7 @@ export class UserFormComponent {
   }
 
   get hasPhoto(): boolean {
-    return !!this.user()?.imageUrl;
+    return this.isEditing ? !!this.user()?.imageUrl : this.pendingPhoto() !== null;
   }
 
   onSubmit(): void {
@@ -192,13 +197,14 @@ export class UserFormComponent {
     this.userService
       .create({ ...profile, email: values.email.trim() })
       .pipe(
+        switchMap((created) => this.uploadChosenPhoto(created)),
         finalize(() => this.saving.set(false)),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
-        next: (created) =>
+        next: ({ created, photoFailed }) =>
           void this.router.navigate(['/users', created.id, 'edit'], {
-            state: { created: true },
+            state: { created: true, photoFailed },
           }),
         error: (error: HttpErrorResponse) => this.handleSaveError(error),
       });
@@ -286,7 +292,7 @@ export class UserFormComponent {
     const file = input.files?.[0];
     input.value = '';
 
-    if (!file || this.userId === null || this.photoBusy()) {
+    if (!file || this.photoBusy()) {
       return;
     }
 
@@ -298,6 +304,17 @@ export class UserFormComponent {
     }
     if (file.size > MAX_PHOTO_BYTES) {
       this.photoError.set('A foto deve ter no máximo 5 MB.');
+      return;
+    }
+
+    if (!this.isEditing) {
+      this.releasePendingPhoto();
+      this.pendingPhoto.set(file);
+      this.pendingPhotoUrl.set(URL.createObjectURL(file));
+      return;
+    }
+
+    if (this.userId === null) {
       return;
     }
 
@@ -324,6 +341,12 @@ export class UserFormComponent {
   }
 
   removePhoto(): void {
+    if (!this.isEditing) {
+      this.releasePendingPhoto();
+      this.photoError.set(null);
+      return;
+    }
+
     if (this.userId === null || this.photoBusy()) {
       return;
     }
@@ -347,6 +370,27 @@ export class UserFormComponent {
         },
         error: () => this.photoError.set('Não foi possível remover a foto. Tente novamente.'),
       });
+  }
+
+  private uploadChosenPhoto(created: User): Observable<{ created: User; photoFailed: boolean }> {
+    const photo = this.pendingPhoto();
+    if (!photo) {
+      return of({ created, photoFailed: false });
+    }
+
+    return this.userService.uploadPhoto(created.id, photo).pipe(
+      map(() => ({ created, photoFailed: false })),
+      catchError(() => of({ created, photoFailed: true })),
+    );
+  }
+
+  private releasePendingPhoto(): void {
+    const url = this.pendingPhotoUrl();
+    if (url) {
+      URL.revokeObjectURL(url);
+    }
+    this.pendingPhotoUrl.set(null);
+    this.pendingPhoto.set(null);
   }
 
   private loadUser(): void {
@@ -412,6 +456,10 @@ export class UserFormComponent {
         this.isEditing
           ? 'Você não pode alterar o seu próprio tipo de acesso.'
           : 'Este e-mail já está cadastrado.',
+      );
+    } else if (error.status === 502) {
+      this.saveError.set(
+        'O usuário não foi cadastrado porque não foi possível enviar o e-mail de acesso. Tente novamente.',
       );
     } else if (error.status === 400) {
       this.saveError.set('Confira os dados informados e tente novamente.');

@@ -1,30 +1,36 @@
 package org.amicats.backend.domain.usecase.user.create;
 
-import java.security.SecureRandom;
-import java.util.Base64;
+import java.util.Locale;
 import lombok.Builder;
 import org.amicats.backend.domain.entity.User;
 import org.amicats.backend.domain.entity.UserAuth;
 import org.amicats.backend.domain.interfaces.dataprovider.user.UserDataProvider;
 import org.amicats.backend.domain.usecase.user.common.CrmvRule;
 import org.amicats.backend.domain.usecase.user.read.ReadUserOutput;
+import org.amicats.backend.exception.AccessEmailNotSentException;
 import org.amicats.backend.exception.EmailAlreadyRegisteredException;
+import org.amicats.backend.service.MailService;
+import org.amicats.backend.service.TemporaryPasswordEmailTemplate;
+import org.amicats.backend.service.TemporaryPasswordGenerator;
+import org.springframework.mail.MailException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
 @Builder
 public class CreateUserUseCase {
 
-  private static final SecureRandom SECURE_RANDOM = new SecureRandom();
-  private static final int UNGUESSABLE_PASSWORD_BYTES = 32;
-
   private UserDataProvider userDataProvider;
   private PasswordEncoder passwordEncoder;
+  private TemporaryPasswordGenerator temporaryPasswordGenerator;
+  private MailService mailService;
+  private TemporaryPasswordEmailTemplate emailTemplate;
 
   @Transactional
   public ReadUserOutput execute(CreateUserInput input) {
-    if (userDataProvider.existsByEmail(input.email())) {
-      throw new EmailAlreadyRegisteredException(input.email());
+    String email = input.email().trim().toLowerCase(Locale.ROOT);
+
+    if (userDataProvider.existsByEmail(email)) {
+      throw new EmailAlreadyRegisteredException(email);
     }
 
     User user =
@@ -38,16 +44,25 @@ public class CreateUserUseCase {
             null);
     userDataProvider.saveUser(user);
 
-    UserAuth auth = new UserAuth(user, input.email(), passwordEncoder.encode(randomPassword()));
+    String temporaryPassword = temporaryPasswordGenerator.generate();
+    UserAuth auth = new UserAuth(user, email, passwordEncoder.encode(temporaryPassword));
     auth.setMustChangePassword(true);
     userDataProvider.saveUserAuth(auth);
 
-    return ReadUserOutput.from(user, input.email());
+    sendWelcomeEmail(user, email, temporaryPassword);
+
+    return ReadUserOutput.from(user, email);
   }
 
-  private static String randomPassword() {
-    byte[] bytes = new byte[UNGUESSABLE_PASSWORD_BYTES];
-    SECURE_RANDOM.nextBytes(bytes);
-    return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+  private void sendWelcomeEmail(User user, String email, String temporaryPassword) {
+    try {
+      mailService.sendTemporaryPasswordEmail(
+          email,
+          emailTemplate.welcomeSubject(),
+          emailTemplate.welcomeHtmlBody(user.getFullName(), temporaryPassword),
+          emailTemplate.welcomePlainTextBody(user.getFullName(), temporaryPassword));
+    } catch (MailException e) {
+      throw new AccessEmailNotSentException(email, e);
+    }
   }
 }

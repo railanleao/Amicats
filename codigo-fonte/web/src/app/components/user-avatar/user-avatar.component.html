@@ -5,9 +5,13 @@
   [style.height.px]="size"
   [style.fontSize.px]="size * 0.36"
 >
-  @if (photoUrl(); as url) {
-    <img [src]="url" alt="" />
+  @if (previewUrl) {
+    <img [src]="previewUrl" alt="" />
   } @else {
-    {{ initials }}
+    @if (photoUrl(); as url) {
+      <img [src]="url" alt="" />
+    } @else {
+      {{ initials }}
+    }
   }
 </span>

@@ -91,4 +91,11 @@ describe('UserAvatarComponent', () => {
     expect(createObjectUrl).toHaveBeenCalledTimes(1);
     expect(revokeObjectUrl).toHaveBeenCalledWith('blob:photo-1');
   });
+
+  it('shows the preview instead of requesting a photo when a preview is given', () => {
+    setInputs({ name: 'Marina Alves', previewUrl: 'blob:preview' });
+
+    expect(fixture.nativeElement.querySelector('img').getAttribute('src')).toBe('blob:preview');
+    expect(userServiceSpy.photo).not.toHaveBeenCalled();
+  });
 });

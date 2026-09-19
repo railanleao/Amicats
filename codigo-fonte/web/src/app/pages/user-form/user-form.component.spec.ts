@@ -136,7 +136,10 @@ describe('UserFormComponent', () => {
         crmv: null,
         ufCrmv: null,
       });
-      expect(navigate).toHaveBeenCalledWith(['/users', 9, 'edit'], { state: { created: true } });
+      expect(userServiceSpy.uploadPhoto).not.toHaveBeenCalled();
+      expect(navigate).toHaveBeenCalledWith(['/users', 9, 'edit'], {
+        state: { created: true, photoFailed: false },
+      });
     });
 
     it('sends the CRMV and an upper-cased UF for veterinarians', () => {
@@ -185,6 +188,18 @@ describe('UserFormComponent', () => {
       expect(component.saving()).toBeFalse();
     });
 
+    it('explains that nothing was created when the access e-mail could not be sent', () => {
+      userServiceSpy.create.and.returnValue(
+        throwError(() => new HttpErrorResponse({ status: 502 })),
+      );
+      const { component } = createComponent('create');
+      fillValidCreateForm(component);
+
+      component.onSubmit();
+
+      expect(component.saveError()).toContain('não foi cadastrado');
+    });
+
     it('shows a generic message on other failures', () => {
       userServiceSpy.create.and.returnValue(
         throwError(() => new HttpErrorResponse({ status: 500 })),
@@ -207,6 +222,74 @@ describe('UserFormComponent', () => {
 
       expect(userServiceSpy.create).toHaveBeenCalledTimes(1);
       expect(component.saving()).toBeTrue();
+    });
+
+    it('shows a preview and keeps the chosen photo until the user is created', () => {
+      const { component } = createComponent('create');
+      const file = new File(['x'], 'foto.png', { type: 'image/png' });
+
+      component.onPhotoSelected(fileEvent(file));
+
+      expect(component.pendingPhoto()).toBe(file);
+      expect(component.pendingPhotoUrl()).toBe('blob:photo');
+      expect(component.hasPhoto).toBeTrue();
+      expect(userServiceSpy.uploadPhoto).not.toHaveBeenCalled();
+    });
+
+    it('rejects an invalid photo choice without keeping it', () => {
+      const { component } = createComponent('create');
+
+      component.onPhotoSelected(fileEvent(new File(['x'], 'nota.txt', { type: 'text/plain' })));
+
+      expect(component.pendingPhoto()).toBeNull();
+      expect(component.photoError()).toBe('Envie uma imagem JPG ou PNG.');
+    });
+
+    it('discards the chosen photo when it is removed', () => {
+      const { component } = createComponent('create');
+      component.onPhotoSelected(fileEvent(new File(['x'], 'foto.png', { type: 'image/png' })));
+
+      component.removePhoto();
+
+      expect(component.pendingPhoto()).toBeNull();
+      expect(component.pendingPhotoUrl()).toBeNull();
+      expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:photo');
+    });
+
+    it('uploads the chosen photo right after creating the user', () => {
+      userServiceSpy.create.and.returnValue(of(existingUser({ id: 9 })));
+      userServiceSpy.uploadPhoto.and.returnValue(
+        of(existingUser({ id: 9, imageUrl: '/users/9/photo' })),
+      );
+      const { component } = createComponent('create');
+      const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
+      const file = new File(['x'], 'foto.png', { type: 'image/png' });
+      fillValidCreateForm(component);
+      component.onPhotoSelected(fileEvent(file));
+
+      component.onSubmit();
+
+      expect(userServiceSpy.uploadPhoto).toHaveBeenCalledWith(9, file);
+      expect(navigate).toHaveBeenCalledWith(['/users', 9, 'edit'], {
+        state: { created: true, photoFailed: false },
+      });
+    });
+
+    it('still opens the edit page and flags the photo when the upload fails', () => {
+      userServiceSpy.create.and.returnValue(of(existingUser({ id: 9 })));
+      userServiceSpy.uploadPhoto.and.returnValue(
+        throwError(() => new HttpErrorResponse({ status: 500 })),
+      );
+      const { component } = createComponent('create');
+      const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
+      fillValidCreateForm(component);
+      component.onPhotoSelected(fileEvent(new File(['x'], 'foto.png', { type: 'image/png' })));
+
+      component.onSubmit();
+
+      expect(navigate).toHaveBeenCalledWith(['/users', 9, 'edit'], {
+        state: { created: true, photoFailed: true },
+      });
     });
   });
 
@@ -309,6 +392,15 @@ describe('UserFormComponent', () => {
 
       expect(component.justCreated).toBeTrue();
       expect(fixture.nativeElement.textContent).toContain('Usuário cadastrado');
+    });
+
+    it('warns when the photo could not be sent during the registration', () => {
+      spyOnProperty(history, 'state', 'get').and.returnValue({ created: true, photoFailed: true });
+
+      const { fixture, component } = createComponent('edit', '7');
+
+      expect(component.photoFailed).toBeTrue();
+      expect(fixture.nativeElement.textContent).toContain('a foto não pôde ser enviada');
     });
 
     describe('account status', () => {

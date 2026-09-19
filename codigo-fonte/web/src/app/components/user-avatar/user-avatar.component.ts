@@ -19,6 +19,7 @@ export class UserAvatarComponent implements OnChanges, OnDestroy {
   @Input() hasPhoto = false;
   @Input() version = 0;
   @Input() size = 40;
+  @Input() previewUrl: string | null = null;
 
   readonly photoUrl = signal<string | null>(null);
 
