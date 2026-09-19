@@ -8,6 +8,7 @@ import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password
 import { HomeComponent } from './pages/home/home.component';
 import { LoginComponent } from './pages/login/login.component';
 import { TermsAcceptanceComponent } from './pages/terms-acceptance/terms-acceptance.component';
+import { UsersComponent } from './pages/users/users.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent, canActivate: [authGuard] },
@@ -23,5 +24,6 @@ export const routes: Routes = [
     component: ChangePasswordComponent,
     canActivate: [changePasswordGuard],
   },
+  { path: 'users', component: UsersComponent, canActivate: [] },
   { path: '**', redirectTo: '' },
 ];

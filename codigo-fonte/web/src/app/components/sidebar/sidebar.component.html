@@ -1,0 +1,147 @@
+<aside class="sidebar">
+
+  <!-- LOGOTYPE -->
+  <div class="logotype">
+
+    <div class="logotype-icon">
+      🐈
+    </div>
+
+    <span>Amicats</span>
+
+  </div>
+
+
+  <!-- MENU -->
+  <nav class="navigation">
+
+    <!-- GENERAL -->
+    <div class="menu-section">
+
+      <span class="section-title">
+        GERAL
+      </span>
+
+      <a class="menu-item">
+        <span class="menu-icon">▦</span>
+        <span>Dashboard</span>
+      </a>
+
+    </div>
+
+
+    <!-- REGISTRATIONS -->
+    <div class="menu-section">
+
+      <span class="section-title">
+        CADASTROS
+      </span>
+
+      <a class="menu-item active">
+        <span class="menu-icon">♙</span>
+        <span>Usuários</span>
+      </a>
+
+      <a class="menu-item">
+        <span class="menu-icon">⌂</span>
+        <span>Salas</span>
+      </a>
+
+      <a class="menu-item">
+        <span class="menu-icon">♟</span>
+        <span>Gatos</span>
+      </a>
+
+      <a class="menu-item">
+        <span class="menu-icon">♧</span>
+        <span>Voluntários</span>
+      </a>
+
+      <a class="menu-item">
+        <span class="menu-icon">▦</span>
+        <span>Instituição parceiras</span>
+      </a>
+
+    </div>
+
+
+    <!-- CLINICAL -->
+    <div class="menu-section">
+
+      <span class="section-title">
+        CLÍNICO
+      </span>
+
+      <a class="menu-item">
+        <span class="menu-icon">▤</span>
+        <span>Prontuários</span>
+      </a>
+
+      <a class="menu-item">
+        <span class="menu-icon">━</span>
+        <span>Medicamentos</span>
+      </a>
+
+      <a class="menu-item">
+        <span class="menu-icon">▦</span>
+        <span>Estoque</span>
+      </a>
+
+      <a class="menu-item">
+        <span class="menu-icon">♢</span>
+        <span>Vacinas</span>
+      </a>
+
+    </div>
+
+
+    <!-- MANAGEMENT -->
+    <div class="menu-section">
+
+      <span class="section-title">
+        GESTÃO
+      </span>
+
+      <a class="menu-item">
+        <span class="menu-icon">♡</span>
+        <span>Adoções</span>
+      </a>
+
+      <a class="menu-item">
+        <span class="menu-icon">▥</span>
+        <span>Relatórios</span>
+      </a>
+    </div>
+
+    <a class="menu-item">
+      <span class="menu-icon">⌂</span>
+      <span>Sincronização</span>
+    </a>
+
+  </nav>
+
+
+  <!-- LOGGED-IN USER -->
+  <div class="profile">
+
+    <div class="avatar">
+      {{ userLogged.name.charAt(0) }}
+    </div>
+
+    <div class="profile-info">
+      <strong>{{ userLogged.name }}</strong>
+      <span>{{ userLogged.profile }}</span>
+    </div>
+
+    <button
+      type="button"
+      class="logout"
+      (click)="disconnect()"
+      title="Desconectar"
+    >
+      ↪
+    </button>
+
+  </div>
+
+</aside>
