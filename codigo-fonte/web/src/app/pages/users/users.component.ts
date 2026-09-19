@@ -1,12 +1,13 @@
-import { Component, DestroyRef, OnDestroy, OnInit, inject, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Subject, debounceTime, distinctUntilChanged, finalize } from 'rxjs';
+import {Component, DestroyRef, OnDestroy, OnInit, inject, signal} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {Subject, debounceTime, distinctUntilChanged, finalize} from 'rxjs';
 
-import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
-import { PaginationComponent } from '../../components/pagination/pagination.component';
-import { AccessType } from '../../models/auth.model';
-import { ACCESS_TYPE_LABELS, User } from '../../models/user.model';
-import { UserService } from '../../services/resources/user.service';
+import {ConfirmDialogComponent} from '../../components/confirm-dialog/confirm-dialog.component';
+import {PaginationComponent} from '../../components/pagination/pagination.component';
+import { ToggleComponent } from '../../components/toggle/toggle.component';
+import {AccessType} from '../../models/auth.model';
+import {ACCESS_TYPE_LABELS, User} from '../../models/user.model';
+import {UserService} from '../../services/resources/user.service';
 
 const PAGE_SIZE = 20;
 const SEARCH_DEBOUNCE_MS = 300;
@@ -14,7 +15,7 @@ const SEARCH_DEBOUNCE_MS = 300;
 @Component({
   selector: 'app-users',
   standalone: true,
-  imports: [ConfirmDialogComponent, PaginationComponent],
+  imports: [ConfirmDialogComponent, PaginationComponent, ToggleComponent],
   templateUrl: './users.component.html',
   styleUrl: './users.component.css',
 })
@@ -31,7 +32,9 @@ export class UsersComponent implements OnInit, OnDestroy {
   readonly totalPages = signal(0);
   readonly pageSize = PAGE_SIZE;
   readonly deactivatingId = signal<number | null>(null);
+  readonly activatingId = signal<number | null>(null);
   readonly userPendingDeactivation = signal<User | null>(null);
+  readonly userPendingReactivation = signal<User | null>(null);
 
   showFilters = false;
   searchTerm = '';
@@ -113,6 +116,14 @@ export class UsersComponent implements OnInit, OnDestroy {
     return ACCESS_TYPE_LABELS[accessType];
   }
 
+  onToggleStatus(user: User): void {
+    if (user.active) {
+      this.requestDeactivation(user);
+    } else {
+      this.requestReactivation(user);
+    }
+  }
+
   requestDeactivation(user: User): void {
     if (!user.active || this.deactivatingId() !== null) {
       return;
@@ -147,6 +158,45 @@ export class UsersComponent implements OnInit, OnDestroy {
         error: () => {
           this.errorMessage.set('Não foi possível desativar o usuário. Tente novamente.');
           this.userPendingDeactivation.set(null);
+        },
+      });
+  }
+
+  requestReactivation(user: User): void {
+    if (user.active || this.activatingId() !== null) {
+      return;
+    }
+
+    this.userPendingReactivation.set(user);
+  }
+
+  cancelReactivation(): void {
+    this.userPendingReactivation.set(null);
+  }
+
+  confirmReactivation(): void {
+    const user = this.userPendingReactivation();
+    if (!user) {
+      return;
+    }
+
+    this.activatingId.set(user.id);
+    this.errorMessage.set(null);
+
+    this.userService
+      .activate(user.id)
+      .pipe(
+        finalize(() => this.activatingId.set(null)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: () => {
+          this.userPendingReactivation.set(null);
+          this.loadUsers();
+        },
+        error: () => {
+          this.errorMessage.set('Não foi possível reativar o usuário. Tente novamente.');
+          this.userPendingReactivation.set(null);
         },
       });
   }

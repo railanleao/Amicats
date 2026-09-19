@@ -7,138 +7,138 @@
     </button>
   </header>
 
-    <section class="users-container">
-      <div class="toolbar">
-        <div class="search-box">
-          <span class="search-icon">⌕</span>
-          <input
-            type="text"
-            placeholder="Buscar por nome ou e-mail..."
-            (input)="onSearch($event)"
-          />
-        </div>
-
-        <button
-          type="button"
-          class="filter-button"
-          (click)="toggleFilters()"
-        >
-          <span>☷</span>
-          Filtros
-        </button>
+  <section class="users-container">
+    <div class="toolbar">
+      <div class="search-box">
+        <span class="search-icon">⌕</span>
+        <input
+          type="text"
+          placeholder="Buscar por nome ou e-mail..."
+          (input)="onSearch($event)"
+        />
       </div>
 
-      @if (showFilters) {
-        <div class="filter-panel">
-          <div class="filter-field">
-            <label for="profile">Função</label>
+      <button
+        type="button"
+        class="filter-button"
+        (click)="toggleFilters()"
+      >
+        <span>☷</span>
+        Filtros
+      </button>
+    </div>
 
-            <div class="select-wrapper">
-              <select
-                id="profile"
-                (change)="onProfileChange($event)"
-              >
-                <option value="">Todas as funções</option>
-                <option value="Administrator">Administrador</option>
-                <option value="Veterinarian">Veterinário</option>
-                <option value="Assistant">Assistente</option>
-                <option value="Viewer">Visualizador</option>
-              </select>
-              <svg class="select-chevron" width="12" height="12" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-                <path
-                  d="M4 7l5 5 5-5"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.8"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-            </div>
-          </div>
-          <div class="filter-field">
-            <label for="status">Status</label>
+    @if (showFilters) {
+      <div class="filter-panel">
+        <div class="filter-field">
+          <label for="profile">Função</label>
 
-            <div class="select-wrapper">
-              <select
-                id="status"
-                (change)="onStatusChange($event)"
-              >
-                <option value="">Todos os status</option>
-                <option value="Active">Ativo</option>
-                <option value="Inactive">Inativo</option>
-              </select>
-              <svg class="select-chevron" width="12" height="12" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-                <path
-                  d="M4 7l5 5 5-5"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.8"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-            </div>
-          </div>
-        </div>
-      }
-
-      @if (errorMessage()) {
-        <div class="feedback feedback--error" role="alert">
-          {{ errorMessage() }}
-          <button type="button" class="feedback__retry" (click)="loadUsers()">Tentar novamente</button>
-        </div>
-      }
-
-      @if (loading()) {
-        <div class="feedback">Carregando usuários...</div>
-      } @else {
-        <div class="table-header">
-          <span>USUÁRIO</span>
-          <span>E-MAIL</span>
-          <span>TELEFONE</span>
-          <span>FUNÇÃO</span>
-          <span>STATUS</span>
-        </div>
-        <div class="users-list">
-          @for (user of users(); track user.id) {
-            <div
-              class="user-row"
-              [class.inactive-row]="!user.active"
+          <div class="select-wrapper">
+            <select
+              id="profile"
+              (change)="onProfileChange($event)"
             >
-              <div class="user-name">
-                @if (user.imageUrl) {
-                  <img
-                    [src]="user.imageUrl"
-                    [alt]="'Foto de ' + user.fullName"
-                  >
-                } @else {
-                  <div class="user-avatar">
-                    👤
-                  </div>
-                }
+              <option value="">Todas as funções</option>
+              <option value="Administrator">Administrador</option>
+              <option value="Veterinarian">Veterinário</option>
+              <option value="Assistant">Assistente</option>
+              <option value="Viewer">Visualizador</option>
+            </select>
+            <svg class="select-chevron" width="12" height="12" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M4 7l5 5 5-5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </div>
+        </div>
+        <div class="filter-field">
+          <label for="status">Status</label>
 
-                <span>{{ user.fullName }}</span>
-              </div>
+          <div class="select-wrapper">
+            <select
+              id="status"
+              (change)="onStatusChange($event)"
+            >
+              <option value="">Todos os status</option>
+              <option value="Active">Ativo</option>
+              <option value="Inactive">Inativo</option>
+            </select>
+            <svg class="select-chevron" width="12" height="12" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M4 7l5 5 5-5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </div>
+        </div>
+      </div>
+    }
 
-              <span>{{ user.email }}</span>
-              <span>{{ user.phoneNumber || '—' }}</span>
+    @if (errorMessage()) {
+      <div class="feedback feedback--error" role="alert">
+        {{ errorMessage() }}
+        <button type="button" class="feedback__retry" (click)="loadUsers()">Tentar novamente</button>
+      </div>
+    }
 
-              <span
-                class="profile"
-                [class.administrator]="user.accessType === 'Administrator'"
-                [class.veterinarian]="user.accessType === 'Veterinarian'"
-                [class.volunteer]="user.accessType === 'Assistant'"
-                [class.viewer]="user.accessType === 'Viewer'"
-              >
+    @if (loading() && users().length === 0) {
+      <div class="feedback">Carregando usuários...</div>
+    } @else {
+      <div class="table-header">
+        <span>USUÁRIO</span>
+        <span>E-MAIL</span>
+        <span>TELEFONE</span>
+        <span>FUNÇÃO</span>
+        <span>STATUS</span>
+      </div>
+      <div class="users-list">
+        @for (user of users(); track user.id) {
+          <div
+            class="user-row"
+            [class.inactive-row]="!user.active"
+          >
+            <div class="user-name">
+              @if (user.imageUrl) {
+                <img
+                  [src]="user.imageUrl"
+                  [alt]="'Foto de ' + user.fullName"
+                >
+              } @else {
+                <div class="user-avatar">
+                  👤
+                </div>
+              }
+
+              <span>{{ user.fullName }}</span>
+            </div>
+
+            <span>{{ user.email }}</span>
+            <span>{{ user.phoneNumber || '—' }}</span>
+
+            <span
+              class="profile"
+              [class.administrator]="user.accessType === 'Administrator'"
+              [class.veterinarian]="user.accessType === 'Veterinarian'"
+              [class.volunteer]="user.accessType === 'Assistant'"
+              [class.viewer]="user.accessType === 'Viewer'"
+            >
                 {{ profileLabel(user.accessType) }}
               </span>
 
-              <span
-                class="status"
-                [class.active]="user.active"
-                [class.inactive]="!user.active"
-              >
+            <span
+              class="status"
+              [class.active]="user.active"
+              [class.inactive]="!user.active"
+            >
                 @if (user.active) {
                   Ativo
                 } @else {
@@ -146,40 +146,38 @@
                 }
               </span>
 
-              <div class="actions">
-                <button
-                  type="button"
-                  class="edit-button"
-                  title="Editar usuário"
-                >
-                  ✎
-                </button>
+            <div class="actions">
+              <button
+                type="button"
+                class="edit-button"
+                title="Editar usuário"
+              >
+                ✎
+              </button>
 
-                <button
-                  type="button"
-                  class="deactivate-button"
-                  title="Desativar usuário"
-                  [disabled]="!user.active || deactivatingId() === user.id"
-                  (click)="requestDeactivation(user)"
-                >
-                  <span>−</span>
-                </button>
-              </div>
+              <app-toggle
+                [label]="'Status de ' + user.fullName"
+                [checked]="user.active"
+                [disabled]="deactivatingId() === user.id || activatingId() === user.id"
+                [hint]="user.active ? 'Desativar usuário' : 'Reativar usuário'"
+                (toggled)="onToggleStatus(user)"
+              />
             </div>
-          } @empty {
-            <div class="feedback">Nenhum usuário encontrado.</div>
-          }
-        </div>
+          </div>
+        } @empty {
+          <div class="feedback">Nenhum usuário encontrado.</div>
+        }
+      </div>
 
-        <app-pagination
-          [page]="page()"
-          [size]="pageSize"
-          [totalPages]="totalPages()"
-          [totalElements]="totalElements()"
-          itemLabel="usuários"
-          (pageChange)="onPageChange($event)"
-        />
-      }
+      <app-pagination
+        [page]="page()"
+        [size]="pageSize"
+        [totalPages]="totalPages()"
+        [totalElements]="totalElements()"
+        itemLabel="usuários"
+        (pageChange)="onPageChange($event)"
+      />
+    }
   </section>
 
   @if (userPendingDeactivation(); as user) {
@@ -190,6 +188,19 @@
       [confirmLoading]="deactivatingId() === user.id"
       (confirmed)="confirmDeactivation()"
       (cancelled)="cancelDeactivation()"
+    />
+  }
+
+
+  @if (userPendingReactivation(); as user) {
+    <app-confirm-dialog
+      title="Reativar usuário"
+      [message]="'Reativar o acesso de ' + user.fullName + '? O usuário volta a poder entrar no sistema.'"
+      confirmLabel="Reativar"
+      confirmVariant="success"
+      [confirmLoading]="activatingId() === user.id"
+      (confirmed)="confirmReactivation()"
+      (cancelled)="cancelReactivation()"
     />
   }
 </div>

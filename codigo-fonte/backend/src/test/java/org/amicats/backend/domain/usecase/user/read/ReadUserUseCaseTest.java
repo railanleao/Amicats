@@ -62,7 +62,7 @@ class ReadUserUseCaseTest {
   void searchIncludesInactiveUsersAndToleratesAMissingAuthRecord() {
     User active = userWithId("Marina Alves", AccessType.Assistant, 1);
     User inactive = userWithId("Carla Souza", AccessType.Veterinarian, 2);
-    inactive.deactive();
+    inactive.deactivate();
 
     when(userDataProvider.search(any()))
         .thenReturn(

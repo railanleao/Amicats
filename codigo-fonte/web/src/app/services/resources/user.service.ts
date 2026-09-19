@@ -1,10 +1,10 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import {HttpClient, HttpParams} from '@angular/common/http';
+import {Injectable, inject} from '@angular/core';
+import {Observable} from 'rxjs';
 
-import { PagedResult, User, UserSearchParams } from '../../models/user.model';
+import {PagedResult, User, UserSearchParams} from '../../models/user.model';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class UserService {
   private readonly http = inject(HttpClient);
 
@@ -21,10 +21,18 @@ export class UserService {
       httpParams = httpParams.set('active', params.active);
     }
 
-    return this.http.get<PagedResult<User>>('/users', { params: httpParams });
+    return this.http.get<PagedResult<User>>('/users', {params: httpParams});
   }
 
   deactivate(id: number): Observable<void> {
-    return this.http.patch<void>(`/users/${id}`, {});
+    return this.setActive(id, false);
+  }
+
+  activate(id: number): Observable<void> {
+    return this.setActive(id, true);
+  }
+
+  private setActive(id: number, active: boolean): Observable<void> {
+    return this.http.patch<void>(`/users/${id}/status`, {active});
   }
 }

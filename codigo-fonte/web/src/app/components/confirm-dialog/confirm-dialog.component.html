@@ -31,6 +31,7 @@
       <button
         type="button"
         class="confirm-dialog__confirm"
+        [class.confirm-dialog__confirm--success]="confirmVariant === 'success'"
         [disabled]="confirmLoading"
         (click)="onConfirm()"
       >

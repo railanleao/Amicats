@@ -1,12 +1,14 @@
 package org.amicats.backend.Controller.auth;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
-
 import org.amicats.backend.domain.entity.User;
 import org.amicats.backend.domain.entity.UserAuth;
 import org.amicats.backend.domain.enums.AccessType;
@@ -20,29 +22,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import static org.assertj.core.api.Assertions.assertThat;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-    properties = {
-        "app.rate-limit.sensitive.capacity=1000",
-        "app.rate-limit.default.capacity=1000"
-    })
+    properties = {"app.rate-limit.sensitive.capacity=1000", "app.rate-limit.default.capacity=1000"})
 class AuthControllerTest {
 
-  @LocalServerPort
-  private int port;
+  @LocalServerPort private int port;
 
-  @Autowired
-  private UserRepository userRepository;
+  @Autowired private UserRepository userRepository;
 
-  @Autowired
-  private UserAuthRepository userAuthRepository;
+  @Autowired private UserAuthRepository userAuthRepository;
 
-  @Autowired
-  private PasswordEncoder passwordEncoder;
+  @Autowired private PasswordEncoder passwordEncoder;
 
   private HttpClient httpClient;
   private ObjectMapper objectMapper;
@@ -63,21 +55,12 @@ class AuthControllerTest {
 
     User user =
         new User(
-            "Marina Alves",
-            null,
-            null,
-            AccessType.Administrator,
-            null,
-            null,
-            LocalDateTime.now());
+            "Marina Alves", null, null, AccessType.Administrator, null, null, LocalDateTime.now());
 
     user = userRepository.save(user);
 
     UserAuth auth =
-        new UserAuth(
-            user,
-            "marina.alves@amicats.org.br",
-            passwordEncoder.encode("senha-forte"));
+        new UserAuth(user, "marina.alves@amicats.org.br", passwordEncoder.encode("senha-forte"));
 
     return userAuthRepository.save(auth);
   }
@@ -97,37 +80,21 @@ class AuthControllerTest {
 
     HttpRequest request =
         HttpRequest.newBuilder()
-            .uri(
-                URI.create(
-                    "http://localhost:"
-                        + port
-                        + "/auth/login"))
-            .header(
-                "Content-Type",
-                "application/json")
+            .uri(URI.create("http://localhost:" + port + "/auth/login"))
+            .header("Content-Type", "application/json")
             .POST(BodyPublishers.ofString(body))
             .build();
 
-    HttpResponse<String> response =
-        httpClient.send(
-            request,
-            HttpResponse.BodyHandlers.ofString());
+    HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
-    assertThat(response.statusCode())
-        .isEqualTo(200);
+    assertThat(response.statusCode()).isEqualTo(200);
 
-    LoginResponse loginResponse =
-        objectMapper.readValue(
-            response.body(),
-            LoginResponse.class);
+    LoginResponse loginResponse = objectMapper.readValue(response.body(), LoginResponse.class);
 
-    assertThat(loginResponse.token())
-        .isNotBlank();
+    assertThat(loginResponse.token()).isNotBlank();
 
-    assertThat(loginResponse.name())
-        .isEqualTo("Marina Alves");
+    assertThat(loginResponse.name()).isEqualTo("Marina Alves");
 
-    assertThat(loginResponse.accessType())
-        .isEqualTo(AccessType.Administrator);
+    assertThat(loginResponse.accessType()).isEqualTo(AccessType.Administrator);
   }
 }

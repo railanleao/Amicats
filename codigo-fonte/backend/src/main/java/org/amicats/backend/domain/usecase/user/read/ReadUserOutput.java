@@ -14,7 +14,8 @@ public record ReadUserOutput(
     String crmv,
     String ufCrmv,
     boolean active,
-    LocalDateTime createdAt) {
+    LocalDateTime createdAt,
+    LocalDateTime lastLoginAt) {
 
   public static ReadUserOutput from(User user, String email) {
     return new ReadUserOutput(
@@ -27,6 +28,7 @@ public record ReadUserOutput(
         user.getCrmv(),
         user.getUfCrmv(),
         user.isActive(),
-        user.getCreatedAt());
+        user.getCreatedAt(),
+        user.getLastLoginAt());
   }
 }

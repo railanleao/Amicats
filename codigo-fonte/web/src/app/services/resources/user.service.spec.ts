@@ -90,12 +90,25 @@ describe('UserService (integration)', () => {
     request.flush({ content: [], page: 0, size: 20, totalElements: 0, totalPages: 0 });
   });
 
-  it('sends a PATCH to deactivate a user', () => {
+  it('sends a PATCH with active=false to deactivate a user', () => {
     let completed = false;
     service.deactivate(7).subscribe(() => (completed = true));
 
-    const request = httpMock.expectOne(`${environment.apiUrl}/users/7`);
+    const request = httpMock.expectOne(`${environment.apiUrl}/users/7/status`);
     expect(request.request.method).toBe('PATCH');
+    expect(request.request.body).toEqual({ active: false });
+    request.flush(null, { status: 204, statusText: 'No Content' });
+
+    expect(completed).toBeTrue();
+  });
+
+  it('sends a PATCH with active=true to reactivate a user', () => {
+    let completed = false;
+    service.activate(7).subscribe(() => (completed = true));
+
+    const request = httpMock.expectOne(`${environment.apiUrl}/users/7/status`);
+    expect(request.request.method).toBe('PATCH');
+    expect(request.request.body).toEqual({ active: true });
     request.flush(null, { status: 204, statusText: 'No Content' });
 
     expect(completed).toBeTrue();

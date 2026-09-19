@@ -52,12 +52,9 @@ class AuthServiceTest {
     assertThat(response.termsAccepted()).isTrue();
     assertThat(response.mustChangePassword()).isTrue();
     assertThat(response.token()).isEqualTo("token");
-    verify(userAuthRepository)
-    .findByEmail("marina.alves@amicats.org.br");
-    verify(passwordEncoder)
-    .matches("senha-forte", "hash");
-    verify(jwtService)
-    .generateJwtToken(user, auth);
+    verify(userAuthRepository).findByEmail("marina.alves@amicats.org.br");
+    verify(passwordEncoder).matches("senha-forte", "hash");
+    verify(jwtService).generateJwtToken(user, auth);
   }
 
   @Test
@@ -73,14 +70,13 @@ class AuthServiceTest {
             () -> authService.login(new LoginRequest("marina.alves@amicats.org.br", "errada")))
         .isInstanceOf(InvalidCredentialsException.class);
 
-    verify(jwtService, never())
-        .generateJwtToken(any(), any());
+    verify(jwtService, never()).generateJwtToken(any(), any());
   }
 
   @Test
   void rejectsInactiveUser() {
     User user = new User("Marina Alves", null, null, AccessType.Administrator, null, null, null);
-    user.deactive();
+    user.deactivate();
     UserAuth auth = new UserAuth(user, "marina.alves@amicats.org.br", "hash");
 
     when(userAuthRepository.findByEmail("marina.alves@amicats.org.br"))
@@ -99,5 +95,20 @@ class AuthServiceTest {
     assertThatThrownBy(
             () -> authService.login(new LoginRequest("desconhecido@amicats.org.br", "qualquer")))
         .isInstanceOf(ResponseStatusException.class);
+  }
+
+  @Test
+  void registersLastLoginOnSuccessfulLogin() {
+    User user = new User("Marina Alves", null, null, AccessType.Administrator, null, null, null);
+    UserAuth auth = new UserAuth(user, "marina.alves@amicats.org.br", "hash");
+
+    when(userAuthRepository.findByEmail("marina.alves@amicats.org.br"))
+        .thenReturn(Optional.of(auth));
+    when(passwordEncoder.matches("senha-forte", "hash")).thenReturn(true);
+    when(jwtService.generateJwtToken(user, auth)).thenReturn("token");
+
+    authService.login(new LoginRequest("marina.alves@amicats.org.br", "senha-forte"));
+
+    assertThat(user.getLastLoginAt()).isNotNull();
   }
 }

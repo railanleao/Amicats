@@ -13,6 +13,7 @@ export class ConfirmDialogComponent {
   @Input() confirmLabel = 'Confirmar';
   @Input() cancelLabel = 'Cancelar';
   @Input() confirmLoading = false;
+  @Input() confirmVariant: 'danger' | 'success' = 'danger';
 
   @Output() readonly confirmed = new EventEmitter<void>();
   @Output() readonly cancelled = new EventEmitter<void>();

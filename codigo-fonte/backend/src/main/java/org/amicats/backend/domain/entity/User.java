@@ -59,6 +59,9 @@ public class User {
   @Column(name = "created_at", nullable = false)
   private LocalDateTime createdAt;
 
+  @Column(name = "last_login_at")
+  private LocalDateTime lastLoginAt;
+
   public User(
       String fullName,
       String phoneNumber,
@@ -82,8 +85,12 @@ public class User {
     return active;
   }
 
-  public void deactive() {
+  public void deactivate() {
     this.active = false;
+  }
+
+  public void activate() {
+    this.active = true;
   }
 
   public void changeFullName(String fullName) {
@@ -96,5 +103,18 @@ public class User {
 
   public void acceptTerms() {
     this.dateAcceptanceTerms = LocalDateTime.now();
+  }
+
+  public void registerLogin() {
+    this.lastLoginAt = LocalDateTime.now();
+  }
+
+  public void updateProfile(
+      String fullName, String phoneNumber, AccessType accessType, String crmv, String ufCrmv) {
+    this.fullName = fullName;
+    this.phoneNumber = phoneNumber;
+    this.accessType = accessType;
+    this.crmv = crmv;
+    this.ufCrmv = ufCrmv;
   }
 }
