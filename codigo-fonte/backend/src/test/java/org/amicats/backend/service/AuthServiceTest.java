@@ -52,12 +52,9 @@ class AuthServiceTest {
     assertThat(response.termsAccepted()).isTrue();
     assertThat(response.mustChangePassword()).isTrue();
     assertThat(response.token()).isEqualTo("token");
-    verify(userAuthRepository)
-    .findByEmail("marina.alves@amicats.org.br");
-    verify(passwordEncoder)
-    .matches("senha-forte", "hash");
-    verify(jwtService)
-    .generateJwtToken(user, auth);
+    verify(userAuthRepository).findByEmail("marina.alves@amicats.org.br");
+    verify(passwordEncoder).matches("senha-forte", "hash");
+    verify(jwtService).generateJwtToken(user, auth);
   }
 
   @Test
@@ -73,8 +70,7 @@ class AuthServiceTest {
             () -> authService.login(new LoginRequest("marina.alves@amicats.org.br", "errada")))
         .isInstanceOf(InvalidCredentialsException.class);
 
-    verify(jwtService, never())
-        .generateJwtToken(any(), any());
+    verify(jwtService, never()).generateJwtToken(any(), any());
   }
 
   @Test
