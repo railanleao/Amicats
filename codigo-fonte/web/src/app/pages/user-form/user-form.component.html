@@ -1,6 +1,20 @@
 <div class="page">
   <header class="page-header">
-    <a routerLink="/users" class="page-header__back" aria-label="Voltar para usuários">‹</a>
+    <a routerLink="/users" class="page-header__back" aria-label="Voltar para usuários">
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="m15 18-6-6 6-6" />
+      </svg>
+    </a>
     <a routerLink="/users" class="page-header__crumb">Usuários</a>
     <span class="page-header__separator">/</span>
     <h1>{{ title }}</h1>
@@ -81,6 +95,7 @@
         <app-text-field
           inputId="fullName"
           label="Nome completo"
+          placeholder="Ex.: Maria da Silva"
           autocomplete="name"
           [control]="form.controls.fullName"
           [errorMessages]="errors.fullName"
@@ -90,6 +105,7 @@
           <app-text-field
             inputId="email"
             label="E-mail"
+            placeholder="nome@exemplo.com"
             type="email"
             autocomplete="off"
             [readonly]="isEditing"
@@ -99,6 +115,7 @@
           <app-text-field
             inputId="phoneNumber"
             label="Telefone"
+            placeholder="(00) 00000-0000"
             autocomplete="tel"
             [control]="form.controls.phoneNumber"
             [errorMessages]="errors.phoneNumber"
@@ -133,12 +150,14 @@
               <app-text-field
                 inputId="crmv"
                 label="CRMV"
+                placeholder="Ex.: 12345"
                 [control]="form.controls.crmv"
                 [errorMessages]="errors.crmv"
               />
               <app-text-field
                 inputId="ufCrmv"
                 label="UF"
+                placeholder="Ex.: MS"
                 [control]="form.controls.ufCrmv"
                 [errorMessages]="errors.ufCrmv"
               />

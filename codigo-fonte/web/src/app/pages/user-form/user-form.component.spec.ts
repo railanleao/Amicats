@@ -93,6 +93,24 @@ describe('UserFormComponent', () => {
       expect(fixture.nativeElement.querySelector('.meta-card')).toBeNull();
     });
 
+    it('offers an accessible back button to the users list', () => {
+      const { fixture } = createComponent('create');
+
+      const back = fixture.nativeElement.querySelector('a.page-header__back') as HTMLAnchorElement;
+      expect(back.getAttribute('aria-label')).toBe('Voltar para usuários');
+      expect(back.getAttribute('href')).toBe('/users');
+      expect(back.querySelector('svg')).not.toBeNull();
+    });
+
+    it('shows placeholders to guide the empty fields', () => {
+      const { fixture } = createComponent('create');
+
+      const email = fixture.nativeElement.querySelector('#email') as HTMLInputElement;
+      const name = fixture.nativeElement.querySelector('#fullName') as HTMLInputElement;
+      expect(email.placeholder).not.toBe('');
+      expect(name.placeholder).not.toBe('');
+    });
+
     it('does not submit an invalid form and marks the fields as touched', () => {
       const { component } = createComponent('create');
 

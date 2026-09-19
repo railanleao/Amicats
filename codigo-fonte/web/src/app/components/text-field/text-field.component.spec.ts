@@ -80,4 +80,21 @@ describe('TextFieldComponent', () => {
 
     expect(input.readOnly).toBeTrue();
   });
+
+  it('shows the placeholder when one is given', () => {
+    component.placeholder = 'nome@exemplo.com';
+    fixture.detectChanges();
+    const input: HTMLInputElement =
+      fixture.nativeElement.querySelector('input');
+
+    expect(input.placeholder).toBe('nome@exemplo.com');
+  });
+
+  it('has no placeholder by default', () => {
+    fixture.detectChanges();
+    const input: HTMLInputElement =
+      fixture.nativeElement.querySelector('input');
+
+    expect(input.placeholder).toBe('');
+  });
 });

@@ -14,6 +14,7 @@ export class TextFieldComponent {
   @Input() type: 'text' | 'email' | 'password' = 'text';
   @Input() autocomplete = 'on';
   @Input() readonly = false;
+  @Input() placeholder = '';
   @Input() errorMessages: Record<string, string> = {};
 
   private readonly passwordVisible = signal(false);

@@ -75,3 +75,7 @@
   background: var(--color-bg);
   color: var(--color-ink-soft);
 }
+
+.text-field__input::placeholder {
+  color: var(--color-ink-faint);
+}

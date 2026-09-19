@@ -17,11 +17,34 @@
   color: var(--color-ink);
 }
 
-.page-header__back,
 .page-header__crumb {
   color: var(--color-ink-soft);
   text-decoration: none;
   font-size: var(--text-sm);
+}
+
+.page-header__back {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--color-sage-100);
+  color: var(--color-sage-700);
+  text-decoration: none;
+  transition: background 0.2s ease;
+}
+
+.page-header__back:hover {
+  background: var(--color-sage-300);
+  color: var(--color-sage-900);
+}
+
+.page-header__back:focus-visible {
+  outline: 2px solid var(--color-sage-700);
+  outline-offset: 2px;
 }
 
 .page-header__separator {

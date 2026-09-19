@@ -1,6 +1,9 @@
 .sidebar {
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
   width: 255px;
-  min-height: 100vh;
+  height: 100vh;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -15,6 +18,7 @@
 .logotype {
   display: flex;
   align-items: center;
+  flex-shrink: 0;
   gap: 11px;
   padding-left: 10px;
   margin-bottom: 38px;
@@ -46,8 +50,13 @@
 
 .navigation {
   display: flex;
+  flex: 1;
   flex-direction: column;
   gap: 28px;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
 }
 
 .menu-section {
@@ -109,7 +118,8 @@
 /* PROFILE */
 
 .profile {
-  margin-top: auto;
+  flex-shrink: 0;
+  margin-top: 8px;
   padding: 13px 8px 0;
   border-top: 1px solid rgba(255, 255, 255, 0.12);
   display: flex;
@@ -159,4 +169,20 @@
 
 .logout:hover {
   background: rgba(255, 255, 255, 0.1);
+}
+
+/* TELAS MAIS BAIXAS: espaçamento um pouco mais compacto */
+
+@media (max-height: 940px) {
+  .logotype {
+    margin-bottom: 30px;
+  }
+
+  .menu-section {
+    gap: 2px;
+  }
+
+  .menu-item {
+    height: 36px;
+  }
 }
