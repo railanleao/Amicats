@@ -1,0 +1,40 @@
+<div class="confirm-dialog-overlay">
+  <button
+    type="button"
+    class="confirm-dialog-overlay__backdrop"
+    tabindex="-1"
+    aria-hidden="true"
+    (click)="onCancel()"
+  ></button>
+
+  <div
+    class="confirm-dialog"
+    role="alertdialog"
+    aria-modal="true"
+    aria-labelledby="confirm-dialog-title"
+    aria-describedby="confirm-dialog-message"
+  >
+    <h2 id="confirm-dialog-title">{{ title }}</h2>
+    <p id="confirm-dialog-message">{{ message }}</p>
+
+    <div class="confirm-dialog__actions">
+      <button
+        type="button"
+        class="confirm-dialog__cancel"
+        [disabled]="confirmLoading"
+        (click)="onCancel()"
+      >
+        {{ cancelLabel }}
+      </button>
+
+      <button
+        type="button"
+        class="confirm-dialog__confirm"
+        [disabled]="confirmLoading"
+        (click)="onConfirm()"
+      >
+        {{ confirmLoading ? 'Processando...' : confirmLabel }}
+      </button>
+    </div>
+  </div>
+</div>

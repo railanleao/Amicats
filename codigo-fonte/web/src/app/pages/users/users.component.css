@@ -261,7 +261,7 @@
 
 /* Inactive user */
 
-.inactive-row {
+.inactive-row > *:not(.actions) {
   opacity: 0.55;
 }
 
@@ -359,24 +359,63 @@
   border-color: #cbdac7;
 }
 
-/* On/Off button */
+/* Deactivate button */
 
-.delete-button {
+.deactivate-button {
   color: #555555;
   font-size: 16px;
   font-weight: 700;
   line-height: 1;
 }
 
-.delete-button span {
+.deactivate-button span {
   font-size: 23px;
   font-weight: 500;
   line-height: 1;
 }
 
-.delete-button:hover {
+.deactivate-button:hover {
   background: #f4f4f4;
   border-color: #d0d0d0;
+}
+
+.deactivate-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Loading / error / empty feedback */
+
+.feedback {
+  padding: 28px 24px;
+  text-align: center;
+  color: #6b756a;
+  font-size: 14px;
+}
+
+.feedback--error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: #f6dddd;
+  color: #a04444;
+}
+
+.feedback__retry {
+  padding: 6px 12px;
+  border: 1px solid #a04444;
+  border-radius: 6px;
+  background: transparent;
+  color: #a04444;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.feedback__retry:hover {
+  background: #a04444;
+  color: #ffffff;
 }
 
 /* Responsiveness */
