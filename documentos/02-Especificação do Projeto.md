@@ -154,6 +154,8 @@ O projeto está restrito pelos itens apresentados na tabela a seguir.
 
 ## Diagrama de Caso de Uso
 
+![Diagrama de Casos de Uso](https://github.com/ICEI-PUC-Minas-PMV-ADS/PMV-ADS-2026-2-E5-PROJ-EMPEXT-T4-G3/blob/feature/task-014-doc-criar-diagrama-de-casos-de-uso/documentos/img/Diagrama%20de%20Casos%20de%20Uso.jpeg)
+
 ### Atores
 
 | Ator | Descrição |
