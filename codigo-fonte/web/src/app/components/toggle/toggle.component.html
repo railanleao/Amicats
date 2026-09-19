@@ -1,0 +1,14 @@
+<span class="toggle-wrapper" [attr.title]="hint || null">
+  <button
+    type="button"
+    class="toggle"
+    role="switch"
+    [class.toggle--on]="checked"
+    [attr.aria-checked]="checked"
+    [attr.aria-label]="label"
+    [disabled]="disabled"
+    (click)="onClick()"
+  >
+    <span class="toggle__thumb"></span>
+  </button>
+</span>
