@@ -165,4 +165,36 @@ describe('UserService (integration)', () => {
     expect(request.request.body).toEqual(payload);
     request.flush(mockUser());
   });
+
+
+  it('puts the file as multipart form data to upload a photo', () => {
+    const file = new File(['x'], 'foto.png', { type: 'image/png' });
+    service.uploadPhoto(7, file).subscribe();
+
+    const request = httpMock.expectOne(`${environment.apiUrl}/users/7/photo`);
+    expect(request.request.method).toBe('PUT');
+    expect(request.request.body instanceof FormData).toBeTrue();
+    expect((request.request.body as FormData).get('file')).toBe(file);
+    request.flush(mockUser());
+  });
+
+  it('fetches the photo as a blob', () => {
+    let received: Blob | undefined;
+    service.photo(7).subscribe((blob) => (received = blob));
+
+    const request = httpMock.expectOne(`${environment.apiUrl}/users/7/photo`);
+    expect(request.request.method).toBe('GET');
+    expect(request.request.responseType).toBe('blob');
+    request.flush(new Blob(['x']));
+
+    expect(received instanceof Blob).toBeTrue();
+  });
+
+  it('deletes the photo', () => {
+    service.removePhoto(7).subscribe();
+
+    const request = httpMock.expectOne(`${environment.apiUrl}/users/7/photo`);
+    expect(request.request.method).toBe('DELETE');
+    request.flush(null, { status: 204, statusText: 'No Content' });
+  });
 });

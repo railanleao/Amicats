@@ -328,6 +328,96 @@ class UserManagementFlowIntegrationTest {
     }
   }
 
+  @Test
+  void anAdministratorCanCreateAUserWithoutSendingAPassword() throws Exception {
+    String adminToken = loginAndGetToken(adminEmail);
+    String email = "novo-" + UUID.randomUUID() + "@amicats.org.br";
+
+    HttpResponse<String> response =
+        send("POST", "/users", adminToken, createBody("Novo Usuario", email, AccessType.Viewer));
+
+    assertThat(response.statusCode()).isEqualTo(201);
+    Map<String, Object> created = parse(response);
+    Integer createdId = ((Number) created.get("id")).intValue();
+    try {
+      assertThat(created.get("email")).isEqualTo(email);
+      assertThat(created.get("active")).isEqualTo(true);
+      assertThat(created.get("imageUrl")).isNull();
+      assertThat(login(email).statusCode()).isNotEqualTo(200);
+    } finally {
+      userAuthRepository
+          .findByEmail(email)
+          .ifPresent(a -> userAuthRepository.deleteById(a.getId()));
+      userRepository.deleteById(createdId);
+    }
+  }
+
+  @Test
+  void creatingAUserWithAnExistingEmailReturnsConflict() throws Exception {
+    String adminToken = loginAndGetToken(adminEmail);
+
+    HttpResponse<String> response =
+        send("POST", "/users", adminToken, createBody("Duplicado", adminEmail, AccessType.Viewer));
+
+    assertThat(response.statusCode()).isEqualTo(409);
+  }
+
+  @Test
+  void aNonAdministratorCannotCreateUsers() throws Exception {
+    String assistantToken = loginAndGetToken(assistantEmail);
+
+    HttpResponse<String> response =
+        send(
+            "POST",
+            "/users",
+            assistantToken,
+            createBody(
+                "Nao Pode", "x-" + UUID.randomUUID() + "@amicats.org.br", AccessType.Viewer));
+
+    assertThat(response.statusCode()).isEqualTo(403);
+  }
+
+  @Test
+  void creatingAVeterinarianWithoutCrmvReturnsBadRequest() throws Exception {
+    String adminToken = loginAndGetToken(adminEmail);
+
+    HttpResponse<String> response =
+        send(
+            "POST",
+            "/users",
+            adminToken,
+            createBody(
+                "Vet Sem Crmv",
+                "v-" + UUID.randomUUID() + "@amicats.org.br",
+                AccessType.Veterinarian));
+
+    assertThat(response.statusCode()).isEqualTo(400);
+  }
+
+  @Test
+  void updatingAUserToVeterinarianWithoutCrmvReturnsBadRequest() throws Exception {
+    String adminToken = loginAndGetToken(adminEmail);
+
+    HttpResponse<String> response =
+        put(
+            "/users/" + targetUserId,
+            adminToken,
+            updateBody(targetNameToken, null, AccessType.Veterinarian, null, null));
+
+    assertThat(response.statusCode()).isEqualTo(400);
+  }
+
+  private Map<String, Object> createBody(String fullName, String email, AccessType accessType) {
+    Map<String, Object> body = new LinkedHashMap<>();
+    body.put("fullName", fullName);
+    body.put("email", email);
+    body.put("phoneNumber", null);
+    body.put("accessType", accessType.name());
+    body.put("crmv", null);
+    body.put("ufCrmv", null);
+    return body;
+  }
+
   private HttpResponse<String> login(String email) throws Exception {
     return send("POST", "/auth/login", null, Map.of("email", email, "password", PASSWORD));
   }

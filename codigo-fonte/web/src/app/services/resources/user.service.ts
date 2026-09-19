@@ -50,6 +50,20 @@ export class UserService {
     return this.setActive(id, true);
   }
 
+  uploadPhoto(id: number, file: File): Observable<User> {
+    const body = new FormData();
+    body.append('file', file);
+    return this.http.put<User>(`/users/${id}/photo`, body);
+  }
+
+  photo(id: number): Observable<Blob> {
+    return this.http.get(`/users/${id}/photo`, { responseType: 'blob' });
+  }
+
+  removePhoto(id: number): Observable<void> {
+    return this.http.delete<void>(`/users/${id}/photo`);
+  }
+
   private setActive(id: number, active: boolean): Observable<void> {
     return this.http.patch<void>(`/users/${id}/status`, { active });
   }

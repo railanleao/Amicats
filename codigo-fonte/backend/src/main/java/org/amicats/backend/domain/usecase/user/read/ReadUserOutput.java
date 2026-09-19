@@ -23,12 +23,16 @@ public record ReadUserOutput(
         user.getFullName(),
         email,
         user.getPhoneNumber(),
-        user.getImageUrl(),
+        photoPath(user),
         user.getAccessType(),
         user.getCrmv(),
         user.getUfCrmv(),
         user.isActive(),
         user.getCreatedAt(),
         user.getLastLoginAt());
+  }
+
+  private static String photoPath(User user) {
+    return user.getImageUrl() == null ? null : "/users/" + user.getId() + "/photo";
   }
 }

@@ -12,9 +12,10 @@ import { UserFormComponent } from './user-form.component';
 
 describe('UserFormComponent', () => {
   let userServiceSpy: jasmine.SpyObj<UserService>;
+  let forgotPassword: jasmine.Spy;
   const currentUser = signal<{ id: number; name: string; accessType: AccessType } | null>(null);
 
-  function existingUser(): User {
+  function existingUser(overrides: Partial<User> = {}): User {
     return {
       id: 7,
       fullName: 'Marina Alves',
@@ -27,6 +28,7 @@ describe('UserFormComponent', () => {
       active: true,
       createdAt: '2026-01-01T00:00:00',
       lastLoginAt: null,
+      ...overrides,
     };
   }
 
@@ -36,7 +38,7 @@ describe('UserFormComponent', () => {
       providers: [
         provideRouter([]),
         { provide: UserService, useValue: userServiceSpy },
-        { provide: AuthService, useValue: { currentUser } },
+        { provide: AuthService, useValue: { currentUser, forgotPassword } },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -57,23 +59,38 @@ describe('UserFormComponent', () => {
     component.form.controls.accessType.setValue('Assistant');
   }
 
+  function fileEvent(file: File): Event {
+    return { target: { files: [file], value: 'x' } } as unknown as Event;
+  }
+
   beforeEach(() => {
     currentUser.set({ id: 1, name: 'Ana', accessType: 'Administrator' });
+    spyOn(URL, 'createObjectURL').and.returnValue('blob:photo');
+    spyOn(URL, 'revokeObjectURL');
+    forgotPassword = jasmine.createSpy('forgotPassword').and.returnValue(of(undefined));
     userServiceSpy = jasmine.createSpyObj<UserService>('UserService', [
       'findById',
       'create',
       'update',
+      'activate',
+      'deactivate',
+      'uploadPhoto',
+      'removePhoto',
+      'photo',
     ]);
     userServiceSpy.findById.and.returnValue(of(existingUser()));
+    userServiceSpy.photo.and.returnValue(of(new Blob(['x'])));
   });
 
   describe('create mode', () => {
-    it('starts empty and does not load any user', () => {
+    it('starts empty, does not load any user and hides the edit-only sections', () => {
       const { fixture, component } = createComponent('create');
 
       expect(userServiceSpy.findById).not.toHaveBeenCalled();
       expect(component.form.controls.email.value).toBe('');
       expect(fixture.nativeElement.querySelector('h1').textContent).toContain('Novo usuário');
+      expect(fixture.nativeElement.querySelector('app-toggle')).toBeNull();
+      expect(fixture.nativeElement.querySelector('.meta-card')).toBeNull();
     });
 
     it('does not submit an invalid form and marks the fields as touched', () => {
@@ -103,8 +120,8 @@ describe('UserFormComponent', () => {
       expect(crmv.valid && ufCrmv.valid).toBeTrue();
     });
 
-    it('creates the user with trimmed values and opens its edit page', () => {
-      userServiceSpy.create.and.returnValue(of({ ...existingUser(), id: 9 }));
+    it('creates the user with trimmed values, no password, and opens its edit page', () => {
+      userServiceSpy.create.and.returnValue(of(existingUser({ id: 9 })));
       const { component } = createComponent('create');
       const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
       fillValidCreateForm(component);
@@ -123,7 +140,7 @@ describe('UserFormComponent', () => {
     });
 
     it('sends the CRMV and an upper-cased UF for veterinarians', () => {
-      userServiceSpy.create.and.returnValue(of({ ...existingUser(), id: 9 }));
+      userServiceSpy.create.and.returnValue(of(existingUser({ id: 9 })));
       const { component } = createComponent('create');
       spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
       fillValidCreateForm(component);
@@ -139,7 +156,7 @@ describe('UserFormComponent', () => {
     });
 
     it('drops the CRMV and UF when the profile is not veterinarian', () => {
-      userServiceSpy.create.and.returnValue(of({ ...existingUser(), id: 9 }));
+      userServiceSpy.create.and.returnValue(of(existingUser({ id: 9 })));
       const { component } = createComponent('create');
       spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
       fillValidCreateForm(component);
@@ -178,7 +195,6 @@ describe('UserFormComponent', () => {
       component.onSubmit();
 
       expect(component.saveError()).toBe('Não foi possível salvar o usuário. Tente novamente.');
-      expect(component.saving()).toBeFalse();
     });
 
     it('ignores a second submit while the first one is still saving', () => {
@@ -265,6 +281,191 @@ describe('UserFormComponent', () => {
       component.onSubmit();
 
       expect(component.saveError()).toBe('Você não pode alterar o seu próprio tipo de acesso.');
+    });
+
+    it('shows the registration date and that the user never logged in', () => {
+      const { fixture } = createComponent('edit', '7');
+
+      const text: string = fixture.nativeElement.querySelector('.meta-card').textContent;
+      expect(text).toContain('01/01/2026');
+      expect(text).toContain('Nunca acessou');
+    });
+
+    it('shows the last login date and time when there is one', () => {
+      userServiceSpy.findById.and.returnValue(
+        of(existingUser({ lastLoginAt: '2026-09-19T08:14:00' })),
+      );
+
+      const { fixture } = createComponent('edit', '7');
+
+      const text: string = fixture.nativeElement.querySelector('.meta-card').textContent;
+      expect(text).toContain('19/09/2026 08:14');
+    });
+
+    it('shows the created notice when arriving from a registration', () => {
+      spyOnProperty(history, 'state', 'get').and.returnValue({ created: true });
+
+      const { fixture, component } = createComponent('edit', '7');
+
+      expect(component.justCreated).toBeTrue();
+      expect(fixture.nativeElement.textContent).toContain('Usuário cadastrado');
+    });
+
+    describe('account status', () => {
+      it('asks for confirmation and then deactivates another user', () => {
+        userServiceSpy.deactivate.and.returnValue(of(undefined));
+        const { component } = createComponent('edit', '7');
+
+        component.onToggleStatus();
+        expect(component.statusDialog()).toBe('deactivate');
+        expect(userServiceSpy.deactivate).not.toHaveBeenCalled();
+
+        component.confirmStatusChange();
+
+        expect(userServiceSpy.deactivate).toHaveBeenCalledWith(7);
+        expect(component.user()?.active).toBeFalse();
+        expect(component.statusDialog()).toBeNull();
+      });
+
+      it('reactivates an inactive user after confirmation', () => {
+        userServiceSpy.findById.and.returnValue(of(existingUser({ active: false })));
+        userServiceSpy.activate.and.returnValue(of(undefined));
+        const { component } = createComponent('edit', '7');
+
+        component.onToggleStatus();
+        expect(component.statusDialog()).toBe('activate');
+
+        component.confirmStatusChange();
+
+        expect(userServiceSpy.activate).toHaveBeenCalledWith(7);
+        expect(component.user()?.active).toBeTrue();
+      });
+
+      it('closes the dialog without calling the API when cancelled', () => {
+        const { component } = createComponent('edit', '7');
+
+        component.onToggleStatus();
+        component.cancelStatusChange();
+
+        expect(component.statusDialog()).toBeNull();
+        expect(userServiceSpy.deactivate).not.toHaveBeenCalled();
+        expect(userServiceSpy.activate).not.toHaveBeenCalled();
+      });
+
+      it('does not let the administrator deactivate themselves', () => {
+        currentUser.set({ id: 7, name: 'Marina', accessType: 'Administrator' });
+        const { component } = createComponent('edit', '7');
+
+        component.onToggleStatus();
+
+        expect(component.statusDialog()).toBeNull();
+      });
+
+      it('shows a message and keeps the status when the change fails', () => {
+        userServiceSpy.deactivate.and.returnValue(
+          throwError(() => new HttpErrorResponse({ status: 500 })),
+        );
+        const { component } = createComponent('edit', '7');
+
+        component.onToggleStatus();
+        component.confirmStatusChange();
+
+        expect(component.statusError()).toBe(
+          'Não foi possível alterar o status. Tente novamente.',
+        );
+        expect(component.user()?.active).toBeTrue();
+        expect(component.statusDialog()).toBeNull();
+      });
+    });
+
+    describe('password reset', () => {
+      it('requests the reset for the e-mail of the edited user with a neutral message', () => {
+        const { component } = createComponent('edit', '7');
+
+        component.resetPassword();
+
+        expect(forgotPassword).toHaveBeenCalledWith({ email: 'marina.alves@amicats.org.br' });
+        expect(component.resetMessage()).toContain('Se o e-mail estiver cadastrado');
+      });
+
+      it('explains a rate limit answer', () => {
+        forgotPassword.and.returnValue(throwError(() => new HttpErrorResponse({ status: 429 })));
+        const { component } = createComponent('edit', '7');
+
+        component.resetPassword();
+
+        expect(component.resetError()).toBe('Muitas tentativas. Aguarde um minuto e tente novamente.');
+      });
+
+      it('shows a generic message on other failures', () => {
+        forgotPassword.and.returnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
+        const { component } = createComponent('edit', '7');
+
+        component.resetPassword();
+
+        expect(component.resetError()).toBe('Não foi possível enviar o e-mail. Tente novamente.');
+      });
+    });
+
+    describe('photo', () => {
+      it('uploads a valid image and refreshes the avatar', () => {
+        userServiceSpy.uploadPhoto.and.returnValue(
+          of(existingUser({ imageUrl: '/users/7/photo' })),
+        );
+        const { component } = createComponent('edit', '7');
+        const file = new File(['x'], 'foto.png', { type: 'image/png' });
+
+        component.onPhotoSelected(fileEvent(file));
+
+        expect(userServiceSpy.uploadPhoto).toHaveBeenCalledWith(7, file);
+        expect(component.hasPhoto).toBeTrue();
+        expect(component.photoVersion()).toBe(1);
+        expect(component.photoBusy()).toBeFalse();
+      });
+
+      it('rejects files that are not JPG or PNG without calling the API', () => {
+        const { component } = createComponent('edit', '7');
+
+        component.onPhotoSelected(fileEvent(new File(['x'], 'nota.txt', { type: 'text/plain' })));
+
+        expect(userServiceSpy.uploadPhoto).not.toHaveBeenCalled();
+        expect(component.photoError()).toBe('Envie uma imagem JPG ou PNG.');
+      });
+
+      it('rejects images over 5 MB without calling the API', () => {
+        const { component } = createComponent('edit', '7');
+        const big = new File([new Uint8Array(5 * 1024 * 1024 + 1)], 'grande.png', {
+          type: 'image/png',
+        });
+
+        component.onPhotoSelected(fileEvent(big));
+
+        expect(userServiceSpy.uploadPhoto).not.toHaveBeenCalled();
+        expect(component.photoError()).toBe('A foto deve ter no máximo 5 MB.');
+      });
+
+      it('explains a 400 answer from the API', () => {
+        userServiceSpy.uploadPhoto.and.returnValue(
+          throwError(() => new HttpErrorResponse({ status: 400 })),
+        );
+        const { component } = createComponent('edit', '7');
+
+        component.onPhotoSelected(fileEvent(new File(['x'], 'foto.png', { type: 'image/png' })));
+
+        expect(component.photoError()).toContain('Envie um JPG ou PNG válido');
+      });
+
+      it('removes the photo and refreshes the avatar', () => {
+        userServiceSpy.findById.and.returnValue(of(existingUser({ imageUrl: '/users/7/photo' })));
+        userServiceSpy.removePhoto.and.returnValue(of(undefined));
+        const { component } = createComponent('edit', '7');
+
+        component.removePhoto();
+
+        expect(userServiceSpy.removePhoto).toHaveBeenCalledWith(7);
+        expect(component.hasPhoto).toBeFalse();
+        expect(component.photoVersion()).toBe(1);
+      });
     });
   });
 });

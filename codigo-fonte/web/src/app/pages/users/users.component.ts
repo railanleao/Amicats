@@ -9,6 +9,7 @@ import { ToggleComponent } from '../../components/toggle/toggle.component';
 import {AccessType} from '../../models/auth.model';
 import {ACCESS_TYPE_LABELS, User} from '../../models/user.model';
 import {UserService} from '../../services/resources/user.service';
+import { UserAvatarComponent } from '../../components/user-avatar/user-avatar.component';
 
 const PAGE_SIZE = 20;
 const SEARCH_DEBOUNCE_MS = 300;
@@ -16,7 +17,7 @@ const SEARCH_DEBOUNCE_MS = 300;
 @Component({
   selector: 'app-users',
   standalone: true,
-  imports: [ConfirmDialogComponent, PaginationComponent, ToggleComponent],
+  imports: [ConfirmDialogComponent, PaginationComponent, ToggleComponent, UserAvatarComponent],
   templateUrl: './users.component.html',
   styleUrl: './users.component.css',
 })

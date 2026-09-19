@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -5,8 +6,11 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 
+import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { SubmitButtonComponent } from '../../components/submit-button/submit-button.component';
 import { TextFieldComponent } from '../../components/text-field/text-field.component';
+import { ToggleComponent } from '../../components/toggle/toggle.component';
+import { UserAvatarComponent } from '../../components/user-avatar/user-avatar.component';
 import { AccessType } from '../../models/auth.model';
 import { ACCESS_TYPE_LABELS, User } from '../../models/user.model';
 import { AuthService } from '../../services/resources/auth.service';
@@ -15,11 +19,22 @@ import { UserService } from '../../services/resources/user.service';
 export type UserFormMode = 'create' | 'edit';
 
 const UF_PATTERN = /^[A-Za-z]{2}$/;
+const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
+const PHOTO_TYPES = ['image/jpeg', 'image/png'];
 
 @Component({
   selector: 'app-user-form',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, TextFieldComponent, SubmitButtonComponent],
+  imports: [
+    DatePipe,
+    ReactiveFormsModule,
+    RouterLink,
+    ConfirmDialogComponent,
+    SubmitButtonComponent,
+    TextFieldComponent,
+    ToggleComponent,
+    UserAvatarComponent,
+  ],
   templateUrl: './user-form.component.html',
   styleUrl: './user-form.component.css',
 })
@@ -37,16 +52,30 @@ export class UserFormComponent {
     : null;
   readonly title = this.isEditing ? 'Editar usuário' : 'Novo usuário';
   readonly submitLabel = this.isEditing ? 'Salvar alterações' : 'Cadastrar usuário';
+  readonly justCreated = this.isEditing && history.state?.created === true;
 
   readonly accessTypeOptions = (Object.keys(ACCESS_TYPE_LABELS) as AccessType[]).map((value) => ({
     value,
     label: ACCESS_TYPE_LABELS[value],
   }));
 
+  readonly user = signal<User | null>(null);
   readonly loading = signal(false);
   readonly saving = signal(false);
   readonly loadError = signal<string | null>(null);
   readonly saveError = signal<string | null>(null);
+
+  readonly photoVersion = signal(0);
+  readonly photoBusy = signal(false);
+  readonly photoError = signal<string | null>(null);
+
+  readonly statusDialog = signal<'deactivate' | 'activate' | null>(null);
+  readonly statusSaving = signal(false);
+  readonly statusError = signal<string | null>(null);
+
+  readonly resetting = signal(false);
+  readonly resetMessage = signal<string | null>(null);
+  readonly resetError = signal<string | null>(null);
 
   readonly form = new FormGroup({
     fullName: new FormControl('', {
@@ -91,6 +120,10 @@ export class UserFormComponent {
   };
 
   constructor() {
+    if (this.isEditing) {
+      this.form.controls.email.clearValidators();
+    }
+
     this.applyCrmvRules(this.form.controls.accessType.value);
     this.form.controls.accessType.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -109,14 +142,12 @@ export class UserFormComponent {
     return this.isEditing && this.userId === this.authService.currentUser()?.id;
   }
 
-  get initials(): string {
-    const parts = this.form.controls.fullName.value.trim().split(/\s+/).filter(Boolean);
-    if (parts.length === 0) {
-      return '?';
-    }
-    const first = parts[0][0];
-    const last = parts.length > 1 ? parts[parts.length - 1][0] : '';
-    return (first + last).toUpperCase();
+  get isActive(): boolean {
+    return this.user()?.active ?? true;
+  }
+
+  get hasPhoto(): boolean {
+    return !!this.user()?.imageUrl;
   }
 
   onSubmit(): void {
@@ -173,6 +204,151 @@ export class UserFormComponent {
       });
   }
 
+  onToggleStatus(): void {
+    const user = this.user();
+    if (!user || this.isSelf || this.statusSaving()) {
+      return;
+    }
+    this.statusDialog.set(user.active ? 'deactivate' : 'activate');
+  }
+
+  cancelStatusChange(): void {
+    this.statusDialog.set(null);
+  }
+
+  confirmStatusChange(): void {
+    const action = this.statusDialog();
+    const user = this.user();
+    if (!action || !user) {
+      return;
+    }
+
+    this.statusSaving.set(true);
+    this.statusError.set(null);
+
+    const request =
+      action === 'deactivate'
+        ? this.userService.deactivate(user.id)
+        : this.userService.activate(user.id);
+
+    request
+      .pipe(
+        finalize(() => this.statusSaving.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: () => {
+          this.user.set({ ...user, active: action === 'activate' });
+          this.statusDialog.set(null);
+        },
+        error: (error: HttpErrorResponse) => {
+          this.statusError.set(
+            error.status === 409
+              ? 'Você não pode desativar a sua própria conta.'
+              : 'Não foi possível alterar o status. Tente novamente.',
+          );
+          this.statusDialog.set(null);
+        },
+      });
+  }
+
+  resetPassword(): void {
+    if (!this.isEditing || this.resetting()) {
+      return;
+    }
+
+    this.resetting.set(true);
+    this.resetMessage.set(null);
+    this.resetError.set(null);
+
+    this.authService
+      .forgotPassword({ email: this.form.controls.email.value })
+      .pipe(
+        finalize(() => this.resetting.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: () =>
+          this.resetMessage.set(
+            'Se o e-mail estiver cadastrado e ativo, enviamos uma senha temporária.',
+          ),
+        error: (error: HttpErrorResponse) =>
+          this.resetError.set(
+            error.status === 429
+              ? 'Muitas tentativas. Aguarde um minuto e tente novamente.'
+              : 'Não foi possível enviar o e-mail. Tente novamente.',
+          ),
+      });
+  }
+
+  onPhotoSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+
+    if (!file || this.userId === null || this.photoBusy()) {
+      return;
+    }
+
+    this.photoError.set(null);
+
+    if (!PHOTO_TYPES.includes(file.type)) {
+      this.photoError.set('Envie uma imagem JPG ou PNG.');
+      return;
+    }
+    if (file.size > MAX_PHOTO_BYTES) {
+      this.photoError.set('A foto deve ter no máximo 5 MB.');
+      return;
+    }
+
+    this.photoBusy.set(true);
+
+    this.userService
+      .uploadPhoto(this.userId, file)
+      .pipe(
+        finalize(() => this.photoBusy.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (updated) => {
+          this.user.set(updated);
+          this.photoVersion.update((version) => version + 1);
+        },
+        error: (error: HttpErrorResponse) =>
+          this.photoError.set(
+            error.status === 400
+              ? 'Não foi possível usar essa imagem. Envie um JPG ou PNG válido de até 5 MB.'
+              : 'Não foi possível enviar a foto. Tente novamente.',
+          ),
+      });
+  }
+
+  removePhoto(): void {
+    if (this.userId === null || this.photoBusy()) {
+      return;
+    }
+
+    this.photoBusy.set(true);
+    this.photoError.set(null);
+
+    this.userService
+      .removePhoto(this.userId)
+      .pipe(
+        finalize(() => this.photoBusy.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: () => {
+          const current = this.user();
+          if (current) {
+            this.user.set({ ...current, imageUrl: null });
+          }
+          this.photoVersion.update((version) => version + 1);
+        },
+        error: () => this.photoError.set('Não foi possível remover a foto. Tente novamente.'),
+      });
+  }
+
   private loadUser(): void {
     if (this.userId === null || !Number.isInteger(this.userId)) {
       this.loadError.set('Usuário não encontrado.');
@@ -199,6 +375,7 @@ export class UserFormComponent {
   }
 
   private fillForm(user: User): void {
+    this.user.set(user);
     this.form.patchValue({
       fullName: user.fullName,
       email: user.email,
@@ -218,9 +395,7 @@ export class UserFormComponent {
     const { crmv, ufCrmv } = this.form.controls;
 
     crmv.setValidators(
-      required
-        ? [Validators.required, Validators.maxLength(20)]
-        : [Validators.maxLength(20)],
+      required ? [Validators.required, Validators.maxLength(20)] : [Validators.maxLength(20)],
     );
     ufCrmv.setValidators(
       required

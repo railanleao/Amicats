@@ -107,16 +107,12 @@
             [class.inactive-row]="!user.active"
           >
             <div class="user-name">
-              @if (user.imageUrl) {
-                <img
-                  [src]="user.imageUrl"
-                  [alt]="'Foto de ' + user.fullName"
-                >
-              } @else {
-                <div class="user-avatar">
-                  👤
-                </div>
-              }
+              <app-user-avatar
+                [name]="user.fullName"
+                [userId]="user.id"
+                [hasPhoto]="!!user.imageUrl"
+                [size]="40"
+              />
 
               <span>{{ user.fullName }}</span>
             </div>

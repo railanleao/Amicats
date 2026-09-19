@@ -14,91 +14,239 @@
       <a routerLink="/users">Voltar para a lista</a>
     </div>
   } @else {
-    <form class="form-card" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
-      <div class="avatar" aria-hidden="true">{{ initials }}</div>
+    <div class="layout" [class.layout--single]="!isEditing">
+      <form class="form-card" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+        <div class="avatar-block">
+          <app-user-avatar
+            [name]="form.controls.fullName.value"
+            [userId]="userId"
+            [hasPhoto]="hasPhoto"
+            [version]="photoVersion()"
+            [size]="64"
+          />
 
-      @if (saveError()) {
-        <div class="feedback feedback--error" role="alert">{{ saveError() }}</div>
-      }
-
-      <app-text-field
-        inputId="fullName"
-        label="Nome completo"
-        autocomplete="name"
-        [control]="form.controls.fullName"
-        [errorMessages]="errors.fullName"
-      />
-
-      <div class="form-row">
-        <app-text-field
-          inputId="email"
-          label="E-mail"
-          type="email"
-          autocomplete="off"
-          [readonly]="isEditing"
-          [control]="form.controls.email"
-          [errorMessages]="errors.email"
-        />
-        <app-text-field
-          inputId="phoneNumber"
-          label="Telefone"
-          autocomplete="tel"
-          [control]="form.controls.phoneNumber"
-          [errorMessages]="errors.phoneNumber"
-        />
-      </div>
-
-      <div class="form-row">
-        <div class="select-field">
-          <label for="accessType">Tipo de acesso</label>
-          <select
-            id="accessType"
-            [formControl]="form.controls.accessType"
-            [class.select-field__input--invalid]="
-              form.controls.accessType.invalid && form.controls.accessType.touched
-            "
-          >
-            <option value="" disabled>Selecione...</option>
-            @for (option of accessTypeOptions; track option.value) {
-              <option [value]="option.value">{{ option.label }}</option>
-            }
-          </select>
-          @if (isSelf) {
-            <span class="field-hint">Você não pode alterar o seu próprio tipo de acesso.</span>
-          }
-          @if (form.controls.accessType.invalid && form.controls.accessType.touched) {
-            <span class="field-error">Selecione o tipo de acesso.</span>
+          @if (isEditing) {
+            <div class="avatar-actions">
+              <input
+                #photoInput
+                type="file"
+                class="visually-hidden"
+                accept="image/png,image/jpeg"
+                (change)="onPhotoSelected($event)"
+              />
+              <div class="avatar-actions__buttons">
+                <button
+                  type="button"
+                  class="secondary-button"
+                  [disabled]="photoBusy()"
+                  (click)="photoInput.click()"
+                >
+                  {{ photoBusy() ? 'Enviando...' : 'Alterar foto' }}
+                </button>
+                @if (hasPhoto) {
+                  <button
+                    type="button"
+                    class="link-button"
+                    [disabled]="photoBusy()"
+                    (click)="removePhoto()"
+                  >
+                    Remover foto
+                  </button>
+                }
+              </div>
+              <span class="field-hint">JPG ou PNG, até 5 MB</span>
+              @if (photoError()) {
+                <span class="field-error" role="alert">{{ photoError() }}</span>
+              }
+            </div>
+          } @else {
+            <span class="field-hint">
+              Você poderá adicionar a foto depois de cadastrar o usuário.
+            </span>
           }
         </div>
 
-        @if (showCrmv) {
-          <div class="crmv-row">
-            <app-text-field
-              inputId="crmv"
-              label="CRMV"
-              [control]="form.controls.crmv"
-              [errorMessages]="errors.crmv"
-            />
-            <app-text-field
-              inputId="ufCrmv"
-              label="UF"
-              [control]="form.controls.ufCrmv"
-              [errorMessages]="errors.ufCrmv"
-            />
+        @if (justCreated) {
+          <div class="feedback feedback--success" role="status">
+            Usuário cadastrado. Para enviar o primeiro acesso por e-mail, use "Redefinir senha"
+            abaixo.
           </div>
         }
-      </div>
 
-      <div class="form-actions">
-        <a routerLink="/users" class="cancel-button">Cancelar</a>
-        <div class="form-actions__submit">
-          <app-submit-button
-            [label]="submitLabel"
-            loadingLabel="Salvando..."
-            [loading]="saving()"
+        @if (saveError()) {
+          <div class="feedback feedback--error" role="alert">{{ saveError() }}</div>
+        }
+
+        <app-text-field
+          inputId="fullName"
+          label="Nome completo"
+          autocomplete="name"
+          [control]="form.controls.fullName"
+          [errorMessages]="errors.fullName"
+        />
+
+        <div class="form-row">
+          <app-text-field
+            inputId="email"
+            label="E-mail"
+            type="email"
+            autocomplete="off"
+            [readonly]="isEditing"
+            [control]="form.controls.email"
+            [errorMessages]="errors.email"
+          />
+          <app-text-field
+            inputId="phoneNumber"
+            label="Telefone"
+            autocomplete="tel"
+            [control]="form.controls.phoneNumber"
+            [errorMessages]="errors.phoneNumber"
           />
         </div>
-      </div>
-    </form>
+
+        <div class="form-row">
+          <div class="select-field">
+            <label for="accessType">Tipo de acesso</label>
+            <select
+              id="accessType"
+              [formControl]="form.controls.accessType"
+              [class.select-field__input--invalid]="
+                form.controls.accessType.invalid && form.controls.accessType.touched
+              "
+            >
+              <option value="" disabled>Selecione...</option>
+              @for (option of accessTypeOptions; track option.value) {
+                <option [value]="option.value">{{ option.label }}</option>
+              }
+            </select>
+            @if (isSelf) {
+              <span class="field-hint">Você não pode alterar o seu próprio tipo de acesso.</span>
+            }
+            @if (form.controls.accessType.invalid && form.controls.accessType.touched) {
+              <span class="field-error">Selecione o tipo de acesso.</span>
+            }
+          </div>
+
+          @if (showCrmv) {
+            <div class="crmv-row">
+              <app-text-field
+                inputId="crmv"
+                label="CRMV"
+                [control]="form.controls.crmv"
+                [errorMessages]="errors.crmv"
+              />
+              <app-text-field
+                inputId="ufCrmv"
+                label="UF"
+                [control]="form.controls.ufCrmv"
+                [errorMessages]="errors.ufCrmv"
+              />
+            </div>
+          }
+        </div>
+
+        @if (isEditing) {
+          <section class="setting-row">
+            <div class="setting-row__text">
+              <h2>Status da conta</h2>
+              <p>Contas inativas não conseguem fazer login, mas mantêm o histórico de registros.</p>
+              @if (isSelf) {
+                <p class="field-hint">Você não pode desativar a sua própria conta.</p>
+              }
+              @if (statusError()) {
+                <p class="field-error" role="alert">{{ statusError() }}</p>
+              }
+            </div>
+            <div class="setting-row__control">
+              <span class="status-label" [class.status-label--off]="!isActive">
+                {{ isActive ? 'Ativo' : 'Inativo' }}
+              </span>
+              <app-toggle
+                label="Status da conta"
+                [checked]="isActive"
+                [disabled]="isSelf || statusSaving()"
+                [hint]="isSelf ? 'Você não pode desativar a própria conta' : ''"
+                (toggled)="onToggleStatus()"
+              />
+            </div>
+          </section>
+
+          <section class="setting-row">
+            <div class="setting-row__text">
+              <h2>Senha</h2>
+              <p>Envia uma senha temporária para o e-mail cadastrado.</p>
+              @if (!isActive) {
+                <p class="field-hint">Usuários inativos não recebem o e-mail de acesso.</p>
+              }
+              @if (resetMessage()) {
+                <p class="field-success" role="status">{{ resetMessage() }}</p>
+              }
+              @if (resetError()) {
+                <p class="field-error" role="alert">{{ resetError() }}</p>
+              }
+            </div>
+            <div class="setting-row__control">
+              <button
+                type="button"
+                class="secondary-button"
+                [disabled]="resetting() || !isActive"
+                (click)="resetPassword()"
+              >
+                {{ resetting() ? 'Enviando...' : 'Redefinir senha' }}
+              </button>
+            </div>
+          </section>
+        }
+
+        <div class="form-actions">
+          <a routerLink="/users" class="cancel-button">Cancelar</a>
+          <div class="form-actions__submit">
+            <app-submit-button
+              [label]="submitLabel"
+              loadingLabel="Salvando..."
+              [loading]="saving()"
+            />
+          </div>
+        </div>
+      </form>
+
+      @if (isEditing && user(); as current) {
+        <aside class="meta-card">
+          <h2>Metadados</h2>
+          <dl>
+            <div>
+              <dt>Cadastrado em</dt>
+              <dd>{{ current.createdAt | date: 'dd/MM/yyyy' }}</dd>
+            </div>
+            <div>
+              <dt>Último acesso</dt>
+              <dd>
+                @if (current.lastLoginAt) {
+                  {{ current.lastLoginAt | date: 'dd/MM/yyyy HH:mm' }}
+                } @else {
+                  Nunca acessou
+                }
+              </dd>
+            </div>
+          </dl>
+        </aside>
+      }
+    </div>
   }
 </div>
+
+@if (statusDialog(); as action) {
+  <app-confirm-dialog
+    [title]="action === 'deactivate' ? 'Desativar usuário' : 'Reativar usuário'"
+    [message]="
+      action === 'deactivate'
+        ? 'Desativar o acesso de ' + (user()?.fullName ?? '') + '? O usuário perde acesso ao sistema imediatamente.'
+        : 'Reativar o acesso de ' + (user()?.fullName ?? '') + '? O usuário volta a poder entrar no sistema.'
+    "
+    [confirmLabel]="action === 'deactivate' ? 'Desativar' : 'Reativar'"
+    [confirmVariant]="action === 'deactivate' ? 'danger' : 'success'"
+    [confirmLoading]="statusSaving()"
+    (confirmed)="confirmStatusChange()"
+    (cancelled)="cancelStatusChange()"
+  />
+}

@@ -105,6 +105,14 @@ public class User {
     this.dateAcceptanceTerms = LocalDateTime.now();
   }
 
+  public void changeImage(String imageKey) {
+    this.imageUrl = imageKey;
+  }
+
+  public void removeImage() {
+    this.imageUrl = null;
+  }
+
   public void registerLogin() {
     this.lastLoginAt = LocalDateTime.now();
   }

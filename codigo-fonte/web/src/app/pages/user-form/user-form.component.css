@@ -28,29 +28,91 @@
   color: var(--color-ink-faint);
 }
 
-.form-card {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  width: 100%;
-  max-width: 620px;
-  padding: 28px;
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 620px) 280px;
+  gap: 24px;
+  align-items: start;
+}
+
+.layout--single {
+  grid-template-columns: minmax(0, 620px);
+}
+
+.form-card,
+.meta-card {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   background: var(--color-surface);
 }
 
-.avatar {
+.form-card {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 28px;
+}
+
+.meta-card {
+  padding: 20px;
+}
+
+.meta-card h2,
+.setting-row h2 {
+  margin: 0 0 6px;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.meta-card dl {
+  margin: 0;
+}
+
+.meta-card dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 0;
+  font-size: var(--text-xs);
+}
+
+.meta-card dt {
+  color: var(--color-ink-soft);
+}
+
+.meta-card dd {
+  margin: 0;
+  color: var(--color-ink);
+}
+
+.avatar-block {
   display: flex;
   align-items: center;
-  justify-content: center;
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  background: var(--color-sage-700);
-  color: var(--color-sage-50);
-  font-size: var(--text-base);
-  font-weight: 600;
+  gap: 16px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.avatar-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.avatar-actions__buttons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 
 .form-row {
@@ -103,14 +165,23 @@
   border-color: var(--color-danger);
 }
 
-.field-error {
+.field-error,
+.field-hint,
+.field-success {
+  margin: 0;
   font-size: var(--text-xs);
+}
+
+.field-error {
   color: var(--color-danger);
 }
 
 .field-hint {
-  font-size: var(--text-xs);
   color: var(--color-ink-soft);
+}
+
+.field-success {
+  color: var(--color-sage-700);
 }
 
 .feedback {
@@ -118,11 +189,89 @@
   color: var(--color-ink-soft);
 }
 
-.feedback--error {
+.feedback--error,
+.feedback--success {
   padding: 12px 14px;
   border-radius: var(--radius-sm);
+}
+
+.feedback--error {
   background: var(--color-danger-bg);
   color: var(--color-danger);
+}
+
+.feedback--success {
+  background: var(--color-sage-100);
+  color: var(--color-sage-900);
+}
+
+.setting-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: 18px;
+  border-top: 1px solid var(--color-border);
+}
+
+.setting-row__text p {
+  margin: 0 0 4px;
+  font-size: var(--text-xs);
+  color: var(--color-ink-soft);
+}
+
+.setting-row__control {
+  display: flex;
+  flex-shrink: 0;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.status-label {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--color-sage-700);
+}
+
+.status-label--off {
+  color: var(--color-ink-faint);
+}
+
+.secondary-button,
+.cancel-button {
+  display: inline-flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.secondary-button:hover:not(:disabled),
+.cancel-button:hover {
+  background: var(--color-bg);
+}
+
+.secondary-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.link-button {
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--color-danger);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  cursor: pointer;
 }
 
 .form-actions {
@@ -138,26 +287,10 @@
   width: 190px;
 }
 
-.form-actions__submit app-submit-button {
-  display: block;
-}
-
-.cancel-button {
-  display: inline-flex;
-  align-items: center;
-  height: 42px;
-  padding: 0 18px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  background: var(--color-surface);
-  color: var(--color-ink-soft);
-  font-size: var(--text-sm);
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.cancel-button:hover {
-  background: var(--color-bg);
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 @media (max-width: 640px) {

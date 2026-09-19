@@ -8,10 +8,12 @@ import org.amicats.backend.domain.usecase.user.read.ReadUserOutput;
 import org.amicats.backend.domain.usecase.user.status.ChangeUserStatusInput;
 import org.amicats.backend.domain.usecase.user.update.UpdateUserInput;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RequestMapping("/users")
 public interface UserController {
@@ -42,4 +44,13 @@ public interface UserController {
       @PathVariable Integer id,
       @Valid @RequestBody ChangeUserStatusInput input,
       @AuthenticationPrincipal Jwt jwt);
+
+  @PutMapping(path = "/{id}/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  ReadUserOutput uploadPhoto(@PathVariable Integer id, @RequestPart("file") MultipartFile file);
+
+  @GetMapping("/{id}/photo")
+  ResponseEntity<byte[]> getPhoto(@PathVariable Integer id);
+
+  @DeleteMapping("/{id}/photo")
+  ResponseEntity<Void> removePhoto(@PathVariable Integer id);
 }
