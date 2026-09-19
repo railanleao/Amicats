@@ -27,7 +27,6 @@ Este plano apresenta os casos de testes utilizados na verificação e validaçã
 | CT-006 | Fluxo de primeiro acesso | S | - |
 | CT-007 | Sessão e logout | S, S02 | I01 |
 
-### ETAPA 2
 Requisito coberto: **RF-001** (autenticação, aceite de termos e recuperação de senha). A gestão de usuários pelo Administrador é feita no painel web e não faz parte deste plano mobile.
 
 #### Roteiro de execução da Etapa 2
