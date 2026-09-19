@@ -370,7 +370,7 @@
 .actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 20px;
 }
 
 .actions button {
@@ -495,9 +495,5 @@ app-pagination {
       1.5fr
       1fr
       0.8fr;
-  }
-
-  .actions app-toggle {
-    margin-left: 8px;
   }
 }
