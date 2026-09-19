@@ -2,7 +2,13 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 
-import { ChangePasswordRequest, LoginRequest, LoginResponse, User } from '../../models/auth.model';
+import {
+  ChangePasswordRequest,
+  ForgotPasswordRequest,
+  LoginRequest,
+  LoginResponse,
+  User,
+} from '../../models/auth.model';
 
 interface StoredSession {
   token: string;
@@ -47,6 +53,10 @@ export class AuthService {
     return this.http
       .patch<LoginResponse>('/auth/change-password', request)
       .pipe(tap((response) => this.setSession(response)));
+  }
+
+  forgotPassword(request: ForgotPasswordRequest): Observable<void> {
+    return this.http.post<void>('/auth/forgot-password', request);
   }
 
   setSession(response: LoginResponse): void {
