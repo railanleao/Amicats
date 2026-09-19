@@ -4,6 +4,7 @@
     class="confirm-dialog-overlay__backdrop"
     tabindex="-1"
     aria-hidden="true"
+    [disabled]="confirmLoading"
     (click)="onCancel()"
   ></button>
 
