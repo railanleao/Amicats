@@ -1,10 +1,12 @@
 <aside class="sidebar">
 
-  <!-- LOGOTYPE -->
   <div class="logotype">
 
     <div class="logotype-icon">
-      🐈
+      <img
+        src="logo-amicats.png"
+        alt="Amicats"
+      />
     </div>
 
     <span>Amicats</span>
@@ -22,9 +24,19 @@
         GERAL
       </span>
 
-      <a class="menu-item">
+      <a
+        class="menu-item"
+        routerLink="/"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+      >
         <span class="menu-icon">▦</span>
         <span>Dashboard</span>
+      </a>
+
+      <a class="menu-item">
+        <span class="menu-icon">⌕</span>
+        <span>Busca</span>
       </a>
 
     </div>
@@ -37,7 +49,11 @@
         CADASTROS
       </span>
 
-      <a class="menu-item active">
+      <a
+        class="menu-item"
+        routerLink="/users"
+        routerLinkActive="active"
+      >
         <span class="menu-icon">♙</span>
         <span>Usuários</span>
       </a>
@@ -59,7 +75,7 @@
 
       <a class="menu-item">
         <span class="menu-icon">▦</span>
-        <span>Instituição parceiras</span>
+        <span>Instituições parceiras</span>
       </a>
 
     </div>
@@ -111,12 +127,13 @@
         <span class="menu-icon">▥</span>
         <span>Relatórios</span>
       </a>
-    </div>
 
-    <a class="menu-item">
-      <span class="menu-icon">⌂</span>
-      <span>Sincronização</span>
-    </a>
+      <a class="menu-item">
+        <span class="menu-icon">⌂</span>
+        <span>Sincronização</span>
+      </a>
+
+    </div>
 
   </nav>
 
@@ -125,12 +142,12 @@
   <div class="profile">
 
     <div class="avatar">
-      {{ userLogged.name.charAt(0) }}
+      {{ currentUser()?.name?.charAt(0) }}
     </div>
 
     <div class="profile-info">
-      <strong>{{ userLogged.name }}</strong>
-      <span>{{ userLogged.profile }}</span>
+      <strong>{{ currentUser()?.name }}</strong>
+      <span>{{ profileLabel() }}</span>
     </div>
 
     <button

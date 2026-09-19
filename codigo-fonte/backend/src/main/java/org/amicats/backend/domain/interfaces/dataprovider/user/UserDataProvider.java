@@ -1,9 +1,10 @@
 package org.amicats.backend.domain.interfaces.dataprovider.user;
 
-import java.util.List;
 import java.util.Optional;
 import org.amicats.backend.domain.entity.User;
 import org.amicats.backend.domain.entity.UserAuth;
+import org.amicats.backend.domain.usecase.common.PagedResult;
+import org.amicats.backend.domain.usecase.user.read.UserSearchCriteria;
 
 public interface UserDataProvider {
 
@@ -15,7 +16,7 @@ public interface UserDataProvider {
 
   Optional<User> findById(Integer id);
 
-  List<User> findAll();
+  PagedResult<UserWithEmail> search(UserSearchCriteria criteria);
 
   Optional<String> findEmailByUserId(Integer userId);
 }
