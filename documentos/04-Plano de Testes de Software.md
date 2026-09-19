@@ -29,6 +29,8 @@ Este plano apresenta os casos de testes utilizados na verificação e validaçã
 
 Requisito coberto: **RF-001** (autenticação, aceite de termos e recuperação de senha). A gestão de usuários pelo Administrador é feita no painel web e não faz parte deste plano mobile.
 
+## ETAPA 2
+
 #### Roteiro de execução da Etapa 2
 
 Este roteiro define como preparar o ambiente e em que **ordem** executar os 22 casos de teste. A ordem importa por dois motivos:
@@ -1046,8 +1048,6 @@ Nenhum usuário é excluído fisicamente (RNF-005). Para repetir os testes, cria
     <td>O servidor responde 401, o aplicativo limpa a sessão armazenada e redireciona o usuário para a tela de login.</td>
   </tr>
 </table>
-
-## ETAPA 2
 
 ### RF-001 — Autenticação e Recuperação de Senha
 
