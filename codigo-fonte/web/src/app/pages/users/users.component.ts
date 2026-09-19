@@ -1,5 +1,6 @@
 import {Component, DestroyRef, OnDestroy, OnInit, inject, signal} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import { Router } from '@angular/router';
 import {Subject, debounceTime, distinctUntilChanged, finalize} from 'rxjs';
 
 import {ConfirmDialogComponent} from '../../components/confirm-dialog/confirm-dialog.component';
@@ -22,6 +23,7 @@ const SEARCH_DEBOUNCE_MS = 300;
 export class UsersComponent implements OnInit, OnDestroy {
   private readonly userService = inject(UserService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly router = inject(Router);
   private readonly searchInput$ = new Subject<string>();
 
   readonly loading = signal(false);
@@ -114,6 +116,14 @@ export class UsersComponent implements OnInit, OnDestroy {
 
   profileLabel(accessType: AccessType): string {
     return ACCESS_TYPE_LABELS[accessType];
+  }
+
+  createUser(): void {
+    void this.router.navigate(['/users/new']);
+  }
+
+  editUser(user: User): void {
+    void this.router.navigate(['/users', user.id, 'edit']);
   }
 
   onToggleStatus(user: User): void {
