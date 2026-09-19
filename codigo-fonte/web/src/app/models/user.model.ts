@@ -19,3 +19,19 @@ export interface User {
   active: boolean;
   createdAt: string;
 }
+
+export interface UserSearchParams {
+  search?: string;
+  accessType?: AccessType;
+  active?: boolean;
+  page: number;
+  size: number;
+}
+
+export interface PagedResult<T> {
+  content: T[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+}

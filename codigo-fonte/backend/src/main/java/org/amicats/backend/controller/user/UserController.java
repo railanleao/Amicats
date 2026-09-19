@@ -1,7 +1,8 @@
 package org.amicats.backend.controller.user;
 
 import jakarta.validation.Valid;
-import java.util.List;
+import org.amicats.backend.domain.enums.AccessType;
+import org.amicats.backend.domain.usecase.common.PagedResult;
 import org.amicats.backend.domain.usecase.user.create.CreateUserInput;
 import org.amicats.backend.domain.usecase.user.read.ReadUserOutput;
 import org.amicats.backend.domain.usecase.user.update.UpdateUserInput;
@@ -13,7 +14,12 @@ import org.springframework.web.bind.annotation.*;
 public interface UserController {
 
   @GetMapping
-  List<ReadUserOutput> list();
+  PagedResult<ReadUserOutput> list(
+      @RequestParam(required = false) String search,
+      @RequestParam(required = false) AccessType accessType,
+      @RequestParam(required = false) Boolean active,
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "20") int size);
 
   @GetMapping("/{id}")
   ReadUserOutput findById(@PathVariable Integer id);

@@ -1,26 +1,35 @@
-import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { finalize } from 'rxjs';
+import { Subject, debounceTime, distinctUntilChanged, finalize } from 'rxjs';
 
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
+import { PaginationComponent } from '../../components/pagination/pagination.component';
 import { AccessType } from '../../models/auth.model';
 import { ACCESS_TYPE_LABELS, User } from '../../models/user.model';
 import { UserService } from '../../services/resources/user.service';
 
+const PAGE_SIZE = 20;
+const SEARCH_DEBOUNCE_MS = 300;
+
 @Component({
   selector: 'app-users',
   standalone: true,
-  imports: [ConfirmDialogComponent],
+  imports: [ConfirmDialogComponent, PaginationComponent],
   templateUrl: './users.component.html',
   styleUrl: './users.component.css',
 })
-export class UsersComponent implements OnInit {
+export class UsersComponent implements OnInit, OnDestroy {
   private readonly userService = inject(UserService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly searchInput$ = new Subject<string>();
 
   readonly loading = signal(false);
   readonly errorMessage = signal<string | null>(null);
   readonly users = signal<User[]>([]);
+  readonly page = signal(0);
+  readonly totalElements = signal(0);
+  readonly totalPages = signal(0);
+  readonly pageSize = PAGE_SIZE;
   readonly deactivatingId = signal<number | null>(null);
   readonly userPendingDeactivation = signal<User | null>(null);
 
@@ -30,7 +39,19 @@ export class UsersComponent implements OnInit {
   selectedStatus = '';
 
   ngOnInit(): void {
+    this.searchInput$
+      .pipe(debounceTime(SEARCH_DEBOUNCE_MS), distinctUntilChanged(), takeUntilDestroyed(this.destroyRef))
+      .subscribe((term) => {
+        this.searchTerm = term;
+        this.page.set(0);
+        this.loadUsers();
+      });
+
     this.loadUsers();
+  }
+
+  ngOnDestroy(): void {
+    this.searchInput$.complete();
   }
 
   loadUsers(): void {
@@ -38,13 +59,23 @@ export class UsersComponent implements OnInit {
     this.errorMessage.set(null);
 
     this.userService
-      .list()
+      .list({
+        search: this.searchTerm || undefined,
+        accessType: (this.selectedProfile as AccessType) || undefined,
+        active: this.selectedStatus ? this.selectedStatus === 'Active' : undefined,
+        page: this.page(),
+        size: this.pageSize,
+      })
       .pipe(
         finalize(() => this.loading.set(false)),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
-        next: (users) => this.users.set(users),
+        next: (result) => {
+          this.users.set(result.content);
+          this.totalElements.set(result.totalElements);
+          this.totalPages.set(result.totalPages);
+        },
         error: () =>
           this.errorMessage.set('Não foi possível carregar os usuários. Tente novamente.'),
       });
@@ -56,37 +87,30 @@ export class UsersComponent implements OnInit {
 
   onSearch(event: Event): void {
     const input = event.target as HTMLInputElement;
-    this.searchTerm = input.value;
+    this.searchInput$.next(input.value);
   }
 
   onProfileChange(event: Event): void {
     const select = event.target as HTMLSelectElement;
     this.selectedProfile = select.value;
+    this.page.set(0);
+    this.loadUsers();
   }
 
   onStatusChange(event: Event): void {
     const select = event.target as HTMLSelectElement;
     this.selectedStatus = select.value;
+    this.page.set(0);
+    this.loadUsers();
+  }
+
+  onPageChange(page: number): void {
+    this.page.set(page);
+    this.loadUsers();
   }
 
   profileLabel(accessType: AccessType): string {
     return ACCESS_TYPE_LABELS[accessType];
-  }
-
-  get filteredUsers(): User[] {
-    const search = this.searchTerm.toLowerCase().trim();
-
-    return this.users().filter((user) => {
-      const matchesSearch =
-        user.fullName.toLowerCase().includes(search) || user.email.toLowerCase().includes(search);
-
-      const matchesProfile = !this.selectedProfile || user.accessType === this.selectedProfile;
-
-      const matchesStatus =
-        !this.selectedStatus || (this.selectedStatus === 'Active') === user.active;
-
-      return matchesSearch && matchesProfile && matchesStatus;
-    });
   }
 
   requestDeactivation(user: User): void {
@@ -117,10 +141,8 @@ export class UsersComponent implements OnInit {
       )
       .subscribe({
         next: () => {
-          this.users.update((users) =>
-            users.map((u) => (u.id === user.id ? { ...u, active: false } : u)),
-          );
           this.userPendingDeactivation.set(null);
+          this.loadUsers();
         },
         error: () => {
           this.errorMessage.set('Não foi possível desativar o usuário. Tente novamente.');

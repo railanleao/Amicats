@@ -1,8 +1,8 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { Subject, throwError } from 'rxjs';
 
-import { User } from '../../models/user.model';
+import { PagedResult, User, UserSearchParams } from '../../models/user.model';
 import { UserService } from '../../services/resources/user.service';
 import { UsersComponent } from './users.component';
 
@@ -40,9 +40,13 @@ describe('UsersComponent (unit)', () => {
     ];
   }
 
+  function pagedResult(content: User[], page = 0, totalPages = 1): PagedResult<User> {
+    return { content, page, size: 20, totalElements: content.length, totalPages };
+  }
+
   beforeEach(async () => {
     userServiceSpy = jasmine.createSpyObj<UserService>('UserService', ['list', 'deactivate']);
-    userServiceSpy.list.and.returnValue(new Subject<User[]>());
+    userServiceSpy.list.and.returnValue(new Subject<PagedResult<User>>());
 
     await TestBed.configureTestingModule({
       imports: [UsersComponent],
@@ -54,17 +58,29 @@ describe('UsersComponent (unit)', () => {
     fixture.detectChanges();
   });
 
-  it('loads the user list on init', () => {
-    expect(userServiceSpy.list).toHaveBeenCalled();
+  function latestListSubject(): Subject<PagedResult<User>> {
+    return userServiceSpy.list.calls.mostRecent().returnValue as Subject<PagedResult<User>>;
+  }
+
+  it('loads the user list on init with the default page and size', () => {
+    expect(userServiceSpy.list).toHaveBeenCalledWith({
+      search: undefined,
+      accessType: undefined,
+      active: undefined,
+      page: 0,
+      size: component.pageSize,
+    } as UserSearchParams);
   });
 
-  it('populates the list once the request resolves', () => {
-    const subject = userServiceSpy.list.calls.mostRecent().returnValue as Subject<User[]>;
+  it('populates the list, total elements and total pages once the request resolves', () => {
+    const subject = latestListSubject();
 
-    subject.next(mockUsers());
+    subject.next(pagedResult(mockUsers(), 0, 3));
     subject.complete();
 
     expect(component.users()).toEqual(mockUsers());
+    expect(component.totalElements()).toBe(mockUsers().length);
+    expect(component.totalPages()).toBe(3);
     expect(component.loading()).toBeFalse();
   });
 
@@ -76,14 +92,48 @@ describe('UsersComponent (unit)', () => {
     expect(component.errorMessage()).toBe('Não foi possível carregar os usuários. Tente novamente.');
   });
 
-  it('filters the users by search term across name and email', () => {
-    const subject = userServiceSpy.list.calls.mostRecent().returnValue as Subject<User[]>;
-    subject.next(mockUsers());
-    subject.complete();
+  it('debounces search input and requests page zero with the typed term', fakeAsync(() => {
+    userServiceSpy.list.calls.reset();
 
-    component.searchTerm = 'carla';
+    component.onSearch({ target: { value: 'carla' } } as unknown as Event);
+    tick(299);
+    expect(userServiceSpy.list).not.toHaveBeenCalled();
 
-    expect(component.filteredUsers).toEqual([mockUsers()[1]]);
+    tick(1);
+    expect(userServiceSpy.list).toHaveBeenCalledWith(
+      jasmine.objectContaining({ search: 'carla', page: 0 }),
+    );
+  }));
+
+  it('resets to page zero and reloads when the profile filter changes', () => {
+    component.onPageChange(2);
+    userServiceSpy.list.calls.reset();
+
+    component.onProfileChange({ target: { value: 'Veterinarian' } } as unknown as Event);
+
+    expect(userServiceSpy.list).toHaveBeenCalledWith(
+      jasmine.objectContaining({ accessType: 'Veterinarian', page: 0 }),
+    );
+  });
+
+  it('resets to page zero and reloads when the status filter changes', () => {
+    component.onPageChange(2);
+    userServiceSpy.list.calls.reset();
+
+    component.onStatusChange({ target: { value: 'Active' } } as unknown as Event);
+
+    expect(userServiceSpy.list).toHaveBeenCalledWith(
+      jasmine.objectContaining({ active: true, page: 0 }),
+    );
+  });
+
+  it('requests the given page when the pagination component emits a page change', () => {
+    userServiceSpy.list.calls.reset();
+
+    component.onPageChange(1);
+
+    expect(component.page()).toBe(1);
+    expect(userServiceSpy.list).toHaveBeenCalledWith(jasmine.objectContaining({ page: 1 }));
   });
 
   it('does not open the confirmation dialog for an already inactive user', () => {
@@ -108,12 +158,14 @@ describe('UsersComponent (unit)', () => {
     expect(userServiceSpy.deactivate).not.toHaveBeenCalled();
   });
 
-  it('deactivates the user, updates the local state and closes the dialog on confirmation', () => {
-    const subject = userServiceSpy.list.calls.mostRecent().returnValue as Subject<User[]>;
-    subject.next(mockUsers());
-    subject.complete();
+  it('deactivates the user, reloads the list and closes the dialog on confirmation', () => {
+    const listSubject = latestListSubject();
+    listSubject.next(pagedResult(mockUsers()));
+    listSubject.complete();
 
     userServiceSpy.deactivate.and.returnValue(new Subject<void>());
+    userServiceSpy.list.calls.reset();
+    userServiceSpy.list.and.returnValue(new Subject<PagedResult<User>>());
     const target = component.users()[0];
 
     component.requestDeactivation(target);
@@ -121,13 +173,13 @@ describe('UsersComponent (unit)', () => {
     (userServiceSpy.deactivate.calls.mostRecent().returnValue as Subject<void>).next();
 
     expect(userServiceSpy.deactivate).toHaveBeenCalledWith(target.id);
-    expect(component.users().find((u) => u.id === target.id)?.active).toBeFalse();
+    expect(userServiceSpy.list).toHaveBeenCalled();
     expect(component.userPendingDeactivation()).toBeNull();
   });
 
   it('shows an error message and closes the dialog when deactivation fails', () => {
-    const listSubject = userServiceSpy.list.calls.mostRecent().returnValue as Subject<User[]>;
-    listSubject.next(mockUsers());
+    const listSubject = latestListSubject();
+    listSubject.next(pagedResult(mockUsers()));
     listSubject.complete();
 
     userServiceSpy.deactivate.and.returnValue(throwError(() => new Error('server error')));

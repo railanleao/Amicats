@@ -2,7 +2,6 @@ package org.amicats.backend;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -29,7 +28,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 /**
  * Boots the whole Spring context on a real HTTP server to prove GET /users and PATCH /users/{id}
  * are actually reachable only by an Administrator and behave as the frontend expects — unit tests
- * of the use cases alone don't exercise SecurityConfig, JSON serialization, or routing.
+ * of the use cases alone don't exercise SecurityConfig, JSON serialization, routing, or the JPQL
+ * search query.
  */
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
@@ -56,12 +56,15 @@ class UserManagementFlowIntegrationTest {
 
   private String adminEmail;
   private String assistantEmail;
+  private String targetEmail;
+  private String targetNameToken;
 
   @BeforeEach
   void setUp() {
     adminEmail = "admin-" + UUID.randomUUID() + "@amicats.org.br";
     assistantEmail = "assistant-" + UUID.randomUUID() + "@amicats.org.br";
-    String targetEmail = "target-" + UUID.randomUUID() + "@amicats.org.br";
+    targetEmail = "target-" + UUID.randomUUID() + "@amicats.org.br";
+    targetNameToken = "Alvo" + UUID.randomUUID().toString().replace("-", "");
 
     adminUserId = seedReadyUser("Admin de Teste", AccessType.Administrator).getId();
     adminAuthId = seedAuth(adminUserId, adminEmail);
@@ -69,7 +72,7 @@ class UserManagementFlowIntegrationTest {
     assistantUserId = seedReadyUser("Assistente de Teste", AccessType.Assistant).getId();
     assistantAuthId = seedAuth(assistantUserId, assistantEmail);
 
-    targetUserId = seedReadyUser("Usuário Alvo", AccessType.Veterinarian).getId();
+    targetUserId = seedReadyUser(targetNameToken, AccessType.Veterinarian).getId();
     targetAuthId = seedAuth(targetUserId, targetEmail);
   }
 
@@ -99,9 +102,9 @@ class UserManagementFlowIntegrationTest {
   void anAdministratorCanListAndDeactivateAUser() throws Exception {
     String adminToken = loginAndGetToken(adminEmail);
 
-    HttpResponse<String> listResponse = get("/users", adminToken);
+    HttpResponse<String> listResponse = get("/users?search=" + targetNameToken, adminToken);
     assertThat(listResponse.statusCode()).isEqualTo(200);
-    List<Map<String, Object>> users = parseList(listResponse);
+    List<Map<String, Object>> users = contentOf(parsePage(listResponse));
     assertThat(users)
         .anySatisfy(
             user -> {
@@ -133,6 +136,83 @@ class UserManagementFlowIntegrationTest {
     HttpResponse<String> response = patch("/users/999999999", adminToken);
 
     assertThat(response.statusCode()).isEqualTo(404);
+  }
+
+  @Test
+  void searchMatchesByNameOrEmailSubstring() throws Exception {
+    String adminToken = loginAndGetToken(adminEmail);
+
+    List<Map<String, Object>> byName =
+        contentOf(parsePage(get("/users?search=" + targetNameToken, adminToken)));
+    assertThat(byName).extracting(user -> user.get("id")).containsExactly(targetUserId);
+
+    String emailToken = targetEmail.substring(0, targetEmail.indexOf('@'));
+    List<Map<String, Object>> byEmail =
+        contentOf(parsePage(get("/users?search=" + emailToken, adminToken)));
+    assertThat(byEmail).extracting(user -> user.get("id")).containsExactly(targetUserId);
+  }
+
+  @Test
+  void filtersByAccessTypeAndActiveStatus() throws Exception {
+    String adminToken = loginAndGetToken(adminEmail);
+
+    List<Map<String, Object>> matchingType =
+        contentOf(
+            parsePage(
+                get("/users?search=" + targetNameToken + "&accessType=Veterinarian", adminToken)));
+    assertThat(matchingType).hasSize(1);
+
+    List<Map<String, Object>> nonMatchingType =
+        contentOf(
+            parsePage(
+                get("/users?search=" + targetNameToken + "&accessType=Administrator", adminToken)));
+    assertThat(nonMatchingType).isEmpty();
+
+    patch("/users/" + targetUserId, adminToken);
+
+    List<Map<String, Object>> activeOnly =
+        contentOf(parsePage(get("/users?search=" + targetNameToken + "&active=true", adminToken)));
+    assertThat(activeOnly).isEmpty();
+
+    List<Map<String, Object>> inactiveOnly =
+        contentOf(parsePage(get("/users?search=" + targetNameToken + "&active=false", adminToken)));
+    assertThat(inactiveOnly).extracting(user -> user.get("id")).containsExactly(targetUserId);
+  }
+
+  @Test
+  void paginatesResultsAcrossPages() throws Exception {
+    String adminToken = loginAndGetToken(adminEmail);
+    String pageToken = "Pag" + UUID.randomUUID().toString().replace("-", "");
+
+    User first = seedReadyUser(pageToken + "A", AccessType.Viewer);
+    Integer firstAuthId = seedAuth(first.getId(), "pag-a-" + UUID.randomUUID() + "@amicats.org.br");
+    User second = seedReadyUser(pageToken + "B", AccessType.Viewer);
+    Integer secondAuthId =
+        seedAuth(second.getId(), "pag-b-" + UUID.randomUUID() + "@amicats.org.br");
+
+    try {
+      Map<String, Object> firstPage =
+          parsePage(get("/users?search=" + pageToken + "&page=0&size=1", adminToken));
+      assertThat(contentOf(firstPage)).hasSize(1);
+      assertThat(firstPage.get("totalElements")).isEqualTo(2);
+      assertThat(firstPage.get("totalPages")).isEqualTo(2);
+      assertThat(firstPage.get("page")).isEqualTo(0);
+      assertThat(firstPage.get("size")).isEqualTo(1);
+
+      Map<String, Object> secondPage =
+          parsePage(get("/users?search=" + pageToken + "&page=1&size=1", adminToken));
+      assertThat(contentOf(secondPage)).hasSize(1);
+
+      Object firstPageUserId = contentOf(firstPage).get(0).get("id");
+      Object secondPageUserId = contentOf(secondPage).get(0).get("id");
+      assertThat(List.of(firstPageUserId, secondPageUserId))
+          .containsExactlyInAnyOrder(first.getId(), second.getId());
+    } finally {
+      userAuthRepository.deleteById(firstAuthId);
+      userRepository.deleteById(first.getId());
+      userAuthRepository.deleteById(secondAuthId);
+      userRepository.deleteById(second.getId());
+    }
   }
 
   private String loginAndGetToken(String email) throws Exception {
@@ -177,7 +257,12 @@ class UserManagementFlowIntegrationTest {
     return objectMapper.readValue(response.body(), Map.class);
   }
 
-  private List<Map<String, Object>> parseList(HttpResponse<String> response) throws Exception {
-    return objectMapper.readValue(response.body(), new TypeReference<>() {});
+  private Map<String, Object> parsePage(HttpResponse<String> response) throws Exception {
+    return parse(response);
+  }
+
+  @SuppressWarnings("unchecked")
+  private List<Map<String, Object>> contentOf(Map<String, Object> page) {
+    return (List<Map<String, Object>>) page.get("content");
   }
 }

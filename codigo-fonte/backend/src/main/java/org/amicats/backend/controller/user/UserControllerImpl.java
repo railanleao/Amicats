@@ -1,13 +1,15 @@
 package org.amicats.backend.controller.user;
 
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.amicats.backend.application.factory.user.CreateUserFactory;
 import org.amicats.backend.application.factory.user.DeactivateUserFactory;
 import org.amicats.backend.application.factory.user.ReadUserFactory;
 import org.amicats.backend.application.factory.user.UpdateUserFactory;
+import org.amicats.backend.domain.enums.AccessType;
+import org.amicats.backend.domain.usecase.common.PagedResult;
 import org.amicats.backend.domain.usecase.user.create.CreateUserInput;
 import org.amicats.backend.domain.usecase.user.read.ReadUserOutput;
+import org.amicats.backend.domain.usecase.user.read.UserSearchCriteria;
 import org.amicats.backend.domain.usecase.user.update.UpdateUserInput;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,8 +26,10 @@ public class UserControllerImpl implements UserController {
 
   @Override
   @PreAuthorize("hasRole('Administrator')")
-  public List<ReadUserOutput> list() {
-    return readUserFactory.create().findAll();
+  public PagedResult<ReadUserOutput> list(
+      String search, AccessType accessType, Boolean active, int page, int size) {
+    UserSearchCriteria criteria = new UserSearchCriteria(search, accessType, active, page, size);
+    return readUserFactory.create().search(criteria);
   }
 
   @Override

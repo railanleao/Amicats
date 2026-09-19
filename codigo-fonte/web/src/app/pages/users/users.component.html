@@ -33,27 +33,52 @@
           <div class="filter-field">
             <label for="profile">Função</label>
 
-            <select
-              id="profile"
-              (change)="onProfileChange($event)"
-            >
-              <option value="">Todas as funções</option>
-              <option value="Administrator">Administrador</option>
-              <option value="Veterinarian">Veterinário</option>
-              <option value="Assistant">Assistente</option>
-              <option value="Viewer">Visualizador</option>
-            </select>
+            <div class="select-wrapper">
+              <select
+                id="profile"
+                (change)="onProfileChange($event)"
+              >
+                <option value="">Todas as funções</option>
+                <option value="Administrator">Administrador</option>
+                <option value="Veterinarian">Veterinário</option>
+                <option value="Assistant">Assistente</option>
+                <option value="Viewer">Visualizador</option>
+              </select>
+              <svg class="select-chevron" width="12" height="12" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M4 7l5 5 5-5"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </div>
           </div>
           <div class="filter-field">
             <label for="status">Status</label>
-            <select
-              id="status"
-              (change)="onStatusChange($event)"
-            >
-              <option value="">Todos os status</option>
-              <option value="Active">Ativo</option>
-              <option value="Inactive">Inativo</option>
-            </select>
+
+            <div class="select-wrapper">
+              <select
+                id="status"
+                (change)="onStatusChange($event)"
+              >
+                <option value="">Todos os status</option>
+                <option value="Active">Ativo</option>
+                <option value="Inactive">Inativo</option>
+              </select>
+              <svg class="select-chevron" width="12" height="12" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M4 7l5 5 5-5"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </div>
           </div>
         </div>
       }
@@ -76,7 +101,7 @@
           <span>STATUS</span>
         </div>
         <div class="users-list">
-          @for (user of filteredUsers; track user.id) {
+          @for (user of users(); track user.id) {
             <div
               class="user-row"
               [class.inactive-row]="!user.active"
@@ -145,6 +170,15 @@
             <div class="feedback">Nenhum usuário encontrado.</div>
           }
         </div>
+
+        <app-pagination
+          [page]="page()"
+          [size]="pageSize"
+          [totalPages]="totalPages()"
+          [totalElements]="totalElements()"
+          itemLabel="usuários"
+          (pageChange)="onPageChange($event)"
+        />
       }
   </section>
 
