@@ -1048,6 +1048,449 @@ Nenhum usuário é excluído fisicamente (RNF-005). Para repetir os testes, cria
   </tr>
 </table>
 
+## ETAPA 2
+
+### RF-001 — Autenticação e Recuperação de Senha
+
+<table>
+  <tr>
+    <th colspan="2" width="1000">CT-001 - S<br>Login com credenciais válidas</th>
+  </tr>
+  <tr>
+    <td width="150"><strong>Descrição</strong></td>
+    <td>Este caso de teste verifica se um usuário cadastrado e ativo consegue realizar login utilizando e-mail e senha válidos.</td>
+  </tr>
+  <tr>
+    <td><strong>Responsável Caso de Teste</strong></td>
+    <td width="430">Railan Leão</td>
+  </tr>
+  <tr>
+    <td><strong>Tipo do Teste</strong></td>
+    <td width="430">Sucesso</td>
+  </tr>
+  <tr>
+    <td><strong>Requisitos associados</strong></td>
+    <td>RF-001: Permitir autenticação de usuários por login e senha.</td>
+  </tr>
+  <tr>
+    <td><strong>Passos</strong></td>
+    <td>
+      1. Acessar a página de login.<br>
+      2. Informar um e-mail cadastrado.<br>
+      3. Informar a senha correta.<br>
+      4. Clicar no botão "Entrar".
+    </td>
+  </tr>
+  <tr>
+    <td><strong>Dados de teste</strong></td>
+    <td>
+      - <strong>E-mail:</strong> Usuário previamente cadastrado e ativo.<br>
+      - <strong>Senha:</strong> Senha válida correspondente ao usuário.
+    </td>
+  </tr>
+  <tr>
+    <td><strong>Critérios de êito</strong></td>
+    <td>O sistema deve autenticar o usuário, gerar um token de acesso e permitir o acesso às funcionalidades correspondentes ao seu perfil.</td>
+  </tr>
+</table>
+
+<br>
+
+<table>
+  <tr>
+    <th colspan="2" width="1000">CT-001 - I01<br>Login com senha incorreta</th>
+  </tr>
+  <tr>
+    <td width="150"><strong>Descrição</strong></td>
+    <td>Este caso de teste verifica se o sistema impede a autenticação quando um usuário cadastrado informa uma senha incorreta.</td>
+  </tr>
+  <tr>
+    <td><strong>Responsável Caso de Teste</strong></td>
+    <td width="430">Railan Leão</td>
+  </tr>
+  <tr>
+    <td><strong>Tipo do Teste</strong></td>
+    <td width="430">Insucesso</td>
+  </tr>
+  <tr>
+    <td><strong>Requisitos associados</strong></td>
+    <td>RF-001: Permitir autenticação de usuários por login e senha.</td>
+  </tr>
+  <tr>
+    <td><strong>Passos</strong></td>
+    <td>
+      1. Acessar a página de login.<br>
+      2. Informar um e-mail cadastrado.<br>
+      3. Informar uma senha incorreta.<br>
+      4. Clicar no botão "Entrar".
+    </td>
+  </tr>
+  <tr>
+    <td><strong>Dados de teste</strong></td>
+    <td>
+      - <strong>E-mail:</strong> Usuário cadastrado e ativo.<br>
+      - <strong>Senha:</strong> Senha diferente da cadastrada.
+    </td>
+  </tr>
+  <tr>
+    <td><strong>Critérios de êxito</strong></td>
+    <td>O sistema não deve autenticar o usuário nem gerar um token de acesso e deve informar que as credenciais são inválidas.</td>
+  </tr>
+</table>
+
+<br>
+
+<table>
+  <tr>
+    <th colspan="2" width="1000">CT-001 - I02<br>Login com usuário inexistente</th>
+  </tr>
+  <tr>
+    <td width="150"><strong>Descrição</strong></td>
+    <td>Este caso de teste verifica o comportamento do sistema quando é informado um e-mail que não pertence a nenhum usuário cadastrado.</td>
+  </tr>
+  <tr>
+    <td><strong>Responsável Caso de Teste</strong></td>
+    <td width="430">Railan Leão</td>
+  </tr>
+  <tr>
+    <td><strong>Tipo do Teste</strong></td>
+    <td width="430">Insucesso</td>
+  </tr>
+  <tr>
+    <td><strong>Requisitos associados</strong></td>
+    <td>RF-001: Permitir autenticação de usuários por login e senha.</td>
+  </tr>
+  <tr>
+    <td><strong>Passos</strong></td>
+    <td>
+      1. Acessar a página de login.<br>
+      2. Informar um e-mail não cadastrado.<br>
+      3. Informar uma senha.<br>
+      4. Clicar no botão "Entrar".
+    </td>
+  </tr>
+  <tr>
+    <td><strong>Dados de teste</strong></td>
+    <td>
+      - <strong>E-mail:</strong> E-mail não cadastrado na base.<br>
+      - <strong>Senha:</strong> Qualquer senha válida quanto ao formato.
+    </td>
+  </tr>
+  <tr>
+    <td><strong>Critérios de êxito</strong></td>
+    <td>O sistema deve rejeitar a autenticação e apresentar uma mensagem de credenciais inválidas, sem permitir acesso ao sistema.</td>
+  </tr>
+</table>
+
+<br>
+
+<table>
+  <tr>
+    <th colspan="2" width="1000">CT-001 - I03<br>Login com usuário inativo</th>
+  </tr>
+  <tr>
+    <td width="150"><strong>Descrição</strong></td>
+    <td>Este caso de teste verifica se um usuário inativado é impedido de acessar o sistema mesmo utilizando e-mail e senha corretos.</td>
+  </tr>
+  <tr>
+    <td><strong>Responsável Caso de Teste</strong></td>
+    <td width="430">Railan Leão</td>
+  </tr>
+  <tr>
+    <td><strong>Tipo do Teste</strong></td>
+    <td width="430">Insucesso</td>
+  </tr>
+  <tr>
+    <td><strong>Requisitos associados</strong></td>
+    <td>RF-001: Permitir autenticação somente de usuários autorizados.</td>
+  </tr>
+  <tr>
+    <td><strong>Passos</strong></td>
+    <td>
+      1. Possuir um usuário previamente cadastrado e inativado.<br>
+      2. Acessar a página de login.<br>
+      3. Informar o e-mail do usuário inativo.<br>
+      4. Informar a senha correta.<br>
+      5. Clicar no botão "Entrar".
+    </td>
+  </tr>
+  <tr>
+    <td><strong>Dados de teste</strong></td>
+    <td>
+      - <strong>E-mail:</strong> Usuário cadastrado e inativo.<br>
+      - <strong>Senha:</strong> Senha correta do usuário.
+    </td>
+  </tr>
+  <tr>
+    <td><strong>Critérios de êxito</strong></td>
+    <td>O sistema deve impedir a autenticação do usuário inativo e não deve gerar um token de acesso.</td>
+  </tr>
+</table>
+
+<br>
+
+<table>
+  <tr>
+    <th colspan="2" width="1000">CT-001 - I04<br>Login com e-mail em formato inválido</th>
+  </tr>
+  <tr>
+    <td width="150"><strong>Descrição</strong></td>
+    <td>Este caso de teste verifica se o sistema valida corretamente o formato do e-mail informado durante o login.</td>
+  </tr>
+  <tr>
+    <td><strong>Responsável Caso de Teste</strong></td>
+    <td width="430">Railan Leão</td>
+  </tr>
+  <tr>
+    <td><strong>Tipo do Teste</strong></td>
+    <td width="430">Insucesso</td>
+  </tr>
+  <tr>
+    <td><strong>Requisitos associados</strong></td>
+    <td>RF-001: Permitir autenticação de usuários por login e senha.</td>
+  </tr>
+  <tr>
+    <td><strong>Passos</strong></td>
+    <td>
+      1. Acessar a página de login.<br>
+      2. Informar um e-mail em formato inválido.<br>
+      3. Informar uma senha.<br>
+      4. Tentar realizar o login.
+    </td>
+  </tr>
+  <tr>
+    <td><strong>Dados de teste</strong></td>
+    <td>
+      - <strong>E-mail:</strong> usuario-email-invalido<br>
+      - <strong>Senha:</strong> Senha válida quanto ao formato.
+    </td>
+  </tr>
+  <tr>
+    <td><strong>Critérios de êxito</strong></td>
+    <td>O sistema deve impedir o processamento do login e informar que o e-mail possui formato inválido.</td>
+  </tr>
+</table>
+
+<br>
+
+<table>
+  <tr>
+    <th colspan="2" width="1000">CT-001 - I05<br>Login com campos obrigatórios vazios</th>
+  </tr>
+  <tr>
+    <td width="150"><strong>Descrição</strong></td>
+    <td>Este caso de teste verifica se o sistema impede a autenticação quando os campos obrigatórios do login não são preenchidos.</td>
+  </tr>
+  <tr>
+    <td><strong>Responsável Caso de Teste</strong></td>
+    <td width="430">Railan Leão</td>
+  </tr>
+  <tr>
+    <td><strong>Tipo do Teste</strong></td>
+    <td width="430">Insucesso</td>
+  </tr>
+  <tr>
+    <td><strong>Requisitos associados</strong></td>
+    <td>RF-001: Permitir autenticação de usuários por login e senha.</td>
+  </tr>
+  <tr>
+    <td><strong>Passos</strong></td>
+    <td>
+      1. Acessar a página de login.<br>
+      2. Manter o campo de e-mail e/ou senha vazio.<br>
+      3. Clicar no botão "Entrar".
+    </td>
+  </tr>
+  <tr>
+    <td><strong>Dados de teste</strong></td>
+    <td>
+      - <strong>E-mail:</strong> Vazio.<br>
+      - <strong>Senha:</strong> Vazia.
+    </td>
+  </tr>
+  <tr>
+    <td><strong>Critérios de êxito</strong></td>
+    <td>O sistema deve impedir o login e indicar que os campos obrigatórios devem ser preenchidos.</td>
+  </tr>
+</table>
+
+<br>
+
+<table>
+  <tr>
+    <th colspan="2" width="1000">CT-002 - S<br>Solicitação de recuperação de senha</th>
+  </tr>
+  <tr>
+    <td width="150"><strong>Descrição</strong></td>
+    <td>Este caso de teste verifica se um usuário cadastrado consegue solicitar a recuperação de sua senha por e-mail.</td>
+  </tr>
+  <tr>
+    <td><strong>Responsável Caso de Teste</strong></td>
+    <td width="430">Railan Leão</td>
+  </tr>
+  <tr>
+    <td><strong>Tipo do Teste</strong></td>
+    <td width="430">Sucesso</td>
+  </tr>
+  <tr>
+    <td><strong>Requisitos associados</strong></td>
+    <td>RF-001: Permitir recuperação de senha por e-mail.</td>
+  </tr>
+  <tr>
+    <td><strong>Passos</strong></td>
+    <td>
+      1. Acessar a página de login.<br>
+      2. Selecionar a opção "Esqueci minha senha".<br>
+      3. Informar um e-mail cadastrado.<br>
+      4. Solicitar a recuperação da senha.<br>
+      5. Verificar o recebimento das instruções de recuperação.
+    </td>
+  </tr>
+  <tr>
+    <td><strong>Dados de teste</strong></td>
+    <td>
+      - <strong>E-mail:</strong> Usuário previamente cadastrado e ativo.
+    </td>
+  </tr>
+  <tr>
+    <td><strong>Critérios de êxito</strong></td>
+    <td>O sistema deve processar a solicitação e disponibilizar ao usuário cadastrado o mecanismo definido para redefinição da senha por e-mail.</td>
+  </tr>
+</table>
+
+<br>
+
+<table>
+  <tr>
+    <th colspan="2" width="1000">CT-002 - I01<br>Recuperação de senha com e-mail inválido</th>
+  </tr>
+  <tr>
+    <td width="150"><strong>Descrição</strong></td>
+    <td>Este caso de teste verifica o tratamento de uma solicitação de recuperação de senha utilizando um e-mail em formato inválido.</td>
+  </tr>
+  <tr>
+    <td><strong>Responsável Caso de Teste</strong></td>
+    <td width="430">Railan Leão</td>
+  </tr>
+  <tr>
+    <td><strong>Tipo do Teste</strong></td>
+    <td width="430">Insucesso</td>
+  </tr>
+  <tr>
+    <td><strong>Requisitos associados</strong></td>
+    <td>RF-001: Permitir recuperação de senha por e-mail.</td>
+  </tr>
+  <tr>
+    <td><strong>Passos</strong></td>
+    <td>
+      1. Acessar a página de login.<br>
+      2. Selecionar a opção "Esqueci minha senha".<br>
+      3. Informar um e-mail em formato inválido.<br>
+      4. Solicitar a recuperação da senha.
+    </td>
+  </tr>
+  <tr>
+    <td><strong>Dados de teste</strong></td>
+    <td>
+      - <strong>E-mail:</strong> email-invalido
+    </td>
+  </tr>
+  <tr>
+    <td><strong>Critérios de êxito</strong></td>
+    <td>O sistema deve rejeitar a solicitação e informar que o endereço de e-mail possui formato inválido.</td>
+  </tr>
+</table>
+
+<br>
+
+<table>
+  <tr>
+    <th colspan="2" width="1000">CT-003 - S<br>Redefinição de senha pelo Administrador</th>
+  </tr>
+  <tr>
+    <td width="150"><strong>Descrição</strong></td>
+    <td>Este caso de teste verifica se um usuário com perfil de Administrador consegue redefinir a senha de outro usuário.</td>
+  </tr>
+  <tr>
+    <td><strong>Responsável Caso de Teste</strong></td>
+    <td width="430">Railan Leão</td>
+  </tr>
+  <tr>
+    <td><strong>Tipo do Teste</strong></td>
+    <td width="430">Sucesso</td>
+  </tr>
+  <tr>
+    <td><strong>Requisitos associados</strong></td>
+    <td>RF-001: Permitir redefinição de senha pelo Administrador.</td>
+  </tr>
+  <tr>
+    <td><strong>Passos</strong></td>
+    <td>
+      1. Autenticar-se com um usuário Administrador.<br>
+      2. Acessar a gestão de usuários.<br>
+      3. Localizar o usuário desejado.<br>
+      4. Selecionar a opção de redefinição de senha.<br>
+      5. Confirmar a operação.<br>
+      6. Realizar login utilizando a nova senha.
+    </td>
+  </tr>
+  <tr>
+    <td><strong>Dados de teste</strong></td>
+    <td>
+      - <strong>Administrador:</strong> Usuário ativo com perfil Administrador.<br>
+      - <strong>Usuário:</strong> Usuário previamente cadastrado.<br>
+      - <strong>Nova senha:</strong> Senha válida conforme as regras do sistema.
+    </td>
+  </tr>
+  <tr>
+    <td><strong>Critérios de êxito</strong></td>
+    <td>O sistema deve atualizar a senha do usuário e permitir sua autenticação com a nova credencial, respeitando a regra de alteração obrigatória da senha quando aplicável.</td>
+  </tr>
+</table>
+
+<br>
+
+<table>
+  <tr>
+    <th colspan="2" width="1000">CT-003 - I01<br>Redefinição de senha sem permissão de Administrador</th>
+  </tr>
+  <tr>
+    <td width="150"><strong>Descrição</strong></td>
+    <td>Este caso de teste verifica se um usuário sem perfil de Administrador é impedido de redefinir a senha de outro usuário.</td>
+  </tr>
+  <tr>
+    <td><strong>Responsável Caso de Teste</strong></td>
+    <td width="430">Railan Leão</td>
+  </tr>
+  <tr>
+    <td><strong>Tipo do Teste</strong></td>
+    <td width="430">Insucesso</td>
+  </tr>
+  <tr>
+    <td><strong>Requisitos associados</strong></td>
+    <td>RF-001: Permitir redefinição de senha somente pelo Administrador.</td>
+  </tr>
+  <tr>
+    <td><strong>Passos</strong></td>
+    <td>
+      1. Autenticar-se com um usuário sem perfil de Administrador.<br>
+      2. Tentar acessar a funcionalidade de redefinição de senha de outro usuário.<br>
+      3. Tentar executar a operação.
+    </td>
+  </tr>
+  <tr>
+    <td><strong>Dados de teste</strong></td>
+    <td>
+      - <strong>Usuário autenticado:</strong> Usuário com perfil diferente de Administrador.<br>
+      - <strong>Usuário alvo:</strong> Usuário previamente cadastrado.
+    </td>
+  </tr>
+  <tr>
+    <td><strong>Critérios de êxito</strong></td>
+    <td>O sistema deve impedir a operação e manter a senha do usuário alvo inalterada.</td>
+  </tr>
+</table>
+
 ### ETAPA 3
 Criar casos de teste da etapa 3
 
