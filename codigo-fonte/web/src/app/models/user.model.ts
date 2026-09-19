@@ -18,6 +18,7 @@ export interface User {
   ufCrmv: string | null;
   active: boolean;
   createdAt: string;
+  lastLoginAt?: string | null;
 }
 
 export interface UserSearchParams {
@@ -34,4 +35,22 @@ export interface PagedResult<T> {
   size: number;
   totalElements: number;
   totalPages: number;
+}
+
+
+export interface CreateUserRequest {
+  fullName: string;
+  email: string;
+  phoneNumber: string | null;
+  accessType: AccessType;
+  crmv: string | null;
+  ufCrmv: string | null;
+}
+
+export interface UpdateUserRequest {
+  fullName: string;
+  phoneNumber: string | null;
+  accessType: AccessType;
+  crmv: string | null;
+  ufCrmv: string | null;
 }

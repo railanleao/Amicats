@@ -1,0 +1,104 @@
+<div class="page">
+  <header class="page-header">
+    <a routerLink="/users" class="page-header__back" aria-label="Voltar para usuários">‹</a>
+    <a routerLink="/users" class="page-header__crumb">Usuários</a>
+    <span class="page-header__separator">/</span>
+    <h1>{{ title }}</h1>
+  </header>
+
+  @if (loading()) {
+    <p class="feedback">Carregando usuário...</p>
+  } @else if (loadError()) {
+    <div class="feedback feedback--error" role="alert">
+      {{ loadError() }}
+      <a routerLink="/users">Voltar para a lista</a>
+    </div>
+  } @else {
+    <form class="form-card" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+      <div class="avatar" aria-hidden="true">{{ initials }}</div>
+
+      @if (saveError()) {
+        <div class="feedback feedback--error" role="alert">{{ saveError() }}</div>
+      }
+
+      <app-text-field
+        inputId="fullName"
+        label="Nome completo"
+        autocomplete="name"
+        [control]="form.controls.fullName"
+        [errorMessages]="errors.fullName"
+      />
+
+      <div class="form-row">
+        <app-text-field
+          inputId="email"
+          label="E-mail"
+          type="email"
+          autocomplete="off"
+          [readonly]="isEditing"
+          [control]="form.controls.email"
+          [errorMessages]="errors.email"
+        />
+        <app-text-field
+          inputId="phoneNumber"
+          label="Telefone"
+          autocomplete="tel"
+          [control]="form.controls.phoneNumber"
+          [errorMessages]="errors.phoneNumber"
+        />
+      </div>
+
+      <div class="form-row">
+        <div class="select-field">
+          <label for="accessType">Tipo de acesso</label>
+          <select
+            id="accessType"
+            [formControl]="form.controls.accessType"
+            [class.select-field__input--invalid]="
+              form.controls.accessType.invalid && form.controls.accessType.touched
+            "
+          >
+            <option value="" disabled>Selecione...</option>
+            @for (option of accessTypeOptions; track option.value) {
+              <option [value]="option.value">{{ option.label }}</option>
+            }
+          </select>
+          @if (isSelf) {
+            <span class="field-hint">Você não pode alterar o seu próprio tipo de acesso.</span>
+          }
+          @if (form.controls.accessType.invalid && form.controls.accessType.touched) {
+            <span class="field-error">Selecione o tipo de acesso.</span>
+          }
+        </div>
+
+        @if (showCrmv) {
+          <div class="crmv-row">
+            <app-text-field
+              inputId="crmv"
+              label="CRMV"
+              [control]="form.controls.crmv"
+              [errorMessages]="errors.crmv"
+            />
+            <app-text-field
+              inputId="ufCrmv"
+              label="UF"
+              [control]="form.controls.ufCrmv"
+              [errorMessages]="errors.ufCrmv"
+            />
+          </div>
+        }
+      </div>
+
+      <div class="form-actions">
+        <a routerLink="/users" class="cancel-button">Cancelar</a>
+        <div class="form-actions__submit">
+          <app-submit-button
+            [label]="submitLabel"
+            loadingLabel="Salvando..."
+            [loading]="saving()"
+          />
+        </div>
+      </div>
+    </form>
+  }
+</div>

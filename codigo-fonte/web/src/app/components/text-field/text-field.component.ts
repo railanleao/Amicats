@@ -13,6 +13,7 @@ export class TextFieldComponent {
   @Input({ required: true }) control!: FormControl<string>;
   @Input() type: 'text' | 'email' | 'password' = 'text';
   @Input() autocomplete = 'on';
+  @Input() readonly = false;
   @Input() errorMessages: Record<string, string> = {};
 
   private readonly passwordVisible = signal(false);

@@ -6,7 +6,12 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 
 import { environment } from '../../../environments/environment';
-import { PagedResult, User } from '../../models/user.model';
+import {
+  CreateUserRequest,
+  PagedResult,
+  UpdateUserRequest,
+  User,
+} from '../../models/user.model';
 import { apiUrlInterceptor } from '../http/api-url.interceptor';
 import { UserService } from './user.service';
 
@@ -112,5 +117,52 @@ describe('UserService (integration)', () => {
     request.flush(null, { status: 204, statusText: 'No Content' });
 
     expect(completed).toBeTrue();
+  });
+
+  it('fetches a single user by id', () => {
+    let received: User | undefined;
+    service.findById(1).subscribe((user) => (received = user));
+
+    const request = httpMock.expectOne(`${environment.apiUrl}/users/1`);
+    expect(request.request.method).toBe('GET');
+    request.flush(mockUser());
+
+    expect(received).toEqual(mockUser());
+  });
+
+  it('posts the payload to create a user', () => {
+    const payload: CreateUserRequest = {
+      fullName: 'Rafael Nogueira',
+      email: 'rafael@amicats.org.br',
+      phoneNumber: null,
+      accessType: 'Assistant',
+      crmv: null,
+      ufCrmv: null,
+    };
+    let received: User | undefined;
+    service.create(payload).subscribe((user) => (received = user));
+
+    const request = httpMock.expectOne(`${environment.apiUrl}/users`);
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual(payload);
+    request.flush(mockUser());
+
+    expect(received).toEqual(mockUser());
+  });
+
+  it('puts the payload to update a user', () => {
+    const payload: UpdateUserRequest = {
+      fullName: 'Marina A. Alves',
+      phoneNumber: '(31) 99999-0000',
+      accessType: 'Veterinarian',
+      crmv: '12345',
+      ufCrmv: 'MG',
+    };
+    service.update(7, payload).subscribe();
+
+    const request = httpMock.expectOne(`${environment.apiUrl}/users/7`);
+    expect(request.request.method).toBe('PUT');
+    expect(request.request.body).toEqual(payload);
+    request.flush(mockUser());
   });
 });
