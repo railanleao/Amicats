@@ -4,6 +4,7 @@ import {Subject, debounceTime, distinctUntilChanged, finalize} from 'rxjs';
 
 import {ConfirmDialogComponent} from '../../components/confirm-dialog/confirm-dialog.component';
 import {PaginationComponent} from '../../components/pagination/pagination.component';
+import { ToggleComponent } from '../../components/toggle/toggle.component';
 import {AccessType} from '../../models/auth.model';
 import {ACCESS_TYPE_LABELS, User} from '../../models/user.model';
 import {UserService} from '../../services/resources/user.service';
@@ -14,7 +15,7 @@ const SEARCH_DEBOUNCE_MS = 300;
 @Component({
   selector: 'app-users',
   standalone: true,
-  imports: [ConfirmDialogComponent, PaginationComponent],
+  imports: [ConfirmDialogComponent, PaginationComponent, ToggleComponent],
   templateUrl: './users.component.html',
   styleUrl: './users.component.css',
 })
@@ -113,6 +114,14 @@ export class UsersComponent implements OnInit, OnDestroy {
 
   profileLabel(accessType: AccessType): string {
     return ACCESS_TYPE_LABELS[accessType];
+  }
+
+  onToggleStatus(user: User): void {
+    if (user.active) {
+      this.requestDeactivation(user);
+    } else {
+      this.requestReactivation(user);
+    }
   }
 
   requestDeactivation(user: User): void {

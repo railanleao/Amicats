@@ -242,4 +242,18 @@ describe('UsersComponent (unit)', () => {
     expect(component.userPendingReactivation()).toBeNull();
     expect(component.activatingId()).toBeNull();
   });
+
+  it('asks for deactivation when the status toggle is used on an active user', () => {
+    component.onToggleStatus(mockUsers()[0]);
+
+    expect(component.userPendingDeactivation()).toEqual(mockUsers()[0]);
+    expect(component.userPendingReactivation()).toBeNull();
+  });
+
+  it('asks for reactivation when the status toggle is used on an inactive user', () => {
+    component.onToggleStatus(mockUsers()[1]);
+
+    expect(component.userPendingReactivation()).toEqual(mockUsers()[1]);
+    expect(component.userPendingDeactivation()).toBeNull();
+  });
 });

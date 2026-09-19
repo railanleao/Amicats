@@ -90,7 +90,7 @@
       </div>
     }
 
-    @if (loading()) {
+    @if (loading() && users().length === 0) {
       <div class="feedback">Carregando usuários...</div>
     } @else {
       <div class="table-header">
@@ -155,29 +155,13 @@
                 ✎
               </button>
 
-              @if (user.active) {
-                <button
-                  type="button"
-                  class="deactivate-button"
-                  title="Desativar usuário"
-                  [attr.aria-label]="'Desativar ' + user.fullName"
-                  [disabled]="deactivatingId() === user.id"
-                  (click)="requestDeactivation(user)"
-                >
-                  <span>−</span>
-                </button>
-              } @else {
-                <button
-                  type="button"
-                  class="deactivate-button reactivate-button"
-                  title="Reativar usuário"
-                  [attr.aria-label]="'Reativar ' + user.fullName"
-                  [disabled]="activatingId() === user.id"
-                  (click)="requestReactivation(user)"
-                >
-                  <span>+</span>
-                </button>
-              }
+              <app-toggle
+                [label]="'Status de ' + user.fullName"
+                [checked]="user.active"
+                [disabled]="deactivatingId() === user.id || activatingId() === user.id"
+                [hint]="user.active ? 'Desativar usuário' : 'Reativar usuário'"
+                (toggled)="onToggleStatus(user)"
+              />
             </div>
           </div>
         } @empty {

@@ -496,4 +496,8 @@ app-pagination {
       1fr
       0.8fr;
   }
+
+  .actions app-toggle {
+    margin-left: 8px;
+  }
 }
