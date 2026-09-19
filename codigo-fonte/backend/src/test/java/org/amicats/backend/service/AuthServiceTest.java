@@ -2,6 +2,9 @@ package org.amicats.backend.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
@@ -49,6 +52,12 @@ class AuthServiceTest {
     assertThat(response.termsAccepted()).isTrue();
     assertThat(response.mustChangePassword()).isTrue();
     assertThat(response.token()).isEqualTo("token");
+    verify(userAuthRepository)
+    .findByEmail("marina.alves@amicats.org.br");
+    verify(passwordEncoder)
+    .matches("senha-forte", "hash");
+    verify(jwtService)
+    .generateJwtToken(user, auth);
   }
 
   @Test
@@ -63,6 +72,9 @@ class AuthServiceTest {
     assertThatThrownBy(
             () -> authService.login(new LoginRequest("marina.alves@amicats.org.br", "errada")))
         .isInstanceOf(InvalidCredentialsException.class);
+
+    verify(jwtService, never())
+        .generateJwtToken(any(), any());
   }
 
   @Test
