@@ -1,0 +1,25 @@
+root = true
+
+[*]
+indent_size = 4
+indent_style = space
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+max_line_length = 140
+
+[*.java]
+indent_size = 2
+ij_java_class_count_to_use_import_on_demand = 999
+ij_java_names_count_to_use_import_on_demand = 999
+
+[*.{js,jsx,ts,tsx,vue,html,css,scss}]
+indent_size = 2
+quote_type = single
+
+[*.{yml,yaml,xml,json}]
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false

@@ -1,6 +1,6 @@
 # Web
 
-Painel web em Next.js, usado remotamente pela administração/coordenação e pelas clínicas parceiras, sempre com internet estável. Consome a API do [backend](../backend). Veja a arquitetura completa em [`documentos/02-Especificação do Projeto.md`](../../documentos/02-Especificação%20do%20Projeto.md).
+Painel web em Angular, usado remotamente pela administração/coordenação e pelas clínicas parceiras, sempre com internet estável. Consome a API do [backend](../backend). Veja a arquitetura completa em [`documentos/02-Especificação do Projeto.md`](../../documentos/02-Especificação%20do%20Projeto.md).
 
 ## Pré-requisitos
 
@@ -28,22 +28,25 @@ Acesse `http://localhost:3000`.
    ```
 2. Inicie o servidor de desenvolvimento:
    ```bash
-   npm run dev
+   npm start
    ```
-3. Acesse `http://localhost:3000`.
+3. Acesse `http://localhost:4200`.
+
+## URL da API
+
+O endereço do backend fica em `src/environments/environment.ts` (desenvolvimento) e `src/environments/environment.prod.ts` (build de produção, usado pelo Docker), na chave `apiUrl`. Por padrão aponta para `http://localhost:8080`, batendo com a porta padrão do [backend](../backend). Se você mudar `BACKEND_PORT` no `.env` da raiz, atualize `apiUrl` nesses arquivos antes de buildar a imagem — é uma SPA estática, então esse valor é fixado no build, não lido em tempo de execução do container.
 
 ## Build e testes
 
 ```bash
-npm run build   # build de produção
-npm start        # roda o build de produção gerado
-npm run lint     # checagem de lint
+npm run build   # build de produção (sai em dist/web/browser)
+npm test         # testes unitários (Karma + Jasmine)
 ```
 
 ## Lint e formatação
 
 ```bash
-npm run lint             # ESLint (eslint-config-next)
+npm run lint             # ESLint (angular-eslint)
 npx prettier --check .   # verifica formatação
 npx prettier --write .   # corrige formatação
 ```
@@ -52,17 +55,17 @@ O ESLint e o Prettier já rodam sozinhos no pre-commit do repositório, só nos 
 
 ## Estrutura de pastas
 
-Dentro de `src`:
+Dentro de `src/app`:
 
-| Pasta                | Conteúdo                                                                                                                           |
-| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `app`                | Rotas e páginas (App Router do Next.js)                                                                                            |
-| `components`         | Componentes de UI compartilhados entre páginas (botões, inputs, layout etc.)                                                       |
-| `presentations`      | Composição específica de cada página — monta a tela usando componentes de `components`, mantendo o arquivo de rota em `app` enxuto |
-| `services/http`      | Cliente HTTP — configuração base de acesso à API do [backend](../backend)                                                          |
-| `services/resources` | Um módulo por recurso da API (ex.: animais, salas, prontuários), consumindo o cliente de `services/http`                           |
-| `hooks`              | Hooks React customizados                                                                                                           |
-| `lib`                | Funções utilitárias que não têm relação com a API (formatação, constantes etc.)                                                    |
-| `types`              | Tipos e interfaces TypeScript compartilhados                                                                                       |
+| Pasta                | Conteúdo                                                                                                        |
+| -------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `pages`              | Componentes de rota — uma tela por pasta, ligados em `app.routes.ts`                                            |
+| `components`         | Componentes de UI compartilhados entre páginas (botões, inputs, layout etc.)                                    |
+| `services/http`      | Cliente HTTP — configuração base de acesso à API do [backend](../backend) (interceptors, `HttpClient` injetado) |
+| `services/resources` | Um serviço por recurso da API (ex.: animais, salas, prontuários), consumindo o cliente de `services/http`       |
+| `models`             | Tipos e interfaces TypeScript compartilhados                                                                    |
+| `lib`                | Funções utilitárias que não têm relação com a API (formatação, constantes etc.)                                 |
 
 Todas ainda estão vazias (só com um `.gitkeep`) — a estrutura existe para orientar onde cada novo arquivo deve entrar conforme as telas e a integração com o backend forem implementadas.
+
+Não existe uma pasta `hooks`: em Angular, lógica com estado reutilizável entre componentes vai em um serviço injetável (`services/`) em vez de um hook — é o equivalente idiomático mais próximo.

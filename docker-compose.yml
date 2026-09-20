@@ -23,11 +23,25 @@ services:
     container_name: amicats-backend
     restart: unless-stopped
     environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-dev}
       DB_HOST: postgres
       DB_PORT: 5432
       DB_NAME: ${DB_NAME:-amicats}
       DB_USER: ${DB_USER:-amicats}
       DB_PASSWORD: ${DB_PASSWORD:-amicats}
+      JWT_SECRET: ${JWT_SECRET}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:4200}
+      RATE_LIMIT_SENSITIVE_CAPACITY: ${RATE_LIMIT_SENSITIVE_CAPACITY:-5}
+      RATE_LIMIT_SENSITIVE_REFILL_MINUTES: ${RATE_LIMIT_SENSITIVE_REFILL_MINUTES:-1}
+      RATE_LIMIT_DEFAULT_CAPACITY: ${RATE_LIMIT_DEFAULT_CAPACITY:-60}
+      RATE_LIMIT_DEFAULT_REFILL_MINUTES: ${RATE_LIMIT_DEFAULT_REFILL_MINUTES:-1}
+      MAIL_HOST: ${MAIL_HOST:-smtp.resend.com}
+      MAIL_PORT: ${MAIL_PORT:-587}
+      MAIL_USERNAME: ${MAIL_USERNAME:-resend}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      MAIL_SMTP_AUTH: ${MAIL_SMTP_AUTH:-true}
+      MAIL_SMTP_STARTTLS: ${MAIL_SMTP_STARTTLS:-true}
+      MAIL_FROM: ${MAIL_FROM:-contato@ongamicats.com.br}
     ports:
       - "${BACKEND_PORT:-8080}:8080"
     depends_on:
@@ -39,10 +53,8 @@ services:
       context: ./codigo-fonte/web
     container_name: amicats-web
     restart: unless-stopped
-    environment:
-      NEXT_PUBLIC_API_URL: http://localhost:${BACKEND_PORT:-8080}
     ports:
-      - "${WEB_PORT:-3000}:3000"
+      - "${WEB_PORT:-3000}:80"
     depends_on:
       - backend
 
