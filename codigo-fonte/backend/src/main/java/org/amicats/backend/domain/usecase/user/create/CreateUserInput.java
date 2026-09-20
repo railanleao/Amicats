@@ -1,17 +1,24 @@
 package org.amicats.backend.domain.usecase.user.create;
 
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import org.amicats.backend.domain.enums.AccessType;
+import org.amicats.backend.domain.usecase.user.common.CrmvRule;
 
 public record CreateUserInput(
-    @NotBlank String fullName,
-    @NotBlank @Email String email,
-    @NotBlank @Size(min = 8, max = 72) String password,
-    String phoneNumber,
-    String imageUrl,
+    @NotBlank @Size(max = 150) String fullName,
+    @NotBlank @Email @Size(max = 150) String email,
+    @Size(max = 20) String phoneNumber,
     @NotNull AccessType accessType,
-    String crmv,
-    String ufCrmv) {}
+    @Size(max = 20) String crmv,
+    @Pattern(regexp = "^$|[A-Za-z]{2}") String ufCrmv) {
+
+  @AssertTrue(message = "CRMV e UF são obrigatórios para veterinários.")
+  public boolean isCrmvRequirementMet() {
+    return CrmvRule.isSatisfiedBy(accessType, crmv, ufCrmv);
+  }
+}

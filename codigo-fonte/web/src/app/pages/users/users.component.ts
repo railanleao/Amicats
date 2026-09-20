@@ -1,5 +1,6 @@
 import {Component, DestroyRef, OnDestroy, OnInit, inject, signal} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import { Router } from '@angular/router';
 import {Subject, debounceTime, distinctUntilChanged, finalize} from 'rxjs';
 
 import {ConfirmDialogComponent} from '../../components/confirm-dialog/confirm-dialog.component';
@@ -8,6 +9,7 @@ import { ToggleComponent } from '../../components/toggle/toggle.component';
 import {AccessType} from '../../models/auth.model';
 import {ACCESS_TYPE_LABELS, User} from '../../models/user.model';
 import {UserService} from '../../services/resources/user.service';
+import { UserAvatarComponent } from '../../components/user-avatar/user-avatar.component';
 
 const PAGE_SIZE = 20;
 const SEARCH_DEBOUNCE_MS = 300;
@@ -15,13 +17,14 @@ const SEARCH_DEBOUNCE_MS = 300;
 @Component({
   selector: 'app-users',
   standalone: true,
-  imports: [ConfirmDialogComponent, PaginationComponent, ToggleComponent],
+  imports: [ConfirmDialogComponent, PaginationComponent, ToggleComponent, UserAvatarComponent],
   templateUrl: './users.component.html',
   styleUrl: './users.component.css',
 })
 export class UsersComponent implements OnInit, OnDestroy {
   private readonly userService = inject(UserService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly router = inject(Router);
   private readonly searchInput$ = new Subject<string>();
 
   readonly loading = signal(false);
@@ -114,6 +117,14 @@ export class UsersComponent implements OnInit, OnDestroy {
 
   profileLabel(accessType: AccessType): string {
     return ACCESS_TYPE_LABELS[accessType];
+  }
+
+  createUser(): void {
+    void this.router.navigate(['/users/new']);
+  }
+
+  editUser(user: User): void {
+    void this.router.navigate(['/users', user.id, 'edit']);
   }
 
   onToggleStatus(user: User): void {

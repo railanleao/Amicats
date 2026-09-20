@@ -17,8 +17,9 @@
 .page-header h1 {
   margin: 0;
   color: #263229;
+  font-family: var(--font-display);
   font-size: 28px;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .new-button {
@@ -391,14 +392,17 @@
 /* Edit button */
 
 .edit-button {
-  color: #557b52;
-  font-size: 18px;
-  font-weight: 700;
+  color: #555555;
+}
+
+.edit-button svg {
+  display: block;
 }
 
 .edit-button:hover {
-  background: #f1f7ef;
-  border-color: #cbdac7;
+  background: #f4f4f4;
+  border-color: #d0d0d0;
+  color: #263229;
 }
 
 /* Deactivate button */

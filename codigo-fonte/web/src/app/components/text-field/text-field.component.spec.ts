@@ -63,4 +63,38 @@ describe('TextFieldComponent', () => {
       fixture.nativeElement.querySelector('.text-field__error');
     expect(error.textContent).toContain('Informe um e-mail válido.');
   });
+
+  it('is editable by default', () => {
+    fixture.detectChanges();
+    const input: HTMLInputElement =
+      fixture.nativeElement.querySelector('input');
+
+    expect(input.readOnly).toBeFalse();
+  });
+
+  it('renders the input as read-only when readonly is set', () => {
+    component.readonly = true;
+    fixture.detectChanges();
+    const input: HTMLInputElement =
+      fixture.nativeElement.querySelector('input');
+
+    expect(input.readOnly).toBeTrue();
+  });
+
+  it('shows the placeholder when one is given', () => {
+    component.placeholder = 'nome@exemplo.com';
+    fixture.detectChanges();
+    const input: HTMLInputElement =
+      fixture.nativeElement.querySelector('input');
+
+    expect(input.placeholder).toBe('nome@exemplo.com');
+  });
+
+  it('has no placeholder by default', () => {
+    fixture.detectChanges();
+    const input: HTMLInputElement =
+      fixture.nativeElement.querySelector('input');
+
+    expect(input.placeholder).toBe('');
+  });
 });

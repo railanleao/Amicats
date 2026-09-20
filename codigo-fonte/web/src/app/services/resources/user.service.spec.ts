@@ -6,7 +6,12 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 
 import { environment } from '../../../environments/environment';
-import { PagedResult, User } from '../../models/user.model';
+import {
+  CreateUserRequest,
+  PagedResult,
+  UpdateUserRequest,
+  User,
+} from '../../models/user.model';
 import { apiUrlInterceptor } from '../http/api-url.interceptor';
 import { UserService } from './user.service';
 
@@ -112,5 +117,84 @@ describe('UserService (integration)', () => {
     request.flush(null, { status: 204, statusText: 'No Content' });
 
     expect(completed).toBeTrue();
+  });
+
+  it('fetches a single user by id', () => {
+    let received: User | undefined;
+    service.findById(1).subscribe((user) => (received = user));
+
+    const request = httpMock.expectOne(`${environment.apiUrl}/users/1`);
+    expect(request.request.method).toBe('GET');
+    request.flush(mockUser());
+
+    expect(received).toEqual(mockUser());
+  });
+
+  it('posts the payload to create a user', () => {
+    const payload: CreateUserRequest = {
+      fullName: 'Rafael Nogueira',
+      email: 'rafael@amicats.org.br',
+      phoneNumber: null,
+      accessType: 'Assistant',
+      crmv: null,
+      ufCrmv: null,
+    };
+    let received: User | undefined;
+    service.create(payload).subscribe((user) => (received = user));
+
+    const request = httpMock.expectOne(`${environment.apiUrl}/users`);
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual(payload);
+    request.flush(mockUser());
+
+    expect(received).toEqual(mockUser());
+  });
+
+  it('puts the payload to update a user', () => {
+    const payload: UpdateUserRequest = {
+      fullName: 'Marina A. Alves',
+      phoneNumber: '(31) 99999-0000',
+      accessType: 'Veterinarian',
+      crmv: '12345',
+      ufCrmv: 'MG',
+    };
+    service.update(7, payload).subscribe();
+
+    const request = httpMock.expectOne(`${environment.apiUrl}/users/7`);
+    expect(request.request.method).toBe('PUT');
+    expect(request.request.body).toEqual(payload);
+    request.flush(mockUser());
+  });
+
+
+  it('puts the file as multipart form data to upload a photo', () => {
+    const file = new File(['x'], 'foto.png', { type: 'image/png' });
+    service.uploadPhoto(7, file).subscribe();
+
+    const request = httpMock.expectOne(`${environment.apiUrl}/users/7/photo`);
+    expect(request.request.method).toBe('PUT');
+    expect(request.request.body instanceof FormData).toBeTrue();
+    expect((request.request.body as FormData).get('file')).toBe(file);
+    request.flush(mockUser());
+  });
+
+  it('fetches the photo as a blob', () => {
+    let received: Blob | undefined;
+    service.photo(7).subscribe((blob) => (received = blob));
+
+    const request = httpMock.expectOne(`${environment.apiUrl}/users/7/photo`);
+    expect(request.request.method).toBe('GET');
+    expect(request.request.responseType).toBe('blob');
+    request.flush(new Blob(['x']));
+
+    expect(received instanceof Blob).toBeTrue();
+  });
+
+  it('deletes the photo', () => {
+    service.removePhoto(7).subscribe();
+
+    const request = httpMock.expectOne(`${environment.apiUrl}/users/7/photo`);
+    expect(request.request.method).toBe('DELETE');
+    request.flush(null, { status: 204, statusText: 'No Content' });
   });
 });

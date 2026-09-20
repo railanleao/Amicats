@@ -1,5 +1,5 @@
 import {ComponentFixture, TestBed, fakeAsync, tick} from '@angular/core/testing';
-import {provideRouter} from '@angular/router';
+import {Router, provideRouter} from '@angular/router';
 import {Subject, throwError} from 'rxjs';
 
 import {PagedResult, User, UserSearchParams} from '../../models/user.model';
@@ -255,5 +255,21 @@ describe('UsersComponent (unit)', () => {
 
     expect(component.userPendingReactivation()).toEqual(mockUsers()[1]);
     expect(component.userPendingDeactivation()).toBeNull();
+  });
+
+  it('navigates to the new-user form', () => {
+    const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
+
+    component.createUser();
+
+    expect(navigate).toHaveBeenCalledWith(['/users/new']);
+  });
+
+  it('navigates to the edit form of the given user', () => {
+    const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
+
+    component.editUser(mockUsers()[0]);
+
+    expect(navigate).toHaveBeenCalledWith(['/users', 1, 'edit']);
   });
 });

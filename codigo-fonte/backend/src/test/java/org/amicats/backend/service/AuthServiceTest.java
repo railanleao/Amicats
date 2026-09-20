@@ -111,4 +111,19 @@ class AuthServiceTest {
 
     assertThat(user.getLastLoginAt()).isNotNull();
   }
+
+  @Test
+  void findsTheUserRegardlessOfTheCaseOfTheTypedEmail() {
+    User user = new User("Marina Alves", null, null, AccessType.Administrator, null, null, null);
+    UserAuth auth = new UserAuth(user, "marina.alves@amicats.org.br", "hash");
+    when(userAuthRepository.findByEmail("marina.alves@amicats.org.br"))
+        .thenReturn(Optional.of(auth));
+    when(passwordEncoder.matches("senha-forte", "hash")).thenReturn(true);
+    when(jwtService.generateJwtToken(user, auth)).thenReturn("token");
+
+    LoginResponse response =
+        authService.login(new LoginRequest("Marina.Alves@Amicats.ORG.br", "senha-forte"));
+
+    assertThat(response.token()).isEqualTo("token");
+  }
 }

@@ -70,3 +70,12 @@
   font-size: var(--text-xs);
   color: var(--color-danger);
 }
+
+.text-field__input:read-only {
+  background: var(--color-bg);
+  color: var(--color-ink-soft);
+}
+
+.text-field__input::placeholder {
+  color: var(--color-ink-faint);
+}

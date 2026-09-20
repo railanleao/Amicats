@@ -1,6 +1,10 @@
 package org.amicats.backend;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.URI;
@@ -18,18 +22,21 @@ import org.amicats.backend.domain.entity.UserAuth;
 import org.amicats.backend.domain.enums.AccessType;
 import org.amicats.backend.repository.user.UserAuthRepository;
 import org.amicats.backend.repository.user.UserRepository;
+import org.amicats.backend.service.MailService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.mail.MailSendException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 /**
  * Boots the whole Spring context on a real HTTP server to prove the /users endpoints (list, read,
- * update and status change) are actually reachable only by an Administrator and behave as the
- * frontend expects — unit tests of the use cases alone don't exercise SecurityConfig, JSON
+ * create, update and status change) are actually reachable only by an Administrator and behave as
+ * the frontend expects — unit tests of the use cases alone don't exercise SecurityConfig, JSON
  * serialization, routing, validation or the JPQL search query.
  */
 @SpringBootTest(
@@ -44,6 +51,7 @@ class UserManagementFlowIntegrationTest {
   @Autowired private UserRepository userRepository;
   @Autowired private UserAuthRepository userAuthRepository;
   @Autowired private PasswordEncoder passwordEncoder;
+  @MockitoBean private MailService mailService;
 
   private final ObjectMapper objectMapper = new ObjectMapper();
   private final HttpClient httpClient = HttpClient.newHttpClient();
@@ -326,6 +334,119 @@ class UserManagementFlowIntegrationTest {
       userAuthRepository.deleteById(secondAuthId);
       userRepository.deleteById(second.getId());
     }
+  }
+
+  @Test
+  void anAdministratorCanCreateAUserAndTheAccessEmailIsSent() throws Exception {
+    String adminToken = loginAndGetToken(adminEmail);
+    String email = "novo-" + UUID.randomUUID() + "@amicats.org.br";
+
+    HttpResponse<String> response =
+        send("POST", "/users", adminToken, createBody("Novo Usuario", email, AccessType.Viewer));
+
+    assertThat(response.statusCode()).isEqualTo(201);
+    Map<String, Object> created = parse(response);
+    Integer createdId = ((Number) created.get("id")).intValue();
+    try {
+      assertThat(created.get("email")).isEqualTo(email);
+      assertThat(created.get("active")).isEqualTo(true);
+      assertThat(created.get("imageUrl")).isNull();
+      verify(mailService)
+          .sendTemporaryPasswordEmail(eq(email), anyString(), anyString(), anyString());
+    } finally {
+      userAuthRepository
+          .findByEmail(email)
+          .ifPresent(a -> userAuthRepository.deleteById(a.getId()));
+      userRepository.deleteById(createdId);
+    }
+  }
+
+  @Test
+  void creatingAUserLeavesNothingBehindWhenTheAccessEmailCannotBeSent() throws Exception {
+    String adminToken = loginAndGetToken(adminEmail);
+    String email = "falha-" + UUID.randomUUID() + "@amicats.org.br";
+    String name = "Sem Email " + UUID.randomUUID();
+    doThrow(new MailSendException("smtp down"))
+        .when(mailService)
+        .sendTemporaryPasswordEmail(anyString(), anyString(), anyString(), anyString());
+
+    HttpResponse<String> response =
+        send("POST", "/users", adminToken, createBody(name, email, AccessType.Viewer));
+
+    assertThat(response.statusCode()).isEqualTo(502);
+    assertThat(userAuthRepository.findByEmail(email)).isEmpty();
+    assertThat(userRepository.findAll()).noneMatch(user -> name.equals(user.getFullName()));
+  }
+
+  @Test
+  void creatingAUserWithAnExistingEmailReturnsConflict() throws Exception {
+    String adminToken = loginAndGetToken(adminEmail);
+
+    HttpResponse<String> response =
+        send("POST", "/users", adminToken, createBody("Duplicado", adminEmail, AccessType.Viewer));
+
+    assertThat(response.statusCode()).isEqualTo(409);
+  }
+
+  @Test
+  void aNonAdministratorCannotCreateUsers() throws Exception {
+    String assistantToken = loginAndGetToken(assistantEmail);
+
+    HttpResponse<String> response =
+        send(
+            "POST",
+            "/users",
+            assistantToken,
+            createBody(
+                "Nao Pode", "x-" + UUID.randomUUID() + "@amicats.org.br", AccessType.Viewer));
+
+    assertThat(response.statusCode()).isEqualTo(403);
+  }
+
+  @Test
+  void creatingAVeterinarianWithoutCrmvReturnsBadRequest() throws Exception {
+    String adminToken = loginAndGetToken(adminEmail);
+
+    HttpResponse<String> response =
+        send(
+            "POST",
+            "/users",
+            adminToken,
+            createBody(
+                "Vet Sem Crmv",
+                "v-" + UUID.randomUUID() + "@amicats.org.br",
+                AccessType.Veterinarian));
+
+    assertThat(response.statusCode()).isEqualTo(400);
+  }
+
+  @Test
+  void updatingAUserToVeterinarianWithoutCrmvReturnsBadRequest() throws Exception {
+    String adminToken = loginAndGetToken(adminEmail);
+
+    HttpResponse<String> response =
+        put(
+            "/users/" + targetUserId,
+            adminToken,
+            updateBody(targetNameToken, null, AccessType.Veterinarian, null, null));
+
+    assertThat(response.statusCode()).isEqualTo(400);
+  }
+
+  @Test
+  void theEmailIsCaseInsensitiveAtLogin() throws Exception {
+    assertThat(login(targetEmail.toUpperCase()).statusCode()).isEqualTo(200);
+  }
+
+  private Map<String, Object> createBody(String fullName, String email, AccessType accessType) {
+    Map<String, Object> body = new LinkedHashMap<>();
+    body.put("fullName", fullName);
+    body.put("email", email);
+    body.put("phoneNumber", null);
+    body.put("accessType", accessType.name());
+    body.put("crmv", null);
+    body.put("ufCrmv", null);
+    return body;
   }
 
   private HttpResponse<String> login(String email) throws Exception {
