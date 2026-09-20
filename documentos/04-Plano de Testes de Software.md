@@ -1,4 +1,4 @@
-``# 🧪 Planos de Testes de Software
+# 🧪 Planos de Testes de Software
 
 ## 📱 MOBILE - Plano de Testes - ETAPA 2 (RF-001)
 
@@ -25,7 +25,7 @@ Este plano apresenta os casos de testes utilizados na verificação e validaçã
 | CT-002 | Mostrar/ocultar senha | S | - |
 | CT-003 | Recuperar senha | S | I01 |
 | CT-004 | Aceite de termos de uso | S | I01, I02 |
-| CT-005 | Nova senha obrigatória | S | I``01 a I05 |
+| CT-005 | Nova senha obrigatória | S | I01 a I05 |
 | CT-006 | Fluxo de primeiro acesso | S | - |
 | CT-007 | Sessão e logout | S, S02 | I01 |
 
