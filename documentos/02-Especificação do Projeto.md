@@ -101,7 +101,7 @@ A **complexidade** foi estimada pela equipe considerando esforço de implementa�
 
 |ID    | Descrição do Requisito | Prioridade | Etapa | Responsável | Complexidade |
 |------|------------------------|:----:|:----:|:----:|:----:|
-|RF-001| Permitir autenticação de usuários por login e senha, gestão completa de usuários, gestão dos seus aceites de termos e recuperação de senha por e-mail ou redefinição pelo Administrador | ALTA | Etapa 2 | | Média |
+|RF-001| Permitir autenticação de usuários por login e senha, gestão completa de usuários, gestão dos seus aceites de termos e recuperação de senha por e-mail ou redefinição pelo Administrador | ALTA | Etapa 2 | Todos | Alta |
 |RF-002| Cadastramento de perfis de acesso distintos (Administrador, Médico-Veterinário, Auxiliar e Visualizador) com permissões próprias | ALTA | Etapa 3 | | Alta |
 |RF-003| Permitir o cadastro do banco de contatos voluntários | MÉDIA | Etapa 4 | | Baixa |
 |RF-004| Permitir o cadastro e a edição de salas | ALTA | Etapa 3 | | Baixa |
