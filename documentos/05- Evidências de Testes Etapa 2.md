@@ -9,7 +9,7 @@ A fim de aumentar a qualidade da aplicação desenvolvida, cada funcionalidade d
 2. Anexa o vídeo na linha "Evidência" (arrastando o arquivo para o editor do GitHub, que gera o link).
 3. Preenche o responsável pelo teste, a data e o comentário com o resultado obtido; se o resultado divergir do critério de êxito, registra o desvio no comentário.
 
-### Casos de teste da Etapa 2 (RF-001 - mobile)
+### Casos de teste da Etapa 2 (RF-001 - Mobile)
 
 <table>
   <tr>
@@ -23,19 +23,27 @@ A fim de aumentar a qualidade da aplicação desenvolvida, cada funcionalidade d
     <td><strong>Responsável pela funcionalidade</strong></td>
     <td width="430">Murilo Silva Rezende</td>
     <td><strong>Responsável pelo teste</strong></td>
-    <td width="430">A preencher</td>
+    <td width="430">Aliane Amaral</td>
     <td width="100"><strong>Data do teste</strong></td>
-    <td width="150">A preencher</td>
+    <td width="150">20/09/2026</td>
   </tr>
   <tr>
     <td width="170"><strong>Comentário</strong></td>
-    <td colspan="5">A preencher após a execução do teste (resultado obtido e observações).</td>
+    <td colspan="5">Login realizado com um usuário ativo, com termos já aceitos e sem troca de senha pendente. O botão exibiu o indicador de carregamento durante o envio e o aplicativo redirecionou para a área principal, com as abas Início, Gatos, Doses e Busca. Resultado conforme o critério de êxito.</td>
   </tr>
   <tr>
     <td colspan="6" align="center"><strong>Evidência</strong></td>
   </tr>
   <tr>
-    <td colspan="6" align="center"><em>Vídeo a anexar após a execução do teste.</em></td>
+    <td colspan="6" align="center">
+
+<!-- VIDEO CT-001-S: arraste mobile-caso-teste-CT-001-S.mp4 na linha em branco abaixo -->
+
+
+
+Local do Vídeo no Repositório para Download: [Vídeo - CT-001 - S](gravacoes-testes-etapa-2/mobile/mobile-caso-teste-CT-001-S.mp4)
+
+</td>
   </tr>
 </table>
 
@@ -51,19 +59,27 @@ A fim de aumentar a qualidade da aplicação desenvolvida, cada funcionalidade d
     <td><strong>Responsável pela funcionalidade</strong></td>
     <td width="430">Murilo Silva Rezende</td>
     <td><strong>Responsável pelo teste</strong></td>
-    <td width="430">A preencher</td>
+    <td width="430">Aliane Amaral</td>
     <td width="100"><strong>Data do teste</strong></td>
-    <td width="150">A preencher</td>
+    <td width="150">20/09/2026</td>
   </tr>
   <tr>
     <td width="170"><strong>Comentário</strong></td>
-    <td colspan="5">A preencher após a execução do teste (resultado obtido e observações).</td>
+    <td colspan="5">Com o e-mail "usuario" (sem @ e domínio) e também com o campo vazio, o aplicativo exibiu "Informe um e-mail válido." abaixo do campo E-mail, destacou o campo em vermelho e não enviou a requisição ao servidor. Resultado conforme o critério de êxito.</td>
   </tr>
   <tr>
     <td colspan="6" align="center"><strong>Evidência</strong></td>
   </tr>
   <tr>
-    <td colspan="6" align="center"><em>Vídeo a anexar após a execução do teste.</em></td>
+    <td colspan="6" align="center">
+
+<!-- VIDEO CT-001-I01: arraste mobile-caso-teste-CT-001-I01.mp4 na linha em branco abaixo -->
+
+
+
+Local do Vídeo no Repositório para Download: [Vídeo - CT-001 - I01](gravacoes-testes-etapa-2/mobile/mobile-caso-teste-CT-001-I01.mp4)
+
+</td>
   </tr>
 </table>
 
@@ -79,19 +95,27 @@ A fim de aumentar a qualidade da aplicação desenvolvida, cada funcionalidade d
     <td><strong>Responsável pela funcionalidade</strong></td>
     <td width="430">Murilo Silva Rezende</td>
     <td><strong>Responsável pelo teste</strong></td>
-    <td width="430">A preencher</td>
+    <td width="430">Aliane Amaral</td>
     <td width="100"><strong>Data do teste</strong></td>
-    <td width="150">A preencher</td>
+    <td width="150">20/09/2026</td>
   </tr>
   <tr>
     <td width="170"><strong>Comentário</strong></td>
-    <td colspan="5">A preencher após a execução do teste (resultado obtido e observações).</td>
+    <td colspan="5">Com um e-mail válido e o campo de senha vazio, o aplicativo exibiu "Informe sua senha." abaixo do campo Senha e permaneceu na tela de login. Resultado conforme o critério de êxito.</td>
   </tr>
   <tr>
     <td colspan="6" align="center"><strong>Evidência</strong></td>
   </tr>
   <tr>
-    <td colspan="6" align="center"><em>Vídeo a anexar após a execução do teste.</em></td>
+    <td colspan="6" align="center">
+
+<!-- VIDEO CT-001-I02: arraste mobile-caso-teste-CT-001-I02.mp4 na linha em branco abaixo -->
+
+
+
+Local do Vídeo no Repositório para Download: [Vídeo - CT-001 - I02](gravacoes-testes-etapa-2/mobile/mobile-caso-teste-CT-001-I02.mp4)
+
+</td>
   </tr>
 </table>
 
@@ -107,19 +131,27 @@ A fim de aumentar a qualidade da aplicação desenvolvida, cada funcionalidade d
     <td><strong>Responsável pela funcionalidade</strong></td>
     <td width="430">Murilo Silva Rezende</td>
     <td><strong>Responsável pelo teste</strong></td>
-    <td width="430">A preencher</td>
+    <td width="430">Aliane Amaral</td>
     <td width="100"><strong>Data do teste</strong></td>
-    <td width="150">A preencher</td>
+    <td width="150">20/09/2026</td>
   </tr>
   <tr>
     <td width="170"><strong>Comentário</strong></td>
-    <td colspan="5">A preencher após a execução do teste (resultado obtido e observações).</td>
+    <td colspan="5">Nas duas tentativas (senha incorreta para um e-mail cadastrado e, depois, e-mail inexistente) o aplicativo exibiu "E-mail ou senha incorretos.", manteve o usuário na tela de login e não revelou se o e-mail existe. Resultado conforme o critério de êxito.</td>
   </tr>
   <tr>
     <td colspan="6" align="center"><strong>Evidência</strong></td>
   </tr>
   <tr>
-    <td colspan="6" align="center"><em>Vídeo a anexar após a execução do teste.</em></td>
+    <td colspan="6" align="center">
+
+<!-- VIDEO CT-001-I03: arraste mobile-caso-teste-CT-001-I03.mp4 na linha em branco abaixo -->
+
+
+
+Local do Vídeo no Repositório para Download: [Vídeo - CT-001 - I03](gravacoes-testes-etapa-2/mobile/mobile-caso-teste-CT-001-I03.mp4)
+
+</td>
   </tr>
 </table>
 
@@ -135,19 +167,27 @@ A fim de aumentar a qualidade da aplicação desenvolvida, cada funcionalidade d
     <td><strong>Responsável pela funcionalidade</strong></td>
     <td width="430">Murilo Silva Rezende</td>
     <td><strong>Responsável pelo teste</strong></td>
-    <td width="430">A preencher</td>
+    <td width="430">Aliane Amaral</td>
     <td width="100"><strong>Data do teste</strong></td>
-    <td width="150">A preencher</td>
+    <td width="150">20/09/2026</td>
   </tr>
   <tr>
     <td width="170"><strong>Comentário</strong></td>
-    <td colspan="5">A preencher após a execução do teste (resultado obtido e observações).</td>
+    <td colspan="5">Com o e-mail de um usuário desativado e a senha correta, o aplicativo exibiu "E-mail ou senha incorretos." e permaneceu na tela de login. Resultado conforme o critério de êxito.</td>
   </tr>
   <tr>
     <td colspan="6" align="center"><strong>Evidência</strong></td>
   </tr>
   <tr>
-    <td colspan="6" align="center"><em>Vídeo a anexar após a execução do teste.</em></td>
+    <td colspan="6" align="center">
+
+<!-- VIDEO CT-001-I04: arraste mobile-caso-teste-CT-001-I04.mp4 na linha em branco abaixo -->
+
+
+
+Local do Vídeo no Repositório para Download: [Vídeo - CT-001 - I04](gravacoes-testes-etapa-2/mobile/mobile-caso-teste-CT-001-I04.mp4)
+
+</td>
   </tr>
 </table>
 
@@ -163,19 +203,27 @@ A fim de aumentar a qualidade da aplicação desenvolvida, cada funcionalidade d
     <td><strong>Responsável pela funcionalidade</strong></td>
     <td width="430">Murilo Silva Rezende</td>
     <td><strong>Responsável pelo teste</strong></td>
-    <td width="430">A preencher</td>
+    <td width="430">Aliane Amaral</td>
     <td width="100"><strong>Data do teste</strong></td>
-    <td width="150">A preencher</td>
+    <td width="150">20/09/2026</td>
   </tr>
   <tr>
     <td width="170"><strong>Comentário</strong></td>
-    <td colspan="5">A preencher após a execução do teste (resultado obtido e observações).</td>
+    <td colspan="5">Com o backend desligado, ao tocar em "Entrar" o aplicativo exibiu "Não foi possível conectar ao servidor. Verifique sua conexão.", encerrou o indicador de carregamento e manteve o botão "Entrar" disponível para nova tentativa. Resultado conforme o critério de êxito.</td>
   </tr>
   <tr>
     <td colspan="6" align="center"><strong>Evidência</strong></td>
   </tr>
   <tr>
-    <td colspan="6" align="center"><em>Vídeo a anexar após a execução do teste.</em></td>
+    <td colspan="6" align="center">
+
+<!-- VIDEO CT-001-I05: arraste mobile-caso-teste-CT-001-I05.mp4 na linha em branco abaixo -->
+
+
+
+Local do Vídeo no Repositório para Download: [Vídeo - CT-001 - I05](gravacoes-testes-etapa-2/mobile/mobile-caso-teste-CT-001-I05.mp4)
+
+</td>
   </tr>
 </table>
 
@@ -191,19 +239,27 @@ A fim de aumentar a qualidade da aplicação desenvolvida, cada funcionalidade d
     <td><strong>Responsável pela funcionalidade</strong></td>
     <td width="430">Murilo Silva Rezende</td>
     <td><strong>Responsável pelo teste</strong></td>
-    <td width="430">A preencher</td>
+    <td width="430">Aliane Amaral</td>
     <td width="100"><strong>Data do teste</strong></td>
-    <td width="150">A preencher</td>
+    <td width="150">20/09/2026</td>
   </tr>
   <tr>
     <td width="170"><strong>Comentário</strong></td>
-    <td colspan="5">A preencher após a execução do teste (resultado obtido e observações).</td>
+    <td colspan="5">A senha digitada começou mascarada. Após o primeiro toque no ícone de olho o texto ficou visível e o ícone mudou para "olho cortado"; após o segundo toque a senha voltou a ficar mascarada. Resultado conforme o critério de êxito.</td>
   </tr>
   <tr>
     <td colspan="6" align="center"><strong>Evidência</strong></td>
   </tr>
   <tr>
-    <td colspan="6" align="center"><em>Vídeo a anexar após a execução do teste.</em></td>
+    <td colspan="6" align="center">
+
+<!-- VIDEO CT-002-S: arraste mobile-caso-teste-CT-002-S.mp4 na linha em branco abaixo -->
+
+
+
+Local do Vídeo no Repositório para Download: [Vídeo - CT-002 - S](gravacoes-testes-etapa-2/mobile/mobile-caso-teste-CT-002-S.mp4)
+
+</td>
   </tr>
 </table>
 
@@ -219,19 +275,27 @@ A fim de aumentar a qualidade da aplicação desenvolvida, cada funcionalidade d
     <td><strong>Responsável pela funcionalidade</strong></td>
     <td width="430">Murilo Silva Rezende</td>
     <td><strong>Responsável pelo teste</strong></td>
-    <td width="430">A preencher</td>
+    <td width="430">Aliane Amaral</td>
     <td width="100"><strong>Data do teste</strong></td>
-    <td width="150">A preencher</td>
+    <td width="150">20/09/2026</td>
   </tr>
   <tr>
     <td width="170"><strong>Comentário</strong></td>
-    <td colspan="5">A preencher após a execução do teste (resultado obtido e observações).</td>
+    <td colspan="5">A partir de "Esqueci minha senha", com um e-mail em formato válido, o aplicativo exibiu a mensagem genérica de confirmação ("Se esse e-mail estiver cadastrado, enviaremos uma senha temporária em instantes."). Ao editar o campo a confirmação desapareceu e "Voltar para o login" retornou à tela "Entrar". Resultado conforme o critério de êxito.</td>
   </tr>
   <tr>
     <td colspan="6" align="center"><strong>Evidência</strong></td>
   </tr>
   <tr>
-    <td colspan="6" align="center"><em>Vídeo a anexar após a execução do teste.</em></td>
+    <td colspan="6" align="center">
+
+<!-- VIDEO CT-003-S: arraste mobile-caso-teste-CT-003-S.mp4 na linha em branco abaixo -->
+
+
+
+Local do Vídeo no Repositório para Download: [Vídeo - CT-003 - S](gravacoes-testes-etapa-2/mobile/mobile-caso-teste-CT-003-S.mp4)
+
+</td>
   </tr>
 </table>
 
@@ -247,19 +311,27 @@ A fim de aumentar a qualidade da aplicação desenvolvida, cada funcionalidade d
     <td><strong>Responsável pela funcionalidade</strong></td>
     <td width="430">Murilo Silva Rezende</td>
     <td><strong>Responsável pelo teste</strong></td>
-    <td width="430">A preencher</td>
+    <td width="430">Aliane Amaral</td>
     <td width="100"><strong>Data do teste</strong></td>
-    <td width="150">A preencher</td>
+    <td width="150">20/09/2026</td>
   </tr>
   <tr>
     <td width="170"><strong>Comentário</strong></td>
-    <td colspan="5">A preencher após a execução do teste (resultado obtido e observações).</td>
+    <td colspan="5">Com o campo vazio e com e-mails inválidos (usuario@ e usuario@dominio), o aplicativo exibiu "Informe um e-mail válido." abaixo do campo e não exibiu a mensagem de confirmação. Resultado conforme o critério de êxito.</td>
   </tr>
   <tr>
     <td colspan="6" align="center"><strong>Evidência</strong></td>
   </tr>
   <tr>
-    <td colspan="6" align="center"><em>Vídeo a anexar após a execução do teste.</em></td>
+    <td colspan="6" align="center">
+
+<!-- VIDEO CT-003-I01: arraste mobile-caso-teste-CT-003-I01.mp4 na linha em branco abaixo -->
+
+
+
+Local do Vídeo no Repositório para Download: [Vídeo - CT-003 - I01](gravacoes-testes-etapa-2/mobile/mobile-caso-teste-CT-003-I01.mp4)
+
+</td>
   </tr>
 </table>
 
@@ -275,19 +347,27 @@ A fim de aumentar a qualidade da aplicação desenvolvida, cada funcionalidade d
     <td><strong>Responsável pela funcionalidade</strong></td>
     <td width="430">Murilo Silva Rezende</td>
     <td><strong>Responsável pelo teste</strong></td>
-    <td width="430">A preencher</td>
+    <td width="430">Aliane Amaral</td>
     <td width="100"><strong>Data do teste</strong></td>
-    <td width="150">A preencher</td>
+    <td width="150">20/09/2026</td>
   </tr>
   <tr>
     <td width="170"><strong>Comentário</strong></td>
-    <td colspan="5">A preencher após a execução do teste (resultado obtido e observações).</td>
+    <td colspan="5">Com um usuário que ainda não havia aceitado os termos, o botão "Continuar" só foi habilitado após marcar a caixa "Li e aceito os termos.". Ao tocar nele o aceite foi registrado e o aplicativo avançou para a próxima etapa. Resultado conforme o critério de êxito.</td>
   </tr>
   <tr>
     <td colspan="6" align="center"><strong>Evidência</strong></td>
   </tr>
   <tr>
-    <td colspan="6" align="center"><em>Vídeo a anexar após a execução do teste.</em></td>
+    <td colspan="6" align="center">
+
+<!-- VIDEO CT-004-S: arraste mobile-caso-teste-CT-004-S.mp4 na linha em branco abaixo -->
+
+
+
+Local do Vídeo no Repositório para Download: [Vídeo - CT-004 - S](gravacoes-testes-etapa-2/mobile/mobile-caso-teste-CT-004-S.mp4)
+
+</td>
   </tr>
 </table>
 
@@ -303,19 +383,27 @@ A fim de aumentar a qualidade da aplicação desenvolvida, cada funcionalidade d
     <td><strong>Responsável pela funcionalidade</strong></td>
     <td width="430">Murilo Silva Rezende</td>
     <td><strong>Responsável pelo teste</strong></td>
-    <td width="430">A preencher</td>
+    <td width="430">Aliane Amaral</td>
     <td width="100"><strong>Data do teste</strong></td>
-    <td width="150">A preencher</td>
+    <td width="150">20/09/2026</td>
   </tr>
   <tr>
     <td width="170"><strong>Comentário</strong></td>
-    <td colspan="5">A preencher após a execução do teste (resultado obtido e observações).</td>
+    <td colspan="5">Com a caixa desmarcada, o botão "Continuar" permaneceu desabilitado, o toque não teve efeito e o usuário continuou na tela de termos. Ao marcar e desmarcar a caixa, o botão alternou entre habilitado e desabilitado. Resultado conforme o critério de êxito.</td>
   </tr>
   <tr>
     <td colspan="6" align="center"><strong>Evidência</strong></td>
   </tr>
   <tr>
-    <td colspan="6" align="center"><em>Vídeo a anexar após a execução do teste.</em></td>
+    <td colspan="6" align="center">
+
+<!-- VIDEO CT-004-I01: arraste mobile-caso-teste-CT-004-I01.mp4 na linha em branco abaixo -->
+
+
+
+Local do Vídeo no Repositório para Download: [Vídeo - CT-004 - I01](gravacoes-testes-etapa-2/mobile/mobile-caso-teste-CT-004-I01.mp4)
+
+</td>
   </tr>
 </table>
 
@@ -331,19 +419,27 @@ A fim de aumentar a qualidade da aplicação desenvolvida, cada funcionalidade d
     <td><strong>Responsável pela funcionalidade</strong></td>
     <td width="430">Murilo Silva Rezende</td>
     <td><strong>Responsável pelo teste</strong></td>
-    <td width="430">A preencher</td>
+    <td width="430">Aliane Amaral</td>
     <td width="100"><strong>Data do teste</strong></td>
-    <td width="150">A preencher</td>
+    <td width="150">20/09/2026</td>
   </tr>
   <tr>
     <td width="170"><strong>Comentário</strong></td>
-    <td colspan="5">A preencher após a execução do teste (resultado obtido e observações).</td>
+    <td colspan="5">Com o backend desligado, ao marcar a caixa e tocar em "Continuar" o aplicativo exibiu em vermelho "Não foi possível conectar ao servidor. Verifique sua conexão.", permaneceu na tela de termos e permitiu nova tentativa. Resultado conforme o critério de êxito.</td>
   </tr>
   <tr>
     <td colspan="6" align="center"><strong>Evidência</strong></td>
   </tr>
   <tr>
-    <td colspan="6" align="center"><em>Vídeo a anexar após a execução do teste.</em></td>
+    <td colspan="6" align="center">
+
+<!-- VIDEO CT-004-I02: arraste mobile-caso-teste-CT-004-I02.mp4 na linha em branco abaixo -->
+
+
+
+Local do Vídeo no Repositório para Download: [Vídeo - CT-004 - I02](gravacoes-testes-etapa-2/mobile/mobile-caso-teste-CT-004-I02.mp4)
+
+</td>
   </tr>
 </table>
 
@@ -359,19 +455,27 @@ A fim de aumentar a qualidade da aplicação desenvolvida, cada funcionalidade d
     <td><strong>Responsável pela funcionalidade</strong></td>
     <td width="430">Murilo Silva Rezende</td>
     <td><strong>Responsável pelo teste</strong></td>
-    <td width="430">A preencher</td>
+    <td width="430">Aliane Amaral</td>
     <td width="100"><strong>Data do teste</strong></td>
-    <td width="150">A preencher</td>
+    <td width="150">20/09/2026</td>
   </tr>
   <tr>
     <td width="170"><strong>Comentário</strong></td>
-    <td colspan="5">A preencher após a execução do teste (resultado obtido e observações).</td>
+    <td colspan="5">Com a senha temporária como senha atual e uma nova senha válida (com confirmação igual), a nova senha foi salva e o aplicativo redirecionou o usuário para a área principal. Em um novo login, a nova senha foi aceita e a senha temporária foi rejeitada. Resultado conforme o critério de êxito.</td>
   </tr>
   <tr>
     <td colspan="6" align="center"><strong>Evidência</strong></td>
   </tr>
   <tr>
-    <td colspan="6" align="center"><em>Vídeo a anexar após a execução do teste.</em></td>
+    <td colspan="6" align="center">
+
+<!-- VIDEO CT-005-S: arraste mobile-caso-teste-CT-005-S.mp4 na linha em branco abaixo -->
+
+
+
+Local do Vídeo no Repositório para Download: [Vídeo - CT-005 - S](gravacoes-testes-etapa-2/mobile/mobile-caso-teste-CT-005-S.mp4)
+
+</td>
   </tr>
 </table>
 
@@ -387,19 +491,27 @@ A fim de aumentar a qualidade da aplicação desenvolvida, cada funcionalidade d
     <td><strong>Responsável pela funcionalidade</strong></td>
     <td width="430">Murilo Silva Rezende</td>
     <td><strong>Responsável pelo teste</strong></td>
-    <td width="430">A preencher</td>
+    <td width="430">Aliane Amaral</td>
     <td width="100"><strong>Data do teste</strong></td>
-    <td width="150">A preencher</td>
+    <td width="150">20/09/2026</td>
   </tr>
   <tr>
     <td width="170"><strong>Comentário</strong></td>
-    <td colspan="5">A preencher após a execução do teste (resultado obtido e observações).</td>
+    <td colspan="5">Com os três campos vazios, o aplicativo exibiu "Informe sua senha atual.", "Informe a nova senha." e "Confirme a nova senha." abaixo dos respectivos campos e não enviou a requisição. Resultado conforme o critério de êxito.</td>
   </tr>
   <tr>
     <td colspan="6" align="center"><strong>Evidência</strong></td>
   </tr>
   <tr>
-    <td colspan="6" align="center"><em>Vídeo a anexar após a execução do teste.</em></td>
+    <td colspan="6" align="center">
+
+<!-- VIDEO CT-005-I01: arraste mobile-caso-teste-CT-005-I01.mp4 na linha em branco abaixo -->
+
+
+
+Local do Vídeo no Repositório para Download: [Vídeo - CT-005 - I01](gravacoes-testes-etapa-2/mobile/mobile-caso-teste-CT-005-I01.mp4)
+
+</td>
   </tr>
 </table>
 
@@ -415,19 +527,27 @@ A fim de aumentar a qualidade da aplicação desenvolvida, cada funcionalidade d
     <td><strong>Responsável pela funcionalidade</strong></td>
     <td width="430">Murilo Silva Rezende</td>
     <td><strong>Responsável pelo teste</strong></td>
-    <td width="430">A preencher</td>
+    <td width="430">Aliane Amaral</td>
     <td width="100"><strong>Data do teste</strong></td>
-    <td width="150">A preencher</td>
+    <td width="150">20/09/2026</td>
   </tr>
   <tr>
     <td width="170"><strong>Comentário</strong></td>
-    <td colspan="5">A preencher após a execução do teste (resultado obtido e observações).</td>
+    <td colspan="5">Com nova senha e confirmação "abc123" (6 caracteres), o aplicativo exibiu "A nova senha deve ter pelo menos 8 caracteres." abaixo do campo "Nova senha" e permaneceu na tela. Resultado conforme o critério de êxito.</td>
   </tr>
   <tr>
     <td colspan="6" align="center"><strong>Evidência</strong></td>
   </tr>
   <tr>
-    <td colspan="6" align="center"><em>Vídeo a anexar após a execução do teste.</em></td>
+    <td colspan="6" align="center">
+
+<!-- VIDEO CT-005-I02: arraste mobile-caso-teste-CT-005-I02.mp4 na linha em branco abaixo -->
+
+
+
+Local do Vídeo no Repositório para Download: [Vídeo - CT-005 - I02](gravacoes-testes-etapa-2/mobile/mobile-caso-teste-CT-005-I02.mp4)
+
+</td>
   </tr>
 </table>
 
@@ -443,19 +563,27 @@ A fim de aumentar a qualidade da aplicação desenvolvida, cada funcionalidade d
     <td><strong>Responsável pela funcionalidade</strong></td>
     <td width="430">Murilo Silva Rezende</td>
     <td><strong>Responsável pelo teste</strong></td>
-    <td width="430">A preencher</td>
+    <td width="430">Aliane Amaral</td>
     <td width="100"><strong>Data do teste</strong></td>
-    <td width="150">A preencher</td>
+    <td width="150">20/09/2026</td>
   </tr>
   <tr>
     <td width="170"><strong>Comentário</strong></td>
-    <td colspan="5">A preencher após a execução do teste (resultado obtido e observações).</td>
+    <td colspan="5">Com nova senha "NovaSenha@2026" e confirmação "NovaSenha@2025", o aplicativo exibiu "As senhas não coincidem." abaixo do campo de confirmação e não enviou a requisição. Resultado conforme o critério de êxito.</td>
   </tr>
   <tr>
     <td colspan="6" align="center"><strong>Evidência</strong></td>
   </tr>
   <tr>
-    <td colspan="6" align="center"><em>Vídeo a anexar após a execução do teste.</em></td>
+    <td colspan="6" align="center">
+
+<!-- VIDEO CT-005-I03: arraste mobile-caso-teste-CT-005-I03.mp4 na linha em branco abaixo -->
+
+
+
+Local do Vídeo no Repositório para Download: [Vídeo - CT-005 - I03](gravacoes-testes-etapa-2/mobile/mobile-caso-teste-CT-005-I03.mp4)
+
+</td>
   </tr>
 </table>
 
@@ -471,19 +599,27 @@ A fim de aumentar a qualidade da aplicação desenvolvida, cada funcionalidade d
     <td><strong>Responsável pela funcionalidade</strong></td>
     <td width="430">Murilo Silva Rezende</td>
     <td><strong>Responsável pelo teste</strong></td>
-    <td width="430">A preencher</td>
+    <td width="430">Aliane Amaral</td>
     <td width="100"><strong>Data do teste</strong></td>
-    <td width="150">A preencher</td>
+    <td width="150">20/09/2026</td>
   </tr>
   <tr>
     <td width="170"><strong>Comentário</strong></td>
-    <td colspan="5">A preencher após a execução do teste (resultado obtido e observações).</td>
+    <td colspan="5">Com uma senha atual diferente da temporária e uma nova senha válida, o aplicativo exibiu em vermelho a mensagem retornada pelo servidor ("Senha atual incorreta."), permaneceu na tela e a senha do usuário não foi alterada. Resultado conforme o critério de êxito.</td>
   </tr>
   <tr>
     <td colspan="6" align="center"><strong>Evidência</strong></td>
   </tr>
   <tr>
-    <td colspan="6" align="center"><em>Vídeo a anexar após a execução do teste.</em></td>
+    <td colspan="6" align="center">
+
+<!-- VIDEO CT-005-I04: arraste mobile-caso-teste-CT-005-I04.mp4 na linha em branco abaixo -->
+
+
+
+Local do Vídeo no Repositório para Download: [Vídeo - CT-005 - I04](gravacoes-testes-etapa-2/mobile/mobile-caso-teste-CT-005-I04.mp4)
+
+</td>
   </tr>
 </table>
 
@@ -499,19 +635,27 @@ A fim de aumentar a qualidade da aplicação desenvolvida, cada funcionalidade d
     <td><strong>Responsável pela funcionalidade</strong></td>
     <td width="430">Murilo Silva Rezende</td>
     <td><strong>Responsável pelo teste</strong></td>
-    <td width="430">A preencher</td>
+    <td width="430">Aliane Amaral</td>
     <td width="100"><strong>Data do teste</strong></td>
-    <td width="150">A preencher</td>
+    <td width="150">20/09/2026</td>
   </tr>
   <tr>
     <td width="170"><strong>Comentário</strong></td>
-    <td colspan="5">A preencher após a execução do teste (resultado obtido e observações).</td>
+    <td colspan="5">Com a senha temporária repetida em "Nova senha" e "Confirmar nova senha", o aplicativo exibiu em vermelho a mensagem retornada pelo servidor ("A nova senha deve ser diferente da senha atual.") e permaneceu na tela. Resultado conforme o critério de êxito.</td>
   </tr>
   <tr>
     <td colspan="6" align="center"><strong>Evidência</strong></td>
   </tr>
   <tr>
-    <td colspan="6" align="center"><em>Vídeo a anexar após a execução do teste.</em></td>
+    <td colspan="6" align="center">
+
+<!-- VIDEO CT-005-I05: arraste mobile-caso-teste-CT-005-I05.mp4 na linha em branco abaixo -->
+
+
+
+Local do Vídeo no Repositório para Download: [Vídeo - CT-005 - I05](gravacoes-testes-etapa-2/mobile/mobile-caso-teste-CT-005-I05.mp4)
+
+</td>
   </tr>
 </table>
 
@@ -527,19 +671,27 @@ A fim de aumentar a qualidade da aplicação desenvolvida, cada funcionalidade d
     <td><strong>Responsável pela funcionalidade</strong></td>
     <td width="430">Murilo Silva Rezende</td>
     <td><strong>Responsável pelo teste</strong></td>
-    <td width="430">A preencher</td>
+    <td width="430">Aliane Amaral</td>
     <td width="100"><strong>Data do teste</strong></td>
-    <td width="150">A preencher</td>
+    <td width="150">20/09/2026</td>
   </tr>
   <tr>
     <td width="170"><strong>Comentário</strong></td>
-    <td colspan="5">A preencher após a execução do teste (resultado obtido e observações).</td>
+    <td colspan="5">Com um usuário novo (termos não aceitos e senha temporária), o aplicativo exibiu as telas na ordem Termos, Nova senha e área principal, sem permitir acesso à área principal antes de concluir as etapas anteriores. As abas Início, Gatos, Doses e Busca exibiram a tela "Em breve". Resultado conforme o critério de êxito.</td>
   </tr>
   <tr>
     <td colspan="6" align="center"><strong>Evidência</strong></td>
   </tr>
   <tr>
-    <td colspan="6" align="center"><em>Vídeo a anexar após a execução do teste.</em></td>
+    <td colspan="6" align="center">
+
+<!-- VIDEO CT-006-S: arraste mobile-caso-teste-CT-006-S.mp4 na linha em branco abaixo -->
+
+
+
+Local do Vídeo no Repositório para Download: [Vídeo - CT-006 - S](gravacoes-testes-etapa-2/mobile/mobile-caso-teste-CT-006-S.mp4)
+
+</td>
   </tr>
 </table>
 
@@ -555,19 +707,27 @@ A fim de aumentar a qualidade da aplicação desenvolvida, cada funcionalidade d
     <td><strong>Responsável pela funcionalidade</strong></td>
     <td width="430">Murilo Silva Rezende</td>
     <td><strong>Responsável pelo teste</strong></td>
-    <td width="430">A preencher</td>
+    <td width="430">Aliane Amaral</td>
     <td width="100"><strong>Data do teste</strong></td>
-    <td width="150">A preencher</td>
+    <td width="150">20/09/2026</td>
   </tr>
   <tr>
     <td width="170"><strong>Comentário</strong></td>
-    <td colspan="5">A preencher após a execução do teste (resultado obtido e observações).</td>
+    <td colspan="5">Após o login com sucesso, o aplicativo foi fechado completamente e aberto novamente. Após um breve indicador de carregamento ele abriu direto na área principal, sem exibir a tela de login. Resultado conforme o critério de êxito.</td>
   </tr>
   <tr>
     <td colspan="6" align="center"><strong>Evidência</strong></td>
   </tr>
   <tr>
-    <td colspan="6" align="center"><em>Vídeo a anexar após a execução do teste.</em></td>
+    <td colspan="6" align="center">
+
+<!-- VIDEO CT-007-S: arraste mobile-caso-teste-CT-007-S.mp4 na linha em branco abaixo -->
+
+
+
+Local do Vídeo no Repositório para Download: [Vídeo - CT-007 - S](gravacoes-testes-etapa-2/mobile/mobile-caso-teste-CT-007-S.mp4)
+
+</td>
   </tr>
 </table>
 
@@ -583,19 +743,27 @@ A fim de aumentar a qualidade da aplicação desenvolvida, cada funcionalidade d
     <td><strong>Responsável pela funcionalidade</strong></td>
     <td width="430">Murilo Silva Rezende</td>
     <td><strong>Responsável pelo teste</strong></td>
-    <td width="430">A preencher</td>
+    <td width="430">Aliane Amaral</td>
     <td width="100"><strong>Data do teste</strong></td>
-    <td width="150">A preencher</td>
+    <td width="150">20/09/2026</td>
   </tr>
   <tr>
     <td width="170"><strong>Comentário</strong></td>
-    <td colspan="5">A preencher após a execução do teste (resultado obtido e observações).</td>
+    <td colspan="5">Ao tocar em "Sair" o aplicativo retornou à tela de login. Ao fechar e reabrir o aplicativo, a tela de login continuou sendo exibida, confirmando que a sessão foi removida. Resultado conforme o critério de êxito.</td>
   </tr>
   <tr>
     <td colspan="6" align="center"><strong>Evidência</strong></td>
   </tr>
   <tr>
-    <td colspan="6" align="center"><em>Vídeo a anexar após a execução do teste.</em></td>
+    <td colspan="6" align="center">
+
+<!-- VIDEO CT-007-S02: arraste mobile-caso-teste-CT-007-S02.mp4 na linha em branco abaixo -->
+
+
+
+Local do Vídeo no Repositório para Download: [Vídeo - CT-007 - S02](gravacoes-testes-etapa-2/mobile/mobile-caso-teste-CT-007-S02.mp4)
+
+</td>
   </tr>
 </table>
 
@@ -611,18 +779,26 @@ A fim de aumentar a qualidade da aplicação desenvolvida, cada funcionalidade d
     <td><strong>Responsável pela funcionalidade</strong></td>
     <td width="430">Murilo Silva Rezende</td>
     <td><strong>Responsável pelo teste</strong></td>
-    <td width="430">A preencher</td>
+    <td width="430">Aliane Amaral</td>
     <td width="100"><strong>Data do teste</strong></td>
-    <td width="150">A preencher</td>
+    <td width="150">20/09/2026</td>
   </tr>
   <tr>
     <td width="170"><strong>Comentário</strong></td>
-    <td colspan="5">A preencher após a execução do teste (resultado obtido e observações).</td>
+    <td colspan="5">Com o usuário na tela de termos, o segredo JWT do backend foi alterado e o backend reiniciado, invalidando o token guardado no aplicativo. Ao marcar o aceite e tocar em "Continuar", o servidor respondeu 401, o aplicativo limpou a sessão armazenada e redirecionou o usuário para a tela de login. Resultado conforme o critério de êxito.</td>
   </tr>
   <tr>
     <td colspan="6" align="center"><strong>Evidência</strong></td>
   </tr>
   <tr>
-    <td colspan="6" align="center"><em>Vídeo a anexar após a execução do teste.</em></td>
+    <td colspan="6" align="center">
+
+<!-- VIDEO CT-007-I01: arraste mobile-caso-teste-CT-007-I01.mp4 na linha em branco abaixo -->
+
+
+
+Local do Vídeo no Repositório para Download: [Vídeo - CT-007 - I01](gravacoes-testes-etapa-2/mobile/mobile-caso-teste-CT-007-I01.mp4)
+
+</td>
   </tr>
 </table>

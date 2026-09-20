@@ -1,5 +1,7 @@
 # Planos de Testes de Software
 
+## Plano de Testes - Mobile
+
 Este plano apresenta os casos de testes utilizados na verificação e validação da aplicação **mobile** (React Native / Expo). Os cenários demonstram os requisitos sendo satisfeitos e o tratamento de erros (robustez da aplicação).
 
 ### Tipo de Teste
@@ -1048,6 +1050,8 @@ Nenhum usuário é excluído fisicamente (RNF-005). Para repetir os testes, cria
     <td>O servidor responde 401, o aplicativo limpa a sessão armazenada e redireciona o usuário para a tela de login.</td>
   </tr>
 </table>
+
+## Plano de Testes - Web
 
 ### RF-001 — Autenticação e Recuperação de Senha
 
