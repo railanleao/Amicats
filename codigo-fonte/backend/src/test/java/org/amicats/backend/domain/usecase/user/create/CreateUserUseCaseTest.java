@@ -142,4 +142,20 @@ class CreateUserUseCaseTest {
             () -> useCase.execute(input("rafael@amicats.org.br", AccessType.Viewer, null, null)))
         .isInstanceOf(AccessEmailNotSentException.class);
   }
+
+  @Test
+  void storesBlankOptionalFieldsAsNull() {
+    when(userDataProvider.existsByEmail(anyString())).thenReturn(false);
+    stubPasswordAndTemplate();
+
+    useCase.execute(
+        new CreateUserInput(
+            "Rafael Nogueira", "rafael@amicats.org.br", "  ", AccessType.Assistant, "", ""));
+
+    ArgumentCaptor<User> user = ArgumentCaptor.forClass(User.class);
+    verify(userDataProvider).saveUser(user.capture());
+    assertThat(user.getValue().getPhoneNumber()).isNull();
+    assertThat(user.getValue().getCrmv()).isNull();
+    assertThat(user.getValue().getUfCrmv()).isNull();
+  }
 }

@@ -433,6 +433,11 @@ class UserManagementFlowIntegrationTest {
     assertThat(response.statusCode()).isEqualTo(400);
   }
 
+  @Test
+  void theEmailIsCaseInsensitiveAtLogin() throws Exception {
+    assertThat(login(targetEmail.toUpperCase()).statusCode()).isEqualTo(200);
+  }
+
   private Map<String, Object> createBody(String fullName, String email, AccessType accessType) {
     Map<String, Object> body = new LinkedHashMap<>();
     body.put("fullName", fullName);

@@ -1,5 +1,6 @@
 package org.amicats.backend.service;
 
+import java.util.Locale;
 import org.amicats.backend.domain.entity.User;
 import org.amicats.backend.domain.entity.UserAuth;
 import org.amicats.backend.domain.usecase.userauth.LoginRequest;
@@ -34,7 +35,7 @@ public class AuthService {
 
     UserAuth auth =
         userAuthRepository
-            .findByEmail(request.email())
+            .findByEmail(request.email().trim().toLowerCase(Locale.ROOT))
             .orElseThrow(
                 () ->
                     new ResponseStatusException(

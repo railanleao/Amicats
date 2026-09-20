@@ -15,6 +15,10 @@ public final class CrmvRule {
     return ufCrmv == null ? null : ufCrmv.toUpperCase(Locale.ROOT);
   }
 
+  public static String blankToNull(String value) {
+    return hasText(value) ? value.trim() : null;
+  }
+
   private static boolean hasText(String value) {
     return value != null && !value.isBlank();
   }

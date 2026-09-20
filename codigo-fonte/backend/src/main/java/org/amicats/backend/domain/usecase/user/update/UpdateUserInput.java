@@ -13,7 +13,7 @@ public record UpdateUserInput(
     @Size(max = 20) String phoneNumber,
     @NotNull AccessType accessType,
     @Size(max = 20) String crmv,
-    @Pattern(regexp = "[A-Za-z]{2}") String ufCrmv) {
+    @Pattern(regexp = "^$|[A-Za-z]{2}") String ufCrmv) {
 
   @AssertTrue(message = "CRMV e UF são obrigatórios para veterinários.")
   public boolean isCrmvRequirementMet() {

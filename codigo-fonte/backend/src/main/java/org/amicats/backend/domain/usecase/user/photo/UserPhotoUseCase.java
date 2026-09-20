@@ -6,10 +6,16 @@ import org.amicats.backend.domain.interfaces.dataprovider.user.UserDataProvider;
 import org.amicats.backend.domain.interfaces.storage.PhotoStorage;
 import org.amicats.backend.domain.usecase.user.read.ReadUserOutput;
 import org.amicats.backend.exception.ResourceNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 @Builder
 public class UserPhotoUseCase {
+
+  private static final Logger log = LoggerFactory.getLogger(UserPhotoUseCase.class);
 
   private UserDataProvider userDataProvider;
   private PhotoStorage photoStorage;
@@ -47,8 +53,30 @@ public class UserPhotoUseCase {
     userDataProvider.saveUser(user);
 
     if (hadPhoto) {
-      photoStorage.delete(keyFor(id));
+      deleteFileAfterCommit(keyFor(id));
     }
+  }
+
+  // The file only disappears once the database change is durable: if the commit fails, the
+  // photo is still there and the reference in the database stays valid. An orphan file left by a
+  // failed delete is harmless, since the key is fixed per user and the next upload overwrites it.
+  private void deleteFileAfterCommit(String key) {
+    if (!TransactionSynchronizationManager.isSynchronizationActive()) {
+      photoStorage.delete(key);
+      return;
+    }
+
+    TransactionSynchronizationManager.registerSynchronization(
+        new TransactionSynchronization() {
+          @Override
+          public void afterCommit() {
+            try {
+              photoStorage.delete(key);
+            } catch (RuntimeException e) {
+              log.warn("Não foi possível apagar a foto {} depois do commit.", key, e);
+            }
+          }
+        });
   }
 
   private User find(Integer id) {

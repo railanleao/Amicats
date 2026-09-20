@@ -28,6 +28,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 @ExtendWith(MockitoExtension.class)
 class UserPhotoUseCaseTest {
@@ -101,6 +103,25 @@ class UserPhotoUseCaseTest {
     assertThat(user.getImageUrl()).isNull();
     verify(userDataProvider).saveUser(user);
     verify(photoStorage).delete(KEY);
+  }
+
+  @Test
+  void removeOnlyDeletesTheFileAfterTheTransactionCommits() {
+    User user = aUser();
+    user.changeImage(KEY);
+    when(userDataProvider.findById(USER_ID)).thenReturn(Optional.of(user));
+    TransactionSynchronizationManager.initSynchronization();
+    try {
+      useCase.remove(USER_ID);
+
+      verify(photoStorage, never()).delete(any());
+
+      TransactionSynchronizationManager.getSynchronizations()
+          .forEach(TransactionSynchronization::afterCommit);
+      verify(photoStorage).delete(KEY);
+    } finally {
+      TransactionSynchronizationManager.clearSynchronization();
+    }
   }
 
   private static User aUser() {

@@ -67,4 +67,20 @@ class CrmvRequirementValidationTest {
 
     assertThat(VALIDATOR.validate(input)).isNotEmpty();
   }
+
+  @Test
+  void blankOptionalFieldsAreAcceptedForNonVeterinarians() {
+    UpdateUserInput input = new UpdateUserInput("Rafael", "", AccessType.Assistant, "", "");
+
+    assertThat(VALIDATOR.validate(input)).isEmpty();
+  }
+
+  @Test
+  void blankCrmvAndUfStillFailForVeterinarians() {
+    UpdateUserInput input = new UpdateUserInput("Rafael", null, AccessType.Veterinarian, "", "");
+
+    assertThat(VALIDATOR.validate(input))
+        .extracting(ConstraintViolation::getMessage)
+        .contains(MESSAGE);
+  }
 }

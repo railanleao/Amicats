@@ -36,11 +36,11 @@ public class CreateUserUseCase {
     User user =
         new User(
             input.fullName(),
-            input.phoneNumber(),
+            CrmvRule.blankToNull(input.phoneNumber()),
             null,
             input.accessType(),
-            input.crmv(),
-            CrmvRule.normalizeUf(input.ufCrmv()),
+            CrmvRule.blankToNull(input.crmv()),
+            CrmvRule.normalizeUf(CrmvRule.blankToNull(input.ufCrmv())),
             null);
     userDataProvider.saveUser(user);
 
