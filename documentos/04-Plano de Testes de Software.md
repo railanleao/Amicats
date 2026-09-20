@@ -1,6 +1,6 @@
-# Planos de Testes de Software
+``# 🧪 Planos de Testes de Software
 
-## Plano de Testes - Mobile
+## 📱 MOBILE - Plano de Testes - ETAPA 2 (RF-001)
 
 Este plano apresenta os casos de testes utilizados na verificação e validação da aplicação **mobile** (React Native / Expo). Os cenários demonstram os requisitos sendo satisfeitos e o tratamento de erros (robustez da aplicação).
 
@@ -25,7 +25,7 @@ Este plano apresenta os casos de testes utilizados na verificação e validaçã
 | CT-002 | Mostrar/ocultar senha | S | - |
 | CT-003 | Recuperar senha | S | I01 |
 | CT-004 | Aceite de termos de uso | S | I01, I02 |
-| CT-005 | Nova senha obrigatória | S | I01 a I05 |
+| CT-005 | Nova senha obrigatória | S | I``01 a I05 |
 | CT-006 | Fluxo de primeiro acesso | S | - |
 | CT-007 | Sessão e logout | S, S02 | I01 |
 
@@ -1051,9 +1051,7 @@ Nenhum usuário é excluído fisicamente (RNF-005). Para repetir os testes, cria
   </tr>
 </table>
 
-## Plano de Testes - Web
-
-### RF-001 — Autenticação e Recuperação de Senha
+## 💻 WEB - Plano de Testes - ETAPA 2 (RF-001)
 
 <table>
   <tr>
