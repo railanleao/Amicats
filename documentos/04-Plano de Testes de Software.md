@@ -1,6 +1,6 @@
-# Planos de Testes de Software
+# 🧪 Planos de Testes de Software
 
-## Plano de Testes - Mobile
+## 📱 MOBILE - Plano de Testes - ETAPA 2 (RF-001)
 
 Este plano apresenta os casos de testes utilizados na verificação e validação da aplicação **mobile** (React Native / Expo). Os cenários demonstram os requisitos sendo satisfeitos e o tratamento de erros (robustez da aplicação).
 
@@ -1051,9 +1051,7 @@ Nenhum usuário é excluído fisicamente (RNF-005). Para repetir os testes, cria
   </tr>
 </table>
 
-## Plano de Testes - Web
-
-### RF-001 — Autenticação e Recuperação de Senha
+## 💻 WEB - Plano de Testes - ETAPA 2 (RF-001)
 
 <table>
   <tr>
@@ -1092,7 +1090,7 @@ Nenhum usuário é excluído fisicamente (RNF-005). Para repetir os testes, cria
     </td>
   </tr>
   <tr>
-    <td><strong>Critérios de êito</strong></td>
+    <td><strong>Critérios de êxito</strong></td>
     <td>O sistema deve autenticar o usuário, gerar um token de acesso e permitir o acesso às funcionalidades correspondentes ao seu perfil.</td>
   </tr>
 </table>
@@ -1729,6 +1727,104 @@ Nenhum usuário é excluído fisicamente (RNF-005). Para repetir os testes, cria
   <tr>
     <td><strong>Critérios de êxito</strong></td>
     <td>O sistema deve apresentar somente os usuários que correspondam aos critérios de busca e filtros informados, mantendo corretamente os dados de nome, e-mail, perfil e situação.</td>
+  </tr>
+</table>
+
+<br>
+
+<table>
+  <tr>
+    <th colspan="2" width="1000">CT-009 - S<br>Reativação de usuário</th>
+  </tr>
+  <tr>
+    <td width="150"><strong>Descrição</strong></td>
+    <td>Este caso de teste verifica se um Administrador consegue reativar um usuário inativado e se o usuário reativado volta a ter a possibilidade de autenticação no sistema.</td>
+  </tr>
+  <tr>
+    <td><strong>Responsável Caso de Teste</strong></td>
+    <td width="430">Railan Leão</td>
+  </tr>
+  <tr>
+    <td><strong>Tipo do Teste</strong></td>
+    <td width="430">Sucesso</td>
+  </tr>
+  <tr>
+    <td><strong>Requisitos associados</strong></td>
+    <td>RF de Gestão de Usuários: Permitir ao Administrador reativar usuários previamente inativados.</td>
+  </tr>
+  <tr>
+    <td><strong>Passos</strong></td>
+    <td>
+      1. Autenticar-se no sistema com um usuário Administrador.<br>
+      2. Acessar a gestão de usuários.<br>
+      3. Filtrar ou localizar um usuário inativo.<br>
+      4. Selecionar a opção de reativação.<br>
+      5. Confirmar a operação.<br>
+      6. Verificar que o usuário passou para a situação de ativo.<br>
+      7. Tentar realizar login utilizando as credenciais do usuário reativado.
+    </td>
+  </tr>
+  <tr>
+    <td><strong>Dados de teste</strong></td>
+    <td>
+      - <strong>Usuário:</strong> Usuário previamente cadastrado e inativo.<br>
+      - <strong>Perfil:</strong> Veterinarian, Assistant ou Viewer.<br>
+      - <strong>Situação inicial:</strong> Inativo.
+    </td>
+  </tr>
+  <tr>
+    <td><strong>Critérios de êxito</strong></td>
+    <td>O sistema deve alterar a situação do usuário para ativo, manter os dados do cadastro e permitir novas autenticações com as credenciais do usuário reativado.</td>
+  </tr>
+</table>
+
+<br>
+
+<table>
+  <tr>
+    <th colspan="2" width="1000">CT-010 - S<br>Alteração e remoção da foto de um usuário</th>
+  </tr>
+  <tr>
+    <td width="150"><strong>Descrição</strong></td>
+    <td>Este caso de teste verifica se um Administrador consegue definir, alterar e remover a foto de um usuário cadastrado.</td>
+  </tr>
+  <tr>
+    <td><strong>Responsável Caso de Teste</strong></td>
+    <td width="430">Railan Leão</td>
+  </tr>
+  <tr>
+    <td><strong>Tipo do Teste</strong></td>
+    <td width="430">Sucesso</td>
+  </tr>
+  <tr>
+    <td><strong>Requisitos associados</strong></td>
+    <td>RF de Gestão de Usuários: Permitir ao Administrador editar os dados dos usuários, incluindo a foto de perfil.</td>
+  </tr>
+  <tr>
+    <td><strong>Passos</strong></td>
+    <td>
+      1. Autenticar-se no sistema com um usuário Administrador.<br>
+      2. Acessar a gestão de usuários.<br>
+      3. Localizar um usuário cadastrado e selecionar a opção de edição.<br>
+      4. Selecionar uma imagem válida como foto e salvar as alterações.<br>
+      5. Verificar que a foto é exibida para o usuário.<br>
+      6. Selecionar a opção de edição novamente e escolher uma segunda imagem, diferente da primeira.<br>
+      7. Salvar as alterações e verificar que a foto foi substituída.<br>
+      8. Selecionar a opção de remover a foto e salvar as alterações.<br>
+      9. Verificar que o usuário passou a ser exibido sem foto.
+    </td>
+  </tr>
+  <tr>
+    <td><strong>Dados de teste</strong></td>
+    <td>
+      - <strong>Usuário:</strong> Usuário previamente cadastrado, sem foto.<br>
+      - <strong>Imagem 1:</strong> Arquivo de imagem válido (por exemplo, JPG ou PNG).<br>
+      - <strong>Imagem 2:</strong> Arquivo de imagem válido, diferente da Imagem 1.
+    </td>
+  </tr>
+  <tr>
+    <td><strong>Critérios de êxito</strong></td>
+    <td>O sistema deve salvar e exibir a foto informada, substituí-la pela nova imagem ao ser alterada e, ao remover a foto, apagá-la do cadastro do usuário, que passa a ser exibido sem foto (imagem padrão).</td>
   </tr>
 </table>
 

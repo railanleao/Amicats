@@ -1,4 +1,5 @@
-# Evidências de Testes de Software - Etapa 2
+# 🔍 Evidências de Testes de Software - Etapa 2
+
 Apresente vídeos do software em funcionamento que comprovam que um determinado teste foi executado.
 
 ## Testes por pares
@@ -9,7 +10,7 @@ A fim de aumentar a qualidade da aplicação desenvolvida, cada funcionalidade d
 2. Anexa o vídeo na linha "Evidência" (arrastando o arquivo para o editor do GitHub, que gera o link).
 3. Preenche o responsável pelo teste, a data e o comentário com o resultado obtido; se o resultado divergir do critério de êxito, registra o desvio no comentário.
 
-### Casos de teste da Etapa 2 (RF-001 - Mobile)
+## 📱 MOBILE - Evidências de Testes - ETAPA 2 (RF-001)
 
 <table>
   <tr>
@@ -573,7 +574,7 @@ https://github.com/user-attachments/assets/6317daf4-0f4f-4469-9b1b-81c2f8a9055b
   </tr>
   <tr>
     <td width="170"><strong>Comentário</strong></td>
-    <td colspan="5">Com a senha temporária repetida em "Nova senha" e "Confirmar nova senha", o aplicativo exibiu em vermelho a mensagem retornada pelo servidor ("Não foi possível completar a solicitação. Tente novamente.") e permaneceu na tela. Mensagem diferente, resultado parcialmente conforme o critério de êxito.</td>
+    <td colspan="5">Com a senha temporária repetida em "Nova senha" e "Confirmar nova senha", o aplicativo exibiu em vermelho a mensagem retornada pelo servidor ("A nova senha deve ser diferente da senha atual.") e permaneceu na tela. Resultado conforme o critério de êxito.</td>
   </tr>
   <tr>
     <td colspan="6" align="center"><strong>Evidência</strong></td>
@@ -710,6 +711,553 @@ https://github.com/user-attachments/assets/5f072d97-dc39-49d2-9883-c592fb51a84e
     <td colspan="6" align="center">
 
 https://github.com/user-attachments/assets/4e6da5f2-18ae-4cfd-a367-f6ecbcc25f52
+
+</td>
+  </tr>
+</table>
+
+## 💻 WEB - Evidências de Testes - ETAPA 2 (RF-001)
+
+
+<table>
+  <tr>
+    <th colspan="6" width="1000">CT-001 - S<br>Login com credenciais válidas</th>
+  </tr>
+  <tr>
+    <td width="170"><strong>Critérios de êxito</strong></td>
+    <td colspan="5">O sistema deve autenticar o usuário, gerar um token de acesso e permitir o acesso às funcionalidades correspondentes ao seu perfil.</td>
+  </tr>
+  <tr>
+    <td><strong>Responsável pela funcionalidade</strong></td>
+    <td width="430">Railan Leão</td>
+    <td><strong>Responsável pelo teste</strong></td>
+    <td width="430">Aliane Amaral</td>
+    <td width="100"><strong>Data do teste</strong></td>
+    <td width="150">20/09/2026</td>
+  </tr>
+  <tr>
+    <td width="170"><strong>Comentário</strong></td>
+    <td colspan="5">Com o e-mail e a senha de um usuário cadastrado e ativo, o sistema autenticou o usuário, gerou o token de acesso e permitiu o acesso às funcionalidades correspondentes ao seu perfil. Resultado conforme o critério de êxito.</td>
+  </tr>
+  <tr>
+    <td colspan="6" align="center"><strong>Evidência</strong></td>
+  </tr>
+  <tr>
+    <td colspan="6" align="center">
+
+https://github.com/user-attachments/assets/5b458fc0-1a62-41a3-8395-be2a5cfc8a80
+
+</td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <th colspan="6" width="1000">CT-001 - I01<br>Login com senha incorreta</th>
+  </tr>
+  <tr>
+    <td width="170"><strong>Critérios de êxito</strong></td>
+    <td colspan="5">O sistema não deve autenticar o usuário nem gerar um token de acesso e deve informar que as credenciais são inválidas.</td>
+  </tr>
+  <tr>
+    <td><strong>Responsável pela funcionalidade</strong></td>
+    <td width="430">Railan Leão</td>
+    <td><strong>Responsável pelo teste</strong></td>
+    <td width="430">Aliane Amaral</td>
+    <td width="100"><strong>Data do teste</strong></td>
+    <td width="150">20/09/2026</td>
+  </tr>
+  <tr>
+    <td width="170"><strong>Comentário</strong></td>
+    <td colspan="5">Com o e-mail de um usuário cadastrado e ativo e uma senha diferente da cadastrada, o sistema não autenticou o usuário, não gerou token de acesso e informou que as credenciais são inválidas. Resultado conforme o critério de êxito.</td>
+  </tr>
+  <tr>
+    <td colspan="6" align="center"><strong>Evidência</strong></td>
+  </tr>
+  <tr>
+    <td colspan="6" align="center">
+
+https://github.com/user-attachments/assets/2067cf5b-ca8f-40ba-9902-14c4bdb42f4f
+
+</td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <th colspan="6" width="1000">CT-001 - I02<br>Login com usuário inexistente</th>
+  </tr>
+  <tr>
+    <td width="170"><strong>Critérios de êxito</strong></td>
+    <td colspan="5">O sistema deve rejeitar a autenticação e apresentar uma mensagem de credenciais inválidas, sem permitir acesso ao sistema.</td>
+  </tr>
+  <tr>
+    <td><strong>Responsável pela funcionalidade</strong></td>
+    <td width="430">Railan Leão</td>
+    <td><strong>Responsável pelo teste</strong></td>
+    <td width="430">Aliane Amaral</td>
+    <td width="100"><strong>Data do teste</strong></td>
+    <td width="150">20/09/2026</td>
+  </tr>
+  <tr>
+    <td width="170"><strong>Comentário</strong></td>
+    <td colspan="5">Com um e-mail não cadastrado na base, o sistema rejeitou a autenticação e apresentou a mensagem de credenciais inválidas, sem permitir acesso ao sistema. Resultado conforme o critério de êxito.</td>
+  </tr>
+  <tr>
+    <td colspan="6" align="center"><strong>Evidência</strong></td>
+  </tr>
+  <tr>
+    <td colspan="6" align="center">
+
+https://github.com/user-attachments/assets/8718dda5-de87-4264-be99-de0804143b76
+
+</td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <th colspan="6" width="1000">CT-001 - I03<br>Login com usuário inativo</th>
+  </tr>
+  <tr>
+    <td width="170"><strong>Critérios de êxito</strong></td>
+    <td colspan="5">O sistema deve impedir a autenticação do usuário inativo e não deve gerar um token de acesso.</td>
+  </tr>
+  <tr>
+    <td><strong>Responsável pela funcionalidade</strong></td>
+    <td width="430">Railan Leão</td>
+    <td><strong>Responsável pelo teste</strong></td>
+    <td width="430">Aliane Amaral</td>
+    <td width="100"><strong>Data do teste</strong></td>
+    <td width="150">20/09/2026</td>
+  </tr>
+  <tr>
+    <td width="170"><strong>Comentário</strong></td>
+    <td colspan="5">Com o e-mail e a senha corretos de um usuário inativo, o sistema impediu a autenticação e não gerou token de acesso. Resultado conforme o critério de êxito.</td>
+  </tr>
+  <tr>
+    <td colspan="6" align="center"><strong>Evidência</strong></td>
+  </tr>
+  <tr>
+    <td colspan="6" align="center">
+
+https://github.com/user-attachments/assets/e1a427f3-70cf-4d18-886e-a6eb5a3099ea
+
+</td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <th colspan="6" width="1000">CT-001 - I04<br>Login com e-mail em formato inválido</th>
+  </tr>
+  <tr>
+    <td width="170"><strong>Critérios de êxito</strong></td>
+    <td colspan="5">O sistema deve impedir o processamento do login e informar que o e-mail possui formato inválido.</td>
+  </tr>
+  <tr>
+    <td><strong>Responsável pela funcionalidade</strong></td>
+    <td width="430">Railan Leão</td>
+    <td><strong>Responsável pelo teste</strong></td>
+    <td width="430">Aliane Amaral</td>
+    <td width="100"><strong>Data do teste</strong></td>
+    <td width="150">20/09/2026</td>
+  </tr>
+  <tr>
+    <td width="170"><strong>Comentário</strong></td>
+    <td colspan="5">Com um e-mail em formato inválido, o sistema impediu o processamento do login e informou que o e-mail possui formato inválido. Resultado conforme o critério de êxito.</td>
+  </tr>
+  <tr>
+    <td colspan="6" align="center"><strong>Evidência</strong></td>
+  </tr>
+  <tr>
+    <td colspan="6" align="center">
+
+https://github.com/user-attachments/assets/d4a82305-2a6d-44a4-bba3-3a78bbb2392f
+
+</td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <th colspan="6" width="1000">CT-001 - I05<br>Login com campos obrigatórios vazios</th>
+  </tr>
+  <tr>
+    <td width="170"><strong>Critérios de êxito</strong></td>
+    <td colspan="5">O sistema deve impedir o login e indicar que os campos obrigatórios devem ser preenchidos.</td>
+  </tr>
+  <tr>
+    <td><strong>Responsável pela funcionalidade</strong></td>
+    <td width="430">Railan Leão</td>
+    <td><strong>Responsável pelo teste</strong></td>
+    <td width="430">Aliane Amaral</td>
+    <td width="100"><strong>Data do teste</strong></td>
+    <td width="150">20/09/2026</td>
+  </tr>
+  <tr>
+    <td width="170"><strong>Comentário</strong></td>
+    <td colspan="5">Com os campos de e-mail e senha vazios, o sistema impediu o login e indicou que os campos obrigatórios devem ser preenchidos. Resultado conforme o critério de êxito.</td>
+  </tr>
+  <tr>
+    <td colspan="6" align="center"><strong>Evidência</strong></td>
+  </tr>
+  <tr>
+    <td colspan="6" align="center">
+
+https://github.com/user-attachments/assets/86c62451-2b83-449d-a90d-0c255e7ce05e
+
+</td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <th colspan="6" width="1000">CT-002 - S<br>Solicitação de recuperação de senha</th>
+  </tr>
+  <tr>
+    <td width="170"><strong>Critérios de êxito</strong></td>
+    <td colspan="5">O sistema deve processar a solicitação e disponibilizar ao usuário cadastrado o mecanismo definido para redefinição da senha por e-mail.</td>
+  </tr>
+  <tr>
+    <td><strong>Responsável pela funcionalidade</strong></td>
+    <td width="430">Railan Leão</td>
+    <td><strong>Responsável pelo teste</strong></td>
+    <td width="430">Aliane Amaral</td>
+    <td width="100"><strong>Data do teste</strong></td>
+    <td width="150">20/09/2026</td>
+  </tr>
+  <tr>
+    <td width="170"><strong>Comentário</strong></td>
+    <td colspan="5">A partir de "Esqueci minha senha", com o e-mail de um usuário cadastrado e ativo, o sistema processou a solicitação e disponibilizou ao usuário o mecanismo de redefinição da senha por e-mail. Resultado conforme o critério de êxito.</td>
+  </tr>
+  <tr>
+    <td colspan="6" align="center"><strong>Evidência</strong></td>
+  </tr>
+  <tr>
+    <td colspan="6" align="center">
+
+https://github.com/user-attachments/assets/2bd059b7-c2a0-499a-a889-a44d639a8073
+
+</td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <th colspan="6" width="1000">CT-002 - I01<br>Recuperação de senha com e-mail inválido</th>
+  </tr>
+  <tr>
+    <td width="170"><strong>Critérios de êxito</strong></td>
+    <td colspan="5">O sistema deve rejeitar a solicitação e informar que o endereço de e-mail possui formato inválido.</td>
+  </tr>
+  <tr>
+    <td><strong>Responsável pela funcionalidade</strong></td>
+    <td width="430">Railan Leão</td>
+    <td><strong>Responsável pelo teste</strong></td>
+    <td width="430">Aliane Amaral</td>
+    <td width="100"><strong>Data do teste</strong></td>
+    <td width="150">20/09/2026</td>
+  </tr>
+  <tr>
+    <td width="170"><strong>Comentário</strong></td>
+    <td colspan="5">Com um e-mail em formato inválido na recuperação de senha, o sistema rejeitou a solicitação e informou que o endereço de e-mail possui formato inválido. Resultado conforme o critério de êxito.</td>
+  </tr>
+  <tr>
+    <td colspan="6" align="center"><strong>Evidência</strong></td>
+  </tr>
+  <tr>
+    <td colspan="6" align="center">
+
+https://github.com/user-attachments/assets/3e2a5256-22c8-4f2d-85d8-cc5181f82cb9
+
+</td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <th colspan="6" width="1000">CT-003 - S<br>Redefinição de senha pelo Administrador</th>
+  </tr>
+  <tr>
+    <td width="170"><strong>Critérios de êxito</strong></td>
+    <td colspan="5">O sistema deve atualizar a senha do usuário e permitir sua autenticação com a nova credencial, respeitando a regra de alteração obrigatória da senha quando aplicável.</td>
+  </tr>
+  <tr>
+    <td><strong>Responsável pela funcionalidade</strong></td>
+    <td width="430">Railan Leão</td>
+    <td><strong>Responsável pelo teste</strong></td>
+    <td width="430">Aliane Amaral</td>
+    <td width="100"><strong>Data do teste</strong></td>
+    <td width="150">20/09/2026</td>
+  </tr>
+  <tr>
+    <td width="170"><strong>Comentário</strong></td>
+    <td colspan="5">Com um usuário Administrador autenticado, a senha de outro usuário foi redefinida pela gestão de usuários. O sistema atualizou a senha e permitiu a autenticação do usuário com a nova credencial, respeitando a regra de alteração obrigatória da senha quando aplicável. Resultado conforme o critério de êxito.</td>
+  </tr>
+  <tr>
+    <td colspan="6" align="center"><strong>Evidência</strong></td>
+  </tr>
+  <tr>
+    <td colspan="6" align="center">
+
+https://github.com/user-attachments/assets/413674c1-1008-49c9-b394-ac223dbee837
+
+</td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <th colspan="6" width="1000">CT-003 - I01<br>Redefinição de senha sem permissão de Administrador</th>
+  </tr>
+  <tr>
+    <td width="170"><strong>Critérios de êxito</strong></td>
+    <td colspan="5">O sistema deve impedir a operação e manter a senha do usuário alvo inalterada.</td>
+  </tr>
+  <tr>
+    <td><strong>Responsável pela funcionalidade</strong></td>
+    <td width="430">Railan Leão</td>
+    <td><strong>Responsável pelo teste</strong></td>
+    <td width="430">Aliane Amaral</td>
+    <td width="100"><strong>Data do teste</strong></td>
+    <td width="150">20/09/2026</td>
+  </tr>
+  <tr>
+    <td width="170"><strong>Comentário</strong></td>
+    <td colspan="5">Com um usuário de perfil diferente de Administrador autenticado, o sistema impediu a redefinição da senha de outro usuário e manteve a senha do usuário alvo inalterada. Resultado conforme o critério de êxito.</td>
+  </tr>
+  <tr>
+    <td colspan="6" align="center"><strong>Evidência</strong></td>
+  </tr>
+  <tr>
+    <td colspan="6" align="center">
+
+https://github.com/user-attachments/assets/6edc81a4-75b9-4287-95cb-16723383185b
+
+</td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <th colspan="6" width="1000">CT-004 - S<br>Cadastro de usuário com perfil de acesso</th>
+  </tr>
+  <tr>
+    <td width="170"><strong>Critérios de êxito</strong></td>
+    <td colspan="5">O sistema deve cadastrar o usuário com sucesso, associar o perfil de acesso selecionado e disponibilizá-lo na listagem de usuários.</td>
+  </tr>
+  <tr>
+    <td><strong>Responsável pela funcionalidade</strong></td>
+    <td width="430">Railan Leão</td>
+    <td><strong>Responsável pelo teste</strong></td>
+    <td width="430">Aliane Amaral</td>
+    <td width="100"><strong>Data do teste</strong></td>
+    <td width="150">20/09/2026</td>
+  </tr>
+  <tr>
+    <td width="170"><strong>Comentário</strong></td>
+    <td colspan="5">Com um usuário Administrador autenticado, o cadastro de um novo usuário foi concluído com sucesso. O sistema associou o perfil de acesso selecionado e disponibilizou o usuário na listagem de usuários. Resultado conforme o critério de êxito.</td>
+  </tr>
+  <tr>
+    <td colspan="6" align="center"><strong>Evidência</strong></td>
+  </tr>
+  <tr>
+    <td colspan="6" align="center">
+
+https://github.com/user-attachments/assets/5fec12c7-9310-495d-a3cd-86177441fb8f
+
+</td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <th colspan="6" width="1000">CT-005 - I01<br>Cadastro de usuário com e-mail já existente</th>
+  </tr>
+  <tr>
+    <td width="170"><strong>Critérios de êxito</strong></td>
+    <td colspan="5">O sistema deve impedir o cadastro duplicado e informar que o endereço de e-mail já está registrado.</td>
+  </tr>
+  <tr>
+    <td><strong>Responsável pela funcionalidade</strong></td>
+    <td width="430">Railan Leão</td>
+    <td><strong>Responsável pelo teste</strong></td>
+    <td width="430">Aliane Amaral</td>
+    <td width="100"><strong>Data do teste</strong></td>
+    <td width="150">20/09/2026</td>
+  </tr>
+  <tr>
+    <td width="170"><strong>Comentário</strong></td>
+    <td colspan="5">Ao tentar cadastrar um novo usuário com um e-mail já existente na base, o sistema impediu o cadastro duplicado e informou que o endereço de e-mail já está registrado. Resultado conforme o critério de êxito.</td>
+  </tr>
+  <tr>
+    <td colspan="6" align="center"><strong>Evidência</strong></td>
+  </tr>
+  <tr>
+    <td colspan="6" align="center">
+
+https://github.com/user-attachments/assets/52412eff-1a22-4ae6-b9fd-16bf5edc5f03
+
+</td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <th colspan="6" width="1000">CT-006 - S<br>Alteração do perfil de acesso de um usuário</th>
+  </tr>
+  <tr>
+    <td width="170"><strong>Critérios de êxito</strong></td>
+    <td colspan="5">O sistema deve salvar a alteração e o usuário deve passar a possuir o novo perfil de acesso definido pelo Administrador.</td>
+  </tr>
+  <tr>
+    <td><strong>Responsável pela funcionalidade</strong></td>
+    <td width="430">Railan Leão</td>
+    <td><strong>Responsável pelo teste</strong></td>
+    <td width="430">Aliane Amaral</td>
+    <td width="100"><strong>Data do teste</strong></td>
+    <td width="150">20/09/2026</td>
+  </tr>
+  <tr>
+    <td width="170"><strong>Comentário</strong></td>
+    <td colspan="5">O perfil de acesso de um usuário cadastrado foi alterado de Viewer para Assistant por um Administrador. O sistema salvou a alteração e, ao verificar os dados do usuário, o novo perfil de acesso estava aplicado. Resultado conforme o critério de êxito.</td>
+  </tr>
+  <tr>
+    <td colspan="6" align="center"><strong>Evidência</strong></td>
+  </tr>
+  <tr>
+    <td colspan="6" align="center">
+
+https://github.com/user-attachments/assets/ad48af93-a1a9-4646-8bb1-b852dd2142d8
+
+</td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <th colspan="6" width="1000">CT-007 - S<br>Inativação de usuário</th>
+  </tr>
+  <tr>
+    <td width="170"><strong>Critérios de êxito</strong></td>
+    <td colspan="5">O sistema deve alterar a situação do usuário para inativo, mantê-lo registrado na base de dados e impedir novas autenticações enquanto permanecer inativo.</td>
+  </tr>
+  <tr>
+    <td><strong>Responsável pela funcionalidade</strong></td>
+    <td width="430">Railan Leão</td>
+    <td><strong>Responsável pelo teste</strong></td>
+    <td width="430">Aliane Amaral</td>
+    <td width="100"><strong>Data do teste</strong></td>
+    <td width="150">20/09/2026</td>
+  </tr>
+  <tr>
+    <td width="170"><strong>Comentário</strong></td>
+    <td colspan="5">Um Administrador inativou um usuário ativo. O sistema alterou a situação do usuário para inativo, manteve o registro na listagem e impediu a autenticação do usuário inativado ao tentar realizar login. Resultado conforme o critério de êxito.</td>
+  </tr>
+  <tr>
+    <td colspan="6" align="center"><strong>Evidência</strong></td>
+  </tr>
+  <tr>
+    <td colspan="6" align="center">
+
+https://github.com/user-attachments/assets/9c287378-f32d-4c39-aabb-cc222f0c01f2
+
+</td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <th colspan="6" width="1000">CT-008 - S<br>Busca e filtragem de usuários por perfil e situação</th>
+  </tr>
+  <tr>
+    <td width="170"><strong>Critérios de êxito</strong></td>
+    <td colspan="5">O sistema deve apresentar somente os usuários que correspondam aos critérios de busca e filtros informados, mantendo corretamente os dados de nome, e-mail, perfil e situação.</td>
+  </tr>
+  <tr>
+    <td><strong>Responsável pela funcionalidade</strong></td>
+    <td width="430">Railan Leão</td>
+    <td><strong>Responsável pelo teste</strong></td>
+    <td width="430">Aliane Amaral</td>
+    <td width="100"><strong>Data do teste</strong></td>
+    <td width="150">20/09/2026</td>
+  </tr>
+  <tr>
+    <td width="170"><strong>Comentário</strong></td>
+    <td colspan="5">Com a busca por nome ou e-mail e os filtros de perfil de acesso e situação aplicados, o sistema apresentou somente os usuários que correspondem aos critérios informados, mantendo corretos os dados de nome, e-mail, perfil e situação. Resultado conforme o critério de êxito.</td>
+  </tr>
+  <tr>
+    <td colspan="6" align="center"><strong>Evidência</strong></td>
+  </tr>
+  <tr>
+    <td colspan="6" align="center">
+
+https://github.com/user-attachments/assets/0cab90cc-214d-4e27-9585-5d9c76394381
+
+</td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <th colspan="6" width="1000">CT-009 - S<br>Reativação de usuário</th>
+  </tr>
+  <tr>
+    <td width="170"><strong>Critérios de êxito</strong></td>
+    <td colspan="5">O sistema deve alterar a situação do usuário para ativo, manter os dados do cadastro e permitir novas autenticações com as credenciais do usuário reativado.</td>
+  </tr>
+  <tr>
+    <td><strong>Responsável pela funcionalidade</strong></td>
+    <td width="430">Railan Leão</td>
+    <td><strong>Responsável pelo teste</strong></td>
+    <td width="430">Aliane Amaral</td>
+    <td width="100"><strong>Data do teste</strong></td>
+    <td width="150">20/09/2026</td>
+  </tr>
+  <tr>
+    <td width="170"><strong>Comentário</strong></td>
+    <td colspan="5">Um Administrador reativou um usuário inativo. O sistema alterou a situação do usuário para ativo, manteve os dados do cadastro e permitiu a autenticação com as credenciais do usuário reativado. Resultado conforme o critério de êxito.</td>
+  </tr>
+  <tr>
+    <td colspan="6" align="center"><strong>Evidência</strong></td>
+  </tr>
+  <tr>
+    <td colspan="6" align="center">
+
+https://github.com/user-attachments/assets/af837bf9-f828-4638-b766-fa4ead909c41
+
+</td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <th colspan="6" width="1000">CT-010 - S<br>Alteração e remoção da foto de um usuário</th>
+  </tr>
+  <tr>
+    <td width="170"><strong>Critérios de êxito</strong></td>
+    <td colspan="5">O sistema deve salvar e exibir a foto informada, substituí-la pela nova imagem ao ser alterada e, ao remover a foto, apagá-la do cadastro do usuário, que passa a ser exibido sem foto (imagem padrão).</td>
+  </tr>
+  <tr>
+    <td><strong>Responsável pela funcionalidade</strong></td>
+    <td width="430">Railan Leão</td>
+    <td><strong>Responsável pelo teste</strong></td>
+    <td width="430">Aliane Amaral</td>
+    <td width="100"><strong>Data do teste</strong></td>
+    <td width="150">20/09/2026</td>
+  </tr>
+  <tr>
+    <td width="170"><strong>Comentário</strong></td>
+    <td colspan="5">Um Administrador definiu uma foto para o usuário, substituiu-a por uma segunda imagem e depois removeu a foto. O sistema salvou e exibiu a foto informada, substituiu-a pela nova imagem e, ao remover, apagou a foto do cadastro, e o usuário passou a ser exibido sem foto (imagem padrão). Resultado conforme o critério de êxito.</td>
+  </tr>
+  <tr>
+    <td colspan="6" align="center"><strong>Evidência</strong></td>
+  </tr>
+  <tr>
+    <td colspan="6" align="center">
+
+https://github.com/user-attachments/assets/4f3c3218-5614-400a-8134-67058cc8f4b8
 
 </td>
   </tr>
