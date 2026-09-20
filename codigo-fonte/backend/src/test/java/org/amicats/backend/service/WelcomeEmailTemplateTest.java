@@ -45,4 +45,10 @@ class WelcomeEmailTemplateTest {
         .contains("termos de uso")
         .contains("nova senha");
   }
+
+  @Test
+  void bothHtmlTemplatesReferenceTheInlineLogo() {
+    assertThat(template.welcomeHtmlBody("Rafael", "Temp0rary!Pw")).contains("cid:amicats-logo");
+    assertThat(template.htmlBody("Rafael", "Temp0rary!Pw")).contains("cid:amicats-logo");
+  }
 }
