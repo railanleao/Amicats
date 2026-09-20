@@ -37,11 +37,7 @@ A fim de aumentar a qualidade da aplicação desenvolvida, cada funcionalidade d
   <tr>
     <td colspan="6" align="center">
 
-<!-- VIDEO CT-001-S: arraste mobile-caso-teste-CT-001-S.mp4 na linha em branco abaixo -->
-
-
-
-Local do Vídeo no Repositório para Download: [Vídeo - CT-001 - S](gravacoes-testes-etapa-2/mobile/mobile-caso-teste-CT-001-S.mp4)
+https://github.com/user-attachments/assets/8f2436ec-a19a-4904-a5a1-9fd8b6039f56
 
 </td>
   </tr>
@@ -73,11 +69,7 @@ Local do Vídeo no Repositório para Download: [Vídeo - CT-001 - S](gravacoes-t
   <tr>
     <td colspan="6" align="center">
 
-<!-- VIDEO CT-001-I01: arraste mobile-caso-teste-CT-001-I01.mp4 na linha em branco abaixo -->
-
-
-
-Local do Vídeo no Repositório para Download: [Vídeo - CT-001 - I01](gravacoes-testes-etapa-2/mobile/mobile-caso-teste-CT-001-I01.mp4)
+https://github.com/user-attachments/assets/551e3454-ac70-488c-97d1-4326eeeb1d60
 
 </td>
   </tr>
@@ -109,11 +101,7 @@ Local do Vídeo no Repositório para Download: [Vídeo - CT-001 - I01](gravacoes
   <tr>
     <td colspan="6" align="center">
 
-<!-- VIDEO CT-001-I02: arraste mobile-caso-teste-CT-001-I02.mp4 na linha em branco abaixo -->
-
-
-
-Local do Vídeo no Repositório para Download: [Vídeo - CT-001 - I02](gravacoes-testes-etapa-2/mobile/mobile-caso-teste-CT-001-I02.mp4)
+https://github.com/user-attachments/assets/6dfb857d-ca65-4888-98ff-b35967c70b86
 
 </td>
   </tr>
@@ -145,11 +133,7 @@ Local do Vídeo no Repositório para Download: [Vídeo - CT-001 - I02](gravacoes
   <tr>
     <td colspan="6" align="center">
 
-<!-- VIDEO CT-001-I03: arraste mobile-caso-teste-CT-001-I03.mp4 na linha em branco abaixo -->
-
-
-
-Local do Vídeo no Repositório para Download: [Vídeo - CT-001 - I03](gravacoes-testes-etapa-2/mobile/mobile-caso-teste-CT-001-I03.mp4)
+https://github.com/user-attachments/assets/4bb2e94f-bcbc-4ef0-98aa-26a503489acc
 
 </td>
   </tr>
@@ -181,11 +165,7 @@ Local do Vídeo no Repositório para Download: [Vídeo - CT-001 - I03](gravacoes
   <tr>
     <td colspan="6" align="center">
 
-<!-- VIDEO CT-001-I04: arraste mobile-caso-teste-CT-001-I04.mp4 na linha em branco abaixo -->
-
-
-
-Local do Vídeo no Repositório para Download: [Vídeo - CT-001 - I04](gravacoes-testes-etapa-2/mobile/mobile-caso-teste-CT-001-I04.mp4)
+https://github.com/user-attachments/assets/72130a2e-4534-4028-ab93-fd8421d592b0
 
 </td>
   </tr>
@@ -217,11 +197,7 @@ Local do Vídeo no Repositório para Download: [Vídeo - CT-001 - I04](gravacoes
   <tr>
     <td colspan="6" align="center">
 
-<!-- VIDEO CT-001-I05: arraste mobile-caso-teste-CT-001-I05.mp4 na linha em branco abaixo -->
-
-
-
-Local do Vídeo no Repositório para Download: [Vídeo - CT-001 - I05](gravacoes-testes-etapa-2/mobile/mobile-caso-teste-CT-001-I05.mp4)
+https://github.com/user-attachments/assets/7384eadf-fdfe-4a39-9ff6-fc532842407c
 
 </td>
   </tr>
@@ -253,11 +229,7 @@ Local do Vídeo no Repositório para Download: [Vídeo - CT-001 - I05](gravacoes
   <tr>
     <td colspan="6" align="center">
 
-<!-- VIDEO CT-002-S: arraste mobile-caso-teste-CT-002-S.mp4 na linha em branco abaixo -->
-
-
-
-Local do Vídeo no Repositório para Download: [Vídeo - CT-002 - S](gravacoes-testes-etapa-2/mobile/mobile-caso-teste-CT-002-S.mp4)
+https://github.com/user-attachments/assets/a70c4d7c-535e-46b9-be15-86dc64d5ed9a
 
 </td>
   </tr>
@@ -289,11 +261,7 @@ Local do Vídeo no Repositório para Download: [Vídeo - CT-002 - S](gravacoes-t
   <tr>
     <td colspan="6" align="center">
 
-<!-- VIDEO CT-003-S: arraste mobile-caso-teste-CT-003-S.mp4 na linha em branco abaixo -->
-
-
-
-Local do Vídeo no Repositório para Download: [Vídeo - CT-003 - S](gravacoes-testes-etapa-2/mobile/mobile-caso-teste-CT-003-S.mp4)
+https://github.com/user-attachments/assets/7a53bd7d-b18c-41bb-a9c6-c8502a55c6d1
 
 </td>
   </tr>
@@ -325,11 +293,7 @@ Local do Vídeo no Repositório para Download: [Vídeo - CT-003 - S](gravacoes-t
   <tr>
     <td colspan="6" align="center">
 
-<!-- VIDEO CT-003-I01: arraste mobile-caso-teste-CT-003-I01.mp4 na linha em branco abaixo -->
-
-
-
-Local do Vídeo no Repositório para Download: [Vídeo - CT-003 - I01](gravacoes-testes-etapa-2/mobile/mobile-caso-teste-CT-003-I01.mp4)
+https://github.com/user-attachments/assets/d5711cc1-5864-4ff3-b6a5-9627b3292c78
 
 </td>
   </tr>
@@ -361,11 +325,7 @@ Local do Vídeo no Repositório para Download: [Vídeo - CT-003 - I01](gravacoes
   <tr>
     <td colspan="6" align="center">
 
-<!-- VIDEO CT-004-S: arraste mobile-caso-teste-CT-004-S.mp4 na linha em branco abaixo -->
-
-
-
-Local do Vídeo no Repositório para Download: [Vídeo - CT-004 - S](gravacoes-testes-etapa-2/mobile/mobile-caso-teste-CT-004-S.mp4)
+https://github.com/user-attachments/assets/9377f824-5d33-4c55-a446-e6cd0817a013
 
 </td>
   </tr>
@@ -397,11 +357,7 @@ Local do Vídeo no Repositório para Download: [Vídeo - CT-004 - S](gravacoes-t
   <tr>
     <td colspan="6" align="center">
 
-<!-- VIDEO CT-004-I01: arraste mobile-caso-teste-CT-004-I01.mp4 na linha em branco abaixo -->
-
-
-
-Local do Vídeo no Repositório para Download: [Vídeo - CT-004 - I01](gravacoes-testes-etapa-2/mobile/mobile-caso-teste-CT-004-I01.mp4)
+https://github.com/user-attachments/assets/beb15b45-fe59-4dca-bf1b-4ed58a13f054
 
 </td>
   </tr>
@@ -433,11 +389,7 @@ Local do Vídeo no Repositório para Download: [Vídeo - CT-004 - I01](gravacoes
   <tr>
     <td colspan="6" align="center">
 
-<!-- VIDEO CT-004-I02: arraste mobile-caso-teste-CT-004-I02.mp4 na linha em branco abaixo -->
-
-
-
-Local do Vídeo no Repositório para Download: [Vídeo - CT-004 - I02](gravacoes-testes-etapa-2/mobile/mobile-caso-teste-CT-004-I02.mp4)
+https://github.com/user-attachments/assets/57f83124-66c9-402c-a034-9af5f08209f7
 
 </td>
   </tr>
@@ -469,11 +421,7 @@ Local do Vídeo no Repositório para Download: [Vídeo - CT-004 - I02](gravacoes
   <tr>
     <td colspan="6" align="center">
 
-<!-- VIDEO CT-005-S: arraste mobile-caso-teste-CT-005-S.mp4 na linha em branco abaixo -->
-
-
-
-Local do Vídeo no Repositório para Download: [Vídeo - CT-005 - S](gravacoes-testes-etapa-2/mobile/mobile-caso-teste-CT-005-S.mp4)
+https://github.com/user-attachments/assets/d15dbc1f-5c0d-43d1-85a5-93529bafe9fc
 
 </td>
   </tr>
@@ -505,11 +453,7 @@ Local do Vídeo no Repositório para Download: [Vídeo - CT-005 - S](gravacoes-t
   <tr>
     <td colspan="6" align="center">
 
-<!-- VIDEO CT-005-I01: arraste mobile-caso-teste-CT-005-I01.mp4 na linha em branco abaixo -->
-
-
-
-Local do Vídeo no Repositório para Download: [Vídeo - CT-005 - I01](gravacoes-testes-etapa-2/mobile/mobile-caso-teste-CT-005-I01.mp4)
+https://github.com/user-attachments/assets/0c1f8622-e585-48e5-8c46-e90f4787a4fe
 
 </td>
   </tr>
@@ -541,11 +485,7 @@ Local do Vídeo no Repositório para Download: [Vídeo - CT-005 - I01](gravacoes
   <tr>
     <td colspan="6" align="center">
 
-<!-- VIDEO CT-005-I02: arraste mobile-caso-teste-CT-005-I02.mp4 na linha em branco abaixo -->
-
-
-
-Local do Vídeo no Repositório para Download: [Vídeo - CT-005 - I02](gravacoes-testes-etapa-2/mobile/mobile-caso-teste-CT-005-I02.mp4)
+https://github.com/user-attachments/assets/f01095e0-041c-4d66-bba1-a8996dcc5f44
 
 </td>
   </tr>
@@ -577,11 +517,7 @@ Local do Vídeo no Repositório para Download: [Vídeo - CT-005 - I02](gravacoes
   <tr>
     <td colspan="6" align="center">
 
-<!-- VIDEO CT-005-I03: arraste mobile-caso-teste-CT-005-I03.mp4 na linha em branco abaixo -->
-
-
-
-Local do Vídeo no Repositório para Download: [Vídeo - CT-005 - I03](gravacoes-testes-etapa-2/mobile/mobile-caso-teste-CT-005-I03.mp4)
+https://github.com/user-attachments/assets/54050c42-05cc-4932-b9b5-c00c3e2164f4
 
 </td>
   </tr>
@@ -613,11 +549,7 @@ Local do Vídeo no Repositório para Download: [Vídeo - CT-005 - I03](gravacoes
   <tr>
     <td colspan="6" align="center">
 
-<!-- VIDEO CT-005-I04: arraste mobile-caso-teste-CT-005-I04.mp4 na linha em branco abaixo -->
-
-
-
-Local do Vídeo no Repositório para Download: [Vídeo - CT-005 - I04](gravacoes-testes-etapa-2/mobile/mobile-caso-teste-CT-005-I04.mp4)
+https://github.com/user-attachments/assets/6317daf4-0f4f-4469-9b1b-81c2f8a9055b
 
 </td>
   </tr>
@@ -641,7 +573,7 @@ Local do Vídeo no Repositório para Download: [Vídeo - CT-005 - I04](gravacoes
   </tr>
   <tr>
     <td width="170"><strong>Comentário</strong></td>
-    <td colspan="5">Com a senha temporária repetida em "Nova senha" e "Confirmar nova senha", o aplicativo exibiu em vermelho a mensagem retornada pelo servidor ("A nova senha deve ser diferente da senha atual.") e permaneceu na tela. Resultado conforme o critério de êxito.</td>
+    <td colspan="5">Com a senha temporária repetida em "Nova senha" e "Confirmar nova senha", o aplicativo exibiu em vermelho a mensagem retornada pelo servidor ("Não foi possível completar a solicitação. Tente novamente.") e permaneceu na tela. Mensagem diferente, resultado parcialmente conforme o critério de êxito.</td>
   </tr>
   <tr>
     <td colspan="6" align="center"><strong>Evidência</strong></td>
@@ -649,11 +581,7 @@ Local do Vídeo no Repositório para Download: [Vídeo - CT-005 - I04](gravacoes
   <tr>
     <td colspan="6" align="center">
 
-<!-- VIDEO CT-005-I05: arraste mobile-caso-teste-CT-005-I05.mp4 na linha em branco abaixo -->
-
-
-
-Local do Vídeo no Repositório para Download: [Vídeo - CT-005 - I05](gravacoes-testes-etapa-2/mobile/mobile-caso-teste-CT-005-I05.mp4)
+https://github.com/user-attachments/assets/9b05903a-1dcd-4e7e-afa8-59c7a8c3e3c1
 
 </td>
   </tr>
@@ -685,11 +613,7 @@ Local do Vídeo no Repositório para Download: [Vídeo - CT-005 - I05](gravacoes
   <tr>
     <td colspan="6" align="center">
 
-<!-- VIDEO CT-006-S: arraste mobile-caso-teste-CT-006-S.mp4 na linha em branco abaixo -->
-
-
-
-Local do Vídeo no Repositório para Download: [Vídeo - CT-006 - S](gravacoes-testes-etapa-2/mobile/mobile-caso-teste-CT-006-S.mp4)
+https://github.com/user-attachments/assets/d6f4b3e5-ebee-404b-90a0-b8fa74de5778
 
 </td>
   </tr>
@@ -721,11 +645,7 @@ Local do Vídeo no Repositório para Download: [Vídeo - CT-006 - S](gravacoes-t
   <tr>
     <td colspan="6" align="center">
 
-<!-- VIDEO CT-007-S: arraste mobile-caso-teste-CT-007-S.mp4 na linha em branco abaixo -->
-
-
-
-Local do Vídeo no Repositório para Download: [Vídeo - CT-007 - S](gravacoes-testes-etapa-2/mobile/mobile-caso-teste-CT-007-S.mp4)
+https://github.com/user-attachments/assets/e319b203-4466-475f-86e6-234e4e6c6cf2
 
 </td>
   </tr>
@@ -757,11 +677,7 @@ Local do Vídeo no Repositório para Download: [Vídeo - CT-007 - S](gravacoes-t
   <tr>
     <td colspan="6" align="center">
 
-<!-- VIDEO CT-007-S02: arraste mobile-caso-teste-CT-007-S02.mp4 na linha em branco abaixo -->
-
-
-
-Local do Vídeo no Repositório para Download: [Vídeo - CT-007 - S02](gravacoes-testes-etapa-2/mobile/mobile-caso-teste-CT-007-S02.mp4)
+https://github.com/user-attachments/assets/5f072d97-dc39-49d2-9883-c592fb51a84e
 
 </td>
   </tr>
@@ -793,11 +709,7 @@ Local do Vídeo no Repositório para Download: [Vídeo - CT-007 - S02](gravacoes
   <tr>
     <td colspan="6" align="center">
 
-<!-- VIDEO CT-007-I01: arraste mobile-caso-teste-CT-007-I01.mp4 na linha em branco abaixo -->
-
-
-
-Local do Vídeo no Repositório para Download: [Vídeo - CT-007 - I01](gravacoes-testes-etapa-2/mobile/mobile-caso-teste-CT-007-I01.mp4)
+https://github.com/user-attachments/assets/4e6da5f2-18ae-4cfd-a367-f6ecbcc25f52
 
 </td>
   </tr>
