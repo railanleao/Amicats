@@ -1090,7 +1090,7 @@ Nenhum usuário é excluído fisicamente (RNF-005). Para repetir os testes, cria
     </td>
   </tr>
   <tr>
-    <td><strong>Critérios de êito</strong></td>
+    <td><strong>Critérios de êxito</strong></td>
     <td>O sistema deve autenticar o usuário, gerar um token de acesso e permitir o acesso às funcionalidades correspondentes ao seu perfil.</td>
   </tr>
 </table>
