@@ -105,7 +105,7 @@ A **complexidade** foi estimada pela equipe considerando esforço de implementa�
 |RF-002| Cadastramento de perfis de acesso distintos (Administrador, Médico-Veterinário, Auxiliar e Visualizador) com permissões próprias | ALTA | Etapa 3 | | Alta |
 |RF-003| Permitir o cadastro do banco de contatos voluntários | MÉDIA | Etapa 4 | | Baixa |
 |RF-004| Permitir o cadastro e a edição de salas | ALTA | Etapa 3 | | Baixa |
-|RF-005| Permitir cadastro completo do gato, com a captura de foto pela câmera do dispositivo, o upload de múltiplas imagens por gato e a transferência do gato entre salas com registro de histórico | ALTA | Etapa 3 | | Média |
+|RF-005| Permitir cadastro completo do gato, com a captura de foto pela câmera do dispositivo e o upload de múltiplas imagens por gato | ALTA | Etapa 3 | | Média |
 |RF-006| Permitir o cadastro de prescrição médica no prontuário | ALTA | Etapa 3 | | Alta |
 |RF-007| Exibir o histórico clínico completo do gato em ordem cronológica | ALTA | Etapa 3 | | Média |
 |RF-008| Permitir o registro de atendimento realizado em clínica externa | MÉDIA | Etapa 3 | | Média |
@@ -117,6 +117,7 @@ A **complexidade** foi estimada pela equipe considerando esforço de implementa�
 |RF-014| Exibir dashboard na página inicial com atalhos estratégicos | MÉDIA | Etapa 4 | | Média |
 |RF-015| Permitir a exportação de relatórios | BAIXA | Etapa 4 | | Média |
 |RF-016| Permitir o registro de dados no dispositivo mesmo sem conexão, sincronizando-os com o servidor automaticamente ou por acionamento manual do usuário | ALTA | Etapa 3 | | Alta |
+|RF-017| Permitir registro de log de modificações no sistema como transferências de sala, agendamentos e prontuário (exceto salas e usuários) | ALTA | Etapa 4 | | Alta |
 
 ### Requisitos Não Funcionais
 
