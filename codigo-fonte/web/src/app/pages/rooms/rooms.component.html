@@ -67,47 +67,71 @@
     @if (loading() && rooms().length === 0) {
       <div class="feedback">Carregando salas...</div>
     } @else {
-      <div class="rooms-grid">
+      <div class="table-header">
+        <span>SALA</span>
+        <span>CAPACIDADE</span>
+        <span>STATUS</span>
+      </div>
+      <div class="rooms-list">
         @for (room of rooms(); track room.id) {
-          <div class="room-card" [class.inactive-card]="!room.active">
-            <div
-              class="room-card__image"
-              [style.background-image]="room.coverImageUrl ? 'url(' + room.coverImageUrl + ')' : null"
+          <div
+            class="room-row"
+            [class.inactive-row]="!room.active"
+          >
+            <div class="room-name">
+              <div
+                class="room-thumbnail"
+                [style.background-image]="room.coverImageUrl ? 'url(' + room.coverImageUrl + ')' : null"
+              ></div>
+
+              <span>{{ room.title }}</span>
+            </div>
+
+            <span>{{ capacityLabel(room) }}</span>
+
+            <span
+              class="status"
+              [class.active]="room.active"
+              [class.inactive]="!room.active"
             >
+              @if (room.active) {
+                Ativa
+              } @else {
+                Inativa
+              }
+            </span>
+
+            <div class="actions">
               <button
                 type="button"
-                class="room-card__edit"
+                class="edit-button"
                 title="Editar sala"
                 [attr.aria-label]="'Editar ' + room.title"
                 (click)="editRoom(room)"
               >
-                <svg width="13" height="13" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-                  <path
-                    d="M11.5 3.5l3 3-8 8H3.5v-3z"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.8"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                  <path d="m15 5 4 4" />
                 </svg>
               </button>
-            </div>
 
-            <div class="room-card__body">
-              <span class="room-card__title">{{ room.title }}</span>
-
-              <div class="room-card__footer">
-                <span class="room-card__capacity">{{ capacityLabel(room) }}</span>
-
-                <app-toggle
-                  [label]="'Status de ' + room.title"
-                  [checked]="room.active"
-                  [disabled]="deactivatingId() === room.id || activatingId() === room.id"
-                  [hint]="room.active ? 'Desativar sala' : 'Reativar sala'"
-                  (toggled)="onToggleStatus(room)"
-                />
-              </div>
+              <app-toggle
+                [label]="'Status de ' + room.title"
+                [checked]="room.active"
+                [disabled]="deactivatingId() === room.id || activatingId() === room.id"
+                [hint]="room.active ? 'Desativar sala' : 'Reativar sala'"
+                (toggled)="onToggleStatus(room)"
+              />
             </div>
           </div>
         } @empty {

@@ -109,9 +109,7 @@ export class RoomsComponent implements OnInit, OnDestroy {
   }
 
   capacityLabel(room: Room): string {
-    return room.maxCapacity != null
-      ? `Capacidade: ${room.maxCapacity} gatos`
-      : 'Capacidade não informada';
+    return room.maxCapacity != null ? `${room.maxCapacity} gatos` : '—';
   }
 
   createRoom(): void {
