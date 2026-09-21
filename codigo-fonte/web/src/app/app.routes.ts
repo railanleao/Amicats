@@ -12,6 +12,8 @@ import { TermsAcceptanceComponent } from './pages/terms-acceptance/terms-accepta
 import { UsersComponent } from './pages/users/users.component';
 import { adminGuard } from './guards/admin.guard';
 import { UserFormComponent } from './pages/user-form/user-form.component';
+import { RoomsComponent } from './pages/rooms/rooms.component';
+import { RoomFormComponent } from './pages/room-form/room-form.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -42,6 +44,19 @@ export const routes: Routes = [
       {
         path: 'users/:id/edit',
         component: UserFormComponent,
+        canActivate: [adminGuard],
+        data: { mode: 'edit' },
+      },
+      { path: 'rooms', component: RoomsComponent },
+      {
+        path: 'rooms/new',
+        component: RoomFormComponent,
+        canActivate: [adminGuard],
+        data: { mode: 'create' },
+      },
+      {
+        path: 'rooms/:id/edit',
+        component: RoomFormComponent,
         canActivate: [adminGuard],
         data: { mode: 'edit' },
       },

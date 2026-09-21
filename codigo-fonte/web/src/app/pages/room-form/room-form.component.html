@@ -1,0 +1,132 @@
+<div class="page">
+  <header class="page-header">
+    <a routerLink="/rooms" class="page-header__back" aria-label="Voltar para salas">
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="m15 18-6-6 6-6" />
+      </svg>
+    </a>
+    <a routerLink="/rooms" class="page-header__crumb">Salas</a>
+    <span class="page-header__separator">/</span>
+    <h1>{{ title }}</h1>
+  </header>
+
+  @if (loading()) {
+    <p class="feedback">Carregando sala...</p>
+  } @else if (loadError()) {
+    <div class="feedback feedback--error" role="alert">
+      {{ loadError() }}
+      <a routerLink="/rooms">Voltar para a lista</a>
+    </div>
+  } @else {
+    <form class="form-card" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+      <div class="cover-preview" [style.background-image]="form.controls.coverImageUrl.value ? 'url(' + form.controls.coverImageUrl.value + ')' : null"></div>
+
+      @if (saveError()) {
+        <div class="feedback feedback--error" role="alert">{{ saveError() }}</div>
+      }
+
+      <app-text-field
+        inputId="title"
+        label="Nome da sala"
+        placeholder="Ex.: Sala 1 — Adultos"
+        [control]="form.controls.title"
+        [errorMessages]="errors.title"
+      />
+
+      <app-text-field
+        inputId="coverImageUrl"
+        label="URL da foto de capa"
+        placeholder="https://..."
+        [control]="form.controls.coverImageUrl"
+        [errorMessages]="errors.coverImageUrl"
+      />
+
+      <div class="field">
+        <label for="maxCapacity">Capacidade máxima</label>
+        <input
+          id="maxCapacity"
+          type="number"
+          min="1"
+          placeholder="Ex.: 8"
+          [class.field__input--invalid]="
+            form.controls.maxCapacity.invalid && form.controls.maxCapacity.touched
+          "
+          [formControl]="form.controls.maxCapacity"
+        />
+        @if (form.controls.maxCapacity.invalid && form.controls.maxCapacity.touched) {
+          <span class="field-error">Informe um número maior que zero.</span>
+        }
+      </div>
+
+      <div class="field">
+        <label for="description">Descrição</label>
+        <textarea
+          id="description"
+          rows="3"
+          placeholder="Ex.: Sala destinada a gatos em pós-operatório..."
+          [formControl]="form.controls.description"
+        ></textarea>
+      </div>
+
+      @if (isEditing) {
+        <section class="setting-row">
+          <div class="setting-row__text">
+            <h2>Status da sala</h2>
+            <p>Salas inativas deixam de aparecer como disponíveis para alocação de gatos.</p>
+            @if (statusError()) {
+              <p class="field-error" role="alert">{{ statusError() }}</p>
+            }
+          </div>
+          <div class="setting-row__control">
+            <span class="status-label" [class.status-label--off]="!isActive">
+              {{ isActive ? 'Ativa' : 'Inativa' }}
+            </span>
+            <app-toggle
+              label="Status da sala"
+              [checked]="isActive"
+              [disabled]="statusSaving()"
+              (toggled)="onToggleStatus()"
+            />
+          </div>
+        </section>
+      }
+
+      <div class="form-actions">
+        <a routerLink="/rooms" class="cancel-button">Cancelar</a>
+        <div class="form-actions__submit">
+          <app-submit-button
+            [label]="submitLabel"
+            loadingLabel="Salvando..."
+            [loading]="saving()"
+          />
+        </div>
+      </div>
+    </form>
+  }
+</div>
+
+@if (statusDialog(); as action) {
+  <app-confirm-dialog
+    [title]="action === 'deactivate' ? 'Desativar sala' : 'Reativar sala'"
+    [message]="
+      action === 'deactivate'
+        ? 'Desativar a sala ' + (room()?.title ?? '') + '? Ela deixa de aparecer como disponível para alocação de gatos.'
+        : 'Reativar a sala ' + (room()?.title ?? '') + '? Ela volta a ficar disponível para alocação de gatos.'
+    "
+    [confirmLabel]="action === 'deactivate' ? 'Desativar' : 'Reativar'"
+    [confirmVariant]="action === 'deactivate' ? 'danger' : 'success'"
+    [confirmLoading]="statusSaving()"
+    (confirmed)="confirmStatusChange()"
+    (cancelled)="cancelStatusChange()"
+  />
+}
