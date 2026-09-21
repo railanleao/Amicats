@@ -248,6 +248,7 @@ erDiagram
 | senha_temporaria_pendente | BOOLEAN | NOT NULL, DEFAULT FALSE |
 | ativo | BOOLEAN | NOT NULL, DEFAULT TRUE |
 | data_criacao | DATETIME | NOT NULL |
+| last_login_at | DATETIME | |
 
 **voluntario**
 
