@@ -306,7 +306,7 @@ erDiagram
 | status_saude | ENUM('SAUDAVEL','FIV','FELV','FIV_FELV') | NOT NULL |
 | data_exame_fiv_felv | DATE | |
 | resultado_pif | ENUM('POSITIVO','NEGATIVO','NAO_TESTADO') NOT NULL DEFAULT 'NAO_TESTADO' | |
-| data_exame_pif | DATE | |
+| data_exame_pif | DATE | | 
 | gravidade | ENUM('BAIXA','MEDIA','ALTA','MUITO_ALTA') | |
 | status_castracao | ENUM('SIM','NAO','AGENDADA') | |
 | data_castracao | DATE | |
