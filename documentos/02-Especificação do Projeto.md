@@ -117,7 +117,7 @@ A **complexidade** foi estimada pela equipe considerando esforço de implementa�
 |RF-014| Exibir dashboard na página inicial com atalhos estratégicos | MÉDIA | Etapa 4 | | Média |
 |RF-015| Permitir a exportação de relatórios | BAIXA | Etapa 4 | | Média |
 |RF-016| Permitir o registro de dados no dispositivo mesmo sem conexão, sincronizando-os com o servidor automaticamente ou por acionamento manual do usuário | ALTA | Etapa 3 | | Alta |
-|RF-017| Permitir registro de log de modificações no sistema como transferências de sala, agendamentos e prontuário (exceto salas e usuários) | ALTA | Etapa 4 | | Alta |
+|RF-017| Permitir registro de log de modificações no sistema como transferências de sala, agendamentos e prontuários (exceto gestão de salas e usuários) | ALTA | Etapa 4 | | Alta |
 
 ### Requisitos Não Funcionais
 
