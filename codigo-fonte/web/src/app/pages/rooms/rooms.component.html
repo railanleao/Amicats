@@ -67,51 +67,23 @@
     @if (loading() && rooms().length === 0) {
       <div class="feedback">Carregando salas...</div>
     } @else {
-      <div class="table-header">
-        <span>SALA</span>
-        <span>CAPACIDADE</span>
-        <span>STATUS</span>
-      </div>
-      <div class="rooms-list">
+      <div class="rooms-grid">
         @for (room of rooms(); track room.id) {
-          <div
-            class="room-row"
-            [class.inactive-row]="!room.active"
-          >
-            <div class="room-name">
-              <div
-                class="room-thumbnail"
-                [style.background-image]="room.coverImageUrl ? 'url(' + room.coverImageUrl + ')' : null"
-              ></div>
-
-              <span>{{ room.title }}</span>
-            </div>
-
-            <span>{{ capacityLabel(room) }}</span>
-
-            <span
-              class="status"
-              [class.active]="room.active"
-              [class.inactive]="!room.active"
+          <div class="room-card" [class.inactive-card]="!room.active">
+            <div
+              class="room-card__image"
+              [style.background-image]="room.coverImageUrl ? 'url(' + room.coverImageUrl + ')' : null"
             >
-              @if (room.active) {
-                Ativa
-              } @else {
-                Inativa
-              }
-            </span>
-
-            <div class="actions">
               <button
                 type="button"
-                class="edit-button"
+                class="room-card__edit"
                 title="Editar sala"
                 [attr.aria-label]="'Editar ' + room.title"
                 (click)="editRoom(room)"
               >
                 <svg
-                  width="16"
-                  height="16"
+                  width="14"
+                  height="14"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -124,14 +96,31 @@
                   <path d="m15 5 4 4" />
                 </svg>
               </button>
+            </div>
 
-              <app-toggle
-                [label]="'Status de ' + room.title"
-                [checked]="room.active"
-                [disabled]="deactivatingId() === room.id || activatingId() === room.id"
-                [hint]="room.active ? 'Desativar sala' : 'Reativar sala'"
-                (toggled)="onToggleStatus(room)"
-              />
+            <div class="room-card__body">
+              <span class="room-card__title">{{ room.title }}</span>
+
+              <div class="room-card__footer">
+                <span class="room-card__capacity">{{ capacityLabel(room) }}</span>
+
+                <div class="room-card__status">
+                  <span
+                    class="status-label"
+                    [class.status-label--off]="!room.active"
+                  >
+                    {{ room.active ? 'Ativa' : 'Inativa' }}
+                  </span>
+
+                  <app-toggle
+                    [label]="'Status de ' + room.title"
+                    [checked]="room.active"
+                    [disabled]="deactivatingId() === room.id || activatingId() === room.id"
+                    [hint]="room.active ? 'Desativar sala' : 'Reativar sala'"
+                    (toggled)="onToggleStatus(room)"
+                  />
+                </div>
+              </div>
             </div>
           </div>
         } @empty {
