@@ -301,6 +301,7 @@ erDiagram
 | data_nascimento_estimada | DATE | |
 | faixa_etaria | ENUM('FILHOTE','JOVEM','ADULTO','SENIOR') | Derivada da idade |
 | pelagem | VARCHAR(100) | |
+| peso_kg | DECIMAL(5,2) | |
 | caracteristicas | TEXT | |
 | status_geral | ENUM('EM_TRATAMENTO','DISPONIVEL_ADOCAO','EM_TRIAGEM','ADOTADO','LAR_TEMPORARIO','EM_CLINICA','OBITO','DESAPARECIDO') | NOT NULL |
 | status_saude | ENUM('SAUDAVEL','FIV','FELV','FIV_FELV') | NOT NULL |
