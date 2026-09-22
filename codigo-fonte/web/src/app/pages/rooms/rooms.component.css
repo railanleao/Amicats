@@ -231,8 +231,6 @@
   height: 110px;
   position: relative;
   background-color: #a9c4a4;
-  background-size: cover;
-  background-position: center;
 }
 
 .room-card__edit {

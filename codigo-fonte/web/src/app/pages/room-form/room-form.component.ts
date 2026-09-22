@@ -3,9 +3,10 @@ import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { finalize } from 'rxjs';
+import { Observable, catchError, finalize, map, of, switchMap } from 'rxjs';
 
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
+import { RoomCoverComponent } from '../../components/room-cover/room-cover.component';
 import { SubmitButtonComponent } from '../../components/submit-button/submit-button.component';
 import { TextFieldComponent } from '../../components/text-field/text-field.component';
 import { ToggleComponent } from '../../components/toggle/toggle.component';
@@ -14,6 +15,9 @@ import { RoomService } from '../../services/resources/room.service';
 
 export type RoomFormMode = 'create' | 'edit';
 
+const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
+const PHOTO_TYPES = ['image/jpeg', 'image/png'];
+
 @Component({
   selector: 'app-room-form',
   standalone: true,
@@ -21,6 +25,7 @@ export type RoomFormMode = 'create' | 'edit';
     ReactiveFormsModule,
     RouterLink,
     ConfirmDialogComponent,
+    RoomCoverComponent,
     SubmitButtonComponent,
     TextFieldComponent,
     ToggleComponent,
@@ -41,12 +46,20 @@ export class RoomFormComponent {
     : null;
   readonly title = this.isEditing ? 'Editar sala' : 'Nova sala';
   readonly submitLabel = this.isEditing ? 'Salvar alterações' : 'Cadastrar sala';
+  readonly justCreated = this.isEditing && history.state?.created === true;
+  readonly photoFailed = this.isEditing && history.state?.photoFailed === true;
 
   readonly room = signal<Room | null>(null);
   readonly loading = signal(false);
   readonly saving = signal(false);
   readonly loadError = signal<string | null>(null);
   readonly saveError = signal<string | null>(null);
+
+  readonly photoVersion = signal(0);
+  readonly photoBusy = signal(false);
+  readonly photoError = signal<string | null>(null);
+  readonly pendingPhoto = signal<File | null>(null);
+  readonly pendingPhotoUrl = signal<string | null>(null);
 
   readonly statusDialog = signal<'deactivate' | 'activate' | null>(null);
   readonly statusSaving = signal(false);
@@ -57,10 +70,6 @@ export class RoomFormComponent {
       nonNullable: true,
       validators: [Validators.required, Validators.maxLength(100)],
     }),
-    coverImageUrl: new FormControl('', {
-      nonNullable: true,
-      validators: [Validators.maxLength(500)],
-    }),
     maxCapacity: new FormControl<number | null>(null, { validators: [Validators.min(1)] }),
     description: new FormControl('', { nonNullable: true }),
   });
@@ -70,14 +79,19 @@ export class RoomFormComponent {
       required: 'Informe o nome da sala.',
       maxlength: 'O nome deve ter no máximo 100 caracteres.',
     },
-    coverImageUrl: { maxlength: 'A URL deve ter no máximo 500 caracteres.' },
   };
 
   get isActive(): boolean {
     return this.room()?.active ?? true;
   }
 
+  get hasPhoto(): boolean {
+    return this.isEditing ? !!this.room()?.coverImageUrl : this.pendingPhoto() !== null;
+  }
+
   constructor() {
+    this.destroyRef.onDestroy(() => this.releasePendingPhoto());
+
     if (this.isEditing) {
       this.loadRoom();
     }
@@ -99,23 +113,37 @@ export class RoomFormComponent {
     const payload = {
       title: values.title.trim(),
       description: values.description.trim() || null,
-      coverImageUrl: values.coverImageUrl.trim() || null,
       maxCapacity: values.maxCapacity,
     };
 
     this.saving.set(true);
 
-    const request = this.isEditing
-      ? this.roomService.update(this.roomId as number, payload)
-      : this.roomService.create(payload);
+    if (this.isEditing) {
+      this.roomService
+        .update(this.roomId as number, payload)
+        .pipe(
+          finalize(() => this.saving.set(false)),
+          takeUntilDestroyed(this.destroyRef),
+        )
+        .subscribe({
+          next: () => void this.router.navigate(['/rooms']),
+          error: (error: HttpErrorResponse) => this.handleSaveError(error),
+        });
+      return;
+    }
 
-    request
+    this.roomService
+      .create(payload)
       .pipe(
+        switchMap((created) => this.uploadChosenPhoto(created)),
         finalize(() => this.saving.set(false)),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
-        next: () => void this.router.navigate(['/rooms']),
+        next: ({ created, photoFailed }) =>
+          void this.router.navigate(['/rooms', created.id, 'edit'], {
+            state: { created: true, photoFailed },
+          }),
         error: (error: HttpErrorResponse) => this.handleSaveError(error),
       });
   }
@@ -164,6 +192,112 @@ export class RoomFormComponent {
       });
   }
 
+  onPhotoSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+
+    if (!file || this.photoBusy()) {
+      return;
+    }
+
+    this.photoError.set(null);
+
+    if (!PHOTO_TYPES.includes(file.type)) {
+      this.photoError.set('Envie uma imagem JPG ou PNG.');
+      return;
+    }
+    if (file.size > MAX_PHOTO_BYTES) {
+      this.photoError.set('A foto deve ter no máximo 5 MB.');
+      return;
+    }
+
+    if (!this.isEditing) {
+      this.releasePendingPhoto();
+      this.pendingPhoto.set(file);
+      this.pendingPhotoUrl.set(URL.createObjectURL(file));
+      return;
+    }
+
+    if (this.roomId === null) {
+      return;
+    }
+
+    this.photoBusy.set(true);
+
+    this.roomService
+      .uploadPhoto(this.roomId, file)
+      .pipe(
+        finalize(() => this.photoBusy.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (updated) => {
+          this.room.set(updated);
+          this.photoVersion.update((version) => version + 1);
+        },
+        error: (error: HttpErrorResponse) =>
+          this.photoError.set(
+            error.status === 400
+              ? 'Não foi possível usar essa imagem. Envie um JPG ou PNG válido de até 5 MB.'
+              : 'Não foi possível enviar a foto. Tente novamente.',
+          ),
+      });
+  }
+
+  removePhoto(): void {
+    if (!this.isEditing) {
+      this.releasePendingPhoto();
+      this.photoError.set(null);
+      return;
+    }
+
+    if (this.roomId === null || this.photoBusy()) {
+      return;
+    }
+
+    this.photoBusy.set(true);
+    this.photoError.set(null);
+
+    this.roomService
+      .removePhoto(this.roomId)
+      .pipe(
+        finalize(() => this.photoBusy.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: () => {
+          const current = this.room();
+          if (current) {
+            this.room.set({ ...current, coverImageUrl: null });
+          }
+          this.photoVersion.update((version) => version + 1);
+        },
+        error: () => this.photoError.set('Não foi possível remover a foto. Tente novamente.'),
+      });
+  }
+
+  private uploadChosenPhoto(created: Room): Observable<{ created: Room; photoFailed: boolean }> {
+    const photo = this.pendingPhoto();
+    if (!photo) {
+      return of({ created, photoFailed: false });
+    }
+
+    return this.roomService.uploadPhoto(created.id, photo).pipe(
+      map(() => ({ created, photoFailed: false })),
+      catchError(() => of({ created, photoFailed: true })),
+    );
+  }
+
+  private releasePendingPhoto(): void {
+    const url = this.pendingPhotoUrl();
+    if (url) {
+      URL.revokeObjectURL(url);
+    }
+    this.pendingPhotoUrl.set(null);
+    this.pendingPhoto.set(null);
+  }
+
   private loadRoom(): void {
     if (this.roomId === null || !Number.isInteger(this.roomId)) {
       this.loadError.set('Sala não encontrada.');
@@ -193,7 +327,6 @@ export class RoomFormComponent {
     this.room.set(room);
     this.form.patchValue({
       title: room.title,
-      coverImageUrl: room.coverImageUrl ?? '',
       maxCapacity: room.maxCapacity,
       description: room.description ?? '',
     });

@@ -47,6 +47,20 @@ export class RoomService {
     return this.setActive(id, true);
   }
 
+  uploadPhoto(id: number, file: File): Observable<Room> {
+    const body = new FormData();
+    body.append('file', file);
+    return this.http.put<Room>(`/rooms/${id}/photo`, body);
+  }
+
+  photo(id: number): Observable<Blob> {
+    return this.http.get(`/rooms/${id}/photo`, { responseType: 'blob' });
+  }
+
+  removePhoto(id: number): Observable<void> {
+    return this.http.delete<void>(`/rooms/${id}/photo`);
+  }
+
   private setActive(id: number, active: boolean): Observable<void> {
     return this.http.patch<void>(`/rooms/${id}/status`, { active });
   }

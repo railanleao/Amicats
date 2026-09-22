@@ -17,13 +17,11 @@ export interface RoomSearchParams {
 export interface CreateRoomRequest {
   title: string;
   description: string | null;
-  coverImageUrl: string | null;
   maxCapacity: number | null;
 }
 
 export interface UpdateRoomRequest {
   title: string;
   description: string | null;
-  coverImageUrl: string | null;
   maxCapacity: number | null;
 }

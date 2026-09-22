@@ -29,7 +29,61 @@
     </div>
   } @else {
     <form class="form-card" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
-      <div class="cover-preview" [style.background-image]="form.controls.coverImageUrl.value ? 'url(' + form.controls.coverImageUrl.value + ')' : null"></div>
+      <div class="cover-block">
+        <div class="cover-preview">
+          <app-room-cover
+            [roomId]="roomId"
+            [hasPhoto]="isEditing && hasPhoto"
+            [previewUrl]="pendingPhotoUrl()"
+            [version]="photoVersion()"
+          />
+        </div>
+
+        <div class="cover-actions">
+          <input
+            #photoInput
+            type="file"
+            class="visually-hidden"
+            accept="image/png,image/jpeg"
+            (change)="onPhotoSelected($event)"
+          />
+          <div class="cover-actions__buttons">
+            <button
+              type="button"
+              class="secondary-button"
+              [disabled]="photoBusy()"
+              (click)="photoInput.click()"
+            >
+              {{ photoBusy() ? 'Enviando...' : 'Alterar foto de capa' }}
+            </button>
+            @if (hasPhoto) {
+              <button
+                type="button"
+                class="link-button"
+                [disabled]="photoBusy()"
+                (click)="removePhoto()"
+              >
+                Remover foto
+              </button>
+            }
+          </div>
+          <span class="field-hint">JPG ou PNG, até 5 MB</span>
+          @if (photoError()) {
+            <span class="field-error" role="alert">{{ photoError() }}</span>
+          }
+        </div>
+      </div>
+
+      @if (justCreated) {
+        <div class="feedback feedback--success" role="status">Sala cadastrada.</div>
+      }
+
+      @if (photoFailed) {
+        <div class="feedback feedback--error" role="alert">
+          A sala foi cadastrada, mas a foto não pôde ser enviada. Escolha a foto novamente em
+          "Alterar foto de capa".
+        </div>
+      }
 
       @if (saveError()) {
         <div class="feedback feedback--error" role="alert">{{ saveError() }}</div>
@@ -41,14 +95,6 @@
         placeholder="Ex.: Sala 1 — Adultos"
         [control]="form.controls.title"
         [errorMessages]="errors.title"
-      />
-
-      <app-text-field
-        inputId="coverImageUrl"
-        label="URL da foto de capa"
-        placeholder="https://..."
-        [control]="form.controls.coverImageUrl"
-        [errorMessages]="errors.coverImageUrl"
       />
 
       <div class="field">

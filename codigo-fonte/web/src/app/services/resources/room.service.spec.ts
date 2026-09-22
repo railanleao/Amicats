@@ -95,7 +95,6 @@ describe('RoomService (integration)', () => {
     const payload: CreateRoomRequest = {
       title: 'Sala 8 — Filhotes',
       description: null,
-      coverImageUrl: null,
       maxCapacity: 6,
     };
     let received: Room | undefined;
@@ -113,7 +112,6 @@ describe('RoomService (integration)', () => {
     const payload: UpdateRoomRequest = {
       title: 'Sala 1 — Adultos Renomeada',
       description: 'Atualizada',
-      coverImageUrl: null,
       maxCapacity: 10,
     };
     service.update(7, payload).subscribe();
@@ -146,5 +144,36 @@ describe('RoomService (integration)', () => {
     request.flush(null, { status: 204, statusText: 'No Content' });
 
     expect(completed).toBeTrue();
+  });
+
+  it('puts the file as multipart form data to upload a photo', () => {
+    const file = new File(['x'], 'foto.png', { type: 'image/png' });
+    service.uploadPhoto(7, file).subscribe();
+
+    const request = httpMock.expectOne(`${environment.apiUrl}/rooms/7/photo`);
+    expect(request.request.method).toBe('PUT');
+    expect(request.request.body instanceof FormData).toBeTrue();
+    expect((request.request.body as FormData).get('file')).toBe(file);
+    request.flush(mockRoom());
+  });
+
+  it('fetches the photo as a blob', () => {
+    let received: Blob | undefined;
+    service.photo(7).subscribe((blob) => (received = blob));
+
+    const request = httpMock.expectOne(`${environment.apiUrl}/rooms/7/photo`);
+    expect(request.request.method).toBe('GET');
+    expect(request.request.responseType).toBe('blob');
+    request.flush(new Blob(['x']));
+
+    expect(received instanceof Blob).toBeTrue();
+  });
+
+  it('deletes the photo', () => {
+    service.removePhoto(7).subscribe();
+
+    const request = httpMock.expectOne(`${environment.apiUrl}/rooms/7/photo`);
+    expect(request.request.method).toBe('DELETE');
+    request.flush(null, { status: 204, statusText: 'No Content' });
   });
 });

@@ -5,6 +5,7 @@ import { Subject, debounceTime, distinctUntilChanged, finalize } from 'rxjs';
 
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { PaginationComponent } from '../../components/pagination/pagination.component';
+import { RoomCoverComponent } from '../../components/room-cover/room-cover.component';
 import { ToggleComponent } from '../../components/toggle/toggle.component';
 import { Room } from '../../models/room.model';
 import { RoomService } from '../../services/resources/room.service';
@@ -15,7 +16,7 @@ const SEARCH_DEBOUNCE_MS = 300;
 @Component({
   selector: 'app-rooms',
   standalone: true,
-  imports: [ConfirmDialogComponent, PaginationComponent, ToggleComponent],
+  imports: [ConfirmDialogComponent, PaginationComponent, RoomCoverComponent, ToggleComponent],
   templateUrl: './rooms.component.html',
   styleUrl: './rooms.component.css',
 })
