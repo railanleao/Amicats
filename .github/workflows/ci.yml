@@ -47,6 +47,20 @@ jobs:
           cache: maven
           cache-dependency-path: codigo-fonte/backend/pom.xml
 
+      - name: Start MinIO
+        run: |
+          docker run -d --name minio \
+            -p 9010:9000 \
+            -e MINIO_ROOT_USER=amicats \
+            -e MINIO_ROOT_PASSWORD=amicats123 \
+            minio/minio:latest server /data
+          for i in $(seq 1 30); do
+            docker exec minio mc ready local && exit 0
+            sleep 1
+          done
+          echo "MinIO did not become ready in time" >&2
+          exit 1
+
       - name: Build and test (compile, unit tests, Spotless)
         env:
           JWT_SECRET: ci-only-dummy-secret-not-for-production-use-0123456789
@@ -55,6 +69,10 @@ jobs:
           DB_NAME: amicats
           DB_USER: amicats
           DB_PASSWORD: amicats
+          MINIO_ENDPOINT: http://localhost:9010
+          MINIO_ACCESS_KEY: amicats
+          MINIO_SECRET_KEY: amicats123
+          MINIO_BUCKET: amicats-photos
         run: ./mvnw --batch-mode verify
 
   web:

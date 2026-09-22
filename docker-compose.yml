@@ -17,6 +17,25 @@ services:
       timeout: 5s
       retries: 10
 
+  minio:
+    image: minio/minio:latest
+    container_name: amicats-minio
+    restart: unless-stopped
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-amicats}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-amicats123}
+    command: server /data --console-address ":9001"
+    ports:
+      - "${MINIO_PORT:-9010}:9000"
+      - "${MINIO_CONSOLE_PORT:-9011}:9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   backend:
     build:
       context: ./codigo-fonte/backend
@@ -42,10 +61,16 @@ services:
       MAIL_SMTP_AUTH: ${MAIL_SMTP_AUTH:-true}
       MAIL_SMTP_STARTTLS: ${MAIL_SMTP_STARTTLS:-true}
       MAIL_FROM: ${MAIL_FROM:-contato@ongamicats.com.br}
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-amicats}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-amicats123}
+      MINIO_BUCKET: ${MINIO_BUCKET:-amicats-photos}
     ports:
       - "${BACKEND_PORT:-8080}:8080"
     depends_on:
       postgres:
+        condition: service_healthy
+      minio:
         condition: service_healthy
 
   web:
@@ -60,3 +85,4 @@ services:
 
 volumes:
   postgres_data:
+  minio_data:
