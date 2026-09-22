@@ -137,7 +137,7 @@ class RoomManagementFlowIntegrationTest {
     String title = "Nova Sala " + UUID.randomUUID();
 
     HttpResponse<String> response =
-        send("POST", "/rooms", adminToken, roomBody(title, "Descrição", null, 8));
+        send("POST", "/rooms", adminToken, roomBody(title, "Descrição", 8));
 
     assertThat(response.statusCode()).isEqualTo(201);
     Map<String, Object> created = parse(response);
@@ -155,8 +155,7 @@ class RoomManagementFlowIntegrationTest {
   void creatingARoomWithoutATitleReturnsBadRequest() throws Exception {
     String adminToken = loginAndGetToken(adminEmail);
 
-    HttpResponse<String> response =
-        send("POST", "/rooms", adminToken, roomBody(null, null, null, null));
+    HttpResponse<String> response = send("POST", "/rooms", adminToken, roomBody(null, null, null));
 
     assertThat(response.statusCode()).isEqualTo(400);
   }
@@ -170,7 +169,7 @@ class RoomManagementFlowIntegrationTest {
             "PUT",
             "/rooms/" + targetRoomId,
             adminToken,
-            roomBody(targetTitleToken + " Editada", "Nova descrição", null, 10));
+            roomBody(targetTitleToken + " Editada", "Nova descrição", 10));
 
     assertThat(response.statusCode()).isEqualTo(200);
     Map<String, Object> updated = parse(response);
@@ -183,7 +182,7 @@ class RoomManagementFlowIntegrationTest {
     String adminToken = loginAndGetToken(adminEmail);
 
     HttpResponse<String> response =
-        send("PUT", "/rooms/999999999", adminToken, roomBody("Sala", null, null, null));
+        send("PUT", "/rooms/999999999", adminToken, roomBody("Sala", null, null));
 
     assertThat(response.statusCode()).isEqualTo(404);
   }
@@ -221,7 +220,7 @@ class RoomManagementFlowIntegrationTest {
     String assistantToken = loginAndGetToken(assistantEmail);
 
     HttpResponse<String> response =
-        send("POST", "/rooms", assistantToken, roomBody("Sala Proibida", null, null, null));
+        send("POST", "/rooms", assistantToken, roomBody("Sala Proibida", null, null));
 
     assertThat(response.statusCode()).isEqualTo(403);
   }
@@ -278,12 +277,10 @@ class RoomManagementFlowIntegrationTest {
     }
   }
 
-  private Map<String, Object> roomBody(
-      String title, String description, String coverImageUrl, Integer maxCapacity) {
+  private Map<String, Object> roomBody(String title, String description, Integer maxCapacity) {
     Map<String, Object> body = new LinkedHashMap<>();
     body.put("title", title);
     body.put("description", description);
-    body.put("coverImageUrl", coverImageUrl);
     body.put("maxCapacity", maxCapacity);
     return body;
   }

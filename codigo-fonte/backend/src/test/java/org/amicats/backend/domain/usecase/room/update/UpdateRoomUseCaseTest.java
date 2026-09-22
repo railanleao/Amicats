@@ -36,7 +36,7 @@ class UpdateRoomUseCaseTest {
     when(roomDataProvider.findById(1)).thenReturn(Optional.of(room));
 
     ReadRoomOutput output =
-        useCase().execute(1, new UpdateRoomInput("Sala Nova", "Descrição nova", null, 6));
+        useCase().execute(1, new UpdateRoomInput("Sala Nova", "Descrição nova", 6));
 
     assertThat(output.title()).isEqualTo("Sala Nova");
     assertThat(output.description()).isEqualTo("Descrição nova");
@@ -47,8 +47,7 @@ class UpdateRoomUseCaseTest {
   void rejectsWhenTheRoomIsNotFound() {
     when(roomDataProvider.findById(99)).thenReturn(Optional.empty());
 
-    assertThatThrownBy(
-            () -> useCase().execute(99, new UpdateRoomInput("Sala Nova", null, null, null)))
+    assertThatThrownBy(() -> useCase().execute(99, new UpdateRoomInput("Sala Nova", null, null)))
         .isInstanceOf(ResourceNotFoundException.class);
   }
 }

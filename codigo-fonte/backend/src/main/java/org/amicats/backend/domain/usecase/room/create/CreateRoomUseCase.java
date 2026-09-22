@@ -13,8 +13,7 @@ public class CreateRoomUseCase {
 
   @Transactional
   public ReadRoomOutput execute(CreateRoomInput input) {
-    Room room =
-        new Room(input.title(), input.description(), input.coverImageUrl(), input.maxCapacity());
+    Room room = new Room(input.title(), input.description(), null, input.maxCapacity());
     roomDataProvider.saveRoom(room);
     return ReadRoomOutput.from(room);
   }

@@ -1,4 +1,4 @@
-package org.amicats.backend.domain.usecase.user.photo;
+package org.amicats.backend.domain.usecase.common.photo;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
