@@ -3,16 +3,21 @@ package org.amicats.backend;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import javax.imageio.ImageIO;
 import org.amicats.backend.domain.entity.Room;
 import org.amicats.backend.domain.entity.User;
 import org.amicats.backend.domain.entity.UserAuth;
@@ -275,6 +280,113 @@ class RoomManagementFlowIntegrationTest {
       roomRepository.deleteById(first.getId());
       roomRepository.deleteById(second.getId());
     }
+  }
+
+  @Test
+  void anAdministratorCanUploadReadAndRemoveARoomPhoto() throws Exception {
+    String adminToken = loginAndGetToken(adminEmail);
+
+    HttpResponse<String> uploadResponse =
+        uploadPhoto(targetRoomId, adminToken, png(300, 200), "cover.png", "image/png");
+    assertThat(uploadResponse.statusCode()).isEqualTo(200);
+    assertThat(parse(uploadResponse).get("coverImageUrl"))
+        .isEqualTo("/rooms/" + targetRoomId + "/photo");
+
+    HttpResponse<byte[]> readResponse = getPhoto(targetRoomId, adminToken);
+    assertThat(readResponse.statusCode()).isEqualTo(200);
+    assertThat(readResponse.headers().firstValue("Content-Type")).contains("image/jpeg");
+    assertThat(readResponse.body()).isNotEmpty();
+    assertThat(ImageIO.read(new ByteArrayInputStream(readResponse.body()))).isNotNull();
+
+    HttpResponse<String> removeResponse =
+        send("DELETE", "/rooms/" + targetRoomId + "/photo", adminToken, null);
+    assertThat(removeResponse.statusCode()).isEqualTo(204);
+
+    assertThat(parse(get("/rooms/" + targetRoomId, adminToken)).get("coverImageUrl")).isNull();
+    assertThat(getPhoto(targetRoomId, adminToken).statusCode()).isEqualTo(404);
+  }
+
+  @Test
+  void uploadingAnInvalidPhotoReturnsBadRequest() throws Exception {
+    String adminToken = loginAndGetToken(adminEmail);
+
+    HttpResponse<String> response =
+        uploadPhoto(
+            targetRoomId,
+            adminToken,
+            "não é uma imagem".getBytes(StandardCharsets.UTF_8),
+            "nota.txt",
+            "text/plain");
+
+    assertThat(response.statusCode()).isEqualTo(400);
+  }
+
+  @Test
+  void uploadingAPhotoForAnUnknownRoomReturnsNotFound() throws Exception {
+    String adminToken = loginAndGetToken(adminEmail);
+
+    HttpResponse<String> response =
+        uploadPhoto(999999999, adminToken, png(100, 100), "cover.png", "image/png");
+
+    assertThat(response.statusCode()).isEqualTo(404);
+  }
+
+  @Test
+  void aNonAdministratorCannotUploadOrRemoveAPhotoButCanReadIt() throws Exception {
+    String adminToken = loginAndGetToken(adminEmail);
+    String assistantToken = loginAndGetToken(assistantEmail);
+    assertThat(
+            uploadPhoto(targetRoomId, adminToken, png(100, 100), "cover.png", "image/png")
+                .statusCode())
+        .isEqualTo(200);
+
+    assertThat(
+            uploadPhoto(targetRoomId, assistantToken, png(100, 100), "cover.png", "image/png")
+                .statusCode())
+        .isEqualTo(403);
+    assertThat(
+            send("DELETE", "/rooms/" + targetRoomId + "/photo", assistantToken, null).statusCode())
+        .isEqualTo(403);
+    assertThat(getPhoto(targetRoomId, assistantToken).statusCode()).isEqualTo(200);
+  }
+
+  private byte[] png(int width, int height) throws Exception {
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    ImageIO.write(new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB), "png", out);
+    return out.toByteArray();
+  }
+
+  private HttpResponse<String> uploadPhoto(
+      Integer roomId, String token, byte[] fileContent, String filename, String contentType)
+      throws Exception {
+    String boundary = "AmicatsBoundary" + UUID.randomUUID();
+    ByteArrayOutputStream body = new ByteArrayOutputStream();
+    body.write(("--" + boundary + "\r\n").getBytes(StandardCharsets.UTF_8));
+    body.write(
+        ("Content-Disposition: form-data; name=\"file\"; filename=\"" + filename + "\"\r\n")
+            .getBytes(StandardCharsets.UTF_8));
+    body.write(("Content-Type: " + contentType + "\r\n\r\n").getBytes(StandardCharsets.UTF_8));
+    body.write(fileContent);
+    body.write(("\r\n--" + boundary + "--\r\n").getBytes(StandardCharsets.UTF_8));
+
+    HttpRequest request =
+        HttpRequest.newBuilder()
+            .uri(URI.create(baseUrl() + "/rooms/" + roomId + "/photo"))
+            .header("Authorization", "Bearer " + token)
+            .header("Content-Type", "multipart/form-data; boundary=" + boundary)
+            .PUT(BodyPublishers.ofByteArray(body.toByteArray()))
+            .build();
+    return httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+  }
+
+  private HttpResponse<byte[]> getPhoto(Integer roomId, String token) throws Exception {
+    HttpRequest request =
+        HttpRequest.newBuilder()
+            .uri(URI.create(baseUrl() + "/rooms/" + roomId + "/photo"))
+            .header("Authorization", "Bearer " + token)
+            .GET()
+            .build();
+    return httpClient.send(request, HttpResponse.BodyHandlers.ofByteArray());
   }
 
   private Map<String, Object> roomBody(String title, String description, Integer maxCapacity) {

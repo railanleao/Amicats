@@ -53,7 +53,7 @@ jobs:
             -p 9010:9000 \
             -e MINIO_ROOT_USER=amicats \
             -e MINIO_ROOT_PASSWORD=amicats123 \
-            minio/minio:latest server /data
+            quay.io/minio/minio:latest server /data
           for i in $(seq 1 30); do
             docker exec minio mc ready local && exit 0
             sleep 1
