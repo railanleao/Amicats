@@ -57,11 +57,17 @@ public class Room {
     this.active = false;
   }
 
-  public void updateDetails(
-      String title, String description, String coverImageUrl, Integer maxCapacity) {
+  public void updateDetails(String title, String description, Integer maxCapacity) {
     this.title = title;
     this.description = description;
-    this.coverImageUrl = coverImageUrl;
     this.maxCapacity = maxCapacity;
+  }
+
+  public void changeImage(String imageKey) {
+    this.coverImageUrl = imageKey;
+  }
+
+  public void removeImage() {
+    this.coverImageUrl = null;
   }
 }

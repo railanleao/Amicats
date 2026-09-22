@@ -26,8 +26,7 @@ class CreateRoomUseCaseTest {
   void createsAnActiveRoomWithTheGivenDetails() {
     when(roomDataProvider.saveRoom(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
-    ReadRoomOutput output =
-        useCase().execute(new CreateRoomInput("Sala Azul", "Fica no fundo", null, 4));
+    ReadRoomOutput output = useCase().execute(new CreateRoomInput("Sala Azul", "Fica no fundo", 4));
 
     assertThat(output.title()).isEqualTo("Sala Azul");
     assertThat(output.description()).isEqualTo("Fica no fundo");

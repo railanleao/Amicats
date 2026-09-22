@@ -15,8 +15,12 @@ public record ReadRoomOutput(
         room.getId(),
         room.getTitle(),
         room.getDescription(),
-        room.getCoverImageUrl(),
+        photoPath(room),
         room.getMaxCapacity(),
         room.isActive());
+  }
+
+  private static String photoPath(Room room) {
+    return room.getCoverImageUrl() == null ? null : "/rooms/" + room.getId() + "/photo";
   }
 }
