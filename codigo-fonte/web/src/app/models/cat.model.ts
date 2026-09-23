@@ -1,12 +1,11 @@
-// Mirrors the backend's Cat domain (org.amicats.backend.domain.entity.Cat and
-// CreateCatInput). A colleague built the entity, listing, search and cover-photo endpoints in a
-// separate task; this only adds the create request shape on top of it, matching the mobile app's
-// src/types/cat.ts.
+// Mirrors the backend's Cat domain (org.amicats.backend.domain.entity.Cat and CreateCatInput).
 //
-// CreateCatInput doesn't accept healthStatus, pifResult, severity or neuteringStatus — those are
-// set later through separate clinical use cases (registerFivFelvExam, registerPifExam,
-// updateSeverity, registerNeutering), none of which have an endpoint yet. "Situação clínica" is
-// the only health-ish field this form can actually submit.
+// CreateCatInput doesn't accept healthStatus, pifResult, severity, neuteringStatus, ageGroup,
+// photoUrl or roomTitle: healthStatus/pifResult default to NotTested on creation, ageGroup is
+// derived server-side from the birth date, and photoUrl/roomTitle aren't creation inputs (photo
+// goes through a separate upload endpoint, roomTitle is looked up server-side from roomId). Those
+// fields are only set later through separate clinical use cases (registerFivFelvExam,
+// registerPifExam, updateSeverity, registerNeutering), none of which have an endpoint yet.
 export type Sex = 'Male' | 'Female';
 export type AgeGroup = 'Kitten' | 'Young' | 'Adult' | 'Senior';
 export type GeneralStatus =
@@ -54,7 +53,8 @@ export const HEALTH_STATUS_LABELS: Record<HealthStatus, string> = {
   NotTested: 'Não testado',
 };
 
-export interface CreateCatRequest {
+export interface Cat {
+  id: number;
   name: string;
   photoUrl: string | null;
   roomId: number | null;
@@ -65,7 +65,7 @@ export interface CreateCatRequest {
   coat: string | null;
   weightKg: number | null;
   characteristics: string | null;
-  generalStatus: GeneralStatus | null;
+  generalStatus: GeneralStatus;
   healthStatus: HealthStatus;
   fivFelvExamDate: string | null;
   pifResult: PifResult;
@@ -79,13 +79,24 @@ export interface CreateCatRequest {
   sponsorName: string | null;
   sponsorPhone: string | null;
   sponsorFunding: string | null;
+  createdAt: string;
 }
 
-export interface Cat extends CreateCatRequest {
-  id: number;
-  photoUrl: string | null;
-  roomTitle: string | null;
-  createdAt: string;
+export interface CreateCatRequest {
+  name: string;
+  roomId: number | null;
+  sex: Sex | null;
+  estimatedBirthDate: string | null;
+  coat: string | null;
+  weightKg: number | null;
+  characteristics: string | null;
+  generalStatus: GeneralStatus | null;
+  microchip: string | null;
+  rescueDate: string | null;
+  foundConditions: string | null;
+  sponsorName: string | null;
+  sponsorPhone: string | null;
+  sponsorFunding: string | null;
 }
 
 export interface CatSearchParams {
