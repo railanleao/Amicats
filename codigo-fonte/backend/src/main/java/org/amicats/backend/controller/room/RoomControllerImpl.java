@@ -31,14 +31,14 @@ public class RoomControllerImpl implements RoomController {
   private final RoomPhotoFactory roomPhotoFactory;
 
   @Override
-  @PreAuthorize("hasRole('Administrator')")
+  @PreAuthorize("isAuthenticated()")
   public PagedResult<ReadRoomOutput> list(String search, Boolean active, int page, int size) {
     RoomSearchCriteria criteria = new RoomSearchCriteria(search, active, page, size);
     return readRoomFactory.create().search(criteria);
   }
 
   @Override
-  @PreAuthorize("hasRole('Administrator')")
+  @PreAuthorize("isAuthenticated()")
   public ReadRoomOutput findById(Integer id) {
     return readRoomFactory.create().findById(id);
   }
