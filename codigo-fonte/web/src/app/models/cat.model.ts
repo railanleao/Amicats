@@ -1,3 +1,12 @@
+// Mirrors the backend's Cat domain (org.amicats.backend.domain.entity.Cat and
+// CreateCatInput). A colleague built the entity, listing, search and cover-photo endpoints in a
+// separate task; this only adds the create request shape on top of it, matching the mobile app's
+// src/types/cat.ts.
+//
+// CreateCatInput doesn't accept healthStatus, pifResult, severity or neuteringStatus — those are
+// set later through separate clinical use cases (registerFivFelvExam, registerPifExam,
+// updateSeverity, registerNeutering), none of which have an endpoint yet. "Situação clínica" is
+// the only health-ish field this form can actually submit.
 export type Sex = 'Male' | 'Female';
 export type AgeGroup = 'Kitten' | 'Young' | 'Adult' | 'Senior';
 export type GeneralStatus =
@@ -14,6 +23,11 @@ export type PifResult = 'Positive' | 'Negative' | 'NotTested';
 export type Severity = 'Low' | 'Medium' | 'High' | 'VeryHigh';
 export type NeuteringStatus = 'Neutered' | 'NotNeutered' | 'Scheduled';
 
+export const SEX_LABELS: Record<Sex, string> = {
+  Male: 'Macho',
+  Female: 'Fêmea',
+};
+
 export const AGE_GROUP_LABELS: Record<AgeGroup, string> = {
   Kitten: 'Filhote',
   Young: 'Jovem',
@@ -22,12 +36,12 @@ export const AGE_GROUP_LABELS: Record<AgeGroup, string> = {
 };
 
 export const GENERAL_STATUS_LABELS: Record<GeneralStatus, string> = {
-  UnderTreatment: 'Em Tratamento',
-  AvailableForAdoption: 'Disponível p/ Adoção',
-  InTriage: 'Em Triagem',
+  UnderTreatment: 'Em tratamento',
+  AvailableForAdoption: 'Disponível para adoção',
+  InTriage: 'Em triagem',
   Adopted: 'Adotado',
-  TemporaryHome: 'Lar Temporário',
-  InClinic: 'Em Clínica',
+  TemporaryHome: 'Lar temporário',
+  InClinic: 'Em clínica',
   Deceased: 'Óbito',
   Missing: 'Desaparecido',
 };
@@ -40,8 +54,7 @@ export const HEALTH_STATUS_LABELS: Record<HealthStatus, string> = {
   NotTested: 'Não testado',
 };
 
-export interface Cat {
-  id: number;
+export interface CreateCatRequest {
   name: string;
   photoUrl: string | null;
   roomId: number | null;
@@ -52,7 +65,7 @@ export interface Cat {
   coat: string | null;
   weightKg: number | null;
   characteristics: string | null;
-  generalStatus: GeneralStatus;
+  generalStatus: GeneralStatus | null;
   healthStatus: HealthStatus;
   fivFelvExamDate: string | null;
   pifResult: PifResult;
@@ -66,6 +79,12 @@ export interface Cat {
   sponsorName: string | null;
   sponsorPhone: string | null;
   sponsorFunding: string | null;
+}
+
+export interface Cat extends CreateCatRequest {
+  id: number;
+  photoUrl: string | null;
+  roomTitle: string | null;
   createdAt: string;
 }
 

@@ -1,4 +1,4 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { Cat, CatSearchParams, CreateCatRequest, PagedResult } from '../../models/cat.model';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
@@ -22,6 +22,16 @@ export class CatService {
     }
 
     return this.http.get<PagedResult<Cat>>('/cats', { params: httpParams });
+  }
+
+  create(request: CreateCatRequest): Observable<Cat> {
+    return this.http.post<Cat>('/cats', request);
+  }
+
+  uploadPhoto(catId: number, file: File): Observable<Cat> {
+    const body = new FormData();
+    body.append('file', file);
+    return this.http.put<Cat>(`/cats/${catId}/photo`, body);
   }
 
   photo(id: number): Observable<Blob> {

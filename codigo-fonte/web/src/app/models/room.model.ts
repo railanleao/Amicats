@@ -14,6 +14,17 @@ export interface RoomSearchParams {
   size: number;
 }
 
+export interface CreateRoomRequest {
+  title: string;
+  description: string | null;
+  maxCapacity: number | null;
+}
+
+export interface UpdateRoomRequest {
+  title: string;
+  description: string | null;
+  maxCapacity: number | null;
+
 export interface PagedResult<T> {
   content: T[];
   page: number;
