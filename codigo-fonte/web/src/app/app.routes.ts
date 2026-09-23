@@ -12,6 +12,7 @@ import { TermsAcceptanceComponent } from './pages/terms-acceptance/terms-accepta
 import { UsersComponent } from './pages/users/users.component';
 import { adminGuard } from './guards/admin.guard';
 import { UserFormComponent } from './pages/user-form/user-form.component';
+import { MedicalRecordsComponent } from './pages/medical-records/medical-records.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -45,6 +46,7 @@ export const routes: Routes = [
         canActivate: [adminGuard],
         data: { mode: 'edit' },
       },
+      { path: 'medical-records', component: MedicalRecordsComponent },
     ],
   },
   { path: '**', redirectTo: '' },

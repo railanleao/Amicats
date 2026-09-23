@@ -24,12 +24,7 @@
         GERAL
       </span>
 
-      <a
-        class="menu-item"
-        routerLink="/"
-        routerLinkActive="active"
-        [routerLinkActiveOptions]="{ exact: true }"
-      >
+      <a class="menu-item" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
         <span class="menu-icon">▦</span>
         <span>Dashboard</span>
       </a>
@@ -49,11 +44,7 @@
         CADASTROS
       </span>
 
-      <a
-        class="menu-item"
-        routerLink="/users"
-        routerLinkActive="active"
-      >
+      <a class="menu-item" routerLink="/users" routerLinkActive="active">
         <span class="menu-icon">♙</span>
         <span>Usuários</span>
       </a>
@@ -88,7 +79,7 @@
         CLÍNICO
       </span>
 
-      <a class="menu-item">
+      <a class="menu-item" routerLink="/medical-records" routerLinkActive="active">
         <span class="menu-icon">▤</span>
         <span>Prontuários</span>
       </a>
