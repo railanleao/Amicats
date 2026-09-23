@@ -19,8 +19,7 @@ public class UpdateRoomUseCase {
             .findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Sala não encontrada: " + id));
 
-    room.updateDetails(
-        input.title(), input.description(), input.coverImageUrl(), input.maxCapacity());
+    room.updateDetails(input.title(), input.description(), input.maxCapacity());
     roomDataProvider.saveRoom(room);
 
     return ReadRoomOutput.from(room);

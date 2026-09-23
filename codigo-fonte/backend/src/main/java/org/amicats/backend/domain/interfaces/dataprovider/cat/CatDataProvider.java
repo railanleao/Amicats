@@ -1,9 +1,9 @@
 package org.amicats.backend.domain.interfaces.dataprovider.cat;
 
-import java.util.List;
 import java.util.Optional;
 import org.amicats.backend.domain.entity.Cat;
-import org.amicats.backend.domain.entity.CatPhoto;
+import org.amicats.backend.domain.usecase.cat.read.CatSearchCriteria;
+import org.amicats.backend.domain.usecase.common.PagedResult;
 
 public interface CatDataProvider {
 
@@ -11,9 +11,5 @@ public interface CatDataProvider {
 
   Optional<Cat> findById(Integer id);
 
-  CatPhoto savePhoto(CatPhoto photo);
-
-  List<CatPhoto> findPhotosByCatId(Integer catId);
-
-  int countPhotosByCatId(Integer catId);
+  PagedResult<Cat> search(CatSearchCriteria criteria);
 }

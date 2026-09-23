@@ -4,6 +4,7 @@ import lombok.Builder;
 import org.amicats.backend.domain.entity.User;
 import org.amicats.backend.domain.interfaces.dataprovider.user.UserDataProvider;
 import org.amicats.backend.domain.interfaces.storage.PhotoStorage;
+import org.amicats.backend.domain.usecase.common.photo.PhotoNormalizer;
 import org.amicats.backend.domain.usecase.user.read.ReadUserOutput;
 import org.amicats.backend.exception.ResourceNotFoundException;
 import org.slf4j.Logger;

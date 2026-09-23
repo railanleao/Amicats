@@ -228,8 +228,6 @@ erDiagram
 - **`user.crmv` e `partner_clinic`.** Atendem à exigência de identificar o médico-veterinário responsável (nome e CRMV) em cada registro, incluindo os casos encaminhados às três clínicas parceiras externas.
 - **Apadrinhamento como colunas de `gato`, não como entidade própria.** Cada gato tem no máximo um padrinho ou madrinha, e o que a ONG precisa registrar é quem é a pessoa (`padrinho_nome`), como falar com ela (`padrinho_telefone`) e o que ela se comprometeu a custear (`padrinho_custeio`, texto livre — ração, exames, medicação). Não há controle financeiro de valores nem histórico de apadrinhamentos anteriores no escopo atual; se isso for necessário depois, o conjunto vira uma tabela `apadrinhamento` ligada a `gato`.
 - **`usuario.senha_temporaria_pendente`.** Marca que a senha atual foi definida por outra pessoa (o Administrador, no cadastro) e precisa ser trocada pelo próprio usuário no primeiro acesso — junto com `data_aceite_termos` nulo, é o que dispara o fluxo obrigatório de aceite de termos + definição de nova senha antes de liberar qualquer outra rota do sistema.
-- **`gato.status_fiv`/`status_felv`/`status_pif` separados, em vez de um único `status_saude`.** Um gato pode testar positivo para mais de uma doença ao mesmo tempo (FIV e PIF, por exemplo), o que um enum combinado não representa. Cada teste também tem seu próprio resultado (`POSITIVO`/`NEGATIVO`/`NAO_TESTADO`), substituindo `data_exame_fiv_felv` por um exame que pode não ter sido feito ainda. Ajustado ao implementar o cadastro do gato (RF-005).
-- **`gato.local_resgate`.** Onde o gato foi encontrado (rua, bairro), distinto de `condicoes_encontrado` (em que estado ele foi encontrado). Faltava na primeira versão do modelo; adicionado junto com o item acima.
 
 ### Projeto Físico da Base de Dados
 
@@ -301,17 +299,18 @@ erDiagram
 | data_nascimento_estimada | DATE | |
 | faixa_etaria | ENUM('FILHOTE','JOVEM','ADULTO','SENIOR') | Derivada da idade |
 | pelagem | VARCHAR(100) | |
+| peso_kg | DECIMAL(5,2) | |
 | caracteristicas | TEXT | |
-| status_geral | ENUM('EM_TRATAMENTO','DISPONIVEL_ADOCAO','EM_TRIAGEM','ADOTADO','LAR_TEMPORARIO','EM_CLINICA','OBITO','DESAPARECIDO') | NOT NULL, DEFAULT EM_TRIAGEM |
-| status_fiv | ENUM('POSITIVO','NEGATIVO','NAO_TESTADO') | |
-| status_felv | ENUM('POSITIVO','NEGATIVO','NAO_TESTADO') | |
-| status_pif | ENUM('POSITIVO','NEGATIVO','NAO_TESTADO') | |
+| status_geral | ENUM('EM_TRATAMENTO','DISPONIVEL_ADOCAO','EM_TRIAGEM','ADOTADO','LAR_TEMPORARIO','EM_CLINICA','OBITO','DESAPARECIDO') | NOT NULL |
+| status_saude | ENUM('SAUDAVEL','FIV','FELV','FIV_FELV') | NOT NULL |
+| data_exame_fiv_felv | DATE | |
+| resultado_pif | ENUM('POSITIVO','NEGATIVO','NAO_TESTADO') NOT NULL DEFAULT 'NAO_TESTADO' | |
+| data_exame_pif | DATE | |
 | gravidade | ENUM('BAIXA','MEDIA','ALTA','MUITO_ALTA') | |
 | status_castracao | ENUM('SIM','NAO','AGENDADA') | |
 | data_castracao | DATE | |
 | microchip | VARCHAR(50) | UNIQUE, NULL |
 | data_resgate | DATE | |
-| local_resgate | VARCHAR(200) | Rua, bairro |
 | condicoes_encontrado | TEXT | |
 | padrinho_nome | VARCHAR(150) | |
 | padrinho_telefone | VARCHAR(20) | |

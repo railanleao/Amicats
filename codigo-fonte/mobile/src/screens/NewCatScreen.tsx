@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { Alert, Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Image, Text, TouchableOpacity, View } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
 import { Button, FormRow, FormScreenLayout, SectionLabel, SelectField, TextField } from '../components';
@@ -9,75 +9,49 @@ import { createCat, uploadCatPhoto } from '../services/catService';
 import { listActiveRooms } from '../services/roomService';
 import { colors } from '../theme/colors';
 import type { CreateCatRequest } from '../types/cat';
+import { GENERAL_STATUS_LABELS, SEX_LABELS } from '../types/cat';
 import type { Room } from '../types/room';
 import { parseBrazilianDate } from '../utils/date';
 import { styles } from './NewCatScreen.styles';
 
-const MAX_PHOTOS = 6;
-
-const SEX_OPTIONS = [
-  { label: 'Macho', value: 'Male' },
-  { label: 'Fêmea', value: 'Female' },
-];
-const HEALTH_TEST_OPTIONS = [
-  { label: 'Positivo', value: 'Positive' },
-  { label: 'Negativo', value: 'Negative' },
-  { label: 'Não testado', value: 'Untested' },
-];
-const NEUTERED_OPTIONS = [
-  { label: 'Sim', value: 'Yes' },
-  { label: 'Não', value: 'No' },
-  { label: 'Agendada', value: 'Scheduled' },
-];
-const CLINICAL_STATUS_OPTIONS = [
-  { label: 'Em tratamento', value: 'InTreatment' },
-  { label: 'Disponível para adoção', value: 'AvailableForAdoption' },
-  { label: 'Em triagem', value: 'InTriage' },
-  { label: 'Adotado', value: 'Adopted' },
-  { label: 'Lar temporário', value: 'FosterHome' },
-  { label: 'Em clínica', value: 'InClinic' },
-  { label: 'Óbito', value: 'Deceased' },
-  { label: 'Desaparecido', value: 'Missing' },
-];
+const SEX_OPTIONS = Object.entries(SEX_LABELS).map(([value, label]) => ({ value, label }));
+const GENERAL_STATUS_OPTIONS = Object.entries(GENERAL_STATUS_LABELS).map(([value, label]) => ({
+  value,
+  label,
+}));
 
 interface NewCatFormValues {
   name: string;
   sex: string | null;
-  estimatedAge: string;
+  estimatedBirthDate: string;
   coat: string;
+  weightKg: string;
   microchip: string;
   roomId: string | null;
-  fiv: string | null;
-  felv: string | null;
-  pif: string | null;
-  neutered: string | null;
-  clinicalStatus: string | null;
-  healthNotes: string;
+  generalStatus: string | null;
+  characteristics: string;
   rescueDate: string;
-  rescueLocation: string;
+  foundConditions: string;
   sponsorName: string;
   sponsorPhone: string;
-  sponsorCoverage: string;
+  sponsorFunding: string;
 }
 
 const DEFAULT_VALUES: NewCatFormValues = {
   name: '',
   sex: null,
-  estimatedAge: '',
+  estimatedBirthDate: '',
   coat: '',
+  weightKg: '',
   microchip: '',
   roomId: null,
-  fiv: null,
-  felv: null,
-  pif: null,
-  neutered: null,
-  clinicalStatus: null,
-  healthNotes: '',
+  generalStatus: null,
+  characteristics: '',
   rescueDate: '',
-  rescueLocation: '',
+  foundConditions: '',
   sponsorName: '',
   sponsorPhone: '',
-  sponsorCoverage: '',
+  sponsorFunding: '',
 };
 
 interface NewCatScreenProps {
@@ -90,7 +64,7 @@ export function NewCatScreen({ onBack, onSaved }: NewCatScreenProps) {
   const [submitting, setSubmitting] = useState(false);
   const [roomOptions, setRoomOptions] = useState<Room[]>([]);
   const [roomsError, setRoomsError] = useState<string>();
-  const [photos, setPhotos] = useState<string[]>([]);
+  const [photoUri, setPhotoUri] = useState<string>();
 
   const {
     control,
@@ -116,41 +90,26 @@ export function NewCatScreen({ onBack, onSaved }: NewCatScreenProps) {
       Alert.alert('Permissão necessária', 'Autorize o acesso à câmera para fotografar o gato.');
       return;
     }
-
     const result = await ImagePicker.launchCameraAsync({ quality: 0.8 });
     if (!result.canceled) {
-      addPhotos(result.assets.map((asset) => asset.uri));
+      setPhotoUri(result.assets[0].uri);
     }
   }
 
   async function pickFromLibrary() {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
-      Alert.alert('Permissão necessária', 'Autorize o acesso às fotos para anexar imagens.');
+      Alert.alert('Permissão necessária', 'Autorize o acesso às fotos para anexar uma imagem.');
       return;
     }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      allowsMultipleSelection: true,
-      selectionLimit: MAX_PHOTOS - photos.length,
-      quality: 0.8,
-    });
+    const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.8 });
     if (!result.canceled) {
-      addPhotos(result.assets.map((asset) => asset.uri));
+      setPhotoUri(result.assets[0].uri);
     }
   }
 
-  function addPhotos(uris: string[]) {
-    setPhotos((current) => [...current, ...uris].slice(0, MAX_PHOTOS));
-  }
-
-  function removePhoto(uri: string) {
-    setPhotos((current) => current.filter((photo) => photo !== uri));
-  }
-
-  function handleAddPhotoPress() {
-    Alert.alert('Adicionar foto', undefined, [
+  function handlePhotoPress() {
+    Alert.alert('Foto do gato', undefined, [
       { text: 'Tirar foto', onPress: takePhoto },
       { text: 'Escolher da galeria', onPress: pickFromLibrary },
       { text: 'Cancelar', style: 'cancel' },
@@ -160,22 +119,33 @@ export function NewCatScreen({ onBack, onSaved }: NewCatScreenProps) {
   async function submit(values: NewCatFormValues) {
     setGeneralError(undefined);
     setSubmitting(true);
+
     const request: CreateCatRequest = {
-      ...values,
+      name: values.name.trim(),
       roomId: values.roomId ? Number(values.roomId) : null,
-      rescueDate: parseBrazilianDate(values.rescueDate) ?? '',
-    } as CreateCatRequest;
+      sex: (values.sex as CreateCatRequest['sex']) ?? null,
+      estimatedBirthDate: parseBrazilianDate(values.estimatedBirthDate),
+      coat: values.coat.trim() || null,
+      weightKg: values.weightKg ? Number(values.weightKg.replace(',', '.')) : null,
+      characteristics: values.characteristics.trim() || null,
+      generalStatus: (values.generalStatus as CreateCatRequest['generalStatus']) ?? null,
+      microchip: values.microchip.trim() || null,
+      rescueDate: parseBrazilianDate(values.rescueDate),
+      foundConditions: values.foundConditions.trim() || null,
+      sponsorName: values.sponsorName.trim() || null,
+      sponsorPhone: values.sponsorPhone.trim() || null,
+      sponsorFunding: values.sponsorFunding.trim() || null,
+    };
 
     try {
       const cat = await createCat(request);
 
-      const uploads = await Promise.allSettled(photos.map((uri) => uploadCatPhoto(cat.id, uri)));
-      const failedCount = uploads.filter((result) => result.status === 'rejected').length;
-      if (failedCount > 0) {
-        Alert.alert(
-          'Gato salvo',
-          `O cadastro foi salvo, mas ${failedCount} de ${photos.length} foto(s) não foram enviadas. Tente adicioná-las depois.`,
-        );
+      if (photoUri) {
+        try {
+          await uploadCatPhoto(cat.id, photoUri);
+        } catch {
+          Alert.alert('Gato salvo', 'O cadastro foi salvo, mas a foto não pôde ser enviada. Tente adicioná-la depois.');
+        }
       }
 
       onSaved();
@@ -197,25 +167,17 @@ export function NewCatScreen({ onBack, onSaved }: NewCatScreenProps) {
 
       <FormScreenLayout>
         <View style={styles.photoSection}>
-          <View style={styles.photoSectionHeader}>
-            <Text style={styles.photoSectionLabel}>Fotos do gato</Text>
-            <Text style={styles.photoSectionHint}>até {MAX_PHOTOS} fotos</Text>
-          </View>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <View style={styles.photoRow}>
-              {photos.length < MAX_PHOTOS ? (
-                <TouchableOpacity style={styles.addPhotoTile} onPress={handleAddPhotoPress} accessibilityRole="button">
-                  <Ionicons name="add" size={16} color={colors.primary} />
-                  <Text style={styles.addPhotoLabel}>Foto</Text>
-                </TouchableOpacity>
-              ) : null}
-              {photos.map((uri) => (
-                <TouchableOpacity key={uri} onPress={() => removePhoto(uri)} accessibilityRole="button" accessibilityLabel="Remover foto">
-                  <Image source={{ uri }} style={styles.photoPlaceholder} />
-                </TouchableOpacity>
-              ))}
-            </View>
-          </ScrollView>
+          <Text style={styles.photoSectionLabel}>Foto do gato</Text>
+          <TouchableOpacity onPress={handlePhotoPress} accessibilityRole="button">
+            {photoUri ? (
+              <Image source={{ uri: photoUri }} style={styles.photoPreview} />
+            ) : (
+              <View style={styles.addPhotoTile}>
+                <Ionicons name="add" size={16} color={colors.primary} />
+                <Text style={styles.addPhotoLabel}>Foto</Text>
+              </View>
+            )}
+          </TouchableOpacity>
         </View>
 
         <FormRow>
@@ -239,9 +201,9 @@ export function NewCatScreen({ onBack, onSaved }: NewCatScreenProps) {
         <FormRow>
           <Controller
             control={control}
-            name="estimatedAge"
+            name="estimatedBirthDate"
             render={({ field: { value, onChange } }) => (
-              <TextField label="Idade estimada" placeholder="Ex: 4 anos" value={value} onChangeText={onChange} />
+              <TextField label="Nascimento estimado" placeholder="Ex: 08/12/2023" value={value} onChangeText={onChange} />
             )}
           />
           <Controller
@@ -253,24 +215,33 @@ export function NewCatScreen({ onBack, onSaved }: NewCatScreenProps) {
           />
         </FormRow>
 
-        <Controller
-          control={control}
-          name="microchip"
-          rules={{
-            validate: (value) => !value || value.length === 15 || 'O microchip tem 15 dígitos.',
-          }}
-          render={({ field: { value, onChange } }) => (
-            <TextField
-              label="Microchip"
-              placeholder="Opcional — 15 dígitos"
-              keyboardType="number-pad"
-              maxLength={15}
-              value={value}
-              onChangeText={onChange}
-              error={errors.microchip?.message}
-            />
-          )}
-        />
+        <FormRow>
+          <Controller
+            control={control}
+            name="weightKg"
+            render={({ field: { value, onChange } }) => (
+              <TextField label="Peso (kg)" placeholder="Ex: 3,5" keyboardType="decimal-pad" value={value} onChangeText={onChange} />
+            )}
+          />
+          <Controller
+            control={control}
+            name="microchip"
+            rules={{
+              validate: (value) => !value || value.length === 15 || 'O microchip tem 15 dígitos.',
+            }}
+            render={({ field: { value, onChange } }) => (
+              <TextField
+                label="Microchip"
+                placeholder="Opcional — 15 dígitos"
+                keyboardType="number-pad"
+                maxLength={15}
+                value={value}
+                onChangeText={onChange}
+                error={errors.microchip?.message}
+              />
+            )}
+          />
+        </FormRow>
 
         <Controller
           control={control}
@@ -287,68 +258,32 @@ export function NewCatScreen({ onBack, onSaved }: NewCatScreenProps) {
           )}
         />
 
-        <SectionLabel>Saúde</SectionLabel>
-
-        <FormRow>
-          <Controller
-            control={control}
-            name="fiv"
-            render={({ field: { value, onChange } }) => (
-              <SelectField label="FIV" value={value} placeholder="Selecione" options={HEALTH_TEST_OPTIONS} onChange={onChange} />
-            )}
-          />
-          <Controller
-            control={control}
-            name="felv"
-            render={({ field: { value, onChange } }) => (
-              <SelectField label="FeLV" value={value} placeholder="Selecione" options={HEALTH_TEST_OPTIONS} onChange={onChange} />
-            )}
-          />
-        </FormRow>
-
-        <FormRow>
-          <Controller
-            control={control}
-            name="pif"
-            render={({ field: { value, onChange } }) => (
-              <SelectField label="PIF" value={value} placeholder="Selecione" options={HEALTH_TEST_OPTIONS} onChange={onChange} />
-            )}
-          />
-          <Controller
-            control={control}
-            name="neutered"
-            render={({ field: { value, onChange } }) => (
-              <SelectField label="Castrado(a)" value={value} placeholder="Selecione" options={NEUTERED_OPTIONS} onChange={onChange} />
-            )}
-          />
-        </FormRow>
-
         <Controller
           control={control}
-          name="clinicalStatus"
+          name="characteristics"
           render={({ field: { value, onChange } }) => (
-            <SelectField
-              label="Situação clínica"
+            <TextField
+              label="Características"
+              placeholder="Temperamento, marcas, particularidades."
+              multiline
+              numberOfLines={3}
+              style={{ minHeight: 60, textAlignVertical: 'top' }}
               value={value}
-              placeholder="Selecione"
-              options={CLINICAL_STATUS_OPTIONS}
-              onChange={onChange}
+              onChangeText={onChange}
             />
           )}
         />
 
         <Controller
           control={control}
-          name="healthNotes"
+          name="generalStatus"
           render={({ field: { value, onChange } }) => (
-            <TextField
-              label="Observações de saúde"
-              placeholder="Diagnósticos, tratamentos em andamento e cuidados especiais."
-              multiline
-              numberOfLines={3}
-              style={{ minHeight: 60, textAlignVertical: 'top' }}
+            <SelectField
+              label="Situação clínica"
               value={value}
-              onChangeText={onChange}
+              placeholder="Selecione (padrão: Em triagem)"
+              options={GENERAL_STATUS_OPTIONS}
+              onChange={onChange}
             />
           )}
         />
@@ -365,9 +300,9 @@ export function NewCatScreen({ onBack, onSaved }: NewCatScreenProps) {
           />
           <Controller
             control={control}
-            name="rescueLocation"
+            name="foundConditions"
             render={({ field: { value, onChange } }) => (
-              <TextField label="Local de resgate" placeholder="Rua, bairro" value={value} onChangeText={onChange} />
+              <TextField label="Condições encontradas" placeholder="Ex: desnutrido, ferido" value={value} onChangeText={onChange} />
             )}
           />
         </FormRow>
@@ -393,7 +328,7 @@ export function NewCatScreen({ onBack, onSaved }: NewCatScreenProps) {
 
         <Controller
           control={control}
-          name="sponsorCoverage"
+          name="sponsorFunding"
           render={({ field: { value, onChange } }) => (
             <TextField
               label="O que o padrinho custeia"

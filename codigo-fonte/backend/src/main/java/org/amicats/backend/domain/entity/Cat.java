@@ -11,19 +11,28 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.amicats.backend.domain.enums.CatClinicalStatus;
-import org.amicats.backend.domain.enums.CatSex;
-import org.amicats.backend.domain.enums.HealthTestResult;
-import org.amicats.backend.domain.enums.NeuteredStatus;
+import lombok.Setter;
+import org.amicats.backend.domain.enums.AgeGroup;
+import org.amicats.backend.domain.enums.GeneralStatus;
+import org.amicats.backend.domain.enums.HealthStatus;
+import org.amicats.backend.domain.enums.NeuteringStatus;
+import org.amicats.backend.domain.enums.PifResult;
+import org.amicats.backend.domain.enums.Severity;
+import org.amicats.backend.domain.enums.Sex;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "cats")
 @Getter
+@Setter(onMethod_ = @Deprecated)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Cat {
 
@@ -35,51 +44,75 @@ public class Cat {
   @Column(nullable = false, length = 100)
   private String name;
 
+  @Column(name = "photo_url", length = 500)
+  private String photoUrl;
+
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "room_id")
+  @JoinColumn(name = "id_room")
   private Room room;
 
   @Enumerated(EnumType.STRING)
-  @Column(length = 10)
-  private CatSex sex;
+  @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+  private Sex sex;
 
-  @Column(name = "estimated_age", length = 50)
-  private String estimatedAge;
+  @Column(name = "estimated_birth_date")
+  private LocalDate estimatedBirthDate;
+
+  @Enumerated(EnumType.STRING)
+  @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+  @Column(name = "age_group")
+  private AgeGroup ageGroup;
 
   @Column(length = 100)
   private String coat;
 
-  @Column(length = 50)
+  @Column(name = "weight_kg", precision = 5, scale = 2)
+  private BigDecimal weightKg;
+
+  @Column(columnDefinition = "text")
+  private String characteristics;
+
+  @Enumerated(EnumType.STRING)
+  @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+  @Column(name = "general_status", nullable = false)
+  private GeneralStatus generalStatus;
+
+  @Enumerated(EnumType.STRING)
+  @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+  @Column(name = "health_status", nullable = false)
+  private HealthStatus healthStatus;
+
+  @Column(name = "fiv_felv_exam_date")
+  private LocalDate fivFelvExamDate;
+
+  @Enumerated(EnumType.STRING)
+  @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+  @Column(name = "pif_result", nullable = false)
+  private PifResult pifResult;
+
+  @Column(name = "pif_exam_date")
+  private LocalDate pifExamDate;
+
+  @Enumerated(EnumType.STRING)
+  @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+  private Severity severity;
+
+  @Enumerated(EnumType.STRING)
+  @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+  @Column(name = "neutering_status")
+  private NeuteringStatus neuteringStatus;
+
+  @Column(name = "neutering_date")
+  private LocalDate neuteringDate;
+
+  @Column(length = 50, unique = true)
   private String microchip;
-
-  @Enumerated(EnumType.STRING)
-  @Column(name = "fiv_status", length = 20)
-  private HealthTestResult fivStatus;
-
-  @Enumerated(EnumType.STRING)
-  @Column(name = "felv_status", length = 20)
-  private HealthTestResult felvStatus;
-
-  @Enumerated(EnumType.STRING)
-  @Column(name = "pif_status", length = 20)
-  private HealthTestResult pifStatus;
-
-  @Enumerated(EnumType.STRING)
-  @Column(name = "neutered_status", length = 20)
-  private NeuteredStatus neuteredStatus;
-
-  @Enumerated(EnumType.STRING)
-  @Column(name = "clinical_status", nullable = false, length = 30)
-  private CatClinicalStatus clinicalStatus;
-
-  @Column(name = "health_notes", columnDefinition = "text")
-  private String healthNotes;
 
   @Column(name = "rescue_date")
   private LocalDate rescueDate;
 
-  @Column(name = "rescue_location", length = 200)
-  private String rescueLocation;
+  @Column(name = "found_conditions", columnDefinition = "text")
+  private String foundConditions;
 
   @Column(name = "sponsor_name", length = 150)
   private String sponsorName;
@@ -87,11 +120,11 @@ public class Cat {
   @Column(name = "sponsor_phone", length = 20)
   private String sponsorPhone;
 
-  @Column(name = "sponsor_coverage", columnDefinition = "text")
-  private String sponsorCoverage;
+  @Column(name = "sponsor_funding", columnDefinition = "text")
+  private String sponsorFunding;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "created_by_user_id")
+  @JoinColumn(name = "id_user_creator", nullable = false)
   private User createdBy;
 
   @Column(name = "created_at", nullable = false)
@@ -100,43 +133,108 @@ public class Cat {
   public Cat(
       String name,
       Room room,
-      CatSex sex,
-      String estimatedAge,
+      Sex sex,
+      LocalDate estimatedBirthDate,
       String coat,
+      BigDecimal weightKg,
+      String characteristics,
+      GeneralStatus generalStatus,
       String microchip,
-      HealthTestResult fivStatus,
-      HealthTestResult felvStatus,
-      HealthTestResult pifStatus,
-      NeuteredStatus neuteredStatus,
-      CatClinicalStatus clinicalStatus,
-      String healthNotes,
       LocalDate rescueDate,
-      String rescueLocation,
+      String foundConditions,
       String sponsorName,
       String sponsorPhone,
-      String sponsorCoverage,
+      String sponsorFunding,
       User createdBy) {
     this.name = name;
     this.room = room;
     this.sex = sex;
-    this.estimatedAge = estimatedAge;
+    this.estimatedBirthDate = estimatedBirthDate;
+    this.ageGroup = calculateAgeGroup(estimatedBirthDate);
     this.coat = coat;
+    this.weightKg = weightKg;
+    this.characteristics = characteristics;
+    this.generalStatus = generalStatus;
+    this.healthStatus = HealthStatus.NotTested;
+    this.pifResult = PifResult.NotTested;
     this.microchip = microchip;
-    this.fivStatus = fivStatus;
-    this.felvStatus = felvStatus;
-    this.pifStatus = pifStatus;
-    this.neuteredStatus = neuteredStatus;
-    // "Em triagem" is the natural default for a cat that was just registered and hasn't been
-    // placed in a room or examined yet — the Paper design doesn't mark this field as required, so
-    // this keeps the form quick to fill (RNF-007) while still satisfying the NOT NULL column.
-    this.clinicalStatus = clinicalStatus != null ? clinicalStatus : CatClinicalStatus.InTriage;
-    this.healthNotes = healthNotes;
     this.rescueDate = rescueDate;
-    this.rescueLocation = rescueLocation;
+    this.foundConditions = foundConditions;
     this.sponsorName = sponsorName;
     this.sponsorPhone = sponsorPhone;
-    this.sponsorCoverage = sponsorCoverage;
+    this.sponsorFunding = sponsorFunding;
     this.createdBy = createdBy;
     this.createdAt = LocalDateTime.now();
+  }
+
+  private static AgeGroup calculateAgeGroup(LocalDate estimatedBirthDate) {
+    if (estimatedBirthDate == null) {
+      return null;
+    }
+    long ageInMonths = ChronoUnit.MONTHS.between(estimatedBirthDate, LocalDate.now());
+    if (ageInMonths < 6) {
+      return AgeGroup.Kitten;
+    }
+    if (ageInMonths < 24) {
+      return AgeGroup.Young;
+    }
+    if (ageInMonths < 84) {
+      return AgeGroup.Adult;
+    }
+    return AgeGroup.Senior;
+  }
+
+  public void updateBirthDate(LocalDate estimatedBirthDate) {
+    this.estimatedBirthDate = estimatedBirthDate;
+    this.ageGroup = calculateAgeGroup(estimatedBirthDate);
+  }
+
+  public void assignRoom(Room room) {
+    this.room = room;
+  }
+
+  public void changeGeneralStatus(GeneralStatus generalStatus) {
+    this.generalStatus = generalStatus;
+  }
+
+  public void registerFivFelvExam(HealthStatus healthStatus, LocalDate examDate) {
+    this.healthStatus = healthStatus;
+    this.fivFelvExamDate = examDate;
+  }
+
+  public void registerPifExam(PifResult pifResult, LocalDate examDate) {
+    this.pifResult = pifResult;
+    this.pifExamDate = examDate;
+  }
+
+  public void updateSeverity(Severity severity) {
+    this.severity = severity;
+  }
+
+  public void registerNeutering(NeuteringStatus neuteringStatus, LocalDate neuteringDate) {
+    this.neuteringStatus = neuteringStatus;
+    this.neuteringDate = neuteringDate;
+  }
+
+  public void updateWeight(BigDecimal weightKg) {
+    this.weightKg = weightKg;
+  }
+
+  public void updateMicrochip(String microchip) {
+    this.microchip = microchip;
+  }
+
+  public void updateSponsor(String sponsorName, String sponsorPhone, String sponsorFunding) {
+    this.sponsorName = sponsorName;
+    this.sponsorPhone = sponsorPhone;
+    this.sponsorFunding = sponsorFunding;
+  }
+
+  public void changeImage(String imageKey) {
+    this.photoUrl = imageKey;
+  }
+
+  public void removeImage() {
+    this.photoUrl = null;
   }
 }

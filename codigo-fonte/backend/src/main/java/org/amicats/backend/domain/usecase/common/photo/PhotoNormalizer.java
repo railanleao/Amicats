@@ -1,4 +1,4 @@
-package org.amicats.backend.domain.usecase.user.photo;
+package org.amicats.backend.domain.usecase.common.photo;
 
 import java.awt.Color;
 import java.awt.Graphics2D;

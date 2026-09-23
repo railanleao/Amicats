@@ -5,9 +5,11 @@ import lombok.RequiredArgsConstructor;
 import org.amicats.backend.application.factory.cat.CatPhotoFactory;
 import org.amicats.backend.application.factory.cat.CreateCatFactory;
 import org.amicats.backend.application.factory.cat.ReadCatFactory;
+import org.amicats.backend.domain.enums.GeneralStatus;
 import org.amicats.backend.domain.usecase.cat.create.CreateCatInput;
-import org.amicats.backend.domain.usecase.cat.photo.ReadCatPhotoOutput;
+import org.amicats.backend.domain.usecase.cat.read.CatSearchCriteria;
 import org.amicats.backend.domain.usecase.cat.read.ReadCatOutput;
+import org.amicats.backend.domain.usecase.common.PagedResult;
 import org.amicats.backend.exception.InvalidPhotoException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,9 +22,23 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class CatControllerImpl implements CatController {
 
-  private final CreateCatFactory createCatFactory;
   private final ReadCatFactory readCatFactory;
+  private final CreateCatFactory createCatFactory;
   private final CatPhotoFactory catPhotoFactory;
+
+  @Override
+  @PreAuthorize("isAuthenticated()")
+  public PagedResult<ReadCatOutput> list(
+      String search, Integer roomId, GeneralStatus generalStatus, int page, int size) {
+    CatSearchCriteria criteria = new CatSearchCriteria(search, roomId, generalStatus, page, size);
+    return readCatFactory.create().search(criteria);
+  }
+
+  @Override
+  @PreAuthorize("isAuthenticated()")
+  public ReadCatOutput findById(Integer id) {
+    return readCatFactory.create().findById(id);
+  }
 
   // RF-005 / UC-06: cadastro do gato é de Administrador e Médico-Veterinário.
   @Override
@@ -32,16 +48,8 @@ public class CatControllerImpl implements CatController {
   }
 
   @Override
-  @PreAuthorize("isAuthenticated()")
-  public ReadCatOutput findById(Integer id) {
-    return readCatFactory.create().findById(id);
-  }
-
-  // RF-005 / UC-07: fotografia pode ser registrada por Administrador, Médico-Veterinário ou
-  // Auxiliar.
-  @Override
-  @PreAuthorize("hasAnyRole('Administrator', 'Veterinarian', 'Assistant')")
-  public ReadCatPhotoOutput uploadPhoto(Integer id, MultipartFile file) {
+  @PreAuthorize("hasRole('Administrator')")
+  public ReadCatOutput uploadPhoto(Integer id, MultipartFile file) {
     try {
       return catPhotoFactory.create().upload(id, file.getBytes());
     } catch (IOException e) {
@@ -51,8 +59,15 @@ public class CatControllerImpl implements CatController {
 
   @Override
   @PreAuthorize("isAuthenticated()")
-  public ResponseEntity<byte[]> getPhoto(Integer id, Integer photoId) {
-    byte[] content = catPhotoFactory.create().read(id, photoId);
+  public ResponseEntity<byte[]> getPhoto(Integer id) {
+    byte[] content = catPhotoFactory.create().read(id);
     return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(content);
+  }
+
+  @Override
+  @PreAuthorize("hasRole('Administrator')")
+  public ResponseEntity<Void> removePhoto(Integer id) {
+    catPhotoFactory.create().remove(id);
+    return ResponseEntity.noContent().build();
   }
 }

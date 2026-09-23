@@ -1,21 +1,16 @@
 package org.amicats.backend.application.factory.cat;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.amicats.backend.domain.interfaces.dataprovider.cat.CatDataProvider;
 import org.amicats.backend.domain.usecase.cat.read.ReadCatUseCase;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
-@Configuration
-@AllArgsConstructor
+@Component
+@RequiredArgsConstructor
 public class ReadCatFactory {
 
-  private CatDataProvider catDataProvider;
+  private final CatDataProvider catDataProvider;
 
-  @Bean("ReadCatUseCase")
-  @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
   public ReadCatUseCase create() {
     return ReadCatUseCase.builder().catDataProvider(catDataProvider).build();
   }

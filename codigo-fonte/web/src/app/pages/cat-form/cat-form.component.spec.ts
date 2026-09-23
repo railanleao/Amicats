@@ -3,14 +3,18 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { Subject, of, throwError } from 'rxjs';
 
-import { Cat, CatPhoto, RoomOption } from '../../models/cat.model';
+import { Cat } from '../../models/cat.model';
+import { PagedResult } from '../../models/user.model';
+import { Room } from '../../models/room.model';
 import { CatService } from '../../services/resources/cat.service';
+import { RoomService } from '../../services/resources/room.service';
 import { CatFormComponent } from './cat-form.component';
 
 describe('CatFormComponent', () => {
   let fixture: ComponentFixture<CatFormComponent>;
   let component: CatFormComponent;
   let catServiceSpy: jasmine.SpyObj<CatService>;
+  let roomServiceSpy: jasmine.SpyObj<RoomService>;
 
   function createdCat(overrides: Partial<Cat> = {}): Cat {
     return {
@@ -18,57 +22,67 @@ describe('CatFormComponent', () => {
       name: 'Mingau',
       roomId: null,
       sex: null,
-      estimatedAge: null,
+      estimatedBirthDate: null,
       coat: null,
+      weightKg: null,
+      characteristics: null,
+      generalStatus: 'InTriage',
       microchip: null,
-      fiv: null,
-      felv: null,
-      pif: null,
-      neutered: null,
-      clinicalStatus: 'InTriage',
-      healthNotes: null,
       rescueDate: null,
-      rescueLocation: null,
+      foundConditions: null,
       sponsorName: null,
       sponsorPhone: null,
-      sponsorCoverage: null,
+      sponsorFunding: null,
+      photoUrl: null,
+      roomTitle: null,
       createdAt: '2026-09-23T10:00:00',
-      photoUrls: [],
       ...overrides,
     };
   }
 
-  function aRoom(overrides: Partial<RoomOption> = {}): RoomOption {
-    return { id: 1, title: 'Sala 1 - Filhotes', ...overrides };
+  function aRoomPage(rooms: Room[]): PagedResult<Room> {
+    return {
+      content: rooms,
+      page: 0,
+      size: 100,
+      totalElements: rooms.length,
+      totalPages: 1,
+    };
   }
 
-  function photoFile(name = 'foto.png', type = 'image/png', size = 10): File {
-    return new File([new Uint8Array(size)], name, { type });
+  function aRoom(overrides: Partial<Room> = {}): Room {
+    return {
+      id: 1,
+      title: 'Sala 1 - Filhotes',
+      description: null,
+      coverImageUrl: null,
+      maxCapacity: null,
+      active: true,
+      ...overrides,
+    };
   }
 
-  function fileEvent(files: File[]): Event {
-    return { target: { files, value: 'x' } } as unknown as Event;
+  function fileEvent(file: File): Event {
+    return { target: { files: [file], value: 'x' } } as unknown as Event;
   }
 
   beforeEach(async () => {
-    spyOn(URL, 'createObjectURL').and.callFake(
-      (file: unknown) => `blob:${(file as File).name}`,
-    );
+    spyOn(URL, 'createObjectURL').and.returnValue('blob:photo');
     spyOn(URL, 'revokeObjectURL');
 
     catServiceSpy = jasmine.createSpyObj<CatService>('CatService', [
       'create',
       'uploadPhoto',
-      'listActiveRooms',
-      'findById',
     ]);
-    catServiceSpy.listActiveRooms.and.returnValue(of([aRoom()]));
+    roomServiceSpy = jasmine.createSpyObj<RoomService>('RoomService', ['list']);
+    roomServiceSpy.list.and.returnValue(of(aRoomPage([aRoom()])));
 
     await TestBed.configureTestingModule({
       imports: [CatFormComponent],
       providers: [
         provideRouter([]),
         { provide: CatService, useValue: catServiceSpy },
+        { provide: RoomService, useValue: roomServiceSpy },
       ],
     }).compileComponents();
 
@@ -78,12 +92,16 @@ describe('CatFormComponent', () => {
   });
 
   it('loads the active rooms into the "Sala atual" select', () => {
-    expect(catServiceSpy.listActiveRooms).toHaveBeenCalled();
+    expect(roomServiceSpy.list).toHaveBeenCalledWith({
+      active: true,
+      page: 0,
+      size: 100,
+    });
     expect(component.rooms()).toEqual([aRoom()]);
   });
 
   it('shows a permission message when the caller cannot list rooms', () => {
-    catServiceSpy.listActiveRooms.and.returnValue(
+    roomServiceSpy.list.and.returnValue(
       throwError(() => new HttpErrorResponse({ status: 403 })),
     );
 
@@ -116,22 +134,32 @@ describe('CatFormComponent', () => {
       name: 'Mingau',
       roomId: null,
       sex: null,
-      estimatedAge: null,
+      estimatedBirthDate: null,
       coat: null,
+      weightKg: null,
+      characteristics: null,
+      generalStatus: null,
       microchip: null,
-      fiv: null,
-      felv: null,
-      pif: null,
-      neutered: null,
-      clinicalStatus: null,
-      healthNotes: null,
       rescueDate: null,
-      rescueLocation: null,
+      foundConditions: null,
       sponsorName: null,
       sponsorPhone: null,
-      sponsorCoverage: null,
+      sponsorFunding: null,
     });
     expect(navigate).toHaveBeenCalledWith(['/']);
+  });
+
+  it('parses the weight using a comma as the decimal separator', () => {
+    catServiceSpy.create.and.returnValue(of(createdCat()));
+    spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
+    component.form.controls.name.setValue('Mingau');
+    component.form.controls.weightKg.setValue('3,5');
+
+    component.onSubmit();
+
+    expect(catServiceSpy.create).toHaveBeenCalledWith(
+      jasmine.objectContaining({ weightKg: 3.5 }),
+    );
   });
 
   it('ignores a second submit while the first one is still saving', () => {
@@ -178,99 +206,72 @@ describe('CatFormComponent', () => {
     );
   });
 
-  it('uploads every chosen photo right after creating the cat and then navigates home', () => {
+  it('shows a preview and keeps the chosen photo until submit', () => {
+    const file = new File(['x'], 'foto.png', { type: 'image/png' });
+
+    component.onPhotoSelected(fileEvent(file));
+
+    expect(component.pendingPhoto()).toBe(file);
+    expect(component.pendingPhotoUrl()).toBe('blob:photo');
+    expect(component.hasPhoto).toBeTrue();
+    expect(catServiceSpy.uploadPhoto).not.toHaveBeenCalled();
+  });
+
+  it('rejects an invalid photo choice without keeping it', () => {
+    component.onPhotoSelected(
+      fileEvent(new File(['x'], 'nota.txt', { type: 'text/plain' })),
+    );
+
+    expect(component.pendingPhoto()).toBeNull();
+    expect(component.photoError()).toBe('Envie uma imagem JPG ou PNG.');
+  });
+
+  it('discards the chosen photo when it is removed', () => {
+    component.onPhotoSelected(
+      fileEvent(new File(['x'], 'foto.png', { type: 'image/png' })),
+    );
+
+    component.removePhoto();
+
+    expect(component.pendingPhoto()).toBeNull();
+    expect(component.pendingPhotoUrl()).toBeNull();
+    expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:photo');
+  });
+
+  it('uploads the chosen photo right after creating the cat', () => {
     catServiceSpy.create.and.returnValue(of(createdCat({ id: 9 })));
     catServiceSpy.uploadPhoto.and.returnValue(
-      of({ id: 1, url: '/cats/9/photos/1' } as CatPhoto),
+      of(createdCat({ id: 9, photoUrl: '/cats/9/photo' })),
     );
     const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(
       true,
     );
+    const file = new File(['x'], 'foto.png', { type: 'image/png' });
     component.form.controls.name.setValue('Mingau');
-    component.onPhotosSelected(
-      fileEvent([photoFile('a.png'), photoFile('b.png')]),
-    );
+    component.onPhotoSelected(fileEvent(file));
 
     component.onSubmit();
 
-    expect(catServiceSpy.uploadPhoto).toHaveBeenCalledTimes(2);
-    expect(catServiceSpy.uploadPhoto).toHaveBeenCalledWith(
-      9,
-      jasmine.any(File),
-    );
+    expect(catServiceSpy.uploadPhoto).toHaveBeenCalledWith(9, file);
     expect(navigate).toHaveBeenCalledWith(['/']);
   });
 
-  it('keeps the user on the page and reports how many photos failed, without navigating', () => {
+  it('keeps the user on the page and flags the photo when the upload fails', () => {
     catServiceSpy.create.and.returnValue(of(createdCat({ id: 9 })));
-    catServiceSpy.uploadPhoto.and.returnValues(
-      of({ id: 1, url: '/cats/9/photos/1' } as CatPhoto),
+    catServiceSpy.uploadPhoto.and.returnValue(
       throwError(() => new HttpErrorResponse({ status: 500 })),
     );
     const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(
       true,
     );
     component.form.controls.name.setValue('Mingau');
-    component.onPhotosSelected(
-      fileEvent([photoFile('a.png'), photoFile('b.png')]),
+    component.onPhotoSelected(
+      fileEvent(new File(['x'], 'foto.png', { type: 'image/png' })),
     );
 
     component.onSubmit();
 
     expect(navigate).not.toHaveBeenCalled();
-    expect(component.saveError()).toContain('1 de 2 foto(s)');
-    expect(component.pendingPhotos()).toEqual([]);
-  });
-
-  it('shows a preview for each selected photo and keeps them until submit', () => {
-    component.onPhotosSelected(
-      fileEvent([photoFile('a.png'), photoFile('b.png')]),
-    );
-
-    expect(component.pendingPhotos().length).toBe(2);
-    expect(component.pendingPhotoUrls()).toEqual(['blob:a.png', 'blob:b.png']);
-    expect(catServiceSpy.uploadPhoto).not.toHaveBeenCalled();
-  });
-
-  it('rejects a photo that is not JPG or PNG', () => {
-    component.onPhotosSelected(
-      fileEvent([photoFile('nota.txt', 'text/plain')]),
-    );
-
-    expect(component.pendingPhotos()).toEqual([]);
-    expect(component.photoError()).toBe('Envie imagens JPG ou PNG.');
-  });
-
-  it('rejects a photo over 5 MB', () => {
-    component.onPhotosSelected(
-      fileEvent([photoFile('grande.png', 'image/png', 5 * 1024 * 1024 + 1)]),
-    );
-
-    expect(component.pendingPhotos()).toEqual([]);
-    expect(component.photoError()).toBe('Cada foto deve ter no máximo 5 MB.');
-  });
-
-  it('caps the selection at 6 photos total', () => {
-    const sixPhotos = Array.from({ length: 6 }, (_, i) =>
-      photoFile(`${i}.png`),
-    );
-    component.onPhotosSelected(fileEvent(sixPhotos));
-
-    component.onPhotosSelected(fileEvent([photoFile('extra.png')]));
-
-    expect(component.pendingPhotos().length).toBe(6);
-    expect(component.photoError()).toBe('No máximo 6 fotos por gato.');
-  });
-
-  it('discards a chosen photo when it is removed', () => {
-    component.onPhotosSelected(
-      fileEvent([photoFile('a.png'), photoFile('b.png')]),
-    );
-
-    component.removePendingPhoto(0);
-
-    expect(component.pendingPhotos().length).toBe(1);
-    expect(component.pendingPhotoUrls()).toEqual(['blob:b.png']);
-    expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:a.png');
+    expect(component.saveError()).toContain('a foto não pôde ser enviada');
   });
 });

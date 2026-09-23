@@ -1,6 +1,6 @@
 package org.amicats.backend.domain.enums;
 
-public enum CatSex {
+public enum Sex {
   Male,
   Female
 }

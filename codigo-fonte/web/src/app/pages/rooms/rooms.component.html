@@ -1,0 +1,163 @@
+<div class="page">
+  <header class="page-header">
+    <h1>Salas</h1>
+    <button type="button" class="new-button" (click)="createRoom()">
+      <span>＋</span>
+      Nova sala
+    </button>
+  </header>
+
+  <section class="rooms-container">
+    <div class="toolbar">
+      <div class="search-box">
+        <span class="search-icon">⌕</span>
+        <input
+          type="text"
+          placeholder="Buscar sala..."
+          (input)="onSearch($event)"
+        />
+      </div>
+
+      <button
+        type="button"
+        class="filter-button"
+        (click)="toggleFilters()"
+      >
+        <span>☷</span>
+        Filtros
+      </button>
+    </div>
+
+    @if (showFilters) {
+      <div class="filter-panel">
+        <div class="filter-field">
+          <label for="status">Status</label>
+
+          <div class="select-wrapper">
+            <select
+              id="status"
+              (change)="onStatusChange($event)"
+            >
+              <option value="">Todos os status</option>
+              <option value="Active">Ativa</option>
+              <option value="Inactive">Inativa</option>
+            </select>
+            <svg class="select-chevron" width="12" height="12" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M4 7l5 5 5-5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </div>
+        </div>
+      </div>
+    }
+
+    @if (errorMessage()) {
+      <div class="feedback feedback--error" role="alert">
+        {{ errorMessage() }}
+        <button type="button" class="feedback__retry" (click)="loadRooms()">Tentar novamente</button>
+      </div>
+    }
+
+    @if (loading() && rooms().length === 0) {
+      <div class="feedback">Carregando salas...</div>
+    } @else {
+      <div class="rooms-grid">
+        @for (room of rooms(); track room.id) {
+          <div class="room-card" [class.inactive-card]="!room.active">
+            <div class="room-card__image">
+              <app-room-cover [roomId]="room.id" [hasPhoto]="!!room.coverImageUrl" />
+
+              <button
+                type="button"
+                class="room-card__edit"
+                title="Editar sala"
+                [attr.aria-label]="'Editar ' + room.title"
+                (click)="editRoom(room)"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                  <path d="m15 5 4 4" />
+                </svg>
+              </button>
+            </div>
+
+            <div class="room-card__body">
+              <span class="room-card__title">{{ room.title }}</span>
+
+              <div class="room-card__footer">
+                <span class="room-card__capacity">{{ capacityLabel(room) }}</span>
+
+                <div class="room-card__status">
+                  <span
+                    class="status-label"
+                    [class.status-label--off]="!room.active"
+                  >
+                    {{ room.active ? 'Ativa' : 'Inativa' }}
+                  </span>
+
+                  <app-toggle
+                    [label]="'Status de ' + room.title"
+                    [checked]="room.active"
+                    [disabled]="deactivatingId() === room.id || activatingId() === room.id"
+                    [hint]="room.active ? 'Desativar sala' : 'Reativar sala'"
+                    (toggled)="onToggleStatus(room)"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        } @empty {
+          <div class="feedback">Nenhuma sala encontrada.</div>
+        }
+      </div>
+
+      <app-pagination
+        [page]="page()"
+        [size]="pageSize"
+        [totalPages]="totalPages()"
+        [totalElements]="totalElements()"
+        itemLabel="salas"
+        (pageChange)="onPageChange($event)"
+      />
+    }
+  </section>
+
+  @if (roomPendingDeactivation(); as room) {
+    <app-confirm-dialog
+      title="Desativar sala"
+      [message]="'Desativar a sala ' + room.title + '? Ela deixa de aparecer como disponível para alocação de gatos.'"
+      confirmLabel="Desativar"
+      [confirmLoading]="deactivatingId() === room.id"
+      (confirmed)="confirmDeactivation()"
+      (cancelled)="cancelDeactivation()"
+    />
+  }
+
+  @if (roomPendingReactivation(); as room) {
+    <app-confirm-dialog
+      title="Reativar sala"
+      [message]="'Reativar a sala ' + room.title + '? Ela volta a ficar disponível para alocação de gatos.'"
+      confirmLabel="Reativar"
+      confirmVariant="success"
+      [confirmLoading]="activatingId() === room.id"
+      (confirmed)="confirmReactivation()"
+      (cancelled)="cancelReactivation()"
+    />
+  }
+</div>

@@ -42,7 +42,8 @@ public class TemporaryPasswordEmailTemplate {
         + temporaryPassword
         + "\n\n"
         + "Por segurança, você precisará criar uma nova senha assim que fizer login.\n\n"
-        + "Se você não reconhece esta solicitação, ignore este e-mail — sua senha atual continua válida.";
+        + "Se você não reconhece esta solicitação, ignore este e-mail — sua senha atual continua"
+        + " válida.";
   }
 
   public String welcomeSubject() {

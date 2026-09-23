@@ -11,11 +11,10 @@ import org.springframework.data.repository.query.Param;
 public interface UserRepository extends JpaRepository<User, Integer> {
 
   @Query(
-      "select u from User u where "
-          + "(:searchPattern is null or lower(u.fullName) like :searchPattern "
-          + "or exists (select 1 from UserAuth ua where ua.user = u and lower(ua.email) like :searchPattern)) "
-          + "and u.accessType = coalesce(:accessType, u.accessType) "
-          + "and u.active = coalesce(:active, u.active)")
+      "select u from User u where (:searchPattern is null or lower(u.fullName) like :searchPattern"
+          + " or exists (select 1 from UserAuth ua where ua.user = u and lower(ua.email) like"
+          + " :searchPattern)) and u.accessType = coalesce(:accessType, u.accessType) and u.active"
+          + " = coalesce(:active, u.active)")
   Page<User> search(
       @Param("searchPattern") String searchPattern,
       @Param("accessType") AccessType accessType,

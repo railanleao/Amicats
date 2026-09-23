@@ -1,11 +1,15 @@
 package org.amicats.backend.repository.cat;
 
-import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.amicats.backend.domain.entity.Cat;
-import org.amicats.backend.domain.entity.CatPhoto;
 import org.amicats.backend.domain.interfaces.dataprovider.cat.CatDataProvider;
+import org.amicats.backend.domain.usecase.cat.read.CatSearchCriteria;
+import org.amicats.backend.domain.usecase.common.PagedResult;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -13,7 +17,6 @@ import org.springframework.stereotype.Component;
 public class CatDataProviderImpl implements CatDataProvider {
 
   private final CatRepository catRepository;
-  private final CatPhotoRepository catPhotoRepository;
 
   @Override
   public Cat saveCat(Cat cat) {
@@ -22,21 +25,29 @@ public class CatDataProviderImpl implements CatDataProvider {
 
   @Override
   public Optional<Cat> findById(Integer id) {
-    return catRepository.findById(id);
+    return catRepository.findByIdFetchingRoom(id);
   }
 
   @Override
-  public CatPhoto savePhoto(CatPhoto photo) {
-    return catPhotoRepository.save(photo);
+  public PagedResult<Cat> search(CatSearchCriteria criteria) {
+    String searchPattern = toSearchPattern(criteria.search());
+    Pageable pageable = PageRequest.of(criteria.page(), criteria.size(), Sort.by("name"));
+
+    Page<Cat> page =
+        catRepository.search(searchPattern, criteria.roomId(), criteria.generalStatus(), pageable);
+
+    return new PagedResult<>(
+        page.getContent(),
+        page.getNumber(),
+        page.getSize(),
+        page.getTotalElements(),
+        page.getTotalPages());
   }
 
-  @Override
-  public List<CatPhoto> findPhotosByCatId(Integer catId) {
-    return catPhotoRepository.findByCatIdOrderByIdAsc(catId);
-  }
-
-  @Override
-  public int countPhotosByCatId(Integer catId) {
-    return catPhotoRepository.countByCatId(catId);
+  private String toSearchPattern(String search) {
+    if (search == null || search.isBlank()) {
+      return null;
+    }
+    return "%" + search.trim().toLowerCase() + "%";
   }
 }
