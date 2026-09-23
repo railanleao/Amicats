@@ -212,12 +212,24 @@ class RoomManagementFlowIntegrationTest {
   }
 
   @Test
-  void aNonAdministratorCannotListRooms() throws Exception {
+  void aNonAdministratorCanListRooms() throws Exception {
     String assistantToken = loginAndGetToken(assistantEmail);
 
-    HttpResponse<String> response = get("/rooms", assistantToken);
+    HttpResponse<String> response = get("/rooms?search=" + targetTitleToken, assistantToken);
 
-    assertThat(response.statusCode()).isEqualTo(403);
+    assertThat(response.statusCode()).isEqualTo(200);
+    assertThat(contentOf(parse(response)))
+        .anySatisfy(room -> assertThat(room.get("id")).isEqualTo(targetRoomId));
+  }
+
+  @Test
+  void aNonAdministratorCanGetRoomById() throws Exception {
+    String assistantToken = loginAndGetToken(assistantEmail);
+
+    HttpResponse<String> response = get("/rooms/" + targetRoomId, assistantToken);
+
+    assertThat(response.statusCode()).isEqualTo(200);
+    assertThat(parse(response).get("id")).isEqualTo(targetRoomId);
   }
 
   @Test
