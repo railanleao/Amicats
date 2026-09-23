@@ -24,15 +24,17 @@ public class RoomControllerImpl implements RoomController {
   private final UpdateRoomFactory updateRoomFactory;
   private final ChangeRoomStatusFactory changeRoomStatusFactory;
 
+  // Widened beyond Administrator (UC-05's owner) because UC-06 also has the
+  // Médico-Veterinário cadastrando o gato, which means picking its room.
   @Override
-  @PreAuthorize("hasRole('Administrator')")
+  @PreAuthorize("hasAnyRole('Administrator', 'Veterinarian')")
   public PagedResult<ReadRoomOutput> list(String search, Boolean active, int page, int size) {
     RoomSearchCriteria criteria = new RoomSearchCriteria(search, active, page, size);
     return readRoomFactory.create().search(criteria);
   }
 
   @Override
-  @PreAuthorize("hasRole('Administrator')")
+  @PreAuthorize("hasAnyRole('Administrator', 'Veterinarian')")
   public ReadRoomOutput findById(Integer id) {
     return readRoomFactory.create().findById(id);
   }

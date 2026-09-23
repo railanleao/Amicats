@@ -1,0 +1,252 @@
+<div class="page">
+  <header class="page-header">
+    <a
+      routerLink="/"
+      class="page-header__back"
+      aria-label="Voltar para o início"
+    >
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="m15 18-6-6 6-6" />
+      </svg>
+    </a>
+    <a routerLink="/" class="page-header__crumb">Início</a>
+    <span class="page-header__separator">/</span>
+    <h1>Novo gato</h1>
+  </header>
+
+  <form class="form-card" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+    <div class="photos-block">
+      <div class="photos-header">
+        <span class="photos-label">Fotos do gato</span>
+        <span class="field-hint">até 6 fotos, JPG ou PNG, até 5 MB cada</span>
+      </div>
+
+      <div class="photos-row">
+        @if (remainingPhotoSlots > 0) {
+          <label class="add-photo-tile">
+            <input
+              type="file"
+              class="visually-hidden"
+              accept="image/png,image/jpeg"
+              multiple
+              (change)="onPhotosSelected($event)"
+            />
+            <span class="add-photo-icon">+</span>
+            <span>Foto</span>
+          </label>
+        }
+
+        @for (url of pendingPhotoUrls(); track url; let i = $index) {
+          <div class="photo-thumb">
+            <img [src]="url" alt="" />
+            <button
+              type="button"
+              class="photo-thumb__remove"
+              aria-label="Remover foto"
+              (click)="removePendingPhoto(i)"
+            >
+              ×
+            </button>
+          </div>
+        }
+      </div>
+
+      @if (photoError()) {
+        <span class="field-error" role="alert">{{ photoError() }}</span>
+      }
+    </div>
+
+    @if (saveError()) {
+      <div class="feedback feedback--error" role="alert">{{ saveError() }}</div>
+    }
+
+    <div class="form-row">
+      <app-text-field
+        inputId="name"
+        label="Nome"
+        placeholder="Ex.: Nina"
+        [control]="form.controls.name"
+        [errorMessages]="errors.name"
+      />
+
+      <div class="select-field">
+        <label for="sex">Sexo</label>
+        <select id="sex" [formControl]="form.controls.sex">
+          <option value="">Selecione</option>
+          @for (option of sexOptions; track option.value) {
+            <option [value]="option.value">{{ option.label }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <app-text-field
+        inputId="estimatedAge"
+        label="Idade estimada"
+        placeholder="Ex.: 4 anos"
+        [control]="form.controls.estimatedAge"
+      />
+      <app-text-field
+        inputId="coat"
+        label="Cor / Pelagem"
+        placeholder="Ex.: Tricolor, curto"
+        [control]="form.controls.coat"
+      />
+    </div>
+
+    <div class="form-row">
+      <app-text-field
+        inputId="microchip"
+        label="Microchip"
+        placeholder="Opcional — 15 dígitos"
+        [control]="form.controls.microchip"
+        [errorMessages]="errors.microchip"
+      />
+
+      <div class="select-field">
+        <label for="roomId">Sala atual</label>
+        <select id="roomId" [formControl]="form.controls.roomId">
+          <option [ngValue]="null">Selecione a sala</option>
+          @for (room of rooms(); track room.id) {
+            <option [ngValue]="room.id">{{ room.title }}</option>
+          }
+        </select>
+        @if (roomsError()) {
+          <span class="field-error">{{ roomsError() }}</span>
+        }
+      </div>
+    </div>
+
+    <div class="section-title">Saúde</div>
+
+    <div class="form-row">
+      <div class="select-field">
+        <label for="fiv">FIV</label>
+        <select id="fiv" [formControl]="form.controls.fiv">
+          <option value="">Selecione</option>
+          @for (option of healthTestOptions; track option.value) {
+            <option [value]="option.value">{{ option.label }}</option>
+          }
+        </select>
+      </div>
+      <div class="select-field">
+        <label for="felv">FeLV</label>
+        <select id="felv" [formControl]="form.controls.felv">
+          <option value="">Selecione</option>
+          @for (option of healthTestOptions; track option.value) {
+            <option [value]="option.value">{{ option.label }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="select-field">
+        <label for="pif">PIF</label>
+        <select id="pif" [formControl]="form.controls.pif">
+          <option value="">Selecione</option>
+          @for (option of healthTestOptions; track option.value) {
+            <option [value]="option.value">{{ option.label }}</option>
+          }
+        </select>
+      </div>
+      <div class="select-field">
+        <label for="neutered">Castrado(a)</label>
+        <select id="neutered" [formControl]="form.controls.neutered">
+          <option value="">Selecione</option>
+          @for (option of neuteredOptions; track option.value) {
+            <option [value]="option.value">{{ option.label }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <div class="select-field">
+      <label for="clinicalStatus">Situação clínica</label>
+      <select id="clinicalStatus" [formControl]="form.controls.clinicalStatus">
+        <option value="">Selecione</option>
+        @for (option of clinicalStatusOptions; track option.value) {
+          <option [value]="option.value">{{ option.label }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="textarea-field">
+      <label for="healthNotes">Observações de saúde</label>
+      <textarea
+        id="healthNotes"
+        rows="3"
+        placeholder="Diagnósticos, tratamentos em andamento e cuidados especiais."
+        [formControl]="form.controls.healthNotes"
+      ></textarea>
+    </div>
+
+    <div class="section-title">Resgate</div>
+
+    <div class="form-row">
+      <div class="select-field">
+        <label for="rescueDate">Data de resgate</label>
+        <input
+          id="rescueDate"
+          type="date"
+          [formControl]="form.controls.rescueDate"
+        />
+      </div>
+      <app-text-field
+        inputId="rescueLocation"
+        label="Local de resgate"
+        placeholder="Rua, bairro"
+        [control]="form.controls.rescueLocation"
+      />
+    </div>
+
+    <div class="section-title">Apadrinhamento</div>
+
+    <div class="form-row">
+      <app-text-field
+        inputId="sponsorName"
+        label="Padrinho / madrinha"
+        placeholder="Nome"
+        [control]="form.controls.sponsorName"
+      />
+      <app-text-field
+        inputId="sponsorPhone"
+        label="Telefone"
+        placeholder="(00) 00000-0000"
+        [control]="form.controls.sponsorPhone"
+      />
+    </div>
+
+    <div class="textarea-field">
+      <label for="sponsorCoverage">O que o padrinho custeia</label>
+      <textarea
+        id="sponsorCoverage"
+        rows="2"
+        placeholder="Ex.: ração terapêutica e exames de acompanhamento."
+        [formControl]="form.controls.sponsorCoverage"
+      ></textarea>
+    </div>
+
+    <div class="form-actions">
+      <a routerLink="/" class="cancel-button">Cancelar</a>
+      <div class="form-actions__submit">
+        <app-submit-button
+          label="Salvar gato"
+          loadingLabel="Salvando..."
+          [loading]="saving()"
+        />
+      </div>
+    </div>
+  </form>
+</div>
