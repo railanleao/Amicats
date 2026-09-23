@@ -39,11 +39,11 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
- * Boots the whole Spring context on a real HTTP server to prove the /cats endpoints (list, read and
- * photo management) are actually reachable as the frontend expects — unit tests of the use cases
- * alone don't exercise SecurityConfig, JSON serialization, routing or the JPQL search query.
- * Listing and reading are open to any authenticated user; photo upload and removal remain
- * Administrator-only.
+ * Boots the whole Spring context on a real HTTP server to prove the /cats endpoints (list, read,
+ * create and photo management) are actually reachable as the frontend expects — unit tests of the
+ * use cases alone don't exercise SecurityConfig, JSON serialization, routing or the JPQL search
+ * query. Listing and reading are open to any authenticated user; creating a cat is Administrator or
+ * Médico-Veterinário (UC-06); photo upload and removal remain Administrator-only.
  */
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
@@ -67,11 +67,14 @@ class CatManagementFlowIntegrationTest {
   private Integer adminAuthId;
   private Integer assistantUserId;
   private Integer assistantAuthId;
+  private Integer vetUserId;
+  private Integer vetAuthId;
   private Integer targetRoomId;
   private Integer targetCatId;
 
   private String adminEmail;
   private String assistantEmail;
+  private String vetEmail;
   private String targetRoomTitleToken;
   private String targetCatNameToken;
 
@@ -79,6 +82,7 @@ class CatManagementFlowIntegrationTest {
   void setUp() {
     adminEmail = "admin-" + UUID.randomUUID() + "@amicats.org.br";
     assistantEmail = "assistant-" + UUID.randomUUID() + "@amicats.org.br";
+    vetEmail = "vet-" + UUID.randomUUID() + "@amicats.org.br";
     targetRoomTitleToken = "Sala" + UUID.randomUUID().toString().replace("-", "");
     targetCatNameToken = "Gato" + UUID.randomUUID().toString().replace("-", "");
 
@@ -88,6 +92,10 @@ class CatManagementFlowIntegrationTest {
     User assistant = seedReadyUser("Assistente de Teste", AccessType.Assistant);
     assistantUserId = assistant.getId();
     assistantAuthId = seedAuth(assistantUserId, assistantEmail);
+
+    User vet = seedReadyUser("Veterinário de Teste", AccessType.Veterinarian);
+    vetUserId = vet.getId();
+    vetAuthId = seedAuth(vetUserId, vetEmail);
 
     Room targetRoom =
         roomRepository.save(new Room(targetRoomTitleToken, "Descrição de teste", null, 4));
@@ -132,10 +140,89 @@ class CatManagementFlowIntegrationTest {
   void tearDown() {
     catRepository.deleteById(targetCatId);
     roomRepository.deleteById(targetRoomId);
+    userAuthRepository.deleteById(vetAuthId);
+    userRepository.deleteById(vetUserId);
     userAuthRepository.deleteById(assistantAuthId);
     userRepository.deleteById(assistantUserId);
     userAuthRepository.deleteById(adminAuthId);
     userRepository.deleteById(adminUser.getId());
+  }
+
+  @Test
+  void anAdministratorCanCreateACatInARoom() throws Exception {
+    String adminToken = loginAndGetToken(adminEmail);
+    Integer createdCatId = null;
+
+    try {
+      HttpResponse<String> response =
+          send("POST", "/cats", adminToken, catBody("Novo" + UUID.randomUUID(), targetRoomId));
+      assertThat(response.statusCode()).isEqualTo(201);
+
+      Map<String, Object> body = parse(response);
+      createdCatId = ((Number) body.get("id")).intValue();
+      assertThat(body.get("roomId")).isEqualTo(targetRoomId);
+      assertThat(body.get("generalStatus")).isEqualTo("InTriage");
+      assertThat(body.get("photoUrl")).isNull();
+    } finally {
+      if (createdCatId != null) {
+        catRepository.deleteById(createdCatId);
+      }
+    }
+  }
+
+  @Test
+  void aVeterinarianCanAlsoCreateACat() throws Exception {
+    String vetToken = loginAndGetToken(vetEmail);
+    Integer createdCatId = null;
+
+    try {
+      HttpResponse<String> response =
+          send("POST", "/cats", vetToken, catBody("Novo" + UUID.randomUUID(), null));
+      assertThat(response.statusCode()).isEqualTo(201);
+      createdCatId = ((Number) parse(response).get("id")).intValue();
+    } finally {
+      if (createdCatId != null) {
+        catRepository.deleteById(createdCatId);
+      }
+    }
+  }
+
+  @Test
+  void anAssistantCannotCreateACat() throws Exception {
+    String assistantToken = loginAndGetToken(assistantEmail);
+
+    HttpResponse<String> response =
+        send("POST", "/cats", assistantToken, catBody("Novo" + UUID.randomUUID(), null));
+
+    assertThat(response.statusCode()).isEqualTo(403);
+  }
+
+  @Test
+  void creatingACatWithAnInexistentRoomFails() throws Exception {
+    String adminToken = loginAndGetToken(adminEmail);
+
+    HttpResponse<String> response =
+        send("POST", "/cats", adminToken, catBody("Fantasma" + UUID.randomUUID(), 999999999));
+
+    assertThat(response.statusCode()).isEqualTo(404);
+  }
+
+  @Test
+  void creatingACatWithoutANameFails() throws Exception {
+    String adminToken = loginAndGetToken(adminEmail);
+
+    HttpResponse<String> response = send("POST", "/cats", adminToken, catBody(null, null));
+
+    assertThat(response.statusCode()).isEqualTo(400);
+  }
+
+  private Map<String, Object> catBody(String name, Integer roomId) {
+    Map<String, Object> body = new java.util.LinkedHashMap<>();
+    body.put("name", name);
+    body.put("roomId", roomId);
+    body.put("sex", "Female");
+    body.put("generalStatus", "InTriage");
+    return body;
   }
 
   @Test

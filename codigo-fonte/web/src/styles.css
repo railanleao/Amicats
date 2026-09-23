@@ -13,6 +13,14 @@
   --color-sage-700: #5c795a;
   --color-sage-900: #354a34;
 
+  /* Accent aliases used by the Paper designs, on top of the sage scale above. */
+  --color-primary: var(--color-sage-700);
+  --color-primary-strong: var(--color-sage-900);
+  --color-surface-inset: #eef3ec;
+  --color-charcoal-50: #ececec;
+  --color-sky: #6e93a6;
+  --color-gold: #c99a2e;
+
   --color-coral-dark: #c76a44;
   --color-danger: #c2564a;
   --color-danger-bg: #f5e4e1;

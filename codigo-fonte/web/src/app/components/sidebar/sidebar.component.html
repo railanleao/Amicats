@@ -67,7 +67,13 @@
         <span>Salas</span>
       </a>
 
-      <a class="menu-item">
+      <!-- Points at /cats/new because there's no cat list page yet — update this once one
+           exists, so the item still highlights for any /cats/... route. -->
+      <a
+        class="menu-item"
+        routerLink="/cats/new"
+        routerLinkActive="active"
+      >
         <span class="menu-icon">♟</span>
         <span>Gatos</span>
       </a>

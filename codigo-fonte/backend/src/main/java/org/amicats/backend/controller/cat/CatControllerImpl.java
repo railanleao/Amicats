@@ -3,8 +3,10 @@ package org.amicats.backend.controller.cat;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.amicats.backend.application.factory.cat.CatPhotoFactory;
+import org.amicats.backend.application.factory.cat.CreateCatFactory;
 import org.amicats.backend.application.factory.cat.ReadCatFactory;
 import org.amicats.backend.domain.enums.GeneralStatus;
+import org.amicats.backend.domain.usecase.cat.create.CreateCatInput;
 import org.amicats.backend.domain.usecase.cat.read.CatSearchCriteria;
 import org.amicats.backend.domain.usecase.cat.read.ReadCatOutput;
 import org.amicats.backend.domain.usecase.common.PagedResult;
@@ -12,6 +14,7 @@ import org.amicats.backend.exception.InvalidPhotoException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class CatControllerImpl implements CatController {
 
   private final ReadCatFactory readCatFactory;
+  private final CreateCatFactory createCatFactory;
   private final CatPhotoFactory catPhotoFactory;
 
   @Override
@@ -34,6 +38,13 @@ public class CatControllerImpl implements CatController {
   @PreAuthorize("isAuthenticated()")
   public ReadCatOutput findById(Integer id) {
     return readCatFactory.create().findById(id);
+  }
+
+  // RF-005 / UC-06: cadastro do gato é de Administrador e Médico-Veterinário.
+  @Override
+  @PreAuthorize("hasAnyRole('Administrator', 'Veterinarian')")
+  public ReadCatOutput create(CreateCatInput input, Jwt jwt) {
+    return createCatFactory.create().execute(input, Integer.valueOf(jwt.getSubject()));
   }
 
   @Override

@@ -60,16 +60,20 @@ class RoomManagementFlowIntegrationTest {
   private Integer adminAuthId;
   private Integer assistantUserId;
   private Integer assistantAuthId;
+  private Integer vetUserId;
+  private Integer vetAuthId;
   private Integer targetRoomId;
 
   private String adminEmail;
   private String assistantEmail;
+  private String vetEmail;
   private String targetTitleToken;
 
   @BeforeEach
   void setUp() {
     adminEmail = "admin-" + UUID.randomUUID() + "@amicats.org.br";
     assistantEmail = "assistant-" + UUID.randomUUID() + "@amicats.org.br";
+    vetEmail = "vet-" + UUID.randomUUID() + "@amicats.org.br";
     targetTitleToken = "Sala" + UUID.randomUUID().toString().replace("-", "");
 
     adminUserId = seedReadyUser("Admin de Teste", AccessType.Administrator).getId();
@@ -77,6 +81,9 @@ class RoomManagementFlowIntegrationTest {
 
     assistantUserId = seedReadyUser("Assistente de Teste", AccessType.Assistant).getId();
     assistantAuthId = seedAuth(assistantUserId, assistantEmail);
+
+    vetUserId = seedReadyUser("Veterinário de Teste", AccessType.Veterinarian).getId();
+    vetAuthId = seedAuth(vetUserId, vetEmail);
 
     targetRoomId =
         roomRepository.save(new Room(targetTitleToken, "Descrição de teste", null, 4)).getId();
@@ -97,6 +104,8 @@ class RoomManagementFlowIntegrationTest {
   @AfterEach
   void tearDown() {
     roomRepository.deleteById(targetRoomId);
+    userAuthRepository.deleteById(vetAuthId);
+    userRepository.deleteById(vetUserId);
     userAuthRepository.deleteById(assistantAuthId);
     userRepository.deleteById(assistantUserId);
     userAuthRepository.deleteById(adminAuthId);
@@ -230,6 +239,20 @@ class RoomManagementFlowIntegrationTest {
 
     assertThat(response.statusCode()).isEqualTo(200);
     assertThat(parse(response).get("id")).isEqualTo(targetRoomId);
+  }
+
+  // Widened for the "Novo gato" flow (UC-06): a Médico-Veterinário also cadastra o gato and
+  // needs to pick its room, so read access can't stay Administrator-only.
+  @Test
+  void aVeterinarianCanListAndReadRooms() throws Exception {
+    String vetToken = loginAndGetToken(vetEmail);
+
+    HttpResponse<String> listResponse = get("/rooms?search=" + targetTitleToken, vetToken);
+    assertThat(listResponse.statusCode()).isEqualTo(200);
+    assertThat(contentOf(parse(listResponse)))
+        .anySatisfy(room -> assertThat(room.get("id")).isEqualTo(targetRoomId));
+
+    assertThat(get("/rooms/" + targetRoomId, vetToken).statusCode()).isEqualTo(200);
   }
 
   @Test

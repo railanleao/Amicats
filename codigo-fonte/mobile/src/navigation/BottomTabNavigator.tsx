@@ -2,6 +2,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import type { RouteProp } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { ComingSoonScreen } from "../screens/ComingSoonScreen";
+import { HomeScreen } from "../screens/HomeScreen";
 import { colors } from "../theme/colors";
 import type { User } from "../types/auth";
 
@@ -37,11 +38,13 @@ const TAB_ICONS_OUTLINE: Record<
 interface BottomTabNavigatorProps {
   user: User;
   onLogout: () => void;
+  onNewCat: () => void;
 }
 
 export function BottomTabNavigator({
-  user: _user,
+  user,
   onLogout,
+  onNewCat,
 }: BottomTabNavigatorProps) {
   return (
     <Tab.Navigator
@@ -75,7 +78,7 @@ export function BottomTabNavigator({
       })}
     >
       <Tab.Screen name="Home" options={{ title: "Início" }}>
-        {() => <ComingSoonScreen title="Início" onLogout={onLogout} />}
+        {() => <HomeScreen user={user} onNewCat={onNewCat} />}
       </Tab.Screen>
       <Tab.Screen name="Cats" options={{ title: "Gatos" }}>
         {() => <ComingSoonScreen title="Gatos" onLogout={onLogout} />}
