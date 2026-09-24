@@ -61,15 +61,17 @@
       <div class="feedback">Carregando prontuários...</div>
     } @else {
       <div class="table-header">
-        <span>GATO</span>
+        <span>PACIENTE</span>
         <span>SALA</span>
         <span>IDADE</span>
         <span>STATUS</span>
         <span>FIV/FELV</span>
+        <span>PIF</span>
+        <span>AÇÕES</span>
       </div>
       <div class="records-list">
         @for (cat of cats(); track cat.id) {
-          <div class="record-row" (click)="openRecord(cat)">
+          <div class="record-row">
             <div class="cat-name">
               <app-cat-avatar [name]="cat.name" [catId]="cat.id" [hasPhoto]="!!cat.photoUrl" [size]="40" />
               <span>{{ cat.name }}</span>
@@ -92,11 +94,49 @@
             <span
               class="health-status"
               [class.healthy]="cat.healthStatus === 'Healthy'"
-              [class.positive]="cat.healthStatus === 'Fiv' || cat.healthStatus === 'Felv' || cat.healthStatus === 'FivFelv'"
+              [class.fiv]="cat.healthStatus === 'Fiv'"
+              [class.felv]="cat.healthStatus === 'Felv'"
+              [class.fiv-felv]="cat.healthStatus === 'FivFelv'"
               [class.not-tested]="cat.healthStatus === 'NotTested'"
             >
               {{ healthStatusLabel(cat) }}
             </span>
+
+            <span
+              class="pif-result"
+              [class.negative]="cat.pifResult === 'Negative'"
+              [class.positive]="cat.pifResult === 'Positive'"
+              [class.not-tested]="cat.pifResult === 'NotTested'"
+            >
+              {{ pifResultLabel(cat) }}
+            </span>
+
+            <div class="actions">
+              <button
+                type="button"
+                class="access-button"
+                title="Abrir prontuário"
+                [attr.aria-label]="'Abrir prontuário de ' + cat.name"
+                (click)="openRecord(cat)"
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                  <polyline points="15 3 21 3 21 9" />
+                  <line x1="10" y1="14" x2="21" y2="3" />
+                </svg>
+                <span>Abrir</span>
+              </button>
+            </div>
           </div>
         } @empty {
           <div class="feedback">Nenhum prontuário encontrado.</div>

@@ -11,6 +11,7 @@ import {
   GENERAL_STATUS_LABELS,
   GeneralStatus,
   HEALTH_STATUS_LABELS,
+  PIF_RESULT_LABELS,
 } from '../../models/cat.model';
 import { Room } from '../../models/room.model';
 import { CatService } from '../../services/resources/cat.service';
@@ -141,6 +142,10 @@ export class MedicalRecordsComponent implements OnInit, OnDestroy {
 
   healthStatusLabel(cat: Cat): string {
     return HEALTH_STATUS_LABELS[cat.healthStatus];
+  }
+
+  pifResultLabel(cat: Cat): string {
+    return PIF_RESULT_LABELS[cat.pifResult];
   }
 
   openRecord(cat: Cat): void {

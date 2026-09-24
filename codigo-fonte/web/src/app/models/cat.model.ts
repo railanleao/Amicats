@@ -53,6 +53,12 @@ export const HEALTH_STATUS_LABELS: Record<HealthStatus, string> = {
   NotTested: 'Não testado',
 };
 
+export const PIF_RESULT_LABELS: Record<PifResult, string> = {
+  Positive: 'Positivo',
+  Negative: 'Negativo',
+  NotTested: 'Não testado',
+};
+
 export interface Cat {
   id: number;
   name: string;
