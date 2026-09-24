@@ -140,6 +140,14 @@ Painel administrativo usado pela equipe da ONG (administradores, médicos-veteri
 
 ![Sincronização](img/telas/web/30-sincronizacao.png)
 
+### Transferência de Sala
+
+![Transferência de Sala](img/telas/web/31-transferencia-de-sala.png)
+
+### Prontuários
+
+![Prontuários](img/telas/web/32-prontuarios.png)
+
 ---
 
 ## Aplicativo Mobile
