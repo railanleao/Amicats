@@ -1,14 +1,13 @@
-import { HttpErrorResponse } from '@angular/common/http';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Router, provideRouter } from '@angular/router';
-import { Subject, of, throwError } from 'rxjs';
+import {HttpErrorResponse} from '@angular/common/http';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
+import {provideRouter, Router} from '@angular/router';
+import {of, Subject, throwError} from 'rxjs';
 
-import { Cat } from '../../models/cat.model';
-import { PagedResult } from '../../models/user.model';
-import { Room } from '../../models/room.model';
-import { CatService } from '../../services/resources/cat.service';
-import { RoomService } from '../../services/resources/room.service';
-import { CatFormComponent } from './cat-form.component';
+import {Cat} from '../../models/cat.model';
+import {PagedResult, Room} from '../../models/room.model';
+import {CatService} from '../../services/resources/cat.service';
+import {RoomService} from '../../services/resources/room.service';
+import {CatFormComponent} from './cat-form.component';
 
 describe('CatFormComponent', () => {
   let fixture: ComponentFixture<CatFormComponent>;
@@ -23,10 +22,18 @@ describe('CatFormComponent', () => {
       roomId: null,
       sex: null,
       estimatedBirthDate: null,
+      ageGroup: null,
       coat: null,
       weightKg: null,
       characteristics: null,
       generalStatus: 'InTriage',
+      healthStatus: 'NotTested',
+      fivFelvExamDate: null,
+      pifResult: 'NotTested',
+      pifExamDate: null,
+      severity: null,
+      neuteringStatus: null,
+      neuteringDate: null,
       microchip: null,
       rescueDate: null,
       foundConditions: null,
@@ -37,7 +44,7 @@ describe('CatFormComponent', () => {
       roomTitle: null,
       createdAt: '2026-09-23T10:00:00',
       ...overrides,
-    };
+    } as Cat;
   }
 
   function aRoomPage(rooms: Room[]): PagedResult<Room> {
@@ -63,7 +70,7 @@ describe('CatFormComponent', () => {
   }
 
   function fileEvent(file: File): Event {
-    return { target: { files: [file], value: 'x' } } as unknown as Event;
+    return {target: {files: [file], value: 'x'}} as unknown as Event;
   }
 
   beforeEach(async () => {
@@ -81,8 +88,8 @@ describe('CatFormComponent', () => {
       imports: [CatFormComponent],
       providers: [
         provideRouter([]),
-        { provide: CatService, useValue: catServiceSpy },
-        { provide: RoomService, useValue: roomServiceSpy },
+        {provide: CatService, useValue: catServiceSpy},
+        {provide: RoomService, useValue: roomServiceSpy},
       ],
     }).compileComponents();
 
@@ -102,7 +109,7 @@ describe('CatFormComponent', () => {
 
   it('shows a permission message when the caller cannot list rooms', () => {
     roomServiceSpy.list.and.returnValue(
-      throwError(() => new HttpErrorResponse({ status: 403 })),
+      throwError(() => new HttpErrorResponse({status: 403})),
     );
 
     fixture = TestBed.createComponent(CatFormComponent);
@@ -158,7 +165,7 @@ describe('CatFormComponent', () => {
     component.onSubmit();
 
     expect(catServiceSpy.create).toHaveBeenCalledWith(
-      jasmine.objectContaining({ weightKg: 3.5 }),
+      jasmine.objectContaining({weightKg: 3.5}),
     );
   });
 
@@ -175,7 +182,7 @@ describe('CatFormComponent', () => {
 
   it('shows a generic message on failure', () => {
     catServiceSpy.create.and.returnValue(
-      throwError(() => new HttpErrorResponse({ status: 500 })),
+      throwError(() => new HttpErrorResponse({status: 500})),
     );
     component.form.controls.name.setValue('Mingau');
 
@@ -190,7 +197,7 @@ describe('CatFormComponent', () => {
     component.form.controls.name.setValue('Mingau');
 
     catServiceSpy.create.and.returnValue(
-      throwError(() => new HttpErrorResponse({ status: 403 })),
+      throwError(() => new HttpErrorResponse({status: 403})),
     );
     component.onSubmit();
     expect(component.saveError()).toBe(
@@ -198,7 +205,7 @@ describe('CatFormComponent', () => {
     );
 
     catServiceSpy.create.and.returnValue(
-      throwError(() => new HttpErrorResponse({ status: 404 })),
+      throwError(() => new HttpErrorResponse({status: 404})),
     );
     component.onSubmit();
     expect(component.saveError()).toBe(
@@ -207,7 +214,7 @@ describe('CatFormComponent', () => {
   });
 
   it('shows a preview and keeps the chosen photo until submit', () => {
-    const file = new File(['x'], 'foto.png', { type: 'image/png' });
+    const file = new File(['x'], 'foto.png', {type: 'image/png'});
 
     component.onPhotoSelected(fileEvent(file));
 
@@ -219,7 +226,7 @@ describe('CatFormComponent', () => {
 
   it('rejects an invalid photo choice without keeping it', () => {
     component.onPhotoSelected(
-      fileEvent(new File(['x'], 'nota.txt', { type: 'text/plain' })),
+      fileEvent(new File(['x'], 'nota.txt', {type: 'text/plain'})),
     );
 
     expect(component.pendingPhoto()).toBeNull();
@@ -228,7 +235,7 @@ describe('CatFormComponent', () => {
 
   it('discards the chosen photo when it is removed', () => {
     component.onPhotoSelected(
-      fileEvent(new File(['x'], 'foto.png', { type: 'image/png' })),
+      fileEvent(new File(['x'], 'foto.png', {type: 'image/png'})),
     );
 
     component.removePhoto();
@@ -239,14 +246,14 @@ describe('CatFormComponent', () => {
   });
 
   it('uploads the chosen photo right after creating the cat', () => {
-    catServiceSpy.create.and.returnValue(of(createdCat({ id: 9 })));
+    catServiceSpy.create.and.returnValue(of(createdCat({id: 9})));
     catServiceSpy.uploadPhoto.and.returnValue(
-      of(createdCat({ id: 9, photoUrl: '/cats/9/photo' })),
+      of(createdCat({id: 9, photoUrl: '/cats/9/photo'})),
     );
     const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(
       true,
     );
-    const file = new File(['x'], 'foto.png', { type: 'image/png' });
+    const file = new File(['x'], 'foto.png', {type: 'image/png'});
     component.form.controls.name.setValue('Mingau');
     component.onPhotoSelected(fileEvent(file));
 
@@ -257,16 +264,16 @@ describe('CatFormComponent', () => {
   });
 
   it('keeps the user on the page and flags the photo when the upload fails', () => {
-    catServiceSpy.create.and.returnValue(of(createdCat({ id: 9 })));
+    catServiceSpy.create.and.returnValue(of(createdCat({id: 9})));
     catServiceSpy.uploadPhoto.and.returnValue(
-      throwError(() => new HttpErrorResponse({ status: 500 })),
+      throwError(() => new HttpErrorResponse({status: 500})),
     );
     const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(
       true,
     );
     component.form.controls.name.setValue('Mingau');
     component.onPhotoSelected(
-      fileEvent(new File(['x'], 'foto.png', { type: 'image/png' })),
+      fileEvent(new File(['x'], 'foto.png', {type: 'image/png'})),
     );
 
     component.onSubmit();

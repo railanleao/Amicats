@@ -6,9 +6,7 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 
 import { environment } from '../../../environments/environment';
-import { CreateRoomRequest, Room, UpdateRoomRequest } from '../../models/room.model';
-import { PagedResult } from '../../models/user.model';
-import { PagedResult, Room } from '../../models/room.model';
+import { CreateRoomRequest, PagedResult, Room, UpdateRoomRequest } from '../../models/room.model';
 import { apiUrlInterceptor } from '../http/api-url.interceptor';
 import { RoomService } from './room.service';
 
