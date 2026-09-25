@@ -1,4 +1,11 @@
-import { Component, DestroyRef, OnDestroy, OnInit, inject, signal } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  OnDestroy,
+  OnInit,
+  inject,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { Subject, debounceTime, distinctUntilChanged, finalize } from 'rxjs';
@@ -16,7 +23,12 @@ const SEARCH_DEBOUNCE_MS = 300;
 @Component({
   selector: 'app-rooms',
   standalone: true,
-  imports: [ConfirmDialogComponent, PaginationComponent, RoomCoverComponent, ToggleComponent],
+  imports: [
+    ConfirmDialogComponent,
+    PaginationComponent,
+    RoomCoverComponent,
+    ToggleComponent,
+  ],
   templateUrl: './rooms.component.html',
   styleUrl: './rooms.component.css',
 })
@@ -69,7 +81,9 @@ export class RoomsComponent implements OnInit, OnDestroy {
     this.roomService
       .list({
         search: this.searchTerm || undefined,
-        active: this.selectedStatus ? this.selectedStatus === 'Active' : undefined,
+        active: this.selectedStatus
+          ? this.selectedStatus === 'Active'
+          : undefined,
         page: this.page(),
         size: this.pageSize,
       })
@@ -84,7 +98,9 @@ export class RoomsComponent implements OnInit, OnDestroy {
           this.totalPages.set(result.totalPages);
         },
         error: () =>
-          this.errorMessage.set('Não foi possível carregar as salas. Tente novamente.'),
+          this.errorMessage.set(
+            'Não foi possível carregar as salas. Tente novamente.',
+          ),
       });
   }
 
@@ -161,7 +177,9 @@ export class RoomsComponent implements OnInit, OnDestroy {
           this.loadRooms();
         },
         error: () => {
-          this.errorMessage.set('Não foi possível desativar a sala. Tente novamente.');
+          this.errorMessage.set(
+            'Não foi possível desativar a sala. Tente novamente.',
+          );
           this.roomPendingDeactivation.set(null);
         },
       });
@@ -200,7 +218,9 @@ export class RoomsComponent implements OnInit, OnDestroy {
           this.loadRooms();
         },
         error: () => {
-          this.errorMessage.set('Não foi possível reativar a sala. Tente novamente.');
+          this.errorMessage.set(
+            'Não foi possível reativar a sala. Tente novamente.',
+          );
           this.roomPendingReactivation.set(null);
         },
       });

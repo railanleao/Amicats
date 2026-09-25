@@ -71,9 +71,13 @@ describe('CatService (integration)', () => {
     };
 
     let received: PagedResult<Cat> | undefined;
-    service.list({ page: 0, size: 20 }).subscribe((result) => (received = result));
+    service
+      .list({ page: 0, size: 20 })
+      .subscribe((result) => (received = result));
 
-    const request = httpMock.expectOne(`${environment.apiUrl}/cats?page=0&size=20`);
+    const request = httpMock.expectOne(
+      `${environment.apiUrl}/cats?page=0&size=20`,
+    );
     expect(request.request.method).toBe('GET');
     request.flush(mockPage);
 
@@ -82,24 +86,44 @@ describe('CatService (integration)', () => {
 
   it('includes search, roomId and generalStatus only when provided', () => {
     service
-      .list({ search: 'nina', roomId: 2, generalStatus: 'InClinic', page: 1, size: 10 })
+      .list({
+        search: 'nina',
+        roomId: 2,
+        generalStatus: 'InClinic',
+        page: 1,
+        size: 10,
+      })
       .subscribe();
 
     const request = httpMock.expectOne(
       `${environment.apiUrl}/cats?page=1&size=10&search=nina&roomId=2&generalStatus=InClinic`,
     );
     expect(request.request.method).toBe('GET');
-    request.flush({ content: [], page: 1, size: 10, totalElements: 0, totalPages: 0 });
+    request.flush({
+      content: [],
+      page: 1,
+      size: 10,
+      totalElements: 0,
+      totalPages: 0,
+    });
   });
 
   it('omits search, roomId and generalStatus when not provided', () => {
     service.list({ page: 0, size: 20 }).subscribe();
 
-    const request = httpMock.expectOne(`${environment.apiUrl}/cats?page=0&size=20`);
+    const request = httpMock.expectOne(
+      `${environment.apiUrl}/cats?page=0&size=20`,
+    );
     expect(request.request.url.includes('search')).toBeFalse();
     expect(request.request.url.includes('roomId')).toBeFalse();
     expect(request.request.url.includes('generalStatus')).toBeFalse();
-    request.flush({ content: [], page: 0, size: 20, totalElements: 0, totalPages: 0 });
+    request.flush({
+      content: [],
+      page: 0,
+      size: 20,
+      totalElements: 0,
+      totalPages: 0,
+    });
   });
 
   it('fetches the photo as a blob', () => {

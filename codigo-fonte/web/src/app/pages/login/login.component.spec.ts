@@ -99,7 +99,8 @@ describe('LoginComponent (unit)', () => {
     setFormValue('marina.alves@amicats.org.br', 'senha-forte');
     authServiceSpy.login.and.returnValue(
       throwError(
-        () => new HttpErrorResponse({ status: 401, statusText: 'Unauthorized' }),
+        () =>
+          new HttpErrorResponse({ status: 401, statusText: 'Unauthorized' }),
       ),
     );
 
@@ -114,7 +115,8 @@ describe('LoginComponent (unit)', () => {
     setFormValue('marina.alves@amicats.org.br', 'senha-forte');
     authServiceSpy.login.and.returnValue(
       throwError(
-        () => new HttpErrorResponse({ status: 500, statusText: 'Server Error' }),
+        () =>
+          new HttpErrorResponse({ status: 500, statusText: 'Server Error' }),
       ),
     );
 

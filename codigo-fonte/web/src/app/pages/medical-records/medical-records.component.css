@@ -147,13 +147,15 @@
   grid-template-columns: 2fr 1.2fr 0.8fr 1.1fr 1fr 1fr 0.8fr;
   align-items: center;
   column-gap: 20px;
-  padding: 12px 24px;
+  margin: 8px 12px;
+  padding: 12px 20px;
   box-sizing: border-box;
   background: #bdd6b2;
   color: #000000;
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.5px;
+  border-radius: 12px;
 }
 
 .records-list {
@@ -284,19 +286,16 @@
 }
 
 .access-button {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+  width: 36px;
   height: 36px;
-  padding: 0 14px;
-  border: 1px solid #b9cdb3;
-  border-radius: 20px;
-  background: #e6f0e3;
-  color: #40552f;
-  font-size: 13px;
-  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e2e9df;
+  border-radius: 50%;
+  background: #ffffff;
+  color: #555555;
   cursor: pointer;
-  white-space: nowrap;
   transition:
     background 0.2s,
     border-color 0.2s;
@@ -307,8 +306,9 @@
 }
 
 .access-button:hover {
-  background: #d9e3cf;
-  border-color: #9faa9b;
+  background: #f4f4f4;
+  border-color: #d0d0d0;
+  color: #263229;
 }
 
 .feedback {

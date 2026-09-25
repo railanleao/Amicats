@@ -37,7 +37,11 @@ describe('ChangePasswordComponent (unit)', () => {
     newPassword: string,
     confirmNewPassword: string,
   ): void {
-    component.form.setValue({ currentPassword, newPassword, confirmNewPassword });
+    component.form.setValue({
+      currentPassword,
+      newPassword,
+      confirmNewPassword,
+    });
   }
 
   function mockResponse(): LoginResponse {
@@ -64,7 +68,9 @@ describe('ChangePasswordComponent (unit)', () => {
     component.onSubmit();
 
     expect(authServiceSpy.changePassword).not.toHaveBeenCalled();
-    expect(component.errorMessage()).toBe('A confirmação não confere com a nova senha.');
+    expect(component.errorMessage()).toBe(
+      'A confirmação não confere com a nova senha.',
+    );
   });
 
   it('calls the auth service with the exact form payload when valid', () => {
@@ -95,7 +101,9 @@ describe('ChangePasswordComponent (unit)', () => {
   it('shows an error message and does not navigate on a 400 response', () => {
     setFormValue('senha-errada', 'senha-nova-forte', 'senha-nova-forte');
     authServiceSpy.changePassword.and.returnValue(
-      throwError(() => new HttpErrorResponse({ status: 400, statusText: 'Bad Request' })),
+      throwError(
+        () => new HttpErrorResponse({ status: 400, statusText: 'Bad Request' }),
+      ),
     );
 
     component.onSubmit();

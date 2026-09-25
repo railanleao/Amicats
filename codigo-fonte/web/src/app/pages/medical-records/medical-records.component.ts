@@ -1,4 +1,11 @@
-import { Component, DestroyRef, OnDestroy, OnInit, inject, signal } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  OnDestroy,
+  OnInit,
+  inject,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { Subject, debounceTime, distinctUntilChanged, finalize } from 'rxjs';
@@ -48,11 +55,18 @@ export class MedicalRecordsComponent implements OnInit, OnDestroy {
   selectedRoomId = '';
   selectedGeneralStatus = '';
 
-  readonly generalStatusOptions = Object.entries(GENERAL_STATUS_LABELS) as [GeneralStatus, string][];
+  readonly generalStatusOptions = Object.entries(GENERAL_STATUS_LABELS) as [
+    GeneralStatus,
+    string,
+  ][];
 
   ngOnInit(): void {
     this.searchInput$
-      .pipe(debounceTime(SEARCH_DEBOUNCE_MS), distinctUntilChanged(), takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        debounceTime(SEARCH_DEBOUNCE_MS),
+        distinctUntilChanged(),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe((term) => {
         this.searchTerm = term;
         this.page.set(0);
@@ -85,7 +99,8 @@ export class MedicalRecordsComponent implements OnInit, OnDestroy {
       .list({
         search: this.searchTerm || undefined,
         roomId: this.selectedRoomId ? Number(this.selectedRoomId) : undefined,
-        generalStatus: (this.selectedGeneralStatus as GeneralStatus) || undefined,
+        generalStatus:
+          (this.selectedGeneralStatus as GeneralStatus) || undefined,
         page: this.page(),
         size: this.pageSize,
       })
@@ -100,7 +115,9 @@ export class MedicalRecordsComponent implements OnInit, OnDestroy {
           this.totalPages.set(result.totalPages);
         },
         error: () =>
-          this.errorMessage.set('Não foi possível carregar os prontuários. Tente novamente.'),
+          this.errorMessage.set(
+            'Não foi possível carregar os prontuários. Tente novamente.',
+          ),
       });
   }
 

@@ -1,4 +1,5 @@
-export type AccessType = 'Administrator' | 'Veterinarian' | 'Assistant' | 'Viewer';
+export type AccessType =
+  'Administrator' | 'Veterinarian' | 'Assistant' | 'Viewer';
 
 export interface LoginRequest {
   email: string;

@@ -1,15 +1,23 @@
-import {HttpClient, HttpParams} from '@angular/common/http';
-import {inject, Injectable} from '@angular/core';
-import {Observable} from 'rxjs';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { inject, Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
 
-import {CreateRoomRequest, PagedResult, Room, RoomSearchParams, UpdateRoomRequest,} from '../../models/room.model';
+import {
+  CreateRoomRequest,
+  PagedResult,
+  Room,
+  RoomSearchParams,
+  UpdateRoomRequest,
+} from '../../models/room.model';
 
-@Injectable({providedIn: 'root'})
+@Injectable({ providedIn: 'root' })
 export class RoomService {
   private readonly http = inject(HttpClient);
 
   list(params: RoomSearchParams): Observable<PagedResult<Room>> {
-    let httpParams = new HttpParams().set('page', params.page).set('size', params.size);
+    let httpParams = new HttpParams()
+      .set('page', params.page)
+      .set('size', params.size);
 
     if (params.search) {
       httpParams = httpParams.set('search', params.search);
@@ -18,7 +26,7 @@ export class RoomService {
       httpParams = httpParams.set('active', params.active);
     }
 
-    return this.http.get<PagedResult<Room>>('/rooms', {params: httpParams});
+    return this.http.get<PagedResult<Room>>('/rooms', { params: httpParams });
   }
 
   findById(id: number): Observable<Room> {
@@ -48,7 +56,7 @@ export class RoomService {
   }
 
   photo(id: number): Observable<Blob> {
-    return this.http.get(`/rooms/${id}/photo`, {responseType: 'blob'});
+    return this.http.get(`/rooms/${id}/photo`, { responseType: 'blob' });
   }
 
   removePhoto(id: number): Observable<void> {
@@ -56,6 +64,6 @@ export class RoomService {
   }
 
   private setActive(id: number, active: boolean): Observable<void> {
-    return this.http.patch<void>(`/rooms/${id}/status`, {active});
+    return this.http.patch<void>(`/rooms/${id}/status`, { active });
   }
 }

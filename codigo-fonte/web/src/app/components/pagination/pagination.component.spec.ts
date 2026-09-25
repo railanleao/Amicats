@@ -15,7 +15,12 @@ describe('PaginationComponent (unit)', () => {
     component = fixture.componentInstance;
   });
 
-  function setInputs(page: number, size: number, totalElements: number, totalPages: number): void {
+  function setInputs(
+    page: number,
+    size: number,
+    totalElements: number,
+    totalPages: number,
+  ): void {
     component.page = page;
     component.size = size;
     component.totalElements = totalElements;

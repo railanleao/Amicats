@@ -1,7 +1,12 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
+import {
+  ActivatedRoute,
+  Router,
+  convertToParamMap,
+  provideRouter,
+} from '@angular/router';
 import { Subject, of, throwError } from 'rxjs';
 
 import { AccessType } from '../../models/auth.model';
@@ -13,7 +18,11 @@ import { UserFormComponent } from './user-form.component';
 describe('UserFormComponent', () => {
   let userServiceSpy: jasmine.SpyObj<UserService>;
   let forgotPassword: jasmine.Spy;
-  const currentUser = signal<{ id: number; name: string; accessType: AccessType } | null>(null);
+  const currentUser = signal<{
+    id: number;
+    name: string;
+    accessType: AccessType;
+  } | null>(null);
 
   function existingUser(overrides: Partial<User> = {}): User {
     return {
@@ -42,7 +51,10 @@ describe('UserFormComponent', () => {
         {
           provide: ActivatedRoute,
           useValue: {
-            snapshot: { data: { mode }, paramMap: convertToParamMap(id ? { id } : {}) },
+            snapshot: {
+              data: { mode },
+              paramMap: convertToParamMap(id ? { id } : {}),
+            },
           },
         },
       ],
@@ -67,7 +79,9 @@ describe('UserFormComponent', () => {
     currentUser.set({ id: 1, name: 'Ana', accessType: 'Administrator' });
     spyOn(URL, 'createObjectURL').and.returnValue('blob:photo');
     spyOn(URL, 'revokeObjectURL');
-    forgotPassword = jasmine.createSpy('forgotPassword').and.returnValue(of(undefined));
+    forgotPassword = jasmine
+      .createSpy('forgotPassword')
+      .and.returnValue(of(undefined));
     userServiceSpy = jasmine.createSpyObj<UserService>('UserService', [
       'findById',
       'create',
@@ -88,7 +102,9 @@ describe('UserFormComponent', () => {
 
       expect(userServiceSpy.findById).not.toHaveBeenCalled();
       expect(component.form.controls.email.value).toBe('');
-      expect(fixture.nativeElement.querySelector('h1').textContent).toContain('Novo usuário');
+      expect(fixture.nativeElement.querySelector('h1').textContent).toContain(
+        'Novo usuário',
+      );
       expect(fixture.nativeElement.querySelector('app-toggle')).toBeNull();
       expect(fixture.nativeElement.querySelector('.meta-card')).toBeNull();
     });
@@ -96,7 +112,9 @@ describe('UserFormComponent', () => {
     it('offers an accessible back button to the users list', () => {
       const { fixture } = createComponent('create');
 
-      const back = fixture.nativeElement.querySelector('a.page-header__back') as HTMLAnchorElement;
+      const back = fixture.nativeElement.querySelector(
+        'a.page-header__back',
+      ) as HTMLAnchorElement;
       expect(back.getAttribute('aria-label')).toBe('Voltar para usuários');
       expect(back.getAttribute('href')).toBe('/users');
       expect(back.querySelector('svg')).not.toBeNull();
@@ -105,8 +123,12 @@ describe('UserFormComponent', () => {
     it('shows placeholders to guide the empty fields', () => {
       const { fixture } = createComponent('create');
 
-      const email = fixture.nativeElement.querySelector('#email') as HTMLInputElement;
-      const name = fixture.nativeElement.querySelector('#fullName') as HTMLInputElement;
+      const email = fixture.nativeElement.querySelector(
+        '#email',
+      ) as HTMLInputElement;
+      const name = fixture.nativeElement.querySelector(
+        '#fullName',
+      ) as HTMLInputElement;
       expect(email.placeholder).not.toBe('');
       expect(name.placeholder).not.toBe('');
     });
@@ -141,7 +163,9 @@ describe('UserFormComponent', () => {
     it('creates the user with trimmed values, no password, and opens its edit page', () => {
       userServiceSpy.create.and.returnValue(of(existingUser({ id: 9 })));
       const { component } = createComponent('create');
-      const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
+      const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(
+        true,
+      );
       fillValidCreateForm(component);
 
       component.onSubmit();
@@ -172,7 +196,11 @@ describe('UserFormComponent', () => {
       component.onSubmit();
 
       expect(userServiceSpy.create).toHaveBeenCalledWith(
-        jasmine.objectContaining({ accessType: 'Veterinarian', crmv: '12345', ufCrmv: 'MS' }),
+        jasmine.objectContaining({
+          accessType: 'Veterinarian',
+          crmv: '12345',
+          ufCrmv: 'MS',
+        }),
       );
     });
 
@@ -227,7 +255,9 @@ describe('UserFormComponent', () => {
 
       component.onSubmit();
 
-      expect(component.saveError()).toBe('Não foi possível salvar o usuário. Tente novamente.');
+      expect(component.saveError()).toBe(
+        'Não foi possível salvar o usuário. Tente novamente.',
+      );
     });
 
     it('ignores a second submit while the first one is still saving', () => {
@@ -257,7 +287,9 @@ describe('UserFormComponent', () => {
     it('rejects an invalid photo choice without keeping it', () => {
       const { component } = createComponent('create');
 
-      component.onPhotoSelected(fileEvent(new File(['x'], 'nota.txt', { type: 'text/plain' })));
+      component.onPhotoSelected(
+        fileEvent(new File(['x'], 'nota.txt', { type: 'text/plain' })),
+      );
 
       expect(component.pendingPhoto()).toBeNull();
       expect(component.photoError()).toBe('Envie uma imagem JPG ou PNG.');
@@ -265,7 +297,9 @@ describe('UserFormComponent', () => {
 
     it('discards the chosen photo when it is removed', () => {
       const { component } = createComponent('create');
-      component.onPhotoSelected(fileEvent(new File(['x'], 'foto.png', { type: 'image/png' })));
+      component.onPhotoSelected(
+        fileEvent(new File(['x'], 'foto.png', { type: 'image/png' })),
+      );
 
       component.removePhoto();
 
@@ -280,7 +314,9 @@ describe('UserFormComponent', () => {
         of(existingUser({ id: 9, imageUrl: '/users/9/photo' })),
       );
       const { component } = createComponent('create');
-      const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
+      const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(
+        true,
+      );
       const file = new File(['x'], 'foto.png', { type: 'image/png' });
       fillValidCreateForm(component);
       component.onPhotoSelected(fileEvent(file));
@@ -299,9 +335,13 @@ describe('UserFormComponent', () => {
         throwError(() => new HttpErrorResponse({ status: 500 })),
       );
       const { component } = createComponent('create');
-      const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
+      const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(
+        true,
+      );
       fillValidCreateForm(component);
-      component.onPhotoSelected(fileEvent(new File(['x'], 'foto.png', { type: 'image/png' })));
+      component.onPhotoSelected(
+        fileEvent(new File(['x'], 'foto.png', { type: 'image/png' })),
+      );
 
       component.onSubmit();
 
@@ -318,13 +358,17 @@ describe('UserFormComponent', () => {
       expect(userServiceSpy.findById).toHaveBeenCalledWith(7);
       expect(component.form.controls.fullName.value).toBe('Marina Alves');
       expect(component.form.controls.accessType.value).toBe('Assistant');
-      expect(fixture.nativeElement.querySelector('h1').textContent).toContain('Editar usuário');
+      expect(fixture.nativeElement.querySelector('h1').textContent).toContain(
+        'Editar usuário',
+      );
     });
 
     it('keeps the e-mail read-only', () => {
       const { fixture } = createComponent('edit', '7');
 
-      const input = fixture.nativeElement.querySelector('#email') as HTMLInputElement;
+      const input = fixture.nativeElement.querySelector(
+        '#email',
+      ) as HTMLInputElement;
       expect(input.readOnly).toBeTrue();
     });
 
@@ -341,7 +385,9 @@ describe('UserFormComponent', () => {
     it('updates without sending the e-mail and returns to the list', () => {
       userServiceSpy.update.and.returnValue(of(existingUser()));
       const { component } = createComponent('edit', '7');
-      const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
+      const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(
+        true,
+      );
 
       component.form.controls.fullName.setValue('Marina A. Alves');
       component.form.controls.phoneNumber.setValue('');
@@ -381,13 +427,16 @@ describe('UserFormComponent', () => {
 
       component.onSubmit();
 
-      expect(component.saveError()).toBe('Você não pode alterar o seu próprio tipo de acesso.');
+      expect(component.saveError()).toBe(
+        'Você não pode alterar o seu próprio tipo de acesso.',
+      );
     });
 
     it('shows the registration date and that the user never logged in', () => {
       const { fixture } = createComponent('edit', '7');
 
-      const text: string = fixture.nativeElement.querySelector('.meta-card').textContent;
+      const text: string =
+        fixture.nativeElement.querySelector('.meta-card').textContent;
       expect(text).toContain('01/01/2026');
       expect(text).toContain('Nunca acessou');
     });
@@ -399,7 +448,8 @@ describe('UserFormComponent', () => {
 
       const { fixture } = createComponent('edit', '7');
 
-      const text: string = fixture.nativeElement.querySelector('.meta-card').textContent;
+      const text: string =
+        fixture.nativeElement.querySelector('.meta-card').textContent;
       expect(text).toContain('19/09/2026 08:14');
     });
 
@@ -413,12 +463,17 @@ describe('UserFormComponent', () => {
     });
 
     it('warns when the photo could not be sent during the registration', () => {
-      spyOnProperty(history, 'state', 'get').and.returnValue({ created: true, photoFailed: true });
+      spyOnProperty(history, 'state', 'get').and.returnValue({
+        created: true,
+        photoFailed: true,
+      });
 
       const { fixture, component } = createComponent('edit', '7');
 
       expect(component.photoFailed).toBeTrue();
-      expect(fixture.nativeElement.textContent).toContain('a foto não pôde ser enviada');
+      expect(fixture.nativeElement.textContent).toContain(
+        'a foto não pôde ser enviada',
+      );
     });
 
     describe('account status', () => {
@@ -438,7 +493,9 @@ describe('UserFormComponent', () => {
       });
 
       it('reactivates an inactive user after confirmation', () => {
-        userServiceSpy.findById.and.returnValue(of(existingUser({ active: false })));
+        userServiceSpy.findById.and.returnValue(
+          of(existingUser({ active: false })),
+        );
         userServiceSpy.activate.and.returnValue(of(undefined));
         const { component } = createComponent('edit', '7');
 
@@ -494,26 +551,38 @@ describe('UserFormComponent', () => {
 
         component.resetPassword();
 
-        expect(forgotPassword).toHaveBeenCalledWith({ email: 'marina.alves@amicats.org.br' });
-        expect(component.resetMessage()).toContain('Se o e-mail estiver cadastrado');
+        expect(forgotPassword).toHaveBeenCalledWith({
+          email: 'marina.alves@amicats.org.br',
+        });
+        expect(component.resetMessage()).toContain(
+          'Se o e-mail estiver cadastrado',
+        );
       });
 
       it('explains a rate limit answer', () => {
-        forgotPassword.and.returnValue(throwError(() => new HttpErrorResponse({ status: 429 })));
+        forgotPassword.and.returnValue(
+          throwError(() => new HttpErrorResponse({ status: 429 })),
+        );
         const { component } = createComponent('edit', '7');
 
         component.resetPassword();
 
-        expect(component.resetError()).toBe('Muitas tentativas. Aguarde um minuto e tente novamente.');
+        expect(component.resetError()).toBe(
+          'Muitas tentativas. Aguarde um minuto e tente novamente.',
+        );
       });
 
       it('shows a generic message on other failures', () => {
-        forgotPassword.and.returnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
+        forgotPassword.and.returnValue(
+          throwError(() => new HttpErrorResponse({ status: 500 })),
+        );
         const { component } = createComponent('edit', '7');
 
         component.resetPassword();
 
-        expect(component.resetError()).toBe('Não foi possível enviar o e-mail. Tente novamente.');
+        expect(component.resetError()).toBe(
+          'Não foi possível enviar o e-mail. Tente novamente.',
+        );
       });
     });
 
@@ -536,7 +605,9 @@ describe('UserFormComponent', () => {
       it('rejects files that are not JPG or PNG without calling the API', () => {
         const { component } = createComponent('edit', '7');
 
-        component.onPhotoSelected(fileEvent(new File(['x'], 'nota.txt', { type: 'text/plain' })));
+        component.onPhotoSelected(
+          fileEvent(new File(['x'], 'nota.txt', { type: 'text/plain' })),
+        );
 
         expect(userServiceSpy.uploadPhoto).not.toHaveBeenCalled();
         expect(component.photoError()).toBe('Envie uma imagem JPG ou PNG.');
@@ -544,9 +615,13 @@ describe('UserFormComponent', () => {
 
       it('rejects images over 5 MB without calling the API', () => {
         const { component } = createComponent('edit', '7');
-        const big = new File([new Uint8Array(5 * 1024 * 1024 + 1)], 'grande.png', {
-          type: 'image/png',
-        });
+        const big = new File(
+          [new Uint8Array(5 * 1024 * 1024 + 1)],
+          'grande.png',
+          {
+            type: 'image/png',
+          },
+        );
 
         component.onPhotoSelected(fileEvent(big));
 
@@ -560,13 +635,17 @@ describe('UserFormComponent', () => {
         );
         const { component } = createComponent('edit', '7');
 
-        component.onPhotoSelected(fileEvent(new File(['x'], 'foto.png', { type: 'image/png' })));
+        component.onPhotoSelected(
+          fileEvent(new File(['x'], 'foto.png', { type: 'image/png' })),
+        );
 
         expect(component.photoError()).toContain('Envie um JPG ou PNG válido');
       });
 
       it('removes the photo and refreshes the avatar', () => {
-        userServiceSpy.findById.and.returnValue(of(existingUser({ imageUrl: '/users/7/photo' })));
+        userServiceSpy.findById.and.returnValue(
+          of(existingUser({ imageUrl: '/users/7/photo' })),
+        );
         userServiceSpy.removePhoto.and.returnValue(of(undefined));
         const { component } = createComponent('edit', '7');
 

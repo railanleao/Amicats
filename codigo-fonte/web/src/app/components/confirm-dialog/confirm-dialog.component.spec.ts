@@ -20,12 +20,12 @@ describe('ConfirmDialogComponent (unit)', () => {
 
   it('renders the title and message', () => {
     const element: HTMLElement = fixture.nativeElement;
-    expect(element.querySelector('#confirm-dialog-title')?.textContent).toContain(
-      'Desativar usuário',
-    );
-    expect(element.querySelector('#confirm-dialog-message')?.textContent).toContain(
-      'Desativar o acesso de Marina Alves?',
-    );
+    expect(
+      element.querySelector('#confirm-dialog-title')?.textContent,
+    ).toContain('Desativar usuário');
+    expect(
+      element.querySelector('#confirm-dialog-message')?.textContent,
+    ).toContain('Desativar o acesso de Marina Alves?');
   });
 
   it('emits confirmed when the confirm button is clicked', () => {

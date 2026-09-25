@@ -6,12 +6,10 @@
   [style.fontSize.px]="size * 0.36"
 >
   @if (previewUrl) {
-    <img [src]="previewUrl" alt=""/>
+    <img [src]="previewUrl" alt="" />
+  } @else if (photoUrl()) {
+    <img [src]="photoUrl()" alt="" />
   } @else {
-    @if (photoUrl(); as url) {
-      <img [src]="url" alt=""/>
-    } @else {
-      {{ initials }}
-    }
+    {{ initials }}
   }
 </span>

@@ -7,7 +7,11 @@
     <div class="toolbar">
       <div class="search-box">
         <span class="search-icon">⌕</span>
-        <input type="text" placeholder="Buscar por nome do gato..." (input)="onSearch($event)" />
+        <input
+          type="text"
+          placeholder="Buscar por nome do gato..."
+          (input)="onSearch($event)"
+        />
       </div>
 
       <button type="button" class="filter-button" (click)="toggleFilters()">
@@ -27,8 +31,21 @@
                 <option [value]="room.id">{{ room.title }}</option>
               }
             </select>
-            <svg class="select-chevron" width="12" height="12" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-              <path d="M4 7l5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+            <svg
+              class="select-chevron"
+              width="12"
+              height="12"
+              viewBox="0 0 18 18"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M4 7l5 5 5-5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
             </svg>
           </div>
         </div>
@@ -42,8 +59,21 @@
                 <option [value]="option[0]">{{ option[1] }}</option>
               }
             </select>
-            <svg class="select-chevron" width="12" height="12" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-              <path d="M4 7l5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+            <svg
+              class="select-chevron"
+              width="12"
+              height="12"
+              viewBox="0 0 18 18"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M4 7l5 5 5-5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
             </svg>
           </div>
         </div>
@@ -53,7 +83,9 @@
     @if (errorMessage()) {
       <div class="feedback feedback--error" role="alert">
         {{ errorMessage() }}
-        <button type="button" class="feedback__retry" (click)="loadCats()">Tentar novamente</button>
+        <button type="button" class="feedback__retry" (click)="loadCats()">
+          Tentar novamente
+        </button>
       </div>
     }
 
@@ -73,11 +105,16 @@
         @for (cat of cats(); track cat.id) {
           <div class="record-row">
             <div class="cat-name">
-              <app-cat-avatar [name]="cat.name" [catId]="cat.id" [hasPhoto]="!!cat.photoUrl" [size]="40" />
+              <app-cat-avatar
+                [name]="cat.name"
+                [catId]="cat.id"
+                [hasPhoto]="!!cat.photoUrl"
+                [size]="40"
+              />
               <span>{{ cat.name }}</span>
             </div>
 
-            <span>{{ cat.roomTitle || '—' }}</span>
+            <span>{{ cat.roomTitle || "—" }}</span>
             <span>{{ ageGroupLabel(cat) }}</span>
 
             <span
@@ -130,11 +167,12 @@
                   stroke-linejoin="round"
                   aria-hidden="true"
                 >
-                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                  <path
+                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"
+                  />
                   <polyline points="15 3 21 3 21 9" />
                   <line x1="10" y1="14" x2="21" y2="3" />
                 </svg>
-                <span>Abrir</span>
               </button>
             </div>
           </div>

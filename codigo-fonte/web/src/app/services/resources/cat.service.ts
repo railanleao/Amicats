@@ -2,14 +2,21 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { Cat, CatSearchParams, CreateCatRequest, PagedResult } from '../../models/cat.model';
+import {
+  Cat,
+  CatSearchParams,
+  CreateCatRequest,
+  PagedResult,
+} from '../../models/cat.model';
 
 @Injectable({ providedIn: 'root' })
 export class CatService {
   private readonly http = inject(HttpClient);
 
   list(params: CatSearchParams): Observable<PagedResult<Cat>> {
-    let httpParams = new HttpParams().set('page', params.page).set('size', params.size);
+    let httpParams = new HttpParams()
+      .set('page', params.page)
+      .set('size', params.size);
 
     if (params.search) {
       httpParams = httpParams.set('search', params.search);

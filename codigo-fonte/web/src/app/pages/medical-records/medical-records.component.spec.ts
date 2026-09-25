@@ -1,4 +1,9 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import {
+  ComponentFixture,
+  TestBed,
+  fakeAsync,
+  tick,
+} from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { Subject, of, throwError } from 'rxjs';
 
@@ -77,21 +82,54 @@ describe('MedicalRecordsComponent (unit)', () => {
 
   function mockRooms(): Room[] {
     return [
-      { id: 1, title: 'Quarentena', description: null, coverImageUrl: null, maxCapacity: 8, active: true },
-      { id: 2, title: 'Observação Intensiva', description: null, coverImageUrl: null, maxCapacity: 6, active: true },
+      {
+        id: 1,
+        title: 'Quarentena',
+        description: null,
+        coverImageUrl: null,
+        maxCapacity: 8,
+        active: true,
+      },
+      {
+        id: 2,
+        title: 'Observação Intensiva',
+        description: null,
+        coverImageUrl: null,
+        maxCapacity: 6,
+        active: true,
+      },
     ];
   }
 
-  function pagedCats(content: Cat[], page = 0, totalPages = 1): PagedResult<Cat> {
-    return { content, page, size: 20, totalElements: content.length, totalPages };
+  function pagedCats(
+    content: Cat[],
+    page = 0,
+    totalPages = 1,
+  ): PagedResult<Cat> {
+    return {
+      content,
+      page,
+      size: 20,
+      totalElements: content.length,
+      totalPages,
+    };
   }
 
   function pagedRooms(content: Room[]): PagedResult<Room> {
-    return { content, page: 0, size: 100, totalElements: content.length, totalPages: 1 };
+    return {
+      content,
+      page: 0,
+      size: 100,
+      totalElements: content.length,
+      totalPages: 1,
+    };
   }
 
   beforeEach(async () => {
-    catServiceSpy = jasmine.createSpyObj<CatService>('CatService', ['list', 'photo']);
+    catServiceSpy = jasmine.createSpyObj<CatService>('CatService', [
+      'list',
+      'photo',
+    ]);
     roomServiceSpy = jasmine.createSpyObj<RoomService>('RoomService', ['list']);
 
     catServiceSpy.list.and.returnValue(new Subject<PagedResult<Cat>>());
@@ -112,7 +150,9 @@ describe('MedicalRecordsComponent (unit)', () => {
   });
 
   function latestListSubject(): Subject<PagedResult<Cat>> {
-    return catServiceSpy.list.calls.mostRecent().returnValue as Subject<PagedResult<Cat>>;
+    return catServiceSpy.list.calls.mostRecent().returnValue as Subject<
+      PagedResult<Cat>
+    >;
   }
 
   it('loads the room list on init to populate the filter', () => {
@@ -143,7 +183,9 @@ describe('MedicalRecordsComponent (unit)', () => {
   });
 
   it('shows an error message when the list request fails', () => {
-    catServiceSpy.list.and.returnValue(throwError(() => new Error('network error')));
+    catServiceSpy.list.and.returnValue(
+      throwError(() => new Error('network error')),
+    );
 
     component.loadCats();
 
@@ -153,7 +195,9 @@ describe('MedicalRecordsComponent (unit)', () => {
   });
 
   it('empties the room list when the room request fails, without blocking the cat list', () => {
-    roomServiceSpy.list.and.returnValue(throwError(() => new Error('network error')));
+    roomServiceSpy.list.and.returnValue(
+      throwError(() => new Error('network error')),
+    );
     catServiceSpy.list.calls.reset();
     catServiceSpy.list.and.returnValue(new Subject<PagedResult<Cat>>());
 
@@ -193,7 +237,9 @@ describe('MedicalRecordsComponent (unit)', () => {
     component.onPageChange(2);
     catServiceSpy.list.calls.reset();
 
-    component.onStatusChange({ target: { value: 'InClinic' } } as unknown as Event);
+    component.onStatusChange({
+      target: { value: 'InClinic' },
+    } as unknown as Event);
 
     expect(catServiceSpy.list).toHaveBeenCalledWith(
       jasmine.objectContaining({ generalStatus: 'InClinic', page: 0 }),
@@ -206,11 +252,15 @@ describe('MedicalRecordsComponent (unit)', () => {
     component.onPageChange(1);
 
     expect(component.page()).toBe(1);
-    expect(catServiceSpy.list).toHaveBeenCalledWith(jasmine.objectContaining({ page: 1 }));
+    expect(catServiceSpy.list).toHaveBeenCalledWith(
+      jasmine.objectContaining({ page: 1 }),
+    );
   });
 
   it('navigates to the medical record of the given cat', () => {
-    const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
+    const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(
+      true,
+    );
 
     component.openRecord(mockCats()[0]);
 

@@ -20,13 +20,20 @@ describe('SidebarComponent (unit)', () => {
       accessType: 'Veterinarian',
     });
 
-    authServiceSpy = jasmine.createSpyObj<AuthService>('AuthService', ['clearSession'], {
-      currentUser,
-    });
+    authServiceSpy = jasmine.createSpyObj<AuthService>(
+      'AuthService',
+      ['clearSession'],
+      {
+        currentUser,
+      },
+    );
 
     await TestBed.configureTestingModule({
       imports: [SidebarComponent],
-      providers: [provideRouter([]), { provide: AuthService, useValue: authServiceSpy }],
+      providers: [
+        provideRouter([]),
+        { provide: AuthService, useValue: authServiceSpy },
+      ],
     }).compileComponents();
 
     router = TestBed.inject(Router);

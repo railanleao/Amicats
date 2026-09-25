@@ -37,7 +37,6 @@ export interface PagedResult<T> {
   totalPages: number;
 }
 
-
 export interface CreateUserRequest {
   fullName: string;
   email: string;
