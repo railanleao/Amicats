@@ -1,11 +1,10 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Router, provideRouter } from '@angular/router';
-import { Subject, of, throwError } from 'rxjs';
+import { provideRouter, Router } from '@angular/router';
+import { of, Subject, throwError } from 'rxjs';
 
 import { Cat } from '../../models/cat.model';
-import { PagedResult } from '../../models/user.model';
-import { Room } from '../../models/room.model';
+import { PagedResult, Room } from '../../models/room.model';
 import { CatService } from '../../services/resources/cat.service';
 import { RoomService } from '../../services/resources/room.service';
 import { CatFormComponent } from './cat-form.component';
@@ -23,10 +22,18 @@ describe('CatFormComponent', () => {
       roomId: null,
       sex: null,
       estimatedBirthDate: null,
+      ageGroup: null,
       coat: null,
       weightKg: null,
       characteristics: null,
       generalStatus: 'InTriage',
+      healthStatus: 'NotTested',
+      fivFelvExamDate: null,
+      pifResult: 'NotTested',
+      pifExamDate: null,
+      severity: null,
+      neuteringStatus: null,
+      neuteringDate: null,
       microchip: null,
       rescueDate: null,
       foundConditions: null,
@@ -37,7 +44,7 @@ describe('CatFormComponent', () => {
       roomTitle: null,
       createdAt: '2026-09-23T10:00:00',
       ...overrides,
-    };
+    } as Cat;
   }
 
   function aRoomPage(rooms: Room[]): PagedResult<Room> {

@@ -23,7 +23,9 @@ describe('termsAcceptanceGuard', () => {
   });
 
   function runGuard() {
-    return TestBed.runInInjectionContext(() => termsAcceptanceGuard({} as never, {} as never));
+    return TestBed.runInInjectionContext(() =>
+      termsAcceptanceGuard({} as never, {} as never),
+    );
   }
 
   it('redirects to /login when unauthenticated', () => {

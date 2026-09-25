@@ -1,21 +1,23 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import {
   CreateRoomRequest,
+  PagedResult,
   Room,
   RoomSearchParams,
   UpdateRoomRequest,
 } from '../../models/room.model';
-import { PagedResult } from '../../models/user.model';
 
 @Injectable({ providedIn: 'root' })
 export class RoomService {
   private readonly http = inject(HttpClient);
 
   list(params: RoomSearchParams): Observable<PagedResult<Room>> {
-    let httpParams = new HttpParams().set('page', params.page).set('size', params.size);
+    let httpParams = new HttpParams()
+      .set('page', params.page)
+      .set('size', params.size);
 
     if (params.search) {
       httpParams = httpParams.set('search', params.search);

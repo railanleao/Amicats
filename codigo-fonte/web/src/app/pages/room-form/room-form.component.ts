@@ -1,7 +1,12 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Observable, catchError, finalize, map, of, switchMap } from 'rxjs';
 
@@ -45,7 +50,9 @@ export class RoomFormComponent {
     ? Number(this.route.snapshot.paramMap.get('id'))
     : null;
   readonly title = this.isEditing ? 'Editar sala' : 'Nova sala';
-  readonly submitLabel = this.isEditing ? 'Salvar alterações' : 'Cadastrar sala';
+  readonly submitLabel = this.isEditing
+    ? 'Salvar alterações'
+    : 'Cadastrar sala';
   readonly justCreated = this.isEditing && history.state?.created === true;
   readonly photoFailed = this.isEditing && history.state?.photoFailed === true;
 
@@ -70,7 +77,9 @@ export class RoomFormComponent {
       nonNullable: true,
       validators: [Validators.required, Validators.maxLength(100)],
     }),
-    maxCapacity: new FormControl<number | null>(null, { validators: [Validators.min(1)] }),
+    maxCapacity: new FormControl<number | null>(null, {
+      validators: [Validators.min(1)],
+    }),
     description: new FormControl('', { nonNullable: true }),
   });
 
@@ -86,7 +95,9 @@ export class RoomFormComponent {
   }
 
   get hasPhoto(): boolean {
-    return this.isEditing ? !!this.room()?.coverImageUrl : this.pendingPhoto() !== null;
+    return this.isEditing
+      ? !!this.room()?.coverImageUrl
+      : this.pendingPhoto() !== null;
   }
 
   constructor() {
@@ -186,7 +197,9 @@ export class RoomFormComponent {
           this.statusDialog.set(null);
         },
         error: () => {
-          this.statusError.set('Não foi possível alterar o status. Tente novamente.');
+          this.statusError.set(
+            'Não foi possível alterar o status. Tente novamente.',
+          );
           this.statusDialog.set(null);
         },
       });
@@ -273,11 +286,16 @@ export class RoomFormComponent {
           }
           this.photoVersion.update((version) => version + 1);
         },
-        error: () => this.photoError.set('Não foi possível remover a foto. Tente novamente.'),
+        error: () =>
+          this.photoError.set(
+            'Não foi possível remover a foto. Tente novamente.',
+          ),
       });
   }
 
-  private uploadChosenPhoto(created: Room): Observable<{ created: Room; photoFailed: boolean }> {
+  private uploadChosenPhoto(
+    created: Room,
+  ): Observable<{ created: Room; photoFailed: boolean }> {
     const photo = this.pendingPhoto();
     if (!photo) {
       return of({ created, photoFailed: false });

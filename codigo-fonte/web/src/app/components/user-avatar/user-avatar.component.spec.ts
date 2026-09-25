@@ -11,13 +11,20 @@ describe('UserAvatarComponent', () => {
   let revokeObjectUrl: jasmine.Spy;
 
   function setInputs(inputs: Record<string, unknown>): void {
-    Object.entries(inputs).forEach(([key, value]) => fixture.componentRef.setInput(key, value));
+    Object.entries(inputs).forEach(([key, value]) =>
+      fixture.componentRef.setInput(key, value),
+    );
     fixture.detectChanges();
   }
 
   beforeEach(async () => {
-    userServiceSpy = jasmine.createSpyObj<UserService>('UserService', ['photo']);
-    createObjectUrl = spyOn(URL, 'createObjectURL').and.returnValues('blob:photo-1', 'blob:photo-2');
+    userServiceSpy = jasmine.createSpyObj<UserService>('UserService', [
+      'photo',
+    ]);
+    createObjectUrl = spyOn(URL, 'createObjectURL').and.returnValues(
+      'blob:photo-1',
+      'blob:photo-2',
+    );
     revokeObjectUrl = spyOn(URL, 'revokeObjectURL');
 
     await TestBed.configureTestingModule({
@@ -61,7 +68,9 @@ describe('UserAvatarComponent', () => {
 
     expect(userServiceSpy.photo).toHaveBeenCalledTimes(2);
     expect(revokeObjectUrl).toHaveBeenCalledWith('blob:photo-1');
-    expect(fixture.nativeElement.querySelector('img').getAttribute('src')).toBe('blob:photo-2');
+    expect(fixture.nativeElement.querySelector('img').getAttribute('src')).toBe(
+      'blob:photo-2',
+    );
   });
 
   it('does not reload the photo when only the name changes', () => {
@@ -74,7 +83,9 @@ describe('UserAvatarComponent', () => {
   });
 
   it('falls back to the initials when the photo cannot be loaded', () => {
-    userServiceSpy.photo.and.returnValue(throwError(() => new Error('not found')));
+    userServiceSpy.photo.and.returnValue(
+      throwError(() => new Error('not found')),
+    );
 
     setInputs({ name: 'Marina Alves', userId: 7, hasPhoto: true });
 
@@ -95,7 +106,9 @@ describe('UserAvatarComponent', () => {
   it('shows the preview instead of requesting a photo when a preview is given', () => {
     setInputs({ name: 'Marina Alves', previewUrl: 'blob:preview' });
 
-    expect(fixture.nativeElement.querySelector('img').getAttribute('src')).toBe('blob:preview');
+    expect(fixture.nativeElement.querySelector('img').getAttribute('src')).toBe(
+      'blob:preview',
+    );
     expect(userServiceSpy.photo).not.toHaveBeenCalled();
   });
 });

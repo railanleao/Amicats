@@ -23,7 +23,9 @@ describe('changePasswordGuard', () => {
   });
 
   function runGuard() {
-    return TestBed.runInInjectionContext(() => changePasswordGuard({} as never, {} as never));
+    return TestBed.runInInjectionContext(() =>
+      changePasswordGuard({} as never, {} as never),
+    );
   }
 
   it('redirects to /login when unauthenticated', () => {

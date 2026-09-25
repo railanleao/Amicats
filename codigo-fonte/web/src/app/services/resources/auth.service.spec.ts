@@ -81,9 +81,13 @@ describe('AuthService (integration)', () => {
     };
 
     let receivedResponse: LoginResponse | undefined;
-    service.acceptTerms().subscribe((response) => (receivedResponse = response));
+    service
+      .acceptTerms()
+      .subscribe((response) => (receivedResponse = response));
 
-    const request = httpMock.expectOne(`${environment.apiUrl}/auth/accept-terms`);
+    const request = httpMock.expectOne(
+      `${environment.apiUrl}/auth/accept-terms`,
+    );
     expect(request.request.method).toBe('POST');
 
     request.flush(mockResponse);
@@ -110,9 +114,13 @@ describe('AuthService (integration)', () => {
     };
 
     let receivedResponse: LoginResponse | undefined;
-    service.changePassword(request_).subscribe((response) => (receivedResponse = response));
+    service
+      .changePassword(request_)
+      .subscribe((response) => (receivedResponse = response));
 
-    const request = httpMock.expectOne(`${environment.apiUrl}/auth/change-password`);
+    const request = httpMock.expectOne(
+      `${environment.apiUrl}/auth/change-password`,
+    );
     expect(request.request.method).toBe('PATCH');
     expect(request.request.body).toEqual(request_);
 
@@ -149,7 +157,9 @@ describe('AuthService (integration)', () => {
     let completed = false;
     service.forgotPassword(request_).subscribe(() => (completed = true));
 
-    const request = httpMock.expectOne(`${environment.apiUrl}/auth/forgot-password`);
+    const request = httpMock.expectOne(
+      `${environment.apiUrl}/auth/forgot-password`,
+    );
     expect(request.request.method).toBe('POST');
     expect(request.request.body).toEqual(request_);
 
@@ -169,7 +179,9 @@ describe('AuthService (integration)', () => {
       mustChangePassword: false,
     };
 
-    service.login({ email: 'carla@amicats.org.br', password: 'senha-forte' }).subscribe();
+    service
+      .login({ email: 'carla@amicats.org.br', password: 'senha-forte' })
+      .subscribe();
     httpMock.expectOne(`${environment.apiUrl}/auth/login`).flush(mockResponse);
 
     TestBed.resetTestingModule();
@@ -222,7 +234,9 @@ describe('AuthService (integration)', () => {
       mustChangePassword: false,
     };
 
-    service.login({ email: 'marina.alves@amicats.org.br', password: 'senha-forte' }).subscribe();
+    service
+      .login({ email: 'marina.alves@amicats.org.br', password: 'senha-forte' })
+      .subscribe();
     httpMock.expectOne(`${environment.apiUrl}/auth/login`).flush(mockResponse);
 
     service.clearSession();

@@ -23,7 +23,9 @@ describe('authGuard', () => {
   });
 
   function runGuard() {
-    return TestBed.runInInjectionContext(() => authGuard({} as never, {} as never));
+    return TestBed.runInInjectionContext(() =>
+      authGuard({} as never, {} as never),
+    );
   }
 
   it('redirects to /login when unauthenticated', () => {
