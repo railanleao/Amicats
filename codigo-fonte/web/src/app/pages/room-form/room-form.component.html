@@ -135,7 +135,7 @@
         <textarea
           id="description"
           rows="3"
-          placeholder="Ex.: Sala destinada a gatos em pós-operatório..."
+          placeholder="Ex.: Sala destinada a gatinhos em pós-operatório..."
           [formControl]="form.controls.description"
         ></textarea>
       </div>
@@ -146,7 +146,7 @@
             <h2>Status da sala</h2>
             <p>
               Salas inativas deixam de aparecer como disponíveis para alocação
-              de gatos.
+              de gatinhos.
             </p>
             @if (statusError()) {
               <p class="field-error" role="alert">{{ statusError() }}</p>
@@ -187,10 +187,10 @@
       action === 'deactivate'
         ? 'Desativar a sala ' +
           (room()?.title ?? '') +
-          '? Ela deixa de aparecer como disponível para alocação de gatos.'
+          '? Ela deixa de aparecer como disponível para alocação de gatinhos.'
         : 'Reativar a sala ' +
           (room()?.title ?? '') +
-          '? Ela volta a ficar disponível para alocação de gatos.'
+          '? Ela volta a ficar disponível para alocação de gatinhos.'
     "
     [confirmLabel]="action === 'deactivate' ? 'Desativar' : 'Reativar'"
     [confirmVariant]="action === 'deactivate' ? 'danger' : 'success'"

@@ -1,10 +1,10 @@
 import {
   ComponentFixture,
-  TestBed,
   fakeAsync,
+  TestBed,
   tick,
 } from '@angular/core/testing';
-import { Router, provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import { Subject, throwError } from 'rxjs';
 
 import { Room, RoomSearchParams } from '../../models/room.model';
@@ -150,7 +150,7 @@ describe('RoomsComponent (unit)', () => {
   });
 
   it('formats the capacity label from maxCapacity', () => {
-    expect(component.capacityLabel(mockRooms()[0])).toBe('8 gatos');
+    expect(component.capacityLabel(mockRooms()[0])).toBe('8 gatinhos');
     expect(component.capacityLabel(mockRooms()[1])).toBe('—');
   });
 

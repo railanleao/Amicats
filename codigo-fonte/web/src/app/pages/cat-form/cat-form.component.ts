@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   FormControl,
@@ -16,8 +16,8 @@ import {
   CreateCatRequest,
   GENERAL_STATUS_LABELS,
   GeneralStatus,
-  SEX_LABELS,
   Sex,
+  SEX_LABELS,
 } from '../../models/cat.model';
 import { Room } from '../../models/room.model';
 import { CatService } from '../../services/resources/cat.service';
@@ -84,7 +84,7 @@ export class CatFormComponent implements OnInit {
 
   readonly errors = {
     name: {
-      required: 'Informe o nome do gato.',
+      required: 'Informe o nome do gatinho.',
       maxlength: 'O nome deve ter no máximo 100 caracteres.',
     },
     microchip: { pattern: 'O microchip tem 15 dígitos.' },
@@ -188,7 +188,7 @@ export class CatFormComponent implements OnInit {
         next: (photoFailed) => {
           if (photoFailed) {
             this.saveError.set(
-              'O gato foi salvo, mas a foto não pôde ser enviada. Tente adicioná-la depois.',
+              'O gatinho foi salvo, mas a foto não pôde ser enviada. Tente adicioná-la depois.',
             );
             this.releasePendingPhoto();
             return;
@@ -231,13 +231,13 @@ export class CatFormComponent implements OnInit {
 
   private handleSaveError(error: HttpErrorResponse): void {
     if (error.status === 403) {
-      this.saveError.set('Você não tem permissão para cadastrar gatos.');
+      this.saveError.set('Você não tem permissão para cadastrar gatinhos.');
     } else if (error.status === 404) {
       this.saveError.set('A sala selecionada não existe mais. Escolha outra.');
     } else if (error.status === 400) {
       this.saveError.set('Confira os dados informados e tente novamente.');
     } else {
-      this.saveError.set('Não foi possível salvar o gato. Tente novamente.');
+      this.saveError.set('Não foi possível salvar o gatinho. Tente novamente.');
     }
   }
 }

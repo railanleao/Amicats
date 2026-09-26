@@ -1,14 +1,14 @@
 import {
   Component,
   DestroyRef,
+  inject,
   OnDestroy,
   OnInit,
-  inject,
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
-import { Subject, debounceTime, distinctUntilChanged, finalize } from 'rxjs';
+import { debounceTime, distinctUntilChanged, finalize, Subject } from 'rxjs';
 
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { PaginationComponent } from '../../components/pagination/pagination.component';
@@ -126,7 +126,7 @@ export class RoomsComponent implements OnInit, OnDestroy {
   }
 
   capacityLabel(room: Room): string {
-    return room.maxCapacity != null ? `${room.maxCapacity} gatos` : '—';
+    return room.maxCapacity != null ? `${room.maxCapacity} gatinhos` : '—';
   }
 
   createRoom(): void {

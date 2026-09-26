@@ -18,7 +18,7 @@ describe('BrandPanelComponent', () => {
     const quote: HTMLElement = fixture.nativeElement.querySelector(
       '.brand-panel__quote',
     );
-    expect(quote.textContent).toContain('Cada gato tem uma história');
+    expect(quote.textContent).toContain('Cada gatinho tem uma história');
   });
 
   it('renders all three brand stats', () => {
