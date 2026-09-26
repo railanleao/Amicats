@@ -1,0 +1,194 @@
+<div class="page">
+  <header class="page-header">
+    <h1>Prontuários Clínicos</h1>
+  </header>
+
+  <section class="records-container">
+    <div class="toolbar">
+      <div class="search-box">
+        <span class="search-icon">⌕</span>
+        <input
+          type="text"
+          placeholder="Buscar por nome do gato..."
+          (input)="onSearch($event)"
+        />
+      </div>
+
+      <button type="button" class="filter-button" (click)="toggleFilters()">
+        <span>☷</span>
+        Filtros
+      </button>
+    </div>
+
+    @if (showFilters) {
+      <div class="filter-panel">
+        <div class="filter-field">
+          <label for="room">Sala</label>
+          <div class="select-wrapper">
+            <select id="room" (change)="onRoomChange($event)">
+              <option value="">Todas as salas</option>
+              @for (room of rooms(); track room.id) {
+                <option [value]="room.id">{{ room.title }}</option>
+              }
+            </select>
+            <svg
+              class="select-chevron"
+              width="12"
+              height="12"
+              viewBox="0 0 18 18"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M4 7l5 5 5-5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </div>
+        </div>
+
+        <div class="filter-field">
+          <label for="status">Status</label>
+          <div class="select-wrapper">
+            <select id="status" (change)="onStatusChange($event)">
+              <option value="">Todos os status</option>
+              @for (option of generalStatusOptions; track option[0]) {
+                <option [value]="option[0]">{{ option[1] }}</option>
+              }
+            </select>
+            <svg
+              class="select-chevron"
+              width="12"
+              height="12"
+              viewBox="0 0 18 18"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M4 7l5 5 5-5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </div>
+        </div>
+      </div>
+    }
+
+    @if (errorMessage()) {
+      <div class="feedback feedback--error" role="alert">
+        {{ errorMessage() }}
+        <button type="button" class="feedback__retry" (click)="loadCats()">
+          Tentar novamente
+        </button>
+      </div>
+    }
+
+    @if (loading() && cats().length === 0) {
+      <div class="feedback">Carregando prontuários...</div>
+    } @else {
+      <div class="table-header">
+        <span>PACIENTE</span>
+        <span>SALA</span>
+        <span>IDADE</span>
+        <span>STATUS</span>
+        <span>FIV/FELV</span>
+        <span>PIF</span>
+        <span>AÇÕES</span>
+      </div>
+      <div class="records-list">
+        @for (cat of cats(); track cat.id) {
+          <div class="record-row">
+            <div class="cat-name">
+              <app-cat-avatar
+                [name]="cat.name"
+                [catId]="cat.id"
+                [hasPhoto]="!!cat.photoUrl"
+                [size]="40"
+              />
+              <span>{{ cat.name }}</span>
+            </div>
+
+            <span>{{ cat.roomTitle || "—" }}</span>
+            <span>{{ ageGroupLabel(cat) }}</span>
+
+            <span
+              class="general-status"
+              [class.in-clinic]="cat.generalStatus === 'InClinic'"
+              [class.under-treatment]="cat.generalStatus === 'UnderTreatment'"
+              [class.available]="cat.generalStatus === 'AvailableForAdoption'"
+              [class.adopted]="cat.generalStatus === 'Adopted'"
+              [class.deceased]="cat.generalStatus === 'Deceased'"
+            >
+              {{ generalStatusLabel(cat) }}
+            </span>
+
+            <span
+              class="health-status"
+              [class.healthy]="cat.healthStatus === 'Healthy'"
+              [class.fiv]="cat.healthStatus === 'Fiv'"
+              [class.felv]="cat.healthStatus === 'Felv'"
+              [class.fiv-felv]="cat.healthStatus === 'FivFelv'"
+              [class.not-tested]="cat.healthStatus === 'NotTested'"
+            >
+              {{ healthStatusLabel(cat) }}
+            </span>
+
+            <span
+              class="pif-result"
+              [class.negative]="cat.pifResult === 'Negative'"
+              [class.positive]="cat.pifResult === 'Positive'"
+              [class.not-tested]="cat.pifResult === 'NotTested'"
+            >
+              {{ pifResultLabel(cat) }}
+            </span>
+
+            <div class="actions">
+              <button
+                type="button"
+                class="access-button"
+                title="Abrir prontuário"
+                [attr.aria-label]="'Abrir prontuário de ' + cat.name"
+                (click)="openRecord(cat)"
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"
+                  />
+                  <polyline points="15 3 21 3 21 9" />
+                  <line x1="10" y1="14" x2="21" y2="3" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        } @empty {
+          <div class="feedback">Nenhum prontuário encontrado.</div>
+        }
+      </div>
+
+      <app-pagination
+        [page]="page()"
+        [size]="pageSize"
+        [totalPages]="totalPages()"
+        [totalElements]="totalElements()"
+        itemLabel="gatos"
+        (pageChange)="onPageChange($event)"
+      />
+    }
+  </section>
+</div>

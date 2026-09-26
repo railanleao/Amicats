@@ -9,13 +9,20 @@ describe('DashboardLayoutComponent', () => {
   let fixture: ComponentFixture<DashboardLayoutComponent>;
 
   beforeEach(async () => {
-    const authServiceSpy = jasmine.createSpyObj<AuthService>('AuthService', ['clearSession'], {
-      currentUser: signal(null),
-    });
+    const authServiceSpy = jasmine.createSpyObj<AuthService>(
+      'AuthService',
+      ['clearSession'],
+      {
+        currentUser: signal(null),
+      },
+    );
 
     await TestBed.configureTestingModule({
       imports: [DashboardLayoutComponent],
-      providers: [provideRouter([]), { provide: AuthService, useValue: authServiceSpy }],
+      providers: [
+        provideRouter([]),
+        { provide: AuthService, useValue: authServiceSpy },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(DashboardLayoutComponent);

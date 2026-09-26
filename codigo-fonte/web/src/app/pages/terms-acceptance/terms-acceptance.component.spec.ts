@@ -86,7 +86,9 @@ describe('TermsAcceptanceComponent (unit)', () => {
 
   it('shows an error message and does not navigate on failure', () => {
     component.toggleAccepted();
-    authServiceSpy.acceptTerms.and.returnValue(throwError(() => new Error('network error')));
+    authServiceSpy.acceptTerms.and.returnValue(
+      throwError(() => new Error('network error')),
+    );
 
     component.onContinue();
 

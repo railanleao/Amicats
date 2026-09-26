@@ -1,6 +1,11 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
-import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
+import {
+  ActivatedRoute,
+  Router,
+  convertToParamMap,
+  provideRouter,
+} from '@angular/router';
 import { Subject, of, throwError } from 'rxjs';
 
 import { Room } from '../../models/room.model';
@@ -31,7 +36,10 @@ describe('RoomFormComponent', () => {
         {
           provide: ActivatedRoute,
           useValue: {
-            snapshot: { data: { mode }, paramMap: convertToParamMap(id ? { id } : {}) },
+            snapshot: {
+              data: { mode },
+              paramMap: convertToParamMap(id ? { id } : {}),
+            },
           },
         },
       ],
@@ -74,14 +82,18 @@ describe('RoomFormComponent', () => {
 
       expect(roomServiceSpy.findById).not.toHaveBeenCalled();
       expect(component.form.controls.title.value).toBe('');
-      expect(fixture.nativeElement.querySelector('h1').textContent).toContain('Nova sala');
+      expect(fixture.nativeElement.querySelector('h1').textContent).toContain(
+        'Nova sala',
+      );
       expect(fixture.nativeElement.querySelector('.setting-row')).toBeNull();
     });
 
     it('offers an accessible back button to the rooms list', () => {
       const { fixture } = createComponent('create');
 
-      const back = fixture.nativeElement.querySelector('a.page-header__back') as HTMLAnchorElement;
+      const back = fixture.nativeElement.querySelector(
+        'a.page-header__back',
+      ) as HTMLAnchorElement;
       expect(back.getAttribute('aria-label')).toBe('Voltar para salas');
       expect(back.getAttribute('href')).toBe('/rooms');
     });
@@ -98,7 +110,9 @@ describe('RoomFormComponent', () => {
     it('creates the room with trimmed values, no photo, and opens its edit page', () => {
       roomServiceSpy.create.and.returnValue(of(existingRoom({ id: 9 })));
       const { component } = createComponent('create');
-      const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
+      const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(
+        true,
+      );
       fillValidCreateForm(component);
 
       component.onSubmit();
@@ -138,7 +152,9 @@ describe('RoomFormComponent', () => {
 
       component.onSubmit();
 
-      expect(component.saveError()).toBe('Não foi possível salvar a sala. Tente novamente.');
+      expect(component.saveError()).toBe(
+        'Não foi possível salvar a sala. Tente novamente.',
+      );
     });
 
     it('ignores a second submit while the first one is still saving', () => {
@@ -168,7 +184,9 @@ describe('RoomFormComponent', () => {
     it('rejects an invalid photo choice without keeping it', () => {
       const { component } = createComponent('create');
 
-      component.onPhotoSelected(fileEvent(new File(['x'], 'nota.txt', { type: 'text/plain' })));
+      component.onPhotoSelected(
+        fileEvent(new File(['x'], 'nota.txt', { type: 'text/plain' })),
+      );
 
       expect(component.pendingPhoto()).toBeNull();
       expect(component.photoError()).toBe('Envie uma imagem JPG ou PNG.');
@@ -176,7 +194,9 @@ describe('RoomFormComponent', () => {
 
     it('discards the chosen photo when it is removed', () => {
       const { component } = createComponent('create');
-      component.onPhotoSelected(fileEvent(new File(['x'], 'foto.png', { type: 'image/png' })));
+      component.onPhotoSelected(
+        fileEvent(new File(['x'], 'foto.png', { type: 'image/png' })),
+      );
 
       component.removePhoto();
 
@@ -191,7 +211,9 @@ describe('RoomFormComponent', () => {
         of(existingRoom({ id: 9, coverImageUrl: '/rooms/9/photo' })),
       );
       const { component } = createComponent('create');
-      const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
+      const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(
+        true,
+      );
       const file = new File(['x'], 'foto.png', { type: 'image/png' });
       fillValidCreateForm(component);
       component.onPhotoSelected(fileEvent(file));
@@ -210,9 +232,13 @@ describe('RoomFormComponent', () => {
         throwError(() => new HttpErrorResponse({ status: 500 })),
       );
       const { component } = createComponent('create');
-      const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
+      const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(
+        true,
+      );
       fillValidCreateForm(component);
-      component.onPhotoSelected(fileEvent(new File(['x'], 'foto.png', { type: 'image/png' })));
+      component.onPhotoSelected(
+        fileEvent(new File(['x'], 'foto.png', { type: 'image/png' })),
+      );
 
       component.onSubmit();
 
@@ -229,7 +255,9 @@ describe('RoomFormComponent', () => {
       expect(roomServiceSpy.findById).toHaveBeenCalledWith(7);
       expect(component.form.controls.title.value).toBe('Sala 1 — Adultos');
       expect(component.form.controls.maxCapacity.value).toBe(8);
-      expect(fixture.nativeElement.querySelector('h1').textContent).toContain('Editar sala');
+      expect(fixture.nativeElement.querySelector('h1').textContent).toContain(
+        'Editar sala',
+      );
     });
 
     it('shows a not-found message when the room does not exist', () => {
@@ -245,7 +273,9 @@ describe('RoomFormComponent', () => {
     it('updates and returns to the list', () => {
       roomServiceSpy.update.and.returnValue(of(existingRoom()));
       const { component } = createComponent('edit', '7');
-      const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
+      const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(
+        true,
+      );
 
       component.form.controls.title.setValue('Sala 1 — Adultos Renomeada');
 
@@ -276,7 +306,9 @@ describe('RoomFormComponent', () => {
       });
 
       it('reactivates an inactive room after confirmation', () => {
-        roomServiceSpy.findById.and.returnValue(of(existingRoom({ active: false })));
+        roomServiceSpy.findById.and.returnValue(
+          of(existingRoom({ active: false })),
+        );
         roomServiceSpy.activate.and.returnValue(of(undefined));
         const { component } = createComponent('edit', '7');
 
@@ -336,7 +368,9 @@ describe('RoomFormComponent', () => {
       it('rejects files that are not JPG or PNG without calling the API', () => {
         const { component } = createComponent('edit', '7');
 
-        component.onPhotoSelected(fileEvent(new File(['x'], 'nota.txt', { type: 'text/plain' })));
+        component.onPhotoSelected(
+          fileEvent(new File(['x'], 'nota.txt', { type: 'text/plain' })),
+        );
 
         expect(roomServiceSpy.uploadPhoto).not.toHaveBeenCalled();
         expect(component.photoError()).toBe('Envie uma imagem JPG ou PNG.');
@@ -344,9 +378,13 @@ describe('RoomFormComponent', () => {
 
       it('rejects images over 5 MB without calling the API', () => {
         const { component } = createComponent('edit', '7');
-        const big = new File([new Uint8Array(5 * 1024 * 1024 + 1)], 'grande.png', {
-          type: 'image/png',
-        });
+        const big = new File(
+          [new Uint8Array(5 * 1024 * 1024 + 1)],
+          'grande.png',
+          {
+            type: 'image/png',
+          },
+        );
 
         component.onPhotoSelected(fileEvent(big));
 
@@ -360,7 +398,9 @@ describe('RoomFormComponent', () => {
         );
         const { component } = createComponent('edit', '7');
 
-        component.onPhotoSelected(fileEvent(new File(['x'], 'foto.png', { type: 'image/png' })));
+        component.onPhotoSelected(
+          fileEvent(new File(['x'], 'foto.png', { type: 'image/png' })),
+        );
 
         expect(component.photoError()).toContain('Envie um JPG ou PNG válido');
       });

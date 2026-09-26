@@ -6,8 +6,12 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 
 import { environment } from '../../../environments/environment';
-import { CreateRoomRequest, Room, UpdateRoomRequest } from '../../models/room.model';
-import { PagedResult } from '../../models/user.model';
+import {
+  CreateRoomRequest,
+  PagedResult,
+  Room,
+  UpdateRoomRequest,
+} from '../../models/room.model';
 import { apiUrlInterceptor } from '../http/api-url.interceptor';
 import { RoomService } from './room.service';
 
@@ -52,9 +56,13 @@ describe('RoomService (integration)', () => {
     };
 
     let received: PagedResult<Room> | undefined;
-    service.list({ page: 0, size: 20 }).subscribe((result) => (received = result));
+    service
+      .list({ page: 0, size: 20 })
+      .subscribe((result) => (received = result));
 
-    const request = httpMock.expectOne(`${environment.apiUrl}/rooms?page=0&size=20`);
+    const request = httpMock.expectOne(
+      `${environment.apiUrl}/rooms?page=0&size=20`,
+    );
     expect(request.request.method).toBe('GET');
     request.flush(mockPage);
 
@@ -62,22 +70,38 @@ describe('RoomService (integration)', () => {
   });
 
   it('includes search and active only when provided', () => {
-    service.list({ search: 'adultos', active: false, page: 1, size: 10 }).subscribe();
+    service
+      .list({ search: 'adultos', active: false, page: 1, size: 10 })
+      .subscribe();
 
     const request = httpMock.expectOne(
       `${environment.apiUrl}/rooms?page=1&size=10&search=adultos&active=false`,
     );
     expect(request.request.method).toBe('GET');
-    request.flush({ content: [], page: 1, size: 10, totalElements: 0, totalPages: 0 });
+    request.flush({
+      content: [],
+      page: 1,
+      size: 10,
+      totalElements: 0,
+      totalPages: 0,
+    });
   });
 
   it('omits search and active when not provided', () => {
     service.list({ page: 0, size: 20 }).subscribe();
 
-    const request = httpMock.expectOne(`${environment.apiUrl}/rooms?page=0&size=20`);
+    const request = httpMock.expectOne(
+      `${environment.apiUrl}/rooms?page=0&size=20`,
+    );
     expect(request.request.url.includes('search')).toBeFalse();
     expect(request.request.url.includes('active')).toBeFalse();
-    request.flush({ content: [], page: 0, size: 20, totalElements: 0, totalPages: 0 });
+    request.flush({
+      content: [],
+      page: 0,
+      size: 20,
+      totalElements: 0,
+      totalPages: 0,
+    });
   });
 
   it('fetches a single room by id', () => {

@@ -15,7 +15,9 @@ export class UserService {
   private readonly http = inject(HttpClient);
 
   list(params: UserSearchParams): Observable<PagedResult<User>> {
-    let httpParams = new HttpParams().set('page', params.page).set('size', params.size);
+    let httpParams = new HttpParams()
+      .set('page', params.page)
+      .set('size', params.size);
 
     if (params.search) {
       httpParams = httpParams.set('search', params.search);

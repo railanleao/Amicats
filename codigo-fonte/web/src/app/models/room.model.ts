@@ -25,3 +25,11 @@ export interface UpdateRoomRequest {
   description: string | null;
   maxCapacity: number | null;
 }
+
+export interface PagedResult<T> {
+  content: T[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+}

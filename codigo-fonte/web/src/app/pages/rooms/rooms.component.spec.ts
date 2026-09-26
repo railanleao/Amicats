@@ -1,4 +1,9 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import {
+  ComponentFixture,
+  TestBed,
+  fakeAsync,
+  tick,
+} from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { Subject, throwError } from 'rxjs';
 
@@ -33,8 +38,18 @@ describe('RoomsComponent (unit)', () => {
     ];
   }
 
-  function pagedResult(content: Room[], page = 0, totalPages = 1): PagedResult<Room> {
-    return { content, page, size: 20, totalElements: content.length, totalPages };
+  function pagedResult(
+    content: Room[],
+    page = 0,
+    totalPages = 1,
+  ): PagedResult<Room> {
+    return {
+      content,
+      page,
+      size: 20,
+      totalElements: content.length,
+      totalPages,
+    };
   }
 
   beforeEach(async () => {
@@ -47,7 +62,10 @@ describe('RoomsComponent (unit)', () => {
 
     await TestBed.configureTestingModule({
       imports: [RoomsComponent],
-      providers: [provideRouter([]), { provide: RoomService, useValue: roomServiceSpy }],
+      providers: [
+        provideRouter([]),
+        { provide: RoomService, useValue: roomServiceSpy },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(RoomsComponent);
@@ -56,7 +74,9 @@ describe('RoomsComponent (unit)', () => {
   });
 
   function latestListSubject(): Subject<PagedResult<Room>> {
-    return roomServiceSpy.list.calls.mostRecent().returnValue as Subject<PagedResult<Room>>;
+    return roomServiceSpy.list.calls.mostRecent().returnValue as Subject<
+      PagedResult<Room>
+    >;
   }
 
   it('loads the room list on init with the default page and size', () => {
@@ -81,11 +101,15 @@ describe('RoomsComponent (unit)', () => {
   });
 
   it('shows an error message when the list request fails', () => {
-    roomServiceSpy.list.and.returnValue(throwError(() => new Error('network error')));
+    roomServiceSpy.list.and.returnValue(
+      throwError(() => new Error('network error')),
+    );
 
     component.loadRooms();
 
-    expect(component.errorMessage()).toBe('Não foi possível carregar as salas. Tente novamente.');
+    expect(component.errorMessage()).toBe(
+      'Não foi possível carregar as salas. Tente novamente.',
+    );
   });
 
   it('debounces search input and requests page zero with the typed term', fakeAsync(() => {
@@ -105,7 +129,9 @@ describe('RoomsComponent (unit)', () => {
     component.onPageChange(2);
     roomServiceSpy.list.calls.reset();
 
-    component.onStatusChange({ target: { value: 'Active' } } as unknown as Event);
+    component.onStatusChange({
+      target: { value: 'Active' },
+    } as unknown as Event);
 
     expect(roomServiceSpy.list).toHaveBeenCalledWith(
       jasmine.objectContaining({ active: true, page: 0 }),
@@ -118,7 +144,9 @@ describe('RoomsComponent (unit)', () => {
     component.onPageChange(1);
 
     expect(component.page()).toBe(1);
-    expect(roomServiceSpy.list).toHaveBeenCalledWith(jasmine.objectContaining({ page: 1 }));
+    expect(roomServiceSpy.list).toHaveBeenCalledWith(
+      jasmine.objectContaining({ page: 1 }),
+    );
   });
 
   it('formats the capacity label from maxCapacity', () => {
@@ -160,7 +188,9 @@ describe('RoomsComponent (unit)', () => {
 
     component.requestDeactivation(target);
     component.confirmDeactivation();
-    (roomServiceSpy.deactivate.calls.mostRecent().returnValue as Subject<void>).next();
+    (
+      roomServiceSpy.deactivate.calls.mostRecent().returnValue as Subject<void>
+    ).next();
 
     expect(roomServiceSpy.deactivate).toHaveBeenCalledWith(target.id);
     expect(roomServiceSpy.list).toHaveBeenCalled();
@@ -172,12 +202,16 @@ describe('RoomsComponent (unit)', () => {
     listSubject.next(pagedResult(mockRooms()));
     listSubject.complete();
 
-    roomServiceSpy.deactivate.and.returnValue(throwError(() => new Error('server error')));
+    roomServiceSpy.deactivate.and.returnValue(
+      throwError(() => new Error('server error')),
+    );
 
     component.requestDeactivation(component.rooms()[0]);
     component.confirmDeactivation();
 
-    expect(component.errorMessage()).toBe('Não foi possível desativar a sala. Tente novamente.');
+    expect(component.errorMessage()).toBe(
+      'Não foi possível desativar a sala. Tente novamente.',
+    );
     expect(component.roomPendingDeactivation()).toBeNull();
   });
 
@@ -211,7 +245,9 @@ describe('RoomsComponent (unit)', () => {
 
     component.requestReactivation(target);
     component.confirmReactivation();
-    (roomServiceSpy.activate.calls.mostRecent().returnValue as Subject<void>).next();
+    (
+      roomServiceSpy.activate.calls.mostRecent().returnValue as Subject<void>
+    ).next();
 
     expect(roomServiceSpy.activate).toHaveBeenCalledWith(target.id);
     expect(roomServiceSpy.list).toHaveBeenCalled();
@@ -219,12 +255,16 @@ describe('RoomsComponent (unit)', () => {
   });
 
   it('shows an error message and closes the dialog when reactivation fails', () => {
-    roomServiceSpy.activate.and.returnValue(throwError(() => new Error('server error')));
+    roomServiceSpy.activate.and.returnValue(
+      throwError(() => new Error('server error')),
+    );
 
     component.requestReactivation(mockRooms()[1]);
     component.confirmReactivation();
 
-    expect(component.errorMessage()).toBe('Não foi possível reativar a sala. Tente novamente.');
+    expect(component.errorMessage()).toBe(
+      'Não foi possível reativar a sala. Tente novamente.',
+    );
     expect(component.roomPendingReactivation()).toBeNull();
     expect(component.activatingId()).toBeNull();
   });
@@ -244,7 +284,9 @@ describe('RoomsComponent (unit)', () => {
   });
 
   it('navigates to the new-room form', () => {
-    const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
+    const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(
+      true,
+    );
 
     component.createRoom();
 
@@ -252,7 +294,9 @@ describe('RoomsComponent (unit)', () => {
   });
 
   it('navigates to the edit form of the given room', () => {
-    const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
+    const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(
+      true,
+    );
 
     component.editRoom(mockRooms()[0]);
 

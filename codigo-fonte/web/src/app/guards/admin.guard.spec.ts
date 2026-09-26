@@ -13,12 +13,19 @@ import { AuthService } from '../services/resources/auth.service';
 import { adminGuard } from './admin.guard';
 
 describe('adminGuard', () => {
-  const currentUser = signal<{ id: number; name: string; accessType: AccessType } | null>(null);
+  const currentUser = signal<{
+    id: number;
+    name: string;
+    accessType: AccessType;
+  } | null>(null);
 
   beforeEach(() => {
     currentUser.set(null);
     TestBed.configureTestingModule({
-      providers: [provideRouter([]), { provide: AuthService, useValue: { currentUser } }],
+      providers: [
+        provideRouter([]),
+        { provide: AuthService, useValue: { currentUser } },
+      ],
     });
   });
 

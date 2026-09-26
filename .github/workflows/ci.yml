@@ -47,18 +47,16 @@ jobs:
           cache: maven
           cache-dependency-path: codigo-fonte/backend/pom.xml
 
-      - name: Start MinIO
+      - name: Start S3 test server (S3Mock)
         run: |
           docker run -d --name minio \
-            -p 9010:9000 \
-            -e MINIO_ROOT_USER=amicats \
-            -e MINIO_ROOT_PASSWORD=amicats123 \
-            quay.io/minio/minio:latest server /data
+            -p 9010:9090 \
+            adobe/s3mock:latest
           for i in $(seq 1 30); do
-            docker exec minio mc ready local && exit 0
+            curl -sf http://localhost:9010/ && exit 0
             sleep 1
           done
-          echo "MinIO did not become ready in time" >&2
+          echo "S3Mock did not become ready in time" >&2
           exit 1
 
       - name: Build and test (compile, unit tests, Spotless)

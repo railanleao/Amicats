@@ -1,6 +1,10 @@
 <div class="page">
   <header class="page-header">
-    <a routerLink="/rooms" class="page-header__back" aria-label="Voltar para salas">
+    <a
+      routerLink="/rooms"
+      class="page-header__back"
+      aria-label="Voltar para salas"
+    >
       <svg
         width="20"
         height="20"
@@ -28,7 +32,12 @@
       <a routerLink="/rooms">Voltar para a lista</a>
     </div>
   } @else {
-    <form class="form-card" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+    <form
+      class="form-card"
+      [formGroup]="form"
+      (ngSubmit)="onSubmit()"
+      novalidate
+    >
       <div class="cover-block">
         <div class="cover-preview">
           <app-room-cover
@@ -54,7 +63,7 @@
               [disabled]="photoBusy()"
               (click)="photoInput.click()"
             >
-              {{ photoBusy() ? 'Enviando...' : 'Alterar foto de capa' }}
+              {{ photoBusy() ? "Enviando..." : "Alterar foto de capa" }}
             </button>
             @if (hasPhoto) {
               <button
@@ -75,18 +84,22 @@
       </div>
 
       @if (justCreated) {
-        <div class="feedback feedback--success" role="status">Sala cadastrada.</div>
+        <div class="feedback feedback--success" role="status">
+          Sala cadastrada.
+        </div>
       }
 
       @if (photoFailed) {
         <div class="feedback feedback--error" role="alert">
-          A sala foi cadastrada, mas a foto não pôde ser enviada. Escolha a foto novamente em
-          "Alterar foto de capa".
+          A sala foi cadastrada, mas a foto não pôde ser enviada. Escolha a foto
+          novamente em "Alterar foto de capa".
         </div>
       }
 
       @if (saveError()) {
-        <div class="feedback feedback--error" role="alert">{{ saveError() }}</div>
+        <div class="feedback feedback--error" role="alert">
+          {{ saveError() }}
+        </div>
       }
 
       <app-text-field
@@ -105,11 +118,14 @@
           min="1"
           placeholder="Ex.: 8"
           [class.field__input--invalid]="
-            form.controls.maxCapacity.invalid && form.controls.maxCapacity.touched
+            form.controls.maxCapacity.invalid &&
+            form.controls.maxCapacity.touched
           "
           [formControl]="form.controls.maxCapacity"
         />
-        @if (form.controls.maxCapacity.invalid && form.controls.maxCapacity.touched) {
+        @if (
+          form.controls.maxCapacity.invalid && form.controls.maxCapacity.touched
+        ) {
           <span class="field-error">Informe um número maior que zero.</span>
         }
       </div>
@@ -128,14 +144,17 @@
         <section class="setting-row">
           <div class="setting-row__text">
             <h2>Status da sala</h2>
-            <p>Salas inativas deixam de aparecer como disponíveis para alocação de gatos.</p>
+            <p>
+              Salas inativas deixam de aparecer como disponíveis para alocação
+              de gatos.
+            </p>
             @if (statusError()) {
               <p class="field-error" role="alert">{{ statusError() }}</p>
             }
           </div>
           <div class="setting-row__control">
             <span class="status-label" [class.status-label--off]="!isActive">
-              {{ isActive ? 'Ativa' : 'Inativa' }}
+              {{ isActive ? "Ativa" : "Inativa" }}
             </span>
             <app-toggle
               label="Status da sala"
@@ -166,8 +185,12 @@
     [title]="action === 'deactivate' ? 'Desativar sala' : 'Reativar sala'"
     [message]="
       action === 'deactivate'
-        ? 'Desativar a sala ' + (room()?.title ?? '') + '? Ela deixa de aparecer como disponível para alocação de gatos.'
-        : 'Reativar a sala ' + (room()?.title ?? '') + '? Ela volta a ficar disponível para alocação de gatos.'
+        ? 'Desativar a sala ' +
+          (room()?.title ?? '') +
+          '? Ela deixa de aparecer como disponível para alocação de gatos.'
+        : 'Reativar a sala ' +
+          (room()?.title ?? '') +
+          '? Ela volta a ficar disponível para alocação de gatos.'
     "
     [confirmLabel]="action === 'deactivate' ? 'Desativar' : 'Reativar'"
     [confirmVariant]="action === 'deactivate' ? 'danger' : 'success'"

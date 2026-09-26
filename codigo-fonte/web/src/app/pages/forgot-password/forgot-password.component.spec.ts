@@ -12,11 +12,16 @@ describe('ForgotPasswordComponent (unit)', () => {
   let authServiceSpy: jasmine.SpyObj<AuthService>;
 
   beforeEach(async () => {
-    authServiceSpy = jasmine.createSpyObj<AuthService>('AuthService', ['forgotPassword']);
+    authServiceSpy = jasmine.createSpyObj<AuthService>('AuthService', [
+      'forgotPassword',
+    ]);
 
     await TestBed.configureTestingModule({
       imports: [ForgotPasswordComponent],
-      providers: [provideRouter([]), { provide: AuthService, useValue: authServiceSpy }],
+      providers: [
+        provideRouter([]),
+        { provide: AuthService, useValue: authServiceSpy },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ForgotPasswordComponent);
@@ -75,7 +80,13 @@ describe('ForgotPasswordComponent (unit)', () => {
   it('shows a rate-limit message on a 429 response and does not show the confirmation state', () => {
     setFormValue('marina.alves@amicats.org.br');
     authServiceSpy.forgotPassword.and.returnValue(
-      throwError(() => new HttpErrorResponse({ status: 429, statusText: 'Too Many Requests' })),
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            status: 429,
+            statusText: 'Too Many Requests',
+          }),
+      ),
     );
 
     component.onSubmit();
@@ -90,7 +101,10 @@ describe('ForgotPasswordComponent (unit)', () => {
   it('shows a generic error message on an unexpected failure', () => {
     setFormValue('marina.alves@amicats.org.br');
     authServiceSpy.forgotPassword.and.returnValue(
-      throwError(() => new HttpErrorResponse({ status: 500, statusText: 'Server Error' })),
+      throwError(
+        () =>
+          new HttpErrorResponse({ status: 500, statusText: 'Server Error' }),
+      ),
     );
 
     component.onSubmit();

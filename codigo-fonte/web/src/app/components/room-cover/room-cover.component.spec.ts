@@ -11,13 +11,20 @@ describe('RoomCoverComponent', () => {
   let revokeObjectUrl: jasmine.Spy;
 
   function setInputs(inputs: Record<string, unknown>): void {
-    Object.entries(inputs).forEach(([key, value]) => fixture.componentRef.setInput(key, value));
+    Object.entries(inputs).forEach(([key, value]) =>
+      fixture.componentRef.setInput(key, value),
+    );
     fixture.detectChanges();
   }
 
   beforeEach(async () => {
-    roomServiceSpy = jasmine.createSpyObj<RoomService>('RoomService', ['photo']);
-    createObjectUrl = spyOn(URL, 'createObjectURL').and.returnValues('blob:photo-1', 'blob:photo-2');
+    roomServiceSpy = jasmine.createSpyObj<RoomService>('RoomService', [
+      'photo',
+    ]);
+    createObjectUrl = spyOn(URL, 'createObjectURL').and.returnValues(
+      'blob:photo-1',
+      'blob:photo-2',
+    );
     revokeObjectUrl = spyOn(URL, 'revokeObjectURL');
 
     await TestBed.configureTestingModule({
@@ -53,11 +60,15 @@ describe('RoomCoverComponent', () => {
 
     expect(roomServiceSpy.photo).toHaveBeenCalledTimes(2);
     expect(revokeObjectUrl).toHaveBeenCalledWith('blob:photo-1');
-    expect(fixture.nativeElement.querySelector('img').getAttribute('src')).toBe('blob:photo-2');
+    expect(fixture.nativeElement.querySelector('img').getAttribute('src')).toBe(
+      'blob:photo-2',
+    );
   });
 
   it('falls back to nothing when the photo cannot be loaded', () => {
-    roomServiceSpy.photo.and.returnValue(throwError(() => new Error('not found')));
+    roomServiceSpy.photo.and.returnValue(
+      throwError(() => new Error('not found')),
+    );
 
     setInputs({ roomId: 7, hasPhoto: true });
 
@@ -77,7 +88,9 @@ describe('RoomCoverComponent', () => {
   it('shows the preview instead of requesting a photo when a preview is given', () => {
     setInputs({ previewUrl: 'blob:preview' });
 
-    expect(fixture.nativeElement.querySelector('img').getAttribute('src')).toBe('blob:preview');
+    expect(fixture.nativeElement.querySelector('img').getAttribute('src')).toBe(
+      'blob:preview',
+    );
     expect(roomServiceSpy.photo).not.toHaveBeenCalled();
   });
 });
