@@ -7,6 +7,10 @@ export function createCat(request: CreateCatRequest): Promise<Cat> {
   return apiRequest<Cat>('/cats', { method: 'POST', body: request });
 }
 
+export function getCat(catId: number): Promise<Cat> {
+  return apiRequest<Cat>(`/cats/${catId}`);
+}
+
 interface ListCatsParams {
   search?: string;
   generalStatus?: GeneralStatus;

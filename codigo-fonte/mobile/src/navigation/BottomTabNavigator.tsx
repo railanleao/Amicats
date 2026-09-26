@@ -40,12 +40,14 @@ interface BottomTabNavigatorProps {
   user: User;
   onLogout: () => void;
   onNewCat: () => void;
+  onOpenCat: (catId: number) => void;
 }
 
 export function BottomTabNavigator({
   user,
   onLogout,
   onNewCat,
+  onOpenCat,
 }: BottomTabNavigatorProps) {
   return (
     <Tab.Navigator
@@ -82,7 +84,7 @@ export function BottomTabNavigator({
         {() => <HomeScreen user={user} onNewCat={onNewCat} />}
       </Tab.Screen>
       <Tab.Screen name="Cats" options={{ title: "Gatos" }}>
-        {() => <CatsScreen />}
+        {() => <CatsScreen onOpenCat={onOpenCat} />}
       </Tab.Screen>
       <Tab.Screen name="Doses">
         {() => <ComingSoonScreen title="Doses" onLogout={onLogout} />}

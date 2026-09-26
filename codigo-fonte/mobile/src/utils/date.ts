@@ -22,3 +22,25 @@ export function parseBrazilianDate(value: string): string | null {
   const [, day, month, year] = match;
   return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
 }
+
+// Whole years between an ISO LocalDate (estimatedBirthDate) and today, matching how a person
+// would state a cat's age ("4 anos") rather than exposing the day-level estimate.
+export function calculateAgeYears(isoDate: string): number {
+  // Built from the y/m/d parts rather than `new Date(isoDate)`: a date-only ISO string
+  // parses as UTC midnight, which rolls back to the previous local day west of UTC and
+  // silently throws the year-boundary comparison below off by one.
+  const [year, month, day] = isoDate.split('-').map(Number);
+  const birthDate = new Date(year, month - 1, day);
+  const today = new Date();
+
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const hadBirthdayThisYear =
+    today.getMonth() > birthDate.getMonth() ||
+    (today.getMonth() === birthDate.getMonth() && today.getDate() >= birthDate.getDate());
+
+  if (!hadBirthdayThisYear) {
+    age -= 1;
+  }
+
+  return Math.max(age, 0);
+}

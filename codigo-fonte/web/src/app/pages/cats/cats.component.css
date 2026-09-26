@@ -225,6 +225,7 @@
   overflow: hidden;
   background: #ffffff;
   border: 1px solid #dce8d9;
+  cursor: pointer;
 }
 
 .cat-card__image {

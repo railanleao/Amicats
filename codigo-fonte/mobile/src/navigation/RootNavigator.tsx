@@ -1,5 +1,6 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { CatDetailScreen } from "../screens/CatDetailScreen";
 import { ForgotPasswordScreen } from "../screens/ForgotPasswordScreen";
 import { LoginScreen } from "../screens/LoginScreen";
 import { NewCatScreen } from "../screens/NewCatScreen";
@@ -15,6 +16,7 @@ type RootStackParamList = {
   NewPassword: undefined;
   Main: undefined;
   NewCat: undefined;
+  CatDetail: { catId: number };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -71,6 +73,7 @@ export function RootNavigator({
                   user={user}
                   onLogout={onLogout}
                   onNewCat={() => navigation.navigate("NewCat")}
+                  onOpenCat={(catId) => navigation.navigate("CatDetail", { catId })}
                 />
               )}
             </Stack.Screen>
@@ -80,6 +83,11 @@ export function RootNavigator({
                   onBack={() => navigation.goBack()}
                   onSaved={() => navigation.goBack()}
                 />
+              )}
+            </Stack.Screen>
+            <Stack.Screen name="CatDetail">
+              {({ navigation, route }) => (
+                <CatDetailScreen catId={route.params.catId} onBack={() => navigation.goBack()} />
               )}
             </Stack.Screen>
           </>

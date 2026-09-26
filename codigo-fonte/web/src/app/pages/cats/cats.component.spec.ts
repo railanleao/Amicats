@@ -281,4 +281,14 @@ describe('CatsComponent (unit)', () => {
 
     expect(navigate).toHaveBeenCalledWith(['/cats', 1, 'edit']);
   });
+
+  it('navigates to the ficha of the given cat', () => {
+    const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(
+      true,
+    );
+
+    component.openCat(mockCats()[0]);
+
+    expect(navigate).toHaveBeenCalledWith(['/cats', 1]);
+  });
 });

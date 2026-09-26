@@ -5,8 +5,15 @@
 // CreateCatInput doesn't accept healthStatus, pifResult, severity or neuteringStatus — those are
 // set later through separate clinical use cases (registerFivFelvExam, registerPifExam,
 // updateSeverity, registerNeutering), none of which have an endpoint yet. "Situação clínica" is
-// the only health-ish field this form can actually submit.
+// the only health-ish field this form can actually submit. The cat detail screen (ficha) reads
+// them, though, since the backend already returns them on every GET /cats response.
 export type Sex = 'Male' | 'Female';
+
+export type HealthStatus = 'Healthy' | 'Fiv' | 'Felv' | 'FivFelv' | 'NotTested';
+
+export type PifResult = 'Positive' | 'Negative' | 'NotTested';
+
+export type NeuteringStatus = 'Neutered' | 'NotNeutered' | 'Scheduled';
 
 export type GeneralStatus =
   'UnderTreatment' | 'AvailableForAdoption' | 'InTriage' | 'Adopted' | 'TemporaryHome' | 'InClinic' | 'Deceased' | 'Missing';
@@ -62,5 +69,8 @@ export interface Cat extends CreateCatRequest {
   id: number;
   photoUrl: string | null;
   roomTitle: string | null;
+  healthStatus: HealthStatus;
+  pifResult: PifResult;
+  neuteringStatus: NeuteringStatus | null;
   createdAt: string;
 }

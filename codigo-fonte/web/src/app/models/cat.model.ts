@@ -59,6 +59,12 @@ export const PIF_RESULT_LABELS: Record<PifResult, string> = {
   NotTested: 'Não testado',
 };
 
+export const NEUTERING_STATUS_LABELS: Record<NeuteringStatus, string> = {
+  Neutered: 'Sim',
+  NotNeutered: 'Não',
+  Scheduled: 'Agendada',
+};
+
 export interface Cat {
   id: number;
   name: string;
@@ -89,6 +95,23 @@ export interface Cat {
 }
 
 export interface CreateCatRequest {
+  name: string;
+  roomId: number | null;
+  sex: Sex | null;
+  estimatedBirthDate: string | null;
+  coat: string | null;
+  weightKg: number | null;
+  characteristics: string | null;
+  generalStatus: GeneralStatus | null;
+  microchip: string | null;
+  rescueDate: string | null;
+  foundConditions: string | null;
+  sponsorName: string | null;
+  sponsorPhone: string | null;
+  sponsorFunding: string | null;
+}
+
+export interface UpdateCatRequest {
   name: string;
   roomId: number | null;
   sex: Sex | null;

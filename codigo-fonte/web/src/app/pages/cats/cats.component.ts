@@ -171,6 +171,10 @@ export class CatsComponent implements OnInit, OnDestroy {
     void this.router.navigate(['/cats/new']);
   }
 
+  openCat(cat: Cat): void {
+    void this.router.navigate(['/cats', cat.id]);
+  }
+
   editCat(cat: Cat): void {
     void this.router.navigate(['/cats', cat.id, 'edit']);
   }

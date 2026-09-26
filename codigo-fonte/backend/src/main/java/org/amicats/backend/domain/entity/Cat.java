@@ -184,6 +184,18 @@ public class Cat {
     return AgeGroup.Senior;
   }
 
+  public void updateBasicInfo(String name, Sex sex, String coat, String characteristics) {
+    this.name = name;
+    this.sex = sex;
+    this.coat = coat;
+    this.characteristics = characteristics;
+  }
+
+  public void updateRescueInfo(LocalDate rescueDate, String foundConditions) {
+    this.rescueDate = rescueDate;
+    this.foundConditions = foundConditions;
+  }
+
   public void updateBirthDate(LocalDate estimatedBirthDate) {
     this.estimatedBirthDate = estimatedBirthDate;
     this.ageGroup = calculateAgeGroup(estimatedBirthDate);

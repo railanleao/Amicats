@@ -7,6 +7,7 @@ import {
   CatSearchParams,
   CreateCatRequest,
   PagedResult,
+  UpdateCatRequest,
 } from '../../models/cat.model';
 
 @Injectable({ providedIn: 'root' })
@@ -31,8 +32,16 @@ export class CatService {
     return this.http.get<PagedResult<Cat>>('/cats', { params: httpParams });
   }
 
+  findById(id: number): Observable<Cat> {
+    return this.http.get<Cat>(`/cats/${id}`);
+  }
+
   create(request: CreateCatRequest): Observable<Cat> {
     return this.http.post<Cat>('/cats', request);
+  }
+
+  update(id: number, request: UpdateCatRequest): Observable<Cat> {
+    return this.http.put<Cat>(`/cats/${id}`, request);
   }
 
   uploadPhoto(catId: number, file: File): Observable<Cat> {
@@ -43,5 +52,9 @@ export class CatService {
 
   photo(id: number): Observable<Blob> {
     return this.http.get(`/cats/${id}/photo`, { responseType: 'blob' });
+  }
+
+  removePhoto(id: number): Observable<void> {
+    return this.http.delete<void>(`/cats/${id}/photo`);
   }
 }

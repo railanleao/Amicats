@@ -38,11 +38,11 @@ function CatAvatar({ cat }: { cat: Cat }) {
   );
 }
 
-function CatRow({ cat }: { cat: Cat }) {
+function CatRow({ cat, onPress }: { cat: Cat; onPress: () => void }) {
   const sexLabel = cat.sex ? SEX_LABELS[cat.sex] : '—';
 
   return (
-    <View style={styles.catRow}>
+    <TouchableOpacity style={styles.catRow} onPress={onPress} accessibilityRole="button">
       <CatAvatar cat={cat} />
       <View style={styles.catInfo}>
         <Text style={styles.catName}>{cat.name}</Text>
@@ -56,11 +56,15 @@ function CatRow({ cat }: { cat: Cat }) {
           tone={GENERAL_STATUS_TONE[cat.generalStatus]}
         />
       )}
-    </View>
+    </TouchableOpacity>
   );
 }
 
-export function CatsScreen() {
+interface CatsScreenProps {
+  onOpenCat: (catId: number) => void;
+}
+
+export function CatsScreen({ onOpenCat }: CatsScreenProps) {
   const [searchInput, setSearchInput] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [activeFilter, setActiveFilter] = useState<QuickFilter>('All');
@@ -177,7 +181,7 @@ export function CatsScreen() {
       ) : (
         <View style={styles.list}>
           {cats.map((cat) => (
-            <CatRow key={cat.id} cat={cat} />
+            <CatRow key={cat.id} cat={cat} onPress={() => onOpenCat(cat.id)} />
           ))}
         </View>
       )}
