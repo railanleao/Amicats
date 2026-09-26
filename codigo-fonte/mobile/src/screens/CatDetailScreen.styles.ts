@@ -16,9 +16,16 @@ export const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
   },
   headerTitle: {
+    flex: 1,
     fontSize: fontSizes.xl,
     fontWeight: '600',
     color: colors.ink,
+  },
+  editButton: {
+    width: 32,
+    height: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   content: {
     flexGrow: 1,

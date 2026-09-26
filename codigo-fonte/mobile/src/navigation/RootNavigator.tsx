@@ -15,7 +15,7 @@ type RootStackParamList = {
   TermsAcceptance: undefined;
   NewPassword: undefined;
   Main: undefined;
-  NewCat: undefined;
+  NewCat: { catId?: number } | undefined;
   CatDetail: { catId: number };
 };
 
@@ -78,8 +78,9 @@ export function RootNavigator({
               )}
             </Stack.Screen>
             <Stack.Screen name="NewCat" options={{ presentation: "modal" }}>
-              {({ navigation }) => (
+              {({ navigation, route }) => (
                 <NewCatScreen
+                  catId={route.params?.catId}
                   onBack={() => navigation.goBack()}
                   onSaved={() => navigation.goBack()}
                 />
@@ -87,7 +88,11 @@ export function RootNavigator({
             </Stack.Screen>
             <Stack.Screen name="CatDetail">
               {({ navigation, route }) => (
-                <CatDetailScreen catId={route.params.catId} onBack={() => navigation.goBack()} />
+                <CatDetailScreen
+                  catId={route.params.catId}
+                  onBack={() => navigation.goBack()}
+                  onEdit={(catId) => navigation.navigate("NewCat", { catId })}
+                />
               )}
             </Stack.Screen>
           </>

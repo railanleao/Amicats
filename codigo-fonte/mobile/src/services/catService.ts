@@ -11,6 +11,12 @@ export function getCat(catId: number): Promise<Cat> {
   return apiRequest<Cat>(`/cats/${catId}`);
 }
 
+// Same request shape as create — the backend's UpdateCatInput mirrors CreateCatInput field
+// for field (only the clinical exam fields, set through separate use cases, differ).
+export function updateCat(catId: number, request: CreateCatRequest): Promise<Cat> {
+  return apiRequest<Cat>(`/cats/${catId}`, { method: 'PUT', body: request });
+}
+
 interface ListCatsParams {
   search?: string;
   generalStatus?: GeneralStatus;

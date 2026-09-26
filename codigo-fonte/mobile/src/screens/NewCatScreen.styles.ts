@@ -55,4 +55,9 @@ export const styles = StyleSheet.create({
     fontSize: fontSizes.sm,
     color: colors.danger,
   },
+  loadingContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });

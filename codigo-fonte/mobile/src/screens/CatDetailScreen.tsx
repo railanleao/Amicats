@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { Button, StatusBadge } from '../components';
 import type { StatusBadgeTone } from '../components';
@@ -15,6 +16,7 @@ import { styles } from './CatDetailScreen.styles';
 interface CatDetailScreenProps {
   catId: number;
   onBack: () => void;
+  onEdit: (catId: number) => void;
 }
 
 interface Tag {
@@ -78,7 +80,7 @@ function comingSoon() {
   Alert.alert('Em breve', 'Este recurso ainda não está disponível.');
 }
 
-export function CatDetailScreen({ catId, onBack }: CatDetailScreenProps) {
+export function CatDetailScreen({ catId, onBack, onEdit }: CatDetailScreenProps) {
   const [cat, setCat] = useState<Cat | null>(null);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -86,32 +88,40 @@ export function CatDetailScreen({ catId, onBack }: CatDetailScreenProps) {
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [reloadToken, setReloadToken] = useState(0);
 
-  useEffect(() => {
-    let cancelled = false;
+  // Refetches every time the screen regains focus (not just on mount), so coming back from
+  // editing shows the saved changes without a manual pull-to-refresh.
+  useFocusEffect(
+    useCallback(() => {
+      let cancelled = false;
 
-    getCat(catId)
-      .then((result) => {
-        if (!cancelled) {
-          setCat(result);
-        }
-      })
-      .catch((error) => {
-        if (!cancelled) {
-          setErrorMessage(
-            error instanceof ApiError ? error.message : 'Não foi possível carregar a ficha do gato.',
-          );
-        }
-      })
-      .finally(() => {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      });
+      getCat(catId)
+        .then((result) => {
+          if (!cancelled) {
+            setCat(result);
+            setErrorMessage(null);
+          }
+        })
+        .catch((error) => {
+          if (!cancelled) {
+            setErrorMessage(
+              error instanceof ApiError ? error.message : 'Não foi possível carregar a ficha do gato.',
+            );
+          }
+        })
+        .finally(() => {
+          if (!cancelled) {
+            setLoading(false);
+          }
+        });
 
-    return () => {
-      cancelled = true;
-    };
-  }, [catId, reloadToken]);
+      return () => {
+        cancelled = true;
+      };
+      // reloadToken isn't read above; it only exists so the retry button can force this
+      // callback (and thus useFocusEffect) to re-run on demand.
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [catId, reloadToken]),
+  );
 
   async function uploadPhoto(uri: string) {
     setUploadingPhoto(true);
@@ -165,6 +175,16 @@ export function CatDetailScreen({ catId, onBack }: CatDetailScreenProps) {
           <Ionicons name="chevron-back" size={22} color={colors.ink} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{cat?.name ?? ''}</Text>
+        {cat && (
+          <TouchableOpacity
+            style={styles.editButton}
+            onPress={() => onEdit(catId)}
+            accessibilityRole="button"
+            accessibilityLabel="Editar gato"
+          >
+            <Ionicons name="pencil-outline" size={18} color={colors.ink} />
+          </TouchableOpacity>
+        )}
       </View>
 
       {errorMessage ? (
