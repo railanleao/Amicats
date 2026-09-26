@@ -27,6 +27,20 @@ export const GENERAL_STATUS_LABELS: Record<GeneralStatus, string> = {
   Missing: 'Desaparecido',
 };
 
+export const GENERAL_STATUS_TONE: Record<
+  GeneralStatus,
+  'warning' | 'danger' | 'success' | 'sky' | 'neutral'
+> = {
+  UnderTreatment: 'warning',
+  AvailableForAdoption: 'success',
+  InTriage: 'sky',
+  Adopted: 'success',
+  TemporaryHome: 'neutral',
+  InClinic: 'danger',
+  Deceased: 'neutral',
+  Missing: 'warning',
+};
+
 export interface CreateCatRequest {
   name: string;
   roomId: number | null;

@@ -1,0 +1,176 @@
+<div class="page">
+  <header class="page-header">
+    <h1>Gatos</h1>
+    <button type="button" class="new-button" (click)="createCat()">
+      <span>＋</span>
+      Novo gato
+    </button>
+  </header>
+
+  <section class="cats-container">
+    <div class="toolbar">
+      <div class="search-box">
+        <span class="search-icon">⌕</span>
+        <input
+          type="text"
+          placeholder="Buscar por nome ou microchip..."
+          (input)="onSearch($event)"
+        />
+      </div>
+
+      <button type="button" class="filter-button" (click)="toggleFilters()">
+        <span>☷</span>
+        Filtros
+      </button>
+    </div>
+
+    @if (showFilters) {
+      <div class="filter-panel">
+        <div class="filter-field">
+          <label for="room">Sala</label>
+          <div class="select-wrapper">
+            <select id="room" (change)="onRoomChange($event)">
+              <option value="">Todas as salas</option>
+              @for (room of rooms(); track room.id) {
+                <option [value]="room.id">{{ room.title }}</option>
+              }
+            </select>
+            <svg
+              class="select-chevron"
+              width="12"
+              height="12"
+              viewBox="0 0 18 18"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M4 7l5 5 5-5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </div>
+        </div>
+
+        <div class="filter-field">
+          <label for="status">Status</label>
+          <div class="select-wrapper">
+            <select id="status" (change)="onStatusChange($event)">
+              <option value="">Todos os status</option>
+              @for (option of generalStatusOptions; track option[0]) {
+                <option [value]="option[0]">{{ option[1] }}</option>
+              }
+            </select>
+            <svg
+              class="select-chevron"
+              width="12"
+              height="12"
+              viewBox="0 0 18 18"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M4 7l5 5 5-5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </div>
+        </div>
+      </div>
+    }
+
+    @if (errorMessage()) {
+      <div class="feedback feedback--error" role="alert">
+        {{ errorMessage() }}
+        <button type="button" class="feedback__retry" (click)="loadCats()">
+          Tentar novamente
+        </button>
+      </div>
+    }
+
+    @if (loading() && cats().length === 0) {
+      <div class="feedback">Carregando gatos...</div>
+    } @else {
+      <div class="cats-grid">
+        @for (cat of cats(); track cat.id) {
+          <div class="cat-card">
+            <div class="cat-card__image">
+              <app-cat-cover [catId]="cat.id" [hasPhoto]="!!cat.photoUrl" />
+
+              <span
+                class="status-badge"
+                [class.status-badge--under-treatment]="
+                  cat.generalStatus === 'UnderTreatment'
+                "
+                [class.status-badge--available]="
+                  cat.generalStatus === 'AvailableForAdoption'
+                "
+                [class.status-badge--in-triage]="
+                  cat.generalStatus === 'InTriage'
+                "
+                [class.status-badge--adopted]="cat.generalStatus === 'Adopted'"
+                [class.status-badge--temporary-home]="
+                  cat.generalStatus === 'TemporaryHome'
+                "
+                [class.status-badge--in-clinic]="
+                  cat.generalStatus === 'InClinic'
+                "
+                [class.status-badge--deceased]="
+                  cat.generalStatus === 'Deceased'
+                "
+                [class.status-badge--missing]="cat.generalStatus === 'Missing'"
+              >
+                {{ generalStatusLabel(cat) }}
+              </span>
+
+              <button
+                type="button"
+                class="cat-card__edit"
+                title="Editar gato"
+                [attr.aria-label]="'Editar ' + cat.name"
+                (click)="editCat(cat)"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                  <path d="m15 5 4 4" />
+                </svg>
+              </button>
+            </div>
+
+            <div class="cat-card__body">
+              <span class="cat-card__title">{{ cat.name }}</span>
+              <span class="cat-card__room">{{ roomLabel(cat) }}</span>
+              <span class="cat-card__tag">{{ tagLabel(cat) }}</span>
+            </div>
+          </div>
+        } @empty {
+          <div class="feedback">Nenhum gato encontrado.</div>
+        }
+      </div>
+
+      <app-pagination
+        [page]="page()"
+        [size]="pageSize"
+        [totalPages]="totalPages()"
+        [totalElements]="totalElements()"
+        itemLabel="gatos"
+        (pageChange)="onPageChange($event)"
+      />
+    }
+  </section>
+</div>

@@ -1,8 +1,43 @@
-import { apiRequest, apiUpload } from './api';
-import type { Cat, CreateCatRequest } from '../types/cat';
+import { API_URL, apiRequest, apiUpload } from './api';
+import { getToken } from '../storage/authStorage';
+import type { PagedResult } from '../types/common';
+import type { Cat, CreateCatRequest, GeneralStatus } from '../types/cat';
 
 export function createCat(request: CreateCatRequest): Promise<Cat> {
   return apiRequest<Cat>('/cats', { method: 'POST', body: request });
+}
+
+interface ListCatsParams {
+  search?: string;
+  generalStatus?: GeneralStatus;
+}
+
+export async function listCats(params: ListCatsParams = {}): Promise<Cat[]> {
+  const query = new URLSearchParams();
+  query.set('page', '0');
+  query.set('size', '50');
+  if (params.search) {
+    query.set('search', params.search);
+  }
+  if (params.generalStatus) {
+    query.set('generalStatus', params.generalStatus);
+  }
+
+  const result = await apiRequest<PagedResult<Cat>>(`/cats?${query.toString()}`);
+  return result.content;
+}
+
+// `Image`'s `source.headers` lets us attach the bearer token to an otherwise plain
+// authenticated GET, the same way apiRequest does for JSON calls. Native iOS/Android
+// honor this; Expo's web target renders `Image` as a plain <img>, which the browser
+// never lets carry custom headers, so cover photos silently fall back to the
+// placeholder there (a preview-only gap, not a native bug).
+export function catPhotoSource(catId: number): { uri: string; headers?: Record<string, string> } {
+  const token = getToken();
+  return {
+    uri: `${API_URL}/cats/${catId}/photo`,
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+  };
 }
 
 // `uri` is a local file:// path from expo-image-picker. React Native's fetch/FormData
