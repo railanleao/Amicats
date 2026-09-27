@@ -20,8 +20,8 @@ public class CreateStockEntryFactory {
   @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
   public CreateStockEntryUseCase create() {
     return CreateStockEntryUseCase.builder()
-      .stockItemDataProvider(stockItemDataProvider)
-      .stockEntryDataProvider(stockEntryDataProvider)
-      .build();
+        .stockItemDataProvider(stockItemDataProvider)
+        .stockEntryDataProvider(stockEntryDataProvider)
+        .build();
   }
 }

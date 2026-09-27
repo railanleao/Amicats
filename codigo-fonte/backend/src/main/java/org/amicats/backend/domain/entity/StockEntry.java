@@ -1,13 +1,12 @@
 package org.amicats.backend.domain.entity;
 
 import jakarta.persistence.*;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.amicats.backend.domain.enums.StockOrigin;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
 
 @Entity
 @Table(name = "stock_entries")
@@ -41,12 +40,12 @@ public class StockEntry {
   private LocalDate expirationDate;
 
   public StockEntry(
-    StockItem stockItem,
-    StockOrigin origin,
-    String donorName,
-    BigDecimal quantity,
-    LocalDate entryDate,
-    LocalDate expirationDate) {
+      StockItem stockItem,
+      StockOrigin origin,
+      String donorName,
+      BigDecimal quantity,
+      LocalDate entryDate,
+      LocalDate expirationDate) {
     this.stockItem = stockItem;
     this.origin = origin;
     this.donorName = donorName;

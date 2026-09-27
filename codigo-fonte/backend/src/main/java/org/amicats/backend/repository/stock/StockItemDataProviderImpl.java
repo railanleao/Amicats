@@ -1,5 +1,7 @@
 package org.amicats.backend.repository.stock;
 
+import java.time.LocalDate;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.amicats.backend.domain.entity.StockItem;
 import org.amicats.backend.domain.interfaces.dataprovider.stock.StockItemDataProvider;
@@ -9,8 +11,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
-import java.util.Optional;
-import java.time.LocalDate;
 
 @Component
 @RequiredArgsConstructor
@@ -33,23 +33,23 @@ public class StockItemDataProviderImpl implements StockItemDataProvider {
     Pageable pageable = PageRequest.of(criteria.page(), criteria.size());
 
     Page<StockItem> result =
-      stockItemRepository.search(
-        toSearchPattern(criteria.search()),
-        toCategory(criteria.category()),
-        criteria.status() == null ? null : criteria.status().name(),
-        criteria.expirationFrom() != null,
-        criteria.expirationFrom(),
-        criteria.expirationTo() != null,
-        criteria.expirationTo(),
-        LocalDate.now(),
-        pageable);
+        stockItemRepository.search(
+            toSearchPattern(criteria.search()),
+            toCategory(criteria.category()),
+            criteria.status() == null ? null : criteria.status().name(),
+            criteria.expirationFrom() != null,
+            criteria.expirationFrom(),
+            criteria.expirationTo() != null,
+            criteria.expirationTo(),
+            LocalDate.now(),
+            pageable);
 
     return new PagedResult<>(
-      result.getContent(),
-      result.getNumber(),
-      result.getSize(),
-      result.getTotalElements(),
-      result.getTotalPages());
+        result.getContent(),
+        result.getNumber(),
+        result.getSize(),
+        result.getTotalElements(),
+        result.getTotalPages());
   }
 
   private String toSearchPattern(String search) {

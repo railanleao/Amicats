@@ -17,26 +17,25 @@ public class CreateStockEntryUseCase {
   @Transactional
   public void execute(CreateStockEntryInput input) {
     StockItem stockItem =
-      stockItemDataProvider
-        .findById(input.stockItemId())
-        .orElseThrow(
-          () ->
-            new ResourceNotFoundException(
-              "Item de estoque não encontrado: " + input.stockItemId()));
+        stockItemDataProvider
+            .findById(input.stockItemId())
+            .orElseThrow(
+                () ->
+                    new ResourceNotFoundException(
+                        "Item de estoque não encontrado: " + input.stockItemId()));
 
     StockEntry stockEntry =
-      new StockEntry(
-        stockItem,
-        input.origin(),
-        input.donorName(),
-        input.quantity(),
-        input.entryDate(),
-        input.expirationDate());
+        new StockEntry(
+            stockItem,
+            input.origin(),
+            input.donorName(),
+            input.quantity(),
+            input.entryDate(),
+            input.expirationDate());
 
     stockEntryDataProvider.save(stockEntry);
 
-    stockItem.updateQuantity(
-      stockItem.getQuantity().add(input.quantity()));
+    stockItem.updateQuantity(stockItem.getQuantity().add(input.quantity()));
 
     stockItemDataProvider.save(stockItem);
   }

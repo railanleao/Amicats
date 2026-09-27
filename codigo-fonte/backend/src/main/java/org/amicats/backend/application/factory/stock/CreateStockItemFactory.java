@@ -17,8 +17,6 @@ public class CreateStockItemFactory {
   @Bean("CreateStockItemUseCase")
   @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
   public CreateStockItemUseCase create() {
-    return CreateStockItemUseCase.builder()
-      .stockItemDataProvider(stockItemDataProvider)
-      .build();
+    return CreateStockItemUseCase.builder().stockItemDataProvider(stockItemDataProvider).build();
   }
 }
