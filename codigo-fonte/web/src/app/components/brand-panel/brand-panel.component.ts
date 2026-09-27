@@ -13,11 +13,11 @@ interface BrandStat {
 })
 export class BrandPanelComponent {
   readonly quote =
-    'Cada gato tem uma história. Nós cuidamos de cada capítulo dela.';
+    'Cada gatinho tem uma história. Nós cuidamos de cada capítulo dela.';
 
   readonly stats: BrandStat[] = [
     { value: '312', label: 'Adoções realizadas' },
-    { value: '47', label: 'Gatos sob cuidado' },
+    { value: '47', label: 'Gatinhos sob cuidados' },
     { value: '18', label: 'Voluntários ativos' },
   ];
 }

@@ -21,7 +21,7 @@
     </a>
     <a routerLink="/" class="page-header__crumb">Início</a>
     <span class="page-header__separator">/</span>
-    <h1>Novo gato</h1>
+    <h1>Novo gatinho</h1>
   </header>
 
   <form class="form-card" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
@@ -167,7 +167,7 @@
       <app-text-field
         inputId="foundConditions"
         label="Condições encontradas"
-        placeholder="Ex.: desnutrido, ferido"
+        placeholder="Ex.: saudável, desnutrido, ferido"
         [control]="form.controls.foundConditions"
       />
     </div>
@@ -203,7 +203,7 @@
       <a routerLink="/" class="cancel-button">Cancelar</a>
       <div class="form-actions__submit">
         <app-submit-button
-          label="Salvar gato"
+          label="Salvar gatinho"
           loadingLabel="Salvando..."
           [loading]="saving()"
         />

@@ -1,5 +1,5 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import {
@@ -43,5 +43,9 @@ export class CatService {
 
   photo(id: number): Observable<Blob> {
     return this.http.get(`/cats/${id}/photo`, { responseType: 'blob' });
+  }
+
+  findById(id: number): Observable<Cat> {
+    return this.http.get<Cat>(`/cats/${id}`);
   }
 }
