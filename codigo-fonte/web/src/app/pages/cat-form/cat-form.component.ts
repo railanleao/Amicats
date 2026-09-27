@@ -375,11 +375,10 @@ export class CatFormComponent implements OnInit {
 
   private handleSaveError(error: HttpErrorResponse): void {
     if (error.status === 403) {
-      this.saveError.set('Você não tem permissão para cadastrar gatinhos.');
       this.saveError.set(
         this.isEditing
-          ? 'Você não tem permissão para editar gatinhos.'
-          : 'Você não tem permissão para cadastrar gatinhos.',
+          ? 'Você não tem permissão para editar gatos.'
+          : 'Você não tem permissão para cadastrar gatos.',
       );
     } else if (error.status === 404) {
       this.saveError.set('A sala selecionada não existe mais. Escolha outra.');
