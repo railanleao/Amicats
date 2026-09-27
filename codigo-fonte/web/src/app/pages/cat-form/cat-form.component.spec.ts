@@ -215,7 +215,7 @@ describe('CatFormComponent', () => {
       component.onSubmit();
 
       expect(component.saveError()).toBe(
-        'Não foi possível salvar o gato. Tente novamente.',
+        'Não foi possível salvar o gatinho. Tente novamente.',
       );
     });
 
@@ -227,7 +227,7 @@ describe('CatFormComponent', () => {
       );
       component.onSubmit();
       expect(component.saveError()).toBe(
-        'Você não tem permissão para cadastrar gatos.',
+        'Você não tem permissão para cadastrar gatinhos.',
       );
 
       catServiceSpy.create.and.returnValue(

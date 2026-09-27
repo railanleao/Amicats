@@ -17,7 +17,7 @@
     </a>
     <a routerLink="/cats" class="page-header__crumb">Gatos</a>
     <span class="page-header__separator">/</span>
-    <h1>{{ title }}</h1>
+    <h1>Novo gatinho</h1>
   </header>
 
   @if (loading()) {
@@ -98,148 +98,148 @@
         </div>
       }
 
-    <div class="form-row">
-      <app-text-field
-        inputId="name"
-        label="Nome"
-        placeholder="Ex.: Nina"
-        [control]="form.controls.name"
-        [errorMessages]="errors.name"
-      />
+      <div class="form-row">
+        <app-text-field
+          inputId="name"
+          label="Nome"
+          placeholder="Ex.: Nina"
+          [control]="form.controls.name"
+          [errorMessages]="errors.name"
+        />
+
+        <div class="select-field">
+          <label for="sex">Sexo</label>
+          <select id="sex" [formControl]="form.controls.sex">
+            <option value="">Selecione</option>
+            @for (option of sexOptions; track option.value) {
+              <option [value]="option.value">{{ option.label }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="select-field">
+          <label for="estimatedBirthDate">Nascimento estimado</label>
+          <input
+            id="estimatedBirthDate"
+            type="date"
+            [formControl]="form.controls.estimatedBirthDate"
+          />
+        </div>
+        <app-text-field
+          inputId="coat"
+          label="Cor / Pelagem"
+          placeholder="Ex.: Tricolor, curto"
+          [control]="form.controls.coat"
+        />
+      </div>
+
+      <div class="form-row">
+        <app-text-field
+          inputId="weightKg"
+          label="Peso (kg)"
+          placeholder="Ex.: 3,5"
+          [control]="form.controls.weightKg"
+        />
+        <app-text-field
+          inputId="microchip"
+          label="Microchip"
+          placeholder="Opcional — 15 dígitos"
+          [control]="form.controls.microchip"
+          [errorMessages]="errors.microchip"
+        />
+      </div>
 
       <div class="select-field">
-        <label for="sex">Sexo</label>
-        <select id="sex" [formControl]="form.controls.sex">
-          <option value="">Selecione</option>
-          @for (option of sexOptions; track option.value) {
+        <label for="roomId">Sala atual</label>
+        <select id="roomId" [formControl]="form.controls.roomId">
+          <option [ngValue]="null">Selecione a sala</option>
+          @for (room of rooms(); track room.id) {
+            <option [ngValue]="room.id">{{ room.title }}</option>
+          }
+        </select>
+        @if (roomsError()) {
+          <span class="field-error">{{ roomsError() }}</span>
+        }
+      </div>
+
+      <div class="textarea-field">
+        <label for="characteristics">Características</label>
+        <textarea
+          id="characteristics"
+          rows="3"
+          placeholder="Temperamento, marcas, particularidades."
+          [formControl]="form.controls.characteristics"
+        ></textarea>
+      </div>
+
+      <div class="select-field">
+        <label for="generalStatus">Situação clínica</label>
+        <select id="generalStatus" [formControl]="form.controls.generalStatus">
+          <option value="">Selecione (padrão: Em triagem)</option>
+          @for (option of generalStatusOptions; track option.value) {
             <option [value]="option.value">{{ option.label }}</option>
           }
         </select>
       </div>
-    </div>
 
-    <div class="form-row">
-      <div class="select-field">
-        <label for="estimatedBirthDate">Nascimento estimado</label>
-        <input
-          id="estimatedBirthDate"
-          type="date"
-          [formControl]="form.controls.estimatedBirthDate"
+      <div class="section-title">Resgate</div>
+
+      <div class="form-row">
+        <div class="select-field">
+          <label for="rescueDate">Data de resgate</label>
+          <input
+            id="rescueDate"
+            type="date"
+            [formControl]="form.controls.rescueDate"
+          />
+        </div>
+        <app-text-field
+          inputId="foundConditions"
+          label="Condições encontradas"
+          placeholder="Ex.: saudável, desnutrido, ferido"
+          [control]="form.controls.foundConditions"
         />
       </div>
-      <app-text-field
-        inputId="coat"
-        label="Cor / Pelagem"
-        placeholder="Ex.: Tricolor, curto"
-        [control]="form.controls.coat"
-      />
-    </div>
 
-    <div class="form-row">
-      <app-text-field
-        inputId="weightKg"
-        label="Peso (kg)"
-        placeholder="Ex.: 3,5"
-        [control]="form.controls.weightKg"
-      />
-      <app-text-field
-        inputId="microchip"
-        label="Microchip"
-        placeholder="Opcional — 15 dígitos"
-        [control]="form.controls.microchip"
-        [errorMessages]="errors.microchip"
-      />
-    </div>
+      <div class="section-title">Apadrinhamento</div>
 
-    <div class="select-field">
-      <label for="roomId">Sala atual</label>
-      <select id="roomId" [formControl]="form.controls.roomId">
-        <option [ngValue]="null">Selecione a sala</option>
-        @for (room of rooms(); track room.id) {
-          <option [ngValue]="room.id">{{ room.title }}</option>
-        }
-      </select>
-      @if (roomsError()) {
-        <span class="field-error">{{ roomsError() }}</span>
-      }
-    </div>
-
-    <div class="textarea-field">
-      <label for="characteristics">Características</label>
-      <textarea
-        id="characteristics"
-        rows="3"
-        placeholder="Temperamento, marcas, particularidades."
-        [formControl]="form.controls.characteristics"
-      ></textarea>
-    </div>
-
-    <div class="select-field">
-      <label for="generalStatus">Situação clínica</label>
-      <select id="generalStatus" [formControl]="form.controls.generalStatus">
-        <option value="">Selecione (padrão: Em triagem)</option>
-        @for (option of generalStatusOptions; track option.value) {
-          <option [value]="option.value">{{ option.label }}</option>
-        }
-      </select>
-    </div>
-
-    <div class="section-title">Resgate</div>
-
-    <div class="form-row">
-      <div class="select-field">
-        <label for="rescueDate">Data de resgate</label>
-        <input
-          id="rescueDate"
-          type="date"
-          [formControl]="form.controls.rescueDate"
+      <div class="form-row">
+        <app-text-field
+          inputId="sponsorName"
+          label="Padrinho / madrinha"
+          placeholder="Nome"
+          [control]="form.controls.sponsorName"
+        />
+        <app-text-field
+          inputId="sponsorPhone"
+          label="Telefone"
+          placeholder="(00) 00000-0000"
+          [control]="form.controls.sponsorPhone"
         />
       </div>
-      <app-text-field
-        inputId="foundConditions"
-        label="Condições encontradas"
-        placeholder="Ex.: desnutrido, ferido"
-        [control]="form.controls.foundConditions"
-      />
-    </div>
 
-    <div class="section-title">Apadrinhamento</div>
-
-    <div class="form-row">
-      <app-text-field
-        inputId="sponsorName"
-        label="Padrinho / madrinha"
-        placeholder="Nome"
-        [control]="form.controls.sponsorName"
-      />
-      <app-text-field
-        inputId="sponsorPhone"
-        label="Telefone"
-        placeholder="(00) 00000-0000"
-        [control]="form.controls.sponsorPhone"
-      />
-    </div>
-
-    <div class="textarea-field">
-      <label for="sponsorFunding">O que o padrinho custeia</label>
-      <textarea
-        id="sponsorFunding"
-        rows="2"
-        placeholder="Ex.: ração terapêutica e exames de acompanhamento."
-        [formControl]="form.controls.sponsorFunding"
-      ></textarea>
-    </div>
-
-    <div class="form-actions">
-      <a routerLink="/cats" class="cancel-button">Cancelar</a>
-      <div class="form-actions__submit">
-        <app-submit-button
-          [label]="submitLabel"
-          loadingLabel="Salvando..."
-          [loading]="saving()"
-        />
+      <div class="textarea-field">
+        <label for="sponsorFunding">O que o padrinho custeia</label>
+        <textarea
+          id="sponsorFunding"
+          rows="2"
+          placeholder="Ex.: ração terapêutica e exames de acompanhamento."
+          [formControl]="form.controls.sponsorFunding"
+        ></textarea>
       </div>
-    </div>
+
+      <div class="form-actions">
+        <a routerLink="/cats" class="cancel-button">Cancelar</a>
+        <div class="form-actions__submit">
+          <app-submit-button
+            label="Salvar gatinho"
+            loadingLabel="Salvando..."
+            [loading]="saving()"
+          />
+        </div>
+      </div>
     </form>
   }
 </div>

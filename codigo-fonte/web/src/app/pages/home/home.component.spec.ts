@@ -56,7 +56,7 @@ describe('HomeComponent', () => {
     expect(fixture.nativeElement.querySelectorAll('.stat-card').length).toBe(
       component.stats.length,
     );
-    // +1 for the "+ Novo gato" link, which isn't in the mock quickActions array.
+    // +1 for the "+ Novo gatinho" link, which isn't in the mock quickActions array.
     expect(fixture.nativeElement.querySelectorAll('.quick-action').length).toBe(
       component.quickActions.length + 1,
     );

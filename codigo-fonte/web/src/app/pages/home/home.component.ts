@@ -58,13 +58,13 @@ export class HomeComponent {
   // greeting above and the room count/occupancy would be real once /cats and /rooms/{id}/... grow
   // the fields this needs. Replace each section as its data becomes available.
   readonly stats: StatCard[] = [
-    { value: '47', label: 'Gatos ativos' },
+    { value: '47', label: 'Gatinhos ativos' },
     { value: '18', label: 'Disponíveis para adoção' },
     { value: '68%', label: 'Ocupação das salas' },
     { value: '3', label: 'Medicamentos em falta', tone: 'danger' },
   ];
 
-  // "+ Novo gato" is a real link (see the template) — it's the only one of the four whose form
+  // "+ Novo gatinho" is a real link (see the template) — it's the only one of the four whose form
   // and backend exist today.
   readonly quickActions = [
     '+ Nova prescrição',
@@ -131,7 +131,7 @@ export class HomeComponent {
       date: '08/09 · 09:20',
       relative: 'há 2 dias',
       userName: 'Rafael Nogueira',
-      tag: 'Gatos',
+      tag: 'Gatinhos',
       subject: 'Bento',
       change: 'Atualizou estado de saúde — PIF negativo',
     },

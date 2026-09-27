@@ -126,6 +126,17 @@ describe('CatService (integration)', () => {
     });
   });
 
+  it('fetches a single cat by id', () => {
+    let received: Cat | undefined;
+    service.findById(9).subscribe((cat) => (received = cat));
+
+    const request = httpMock.expectOne(`${environment.apiUrl}/cats/9`);
+    expect(request.request.method).toBe('GET');
+    request.flush(mockCat());
+
+    expect(received).toEqual(mockCat());
+  });
+
   it('fetches the photo as a blob', () => {
     let received: Blob | undefined;
     service.photo(7).subscribe((blob) => (received = blob));

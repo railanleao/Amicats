@@ -18,6 +18,7 @@ import { UserFormComponent } from './pages/user-form/user-form.component';
 import { RoomsComponent } from './pages/rooms/rooms.component';
 import { RoomFormComponent } from './pages/room-form/room-form.component';
 import { MedicalRecordsComponent } from './pages/medical-records/medical-records.component';
+import { MedicalRecordDetailComponent } from './pages/medical-record-detail/medical-record-detail.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -80,6 +81,7 @@ export const routes: Routes = [
         data: { mode: 'edit' },
       },
       { path: 'medical-records', component: MedicalRecordsComponent },
+      { path: 'medical-records/:id', component: MedicalRecordDetailComponent },
     ],
   },
   { path: '**', redirectTo: '' },
