@@ -2,9 +2,9 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import {
   ActivatedRoute,
-  Router,
   convertToParamMap,
   provideRouter,
+  Router,
 } from '@angular/router';
 import { of, Subject, throwError } from 'rxjs';
 
@@ -373,7 +373,7 @@ describe('CatFormComponent', () => {
       component.onSubmit();
 
       expect(component.saveError()).toBe(
-        'Você não tem permissão para editar gatos.',
+        'Você não tem permissão para editar gatinhos.',
       );
     });
 

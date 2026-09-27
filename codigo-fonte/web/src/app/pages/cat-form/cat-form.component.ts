@@ -377,8 +377,8 @@ export class CatFormComponent implements OnInit {
     if (error.status === 403) {
       this.saveError.set(
         this.isEditing
-          ? 'Você não tem permissão para editar gatos.'
-          : 'Você não tem permissão para cadastrar gatos.',
+          ? 'Você não tem permissão para editar gatinhos.'
+          : 'Você não tem permissão para cadastrar gatinhos.',
       );
     } else if (error.status === 404) {
       this.saveError.set('A sala selecionada não existe mais. Escolha outra.');
