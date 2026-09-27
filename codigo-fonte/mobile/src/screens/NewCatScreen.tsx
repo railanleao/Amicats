@@ -1,17 +1,17 @@
 import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { Alert, Image, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, Text, TouchableOpacity, View } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
 import { Button, FormRow, FormScreenLayout, SectionLabel, SelectField, TextField } from '../components';
 import { ApiError } from '../services/api';
-import { createCat, uploadCatPhoto } from '../services/catService';
+import { createCat, getCat, updateCat, uploadCatPhoto } from '../services/catService';
 import { listActiveRooms } from '../services/roomService';
 import { colors } from '../theme/colors';
 import type { CreateCatRequest } from '../types/cat';
 import { GENERAL_STATUS_LABELS, SEX_LABELS } from '../types/cat';
 import type { Room } from '../types/room';
-import { parseBrazilianDate } from '../utils/date';
+import { formatBrazilianDate, parseBrazilianDate } from '../utils/date';
 import { styles } from './NewCatScreen.styles';
 
 const SEX_OPTIONS = Object.entries(SEX_LABELS).map(([value, label]) => ({ value, label }));
@@ -55,20 +55,26 @@ const DEFAULT_VALUES: NewCatFormValues = {
 };
 
 interface NewCatScreenProps {
+  catId?: number;
   onBack: () => void;
   onSaved: () => void;
 }
 
-export function NewCatScreen({ onBack, onSaved }: NewCatScreenProps) {
+export function NewCatScreen({ catId, onBack, onSaved }: NewCatScreenProps) {
+  const isEditing = catId !== undefined;
+
   const [generalError, setGeneralError] = useState<string>();
   const [submitting, setSubmitting] = useState(false);
   const [roomOptions, setRoomOptions] = useState<Room[]>([]);
   const [roomsError, setRoomsError] = useState<string>();
   const [photoUri, setPhotoUri] = useState<string>();
+  const [loadingCat, setLoadingCat] = useState(isEditing);
+  const [loadError, setLoadError] = useState<string>();
 
   const {
     control,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<NewCatFormValues>({ defaultValues: DEFAULT_VALUES });
 
@@ -83,6 +89,40 @@ export function NewCatScreen({ onBack, onSaved }: NewCatScreenProps) {
         );
       });
   }, []);
+
+  useEffect(() => {
+    if (catId === undefined) {
+      return;
+    }
+
+    getCat(catId)
+      .then((cat) => {
+        reset({
+          name: cat.name,
+          sex: cat.sex,
+          estimatedBirthDate: formatBrazilianDate(cat.estimatedBirthDate),
+          coat: cat.coat ?? '',
+          weightKg: cat.weightKg != null ? String(cat.weightKg).replace('.', ',') : '',
+          microchip: cat.microchip ?? '',
+          roomId: cat.roomId != null ? String(cat.roomId) : null,
+          generalStatus: cat.generalStatus,
+          characteristics: cat.characteristics ?? '',
+          rescueDate: formatBrazilianDate(cat.rescueDate),
+          foundConditions: cat.foundConditions ?? '',
+          sponsorName: cat.sponsorName ?? '',
+          sponsorPhone: cat.sponsorPhone ?? '',
+          sponsorFunding: cat.sponsorFunding ?? '',
+        });
+      })
+      .catch((error) => {
+        setLoadError(
+          error instanceof ApiError && error.status === 404
+            ? 'Gato não encontrado.'
+            : 'Não foi possível carregar o gato.',
+        );
+      })
+      .finally(() => setLoadingCat(false));
+  }, [catId, reset]);
 
   async function takePhoto() {
     const permission = await ImagePicker.requestCameraPermissionsAsync();
@@ -138,6 +178,12 @@ export function NewCatScreen({ onBack, onSaved }: NewCatScreenProps) {
     };
 
     try {
+      if (isEditing) {
+        await updateCat(catId, request);
+        onSaved();
+        return;
+      }
+
       const cat = await createCat(request);
 
       if (photoUri) {
@@ -150,7 +196,13 @@ export function NewCatScreen({ onBack, onSaved }: NewCatScreenProps) {
 
       onSaved();
     } catch (error) {
-      setGeneralError(error instanceof ApiError ? error.message : 'Não foi possível salvar o gato.');
+      setGeneralError(
+        error instanceof ApiError
+          ? error.message
+          : isEditing
+            ? 'Não foi possível salvar as alterações.'
+            : 'Não foi possível salvar o gato.',
+      );
     } finally {
       setSubmitting(false);
     }
@@ -162,23 +214,34 @@ export function NewCatScreen({ onBack, onSaved }: NewCatScreenProps) {
         <TouchableOpacity onPress={onBack} accessibilityRole="button" accessibilityLabel="Voltar">
           <Ionicons name="chevron-back" size={22} color={colors.ink} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Novo gato</Text>
+        <Text style={styles.headerTitle}>{isEditing ? 'Editar gato' : 'Novo gato'}</Text>
       </View>
 
-      <FormScreenLayout>
-        <View style={styles.photoSection}>
-          <Text style={styles.photoSectionLabel}>Foto do gato</Text>
-          <TouchableOpacity onPress={handlePhotoPress} accessibilityRole="button">
-            {photoUri ? (
-              <Image source={{ uri: photoUri }} style={styles.photoPreview} />
-            ) : (
-              <View style={styles.addPhotoTile}>
-                <Ionicons name="add" size={16} color={colors.primary} />
-                <Text style={styles.addPhotoLabel}>Foto</Text>
-              </View>
-            )}
-          </TouchableOpacity>
+      {loadingCat ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator color={colors.primary} />
         </View>
+      ) : loadError ? (
+        <View style={styles.loadingContainer}>
+          <Text style={styles.generalError}>{loadError}</Text>
+        </View>
+      ) : (
+      <FormScreenLayout>
+        {!isEditing && (
+          <View style={styles.photoSection}>
+            <Text style={styles.photoSectionLabel}>Foto do gato</Text>
+            <TouchableOpacity onPress={handlePhotoPress} accessibilityRole="button">
+              {photoUri ? (
+                <Image source={{ uri: photoUri }} style={styles.photoPreview} />
+              ) : (
+                <View style={styles.addPhotoTile}>
+                  <Ionicons name="add" size={16} color={colors.primary} />
+                  <Text style={styles.addPhotoLabel}>Foto</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+          </View>
+        )}
 
         <FormRow>
           <Controller
@@ -344,8 +407,13 @@ export function NewCatScreen({ onBack, onSaved }: NewCatScreenProps) {
 
         {generalError ? <Text style={styles.generalError}>{generalError}</Text> : null}
 
-        <Button title="Salvar gato" onPress={handleSubmit(submit)} loading={submitting} />
+        <Button
+          title={isEditing ? 'Salvar alterações' : 'Salvar gato'}
+          onPress={handleSubmit(submit)}
+          loading={submitting}
+        />
       </FormScreenLayout>
+      )}
     </View>
   );
 }

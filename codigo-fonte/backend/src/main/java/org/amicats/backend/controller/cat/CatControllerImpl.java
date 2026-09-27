@@ -5,10 +5,12 @@ import lombok.RequiredArgsConstructor;
 import org.amicats.backend.application.factory.cat.CatPhotoFactory;
 import org.amicats.backend.application.factory.cat.CreateCatFactory;
 import org.amicats.backend.application.factory.cat.ReadCatFactory;
+import org.amicats.backend.application.factory.cat.UpdateCatFactory;
 import org.amicats.backend.domain.enums.GeneralStatus;
 import org.amicats.backend.domain.usecase.cat.create.CreateCatInput;
 import org.amicats.backend.domain.usecase.cat.read.CatSearchCriteria;
 import org.amicats.backend.domain.usecase.cat.read.ReadCatOutput;
+import org.amicats.backend.domain.usecase.cat.update.UpdateCatInput;
 import org.amicats.backend.domain.usecase.common.PagedResult;
 import org.amicats.backend.exception.InvalidPhotoException;
 import org.springframework.http.MediaType;
@@ -24,6 +26,7 @@ public class CatControllerImpl implements CatController {
 
   private final ReadCatFactory readCatFactory;
   private final CreateCatFactory createCatFactory;
+  private final UpdateCatFactory updateCatFactory;
   private final CatPhotoFactory catPhotoFactory;
 
   @Override
@@ -45,6 +48,14 @@ public class CatControllerImpl implements CatController {
   @PreAuthorize("hasAnyRole('Administrator', 'Veterinarian')")
   public ReadCatOutput create(CreateCatInput input, Jwt jwt) {
     return createCatFactory.create().execute(input, Integer.valueOf(jwt.getSubject()));
+  }
+
+  // Same role restriction as create (RF-005 / UC-06): editing a cat's registration is also
+  // Administrator and Médico-Veterinário.
+  @Override
+  @PreAuthorize("hasAnyRole('Administrator', 'Veterinarian')")
+  public ReadCatOutput update(Integer id, UpdateCatInput input) {
+    return updateCatFactory.create().execute(id, input);
   }
 
   @Override

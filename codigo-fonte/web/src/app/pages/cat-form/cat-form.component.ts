@@ -7,12 +7,14 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { catchError, finalize, of, switchMap } from 'rxjs';
 
+import { CatCoverComponent } from '../../components/cat-cover/cat-cover.component';
 import { SubmitButtonComponent } from '../../components/submit-button/submit-button.component';
 import { TextFieldComponent } from '../../components/text-field/text-field.component';
 import {
+  Cat,
   CreateCatRequest,
   GENERAL_STATUS_LABELS,
   GeneralStatus,
@@ -23,6 +25,8 @@ import { Room } from '../../models/room.model';
 import { CatService } from '../../services/resources/cat.service';
 import { RoomService } from '../../services/resources/room.service';
 
+export type CatFormMode = 'create' | 'edit';
+
 const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
 const PHOTO_TYPES = ['image/jpeg', 'image/png'];
 
@@ -30,6 +34,7 @@ const PHOTO_TYPES = ['image/jpeg', 'image/png'];
   selector: 'app-cat-form',
   standalone: true,
   imports: [
+    CatCoverComponent,
     ReactiveFormsModule,
     RouterLink,
     SubmitButtonComponent,
@@ -39,13 +44,26 @@ const PHOTO_TYPES = ['image/jpeg', 'image/png'];
   styleUrl: './cat-form.component.css',
 })
 export class CatFormComponent implements OnInit {
+  private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly catService = inject(CatService);
   private readonly roomService = inject(RoomService);
   private readonly destroyRef = inject(DestroyRef);
 
+  readonly mode: CatFormMode = this.route.snapshot.data['mode'] ?? 'create';
+  readonly isEditing = this.mode === 'edit';
+  readonly catId: number | null = this.isEditing
+    ? Number(this.route.snapshot.paramMap.get('id'))
+    : null;
+  readonly title = this.isEditing ? 'Editar gato' : 'Novo gato';
+  readonly submitLabel = this.isEditing ? 'Salvar alterações' : 'Salvar gato';
+
   readonly sexOptions = this.toOptions(SEX_LABELS);
   readonly generalStatusOptions = this.toOptions(GENERAL_STATUS_LABELS);
+
+  readonly cat = signal<Cat | null>(null);
+  readonly loading = signal(false);
+  readonly loadError = signal<string | null>(null);
 
   readonly saving = signal(false);
   readonly saveError = signal<string | null>(null);
@@ -53,6 +71,8 @@ export class CatFormComponent implements OnInit {
   readonly rooms = signal<Room[]>([]);
   readonly roomsError = signal<string | null>(null);
 
+  readonly photoVersion = signal(0);
+  readonly photoBusy = signal(false);
   readonly photoError = signal<string | null>(null);
   readonly pendingPhoto = signal<File | null>(null);
   readonly pendingPhotoUrl = signal<string | null>(null);
@@ -92,6 +112,10 @@ export class CatFormComponent implements OnInit {
 
   constructor() {
     this.destroyRef.onDestroy(() => this.releasePendingPhoto());
+
+    if (this.isEditing) {
+      this.loadCat();
+    }
   }
 
   ngOnInit(): void {
@@ -110,7 +134,9 @@ export class CatFormComponent implements OnInit {
   }
 
   get hasPhoto(): boolean {
-    return this.pendingPhoto() !== null;
+    return this.isEditing
+      ? !!this.cat()?.photoUrl
+      : this.pendingPhoto() !== null;
   }
 
   onPhotoSelected(event: Event): void {
@@ -118,7 +144,7 @@ export class CatFormComponent implements OnInit {
     const file = input.files?.[0];
     input.value = '';
 
-    if (!file) {
+    if (!file || this.photoBusy()) {
       return;
     }
 
@@ -133,14 +159,72 @@ export class CatFormComponent implements OnInit {
       return;
     }
 
-    this.releasePendingPhoto();
-    this.pendingPhoto.set(file);
-    this.pendingPhotoUrl.set(URL.createObjectURL(file));
+    if (!this.isEditing) {
+      this.releasePendingPhoto();
+      this.pendingPhoto.set(file);
+      this.pendingPhotoUrl.set(URL.createObjectURL(file));
+      return;
+    }
+
+    if (this.catId === null) {
+      return;
+    }
+
+    this.photoBusy.set(true);
+
+    this.catService
+      .uploadPhoto(this.catId, file)
+      .pipe(
+        finalize(() => this.photoBusy.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (updated) => {
+          this.cat.set(updated);
+          this.photoVersion.update((version) => version + 1);
+        },
+        error: (error: HttpErrorResponse) =>
+          this.photoError.set(
+            error.status === 400
+              ? 'Não foi possível usar essa imagem. Envie um JPG ou PNG válido de até 5 MB.'
+              : 'Não foi possível enviar a foto. Tente novamente.',
+          ),
+      });
   }
 
   removePhoto(): void {
-    this.releasePendingPhoto();
+    if (!this.isEditing) {
+      this.releasePendingPhoto();
+      this.photoError.set(null);
+      return;
+    }
+
+    if (this.catId === null || this.photoBusy()) {
+      return;
+    }
+
+    this.photoBusy.set(true);
     this.photoError.set(null);
+
+    this.catService
+      .removePhoto(this.catId)
+      .pipe(
+        finalize(() => this.photoBusy.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: () => {
+          const current = this.cat();
+          if (current) {
+            this.cat.set({ ...current, photoUrl: null });
+          }
+          this.photoVersion.update((version) => version + 1);
+        },
+        error: () =>
+          this.photoError.set(
+            'Não foi possível remover a foto. Tente novamente.',
+          ),
+      });
   }
 
   onSubmit(): void {
@@ -177,6 +261,20 @@ export class CatFormComponent implements OnInit {
 
     this.saving.set(true);
 
+    if (this.isEditing) {
+      this.catService
+        .update(this.catId as number, request)
+        .pipe(
+          finalize(() => this.saving.set(false)),
+          takeUntilDestroyed(this.destroyRef),
+        )
+        .subscribe({
+          next: () => void this.router.navigate(['/cats']),
+          error: (error: HttpErrorResponse) => this.handleSaveError(error),
+        });
+      return;
+    }
+
     this.catService
       .create(request)
       .pipe(
@@ -193,10 +291,56 @@ export class CatFormComponent implements OnInit {
             this.releasePendingPhoto();
             return;
           }
-          void this.router.navigate(['/']);
+          void this.router.navigate(['/cats']);
         },
         error: (error: HttpErrorResponse) => this.handleSaveError(error),
       });
+  }
+
+  private loadCat(): void {
+    if (this.catId === null || !Number.isInteger(this.catId)) {
+      this.loadError.set('Gato não encontrado.');
+      return;
+    }
+
+    this.loading.set(true);
+
+    this.catService
+      .findById(this.catId)
+      .pipe(
+        finalize(() => this.loading.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (cat) => this.fillForm(cat),
+        error: (error: HttpErrorResponse) =>
+          this.loadError.set(
+            error.status === 404
+              ? 'Gato não encontrado.'
+              : 'Não foi possível carregar o gato. Tente novamente.',
+          ),
+      });
+  }
+
+  private fillForm(cat: Cat): void {
+    this.cat.set(cat);
+    this.form.patchValue({
+      name: cat.name,
+      sex: cat.sex ?? '',
+      estimatedBirthDate: cat.estimatedBirthDate ?? '',
+      coat: cat.coat ?? '',
+      weightKg:
+        cat.weightKg != null ? String(cat.weightKg).replace('.', ',') : '',
+      microchip: cat.microchip ?? '',
+      roomId: cat.roomId,
+      characteristics: cat.characteristics ?? '',
+      generalStatus: cat.generalStatus ?? '',
+      rescueDate: cat.rescueDate ?? '',
+      foundConditions: cat.foundConditions ?? '',
+      sponsorName: cat.sponsorName ?? '',
+      sponsorPhone: cat.sponsorPhone ?? '',
+      sponsorFunding: cat.sponsorFunding ?? '',
+    });
   }
 
   private uploadChosenPhoto(catId: number) {
@@ -231,7 +375,11 @@ export class CatFormComponent implements OnInit {
 
   private handleSaveError(error: HttpErrorResponse): void {
     if (error.status === 403) {
-      this.saveError.set('Você não tem permissão para cadastrar gatinhos.');
+      this.saveError.set(
+        this.isEditing
+          ? 'Você não tem permissão para editar gatinhos.'
+          : 'Você não tem permissão para cadastrar gatinhos.',
+      );
     } else if (error.status === 404) {
       this.saveError.set('A sala selecionada não existe mais. Escolha outra.');
     } else if (error.status === 400) {

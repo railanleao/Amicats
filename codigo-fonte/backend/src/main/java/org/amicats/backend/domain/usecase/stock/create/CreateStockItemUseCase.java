@@ -14,12 +14,8 @@ public class CreateStockItemUseCase {
   @Transactional
   public ReadStockItemOutput execute(CreateStockItemInput input) {
     StockItem stockItem =
-      new StockItem(
-        input.name(),
-        input.category(),
-        input.quantity(),
-        input.unit(),
-        input.notes());
+        new StockItem(
+            input.name(), input.category(), input.quantity(), input.unit(), input.notes());
 
     stockItemDataProvider.save(stockItem);
 

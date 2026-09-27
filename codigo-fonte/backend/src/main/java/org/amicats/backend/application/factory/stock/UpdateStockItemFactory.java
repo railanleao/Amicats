@@ -20,8 +20,8 @@ public class UpdateStockItemFactory {
   @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
   public UpdateStockItemUseCase create() {
     return UpdateStockItemUseCase.builder()
-      .stockItemDataProvider(stockItemDataProvider)
-      .stockEntryDataProvider(stockEntryDataProvider)
-      .build();
+        .stockItemDataProvider(stockItemDataProvider)
+        .stockEntryDataProvider(stockEntryDataProvider)
+        .build();
   }
 }

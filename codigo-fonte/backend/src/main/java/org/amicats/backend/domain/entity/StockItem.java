@@ -1,12 +1,11 @@
 package org.amicats.backend.domain.entity;
 
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.amicats.backend.domain.enums.StockStatus;
-
-import java.math.BigDecimal;
 
 @Entity
 @Table(name = "stock_items")
@@ -34,12 +33,7 @@ public class StockItem {
   @Column(columnDefinition = "text")
   private String notes;
 
-  public StockItem(
-    String name,
-    String category,
-    BigDecimal quantity,
-    String unit,
-    String notes) {
+  public StockItem(String name, String category, BigDecimal quantity, String unit, String notes) {
     this.name = name;
     this.category = category;
     this.quantity = quantity;
@@ -47,11 +41,7 @@ public class StockItem {
     this.notes = notes;
   }
 
-  public void updateDetails(
-    String name,
-    String category,
-    String unit,
-    String notes) {
+  public void updateDetails(String name, String category, String unit, String notes) {
     this.name = name;
     this.category = category;
     this.unit = unit;
@@ -73,5 +63,4 @@ public class StockItem {
 
     return StockStatus.Normal;
   }
-
 }

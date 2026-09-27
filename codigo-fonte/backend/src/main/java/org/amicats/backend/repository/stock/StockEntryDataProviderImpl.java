@@ -1,14 +1,12 @@
 package org.amicats.backend.repository.stock;
 
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.amicats.backend.domain.entity.StockEntry;
 import org.amicats.backend.domain.interfaces.dataprovider.stock.StockEntryDataProvider;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
-
-import java.time.LocalDate;
-import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -27,11 +25,7 @@ public class StockEntryDataProviderImpl implements StockEntryDataProvider {
   }
 
   @Override
-  public Optional<LocalDate> findNearestExpirationDate(
-    Integer stockItemId,
-    LocalDate today) {
-    return stockEntryRepository.findNearestExpirationDate(
-      stockItemId,
-      today);
+  public Optional<LocalDate> findNearestExpirationDate(Integer stockItemId, LocalDate today) {
+    return stockEntryRepository.findNearestExpirationDate(stockItemId, today);
   }
 }

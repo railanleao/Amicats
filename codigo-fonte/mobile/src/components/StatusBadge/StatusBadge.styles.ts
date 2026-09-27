@@ -15,6 +15,15 @@ export const styles = StyleSheet.create({
   badgeDanger: {
     backgroundColor: colors.dangerBg,
   },
+  badgeSuccess: {
+    backgroundColor: colors.successBg,
+  },
+  badgeSky: {
+    backgroundColor: colors.skyBg,
+  },
+  badgeNeutral: {
+    backgroundColor: colors.neutralBg,
+  },
   text: {
     fontSize: fontSizes.xs,
     fontWeight: "600",
@@ -24,5 +33,14 @@ export const styles = StyleSheet.create({
   },
   textDanger: {
     color: colors.danger,
+  },
+  textSuccess: {
+    color: colors.success,
+  },
+  textSky: {
+    color: colors.skyInk,
+  },
+  textNeutral: {
+    color: colors.neutralInk,
   },
 });

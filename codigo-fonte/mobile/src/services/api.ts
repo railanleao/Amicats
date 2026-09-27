@@ -1,7 +1,7 @@
 import { getToken } from '../storage/authStorage';
 import { emitUnauthorized } from './authEvents';
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:8080';
+export const API_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:8080';
 const LOGIN_PATH = '/auth/login';
 
 export class ApiError extends Error {

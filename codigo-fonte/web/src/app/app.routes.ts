@@ -11,7 +11,9 @@ import { LoginComponent } from './pages/login/login.component';
 import { TermsAcceptanceComponent } from './pages/terms-acceptance/terms-acceptance.component';
 import { UsersComponent } from './pages/users/users.component';
 import { adminGuard } from './guards/admin.guard';
+import { CatDetailComponent } from './pages/cat-detail/cat-detail.component';
 import { CatFormComponent } from './pages/cat-form/cat-form.component';
+import { CatsComponent } from './pages/cats/cats.component';
 import { UserFormComponent } from './pages/user-form/user-form.component';
 import { RoomsComponent } from './pages/rooms/rooms.component';
 import { RoomFormComponent } from './pages/room-form/room-form.component';
@@ -37,10 +39,21 @@ export const routes: Routes = [
     canActivate: [authGuard],
     children: [
       { path: '', component: HomeComponent },
-      // No role guard here (unlike /users/new): cat creation is allowed for Administrator AND
-      // Veterinarian (UC-06), and there's no existing guard for that combination. The backend
+      { path: 'cats', component: CatsComponent },
+      // No role guard here (unlike /users/new): cat creation/edit is allowed for Administrator
+      // AND Veterinarian (UC-06), and there's no existing guard for that combination. The backend
       // enforces it either way; a 403 just shows the form's generic error.
-      { path: 'cats/new', component: CatFormComponent },
+      {
+        path: 'cats/new',
+        component: CatFormComponent,
+        data: { mode: 'create' },
+      },
+      { path: 'cats/:id', component: CatDetailComponent },
+      {
+        path: 'cats/:id/edit',
+        component: CatFormComponent,
+        data: { mode: 'edit' },
+      },
       { path: 'users', component: UsersComponent },
       {
         path: 'users/new',

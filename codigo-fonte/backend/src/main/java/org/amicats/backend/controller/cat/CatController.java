@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import org.amicats.backend.domain.enums.GeneralStatus;
 import org.amicats.backend.domain.usecase.cat.create.CreateCatInput;
 import org.amicats.backend.domain.usecase.cat.read.ReadCatOutput;
+import org.amicats.backend.domain.usecase.cat.update.UpdateCatInput;
 import org.amicats.backend.domain.usecase.common.PagedResult;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -30,6 +31,9 @@ public interface CatController {
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
   ReadCatOutput create(@Valid @RequestBody CreateCatInput input, @AuthenticationPrincipal Jwt jwt);
+
+  @PutMapping("/{id}")
+  ReadCatOutput update(@PathVariable Integer id, @Valid @RequestBody UpdateCatInput input);
 
   @PutMapping(path = "/{id}/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   ReadCatOutput uploadPhoto(@PathVariable Integer id, @RequestPart("file") MultipartFile file);

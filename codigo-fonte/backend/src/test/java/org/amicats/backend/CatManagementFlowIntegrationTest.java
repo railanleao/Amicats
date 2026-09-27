@@ -216,6 +216,83 @@ class CatManagementFlowIntegrationTest {
     assertThat(response.statusCode()).isEqualTo(400);
   }
 
+  @Test
+  void anAdministratorCanUpdateACat() throws Exception {
+    String adminToken = loginAndGetToken(adminEmail);
+    String newName = "Editado" + UUID.randomUUID();
+
+    HttpResponse<String> response =
+        send("PUT", "/cats/" + targetCatId, adminToken, catBody(newName, targetRoomId));
+
+    assertThat(response.statusCode()).isEqualTo(200);
+    Map<String, Object> updated = parse(response);
+    assertThat(updated.get("name")).isEqualTo(newName);
+    assertThat(updated.get("roomId")).isEqualTo(targetRoomId);
+    assertThat(updated.get("generalStatus")).isEqualTo("InTriage");
+  }
+
+  @Test
+  void aVeterinarianCanAlsoUpdateACat() throws Exception {
+    String vetToken = loginAndGetToken(vetEmail);
+
+    HttpResponse<String> response =
+        send(
+            "PUT",
+            "/cats/" + targetCatId,
+            vetToken,
+            catBody("Editado" + UUID.randomUUID(), targetRoomId));
+
+    assertThat(response.statusCode()).isEqualTo(200);
+  }
+
+  @Test
+  void anAssistantCannotUpdateACat() throws Exception {
+    String assistantToken = loginAndGetToken(assistantEmail);
+
+    HttpResponse<String> response =
+        send(
+            "PUT",
+            "/cats/" + targetCatId,
+            assistantToken,
+            catBody("Editado" + UUID.randomUUID(), targetRoomId));
+
+    assertThat(response.statusCode()).isEqualTo(403);
+  }
+
+  @Test
+  void updatingAnUnknownCatReturnsNotFound() throws Exception {
+    String adminToken = loginAndGetToken(adminEmail);
+
+    HttpResponse<String> response =
+        send("PUT", "/cats/999999999", adminToken, catBody("Fantasma", null));
+
+    assertThat(response.statusCode()).isEqualTo(404);
+  }
+
+  @Test
+  void updatingACatWithAnInexistentRoomFails() throws Exception {
+    String adminToken = loginAndGetToken(adminEmail);
+
+    HttpResponse<String> response =
+        send(
+            "PUT",
+            "/cats/" + targetCatId,
+            adminToken,
+            catBody("Editado" + UUID.randomUUID(), 999999999));
+
+    assertThat(response.statusCode()).isEqualTo(404);
+  }
+
+  @Test
+  void updatingACatWithoutANameFails() throws Exception {
+    String adminToken = loginAndGetToken(adminEmail);
+
+    HttpResponse<String> response =
+        send("PUT", "/cats/" + targetCatId, adminToken, catBody(null, targetRoomId));
+
+    assertThat(response.statusCode()).isEqualTo(400);
+  }
+
   private Map<String, Object> catBody(String name, Integer roomId) {
     Map<String, Object> body = new java.util.LinkedHashMap<>();
     body.put("name", name);
