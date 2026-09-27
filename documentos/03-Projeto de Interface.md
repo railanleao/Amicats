@@ -84,9 +84,9 @@ Painel administrativo usado pela equipe da ONG (administradores, médicos-veteri
 
 ![Prontuário Clínico](img/telas/web/16-prontuario-clinico.png)
 
-### Nova Prescrição
+### Novo Atendimento Interno
 
-![Nova Prescrição](img/telas/web/17-nova-prescricao.png)
+![Novo Atendimento Interno](img/telas/web/17-novo-atendimento-interno.png)
 
 ### Suspender Medicação
 
