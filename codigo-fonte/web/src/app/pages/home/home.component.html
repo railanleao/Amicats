@@ -1,0 +1,123 @@
+<div class="page">
+  <header class="page-header">
+    <h1>Dashboard</h1>
+  </header>
+
+  <div class="content">
+    <div class="greeting">
+      <div class="greeting-title">Olá, {{ firstName() }}</div>
+      <div class="greeting-subtitle">
+        {{ today }} · aqui está o que está acontecendo no abrigo hoje.
+      </div>
+    </div>
+
+    <div class="stats-row">
+      @for (stat of stats; track stat.label) {
+        <div class="stat-card">
+          <div
+            class="stat-value"
+            [class.stat-value--danger]="stat.tone === 'danger'"
+          >
+            {{ stat.value }}
+          </div>
+          <div class="stat-label">{{ stat.label }}</div>
+        </div>
+      }
+    </div>
+
+    <div class="quick-actions">
+      <a routerLink="/cats/new" class="quick-action">+ Novo gatinho</a>
+
+      <!-- Inert: no form or backend for these yet. -->
+      @for (action of quickActions; track action) {
+        <button type="button" class="quick-action">{{ action }}</button>
+      }
+    </div>
+
+    <div class="mid-row">
+      <section class="card reminders-card">
+        <div class="section-title">Lembretes da semana</div>
+
+        @for (reminder of reminders; track reminder.text) {
+          <div
+            class="reminder-row"
+            [class.reminder-row--danger]="reminder.tone === 'danger'"
+          >
+            <span
+              class="reminder-dot"
+              [class]="'reminder-dot--' + reminder.tone"
+            ></span>
+            <span
+              class="reminder-text"
+              [class.reminder-text--danger]="reminder.tone === 'danger'"
+            >
+              {{ reminder.date }} · {{ reminder.text }}
+            </span>
+          </div>
+        }
+      </section>
+
+      <section class="card occupancy-card">
+        <div class="section-title">Ocupação por sala</div>
+
+        @for (room of roomOccupancy; track room.name) {
+          <div class="occupancy-row">
+            <div class="occupancy-header">
+              <span>{{ room.name }}</span>
+              <span class="occupancy-count"
+                >{{ room.occupied }}/{{ room.capacity }}</span
+              >
+            </div>
+            <div class="occupancy-track">
+              <div
+                class="occupancy-fill"
+                [class]="'occupancy-fill--' + room.tone"
+                [style.width.%]="occupancyPercent(room)"
+              ></div>
+            </div>
+          </div>
+        }
+
+        <!-- TODO: link to /rooms once the room management page (already approved in another PR) lands. -->
+        <span class="see-more">Ver todas as salas →</span>
+      </section>
+    </div>
+
+    <section class="card activity-card">
+      <div class="activity-header">
+        <div class="section-title">Últimas alterações · últimos 7 dias</div>
+        <!-- TODO: link to the full audit log once that page exists. -->
+        <span class="see-more see-more--inline">Ver histórico completo →</span>
+      </div>
+
+      <div class="activity-table">
+        <div class="activity-row activity-row--head">
+          <span class="col-when">Quando</span>
+          <span class="col-who">Quem</span>
+          <span class="col-where">Onde</span>
+          <span class="col-what">O que mudou</span>
+        </div>
+
+        @for (entry of activity; track entry.date + entry.subject) {
+          <div class="activity-row">
+            <span class="col-when">
+              <span class="activity-date">{{ entry.date }}</span>
+              <span class="activity-relative">{{ entry.relative }}</span>
+            </span>
+            <span class="col-who">
+              <span class="activity-avatar" aria-hidden="true">{{
+                initialsOf(entry.userName)
+              }}</span>
+              <span>{{ entry.userName }}</span>
+            </span>
+            <span class="col-where">
+              <span class="activity-tag">{{ entry.tag }}</span>
+              <span class="activity-subject">{{ entry.subject }}</span>
+            </span>
+            <span class="col-what">{{ entry.change }}</span>
+          </div>
+        }
+      </div>
+    </section>
+  </div>
+</div>

@@ -1,0 +1,79 @@
+<div class="text-field">
+  <label [for]="inputId">{{ label }}</label>
+  <div class="text-field__input-wrapper">
+    <input
+      [id]="inputId"
+      [type]="effectiveType"
+      [formControl]="control"
+      [readOnly]="readonly"
+      [placeholder]="placeholder"
+      [autocomplete]="autocomplete"
+      class="text-field__input"
+      [class.text-field__input--invalid]="control.invalid && control.touched"
+      [class.text-field__input--with-toggle]="isPasswordField"
+    />
+    @if (isPasswordField) {
+      <button
+        type="button"
+        class="text-field__toggle"
+        [attr.aria-label]="
+          isPasswordVisible ? 'Ocultar senha' : 'Mostrar senha'
+        "
+        (click)="togglePasswordVisibility()"
+      >
+        @if (isPasswordVisible) {
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 18 18"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M2 9s2.8-5 7-5 7 5 7 5-2.8 5-7 5-7-5-7-5z"
+              stroke="currentColor"
+              stroke-width="1.4"
+            />
+            <circle
+              cx="9"
+              cy="9"
+              r="2"
+              stroke="currentColor"
+              stroke-width="1.4"
+            />
+          </svg>
+        } @else {
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 18 18"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M2 9s2.8-5 7-5 7 5 7 5-2.8 5-7 5-7-5-7-5z"
+              stroke="currentColor"
+              stroke-width="1.4"
+            />
+            <circle
+              cx="9"
+              cy="9"
+              r="2"
+              stroke="currentColor"
+              stroke-width="1.4"
+            />
+            <path
+              d="M2.5 2.5l13 13"
+              stroke="currentColor"
+              stroke-width="1.4"
+              stroke-linecap="round"
+            />
+          </svg>
+        }
+      </button>
+    }
+  </div>
+  @if (control.invalid && control.touched && errorMessage) {
+    <span class="text-field__error">{{ errorMessage }}</span>
+  }
+</div>

@@ -101,7 +101,7 @@ Desenvolver um sistema web e mobile que centralize o prontuário clínico, o con
 | Camada | Tecnologia |
 |---|---|
 | Mobile | React Native 0.86 · Expo 57 · TypeScript |
-| Web | Next.js 16 · React 19 · TypeScript |
+| Web | Angular 19 · TypeScript |
 | Back-end | Java 21 · Spring Boot 4.1 (API REST) |
 | Banco de dados | PostgreSQL 16 · Flyway (migrations) |
 | Banco local (offline) | SQLite (app mobile) |
@@ -134,6 +134,7 @@ Cada issue recebe 4 categorias de label, para facilitar filtragem e priorizaçã
 | ⏱️ Esforço | `esforço: baixo` · `médio` · `alto` | Tempo/trabalho estimado para concluir |
 | 🗓️ Sprint | `sprint 1` · `sprint 2` · `sprint 3` · `sprint 4` | A qual sprint do cronograma a tarefa pertence |
 | 🏷️ Tema | `feature` · `bug` · `documentation` | Natureza da tarefa |
+| 📢 Publicação | `main` | Merge branch develop para main pré-entrega/publicação |
 
 ---
 
@@ -145,7 +146,7 @@ Cada issue recebe 4 categorias de label, para facilitar filtragem e priorizaçã
 ├── codigo-fonte/        # Código-fonte da solução
 │   ├── backend/         # API REST (Java · Spring Boot)
 │   ├── mobile/          # Aplicação mobile (React Native · Expo)
-│   └── web/             # Painel web (Next.js)
+│   └── web/             # Painel web (Angular)
 ├── documentos/          # Documentação do projeto
 │   └── img/             # Imagens usadas na documentação
 ├── proex/               # Relatório do APC (extensão)
@@ -171,6 +172,14 @@ cd <repositorio>
 # ...
 ```
 
+## 📘 Documentação da API (Swagger)
+
+Com o backend rodando, a documentação interativa da API fica disponível em:
+
+http://localhost:8080/swagger-ui/index.html
+
+Se encontra tratado para abertura automática no navegador ao rodar a API, tanto para Windows/Linux/Mac.
+
 ---
 
 ## 🔒 Privacidade e conformidade
@@ -186,6 +195,36 @@ O sistema trata dados pessoais de adotantes, voluntários e profissionais, além
 ## 📜 Licença
 
 *[Definir licença do projeto.]*
+
+---
+
+<p align="center">
+Feito com 💚 por estudantes de ADS da PUC Minas, para os gatos da ONG Amicats.
+</p>
+
+## Apresentação Inicial
+
+![Slide 1 - Apresentação Inicial](documentos/img/apresentacao-inicial/SLIDE_1_APRESENTACAO_INICIAL.png)
+
+![Slide 2 - Apresentação Inicial](documentos/img/apresentacao-inicial/SLIDE_2_APRESENTACAO_INICIAL.png)
+
+![Slide 3 - Apresentação Inicial](documentos/img/apresentacao-inicial/SLIDE_3_APRESENTACAO_INICIAL.png)
+
+![Slide 4 - Apresentação Inicial](documentos/img/apresentacao-inicial/SLIDE_4_APRESENTACAO_INICIAL.png)
+
+![Slide 5 - Apresentação Inicial](documentos/img/apresentacao-inicial/SLIDE_5_APRESENTACAO_INICIAL.png)
+
+![Slide 6 - Apresentação Inicial](documentos/img/apresentacao-inicial/SLIDE_6_APRESENTACAO_INICIAL.png)
+
+![Slide 7 - Apresentação Inicial](documentos/img/apresentacao-inicial/SLIDE_7_APRESENTACAO_INICIAL.png)
+
+![Slide 8 - Apresentação Inicial](documentos/img/apresentacao-inicial/SLIDE_8_APRESENTACAO_INICIAL.png)
+
+![Slide 9 - Apresentação Inicial](documentos/img/apresentacao-inicial/SLIDE_9_APRESENTACAO_INICIAL.png)
+
+![Slide 10 - Apresentação Inicial](documentos/img/apresentacao-inicial/SLIDE_10_APRESENTACAO_INICIAL.png)
+
+![Slide 11 - Apresentação Inicial](documentos/img/apresentacao-inicial/SLIDE_11_APRESENTACAO_INICIAL.png)
 
 ---
 

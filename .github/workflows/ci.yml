@@ -1,0 +1,118 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [develop, main]
+
+jobs:
+  guardrails:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: "Verifica remoção de arquivos em pastas protegidas (ex: migrations)"
+        run: ./scripts/check-protected-paths.sh "origin/${{ github.event.pull_request.base.ref }}" "${{ github.event.pull_request.head.sha }}"
+
+      - name: Valida a sintaxe do docker-compose.yml
+        run: docker compose config --quiet
+
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: amicats
+          POSTGRES_USER: amicats
+          POSTGRES_PASSWORD: amicats
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U amicats -d amicats"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    defaults:
+      run:
+        working-directory: codigo-fonte/backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+          cache-dependency-path: codigo-fonte/backend/pom.xml
+
+      - name: Start S3 test server (S3Mock)
+        run: |
+          docker run -d --name minio \
+            -p 9010:9090 \
+            adobe/s3mock:latest
+          for i in $(seq 1 30); do
+            curl -sf http://localhost:9010/ && exit 0
+            sleep 1
+          done
+          echo "S3Mock did not become ready in time" >&2
+          exit 1
+
+      - name: Build and test (compile, unit tests, Spotless)
+        env:
+          JWT_SECRET: ci-only-dummy-secret-not-for-production-use-0123456789
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_NAME: amicats
+          DB_USER: amicats
+          DB_PASSWORD: amicats
+          MINIO_ENDPOINT: http://localhost:9010
+          MINIO_ACCESS_KEY: amicats
+          MINIO_SECRET_KEY: amicats123
+          MINIO_BUCKET: amicats-photos
+        run: ./mvnw --batch-mode verify
+
+  web:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: codigo-fonte/web
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: codigo-fonte/web/package-lock.json
+
+      - run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Unit tests (headless Chrome)
+        run: npx ng test --watch=false --browsers=ChromeHeadless
+
+  mobile:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: codigo-fonte/mobile
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: codigo-fonte/mobile/package-lock.json
+
+      - run: npm ci
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Lint
+        run: npm run lint

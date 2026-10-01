@@ -1,3 +1,11 @@
+# Apresentação Inicial
+
+Veja os slides da **apresentação inicial** na parte final README.md na raiz do repositório. 
+<br>
+Ou baixe em PDF clicando aqui ou na imagem a seguir: [Baixar Apresentação Inicial - PDF.](documentos/img/apresentacao-inicial/APRESENTA%C3%87%C3%83O%20INICIAL%20-%20PROJETO%20ONG%20AMICATS%20-%20COMPRIMIDO.pdf)
+
+[![Slide 1 - Apresentação Inicial](img/apresentacao-inicial/SLIDE_1_APRESENTACAO_INICIAL.png)](img/apresentacao-inicial/APRESENTA%C3%87%C3%83O%20INICIAL%20-%20PROJETO%20ONG%20AMICATS%20-%20COMPRIMIDO.pdf)
+
 # Introdução
 
 A extensão universitária é o processo que articula ensino e pesquisa em uma relação de troca com a sociedade, colocando o conhecimento produzido na universidade a serviço de demandas reais e, no caminho inverso, permitindo que essas demandas reorientem a formação acadêmica. Com a Resolução CNE/CES nº 7/2018 e a meta 12.7 do Plano Nacional de Educação (Lei nº 13.005/2014), a extensão deixou de ser atividade complementar e passou a integrar obrigatoriamente o currículo, respondendo por no mínimo 10% da carga horária dos cursos de graduação. O que se espera dessa mudança não é a prestação de um serviço gratuito, mas uma relação dialógica: a comunidade não é público-alvo passivo de uma solução pronta, e sim parceira que define o problema, valida as decisões e avalia o resultado.

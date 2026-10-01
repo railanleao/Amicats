@@ -20,6 +20,16 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      "expo-secure-store",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "O Amicats usa suas fotos para ilustrar a ficha do gato.",
+          "cameraPermission": "O Amicats usa a câmera para fotografar o gato na ficha dele."
+        }
+      ]
+    ]
   }
 }

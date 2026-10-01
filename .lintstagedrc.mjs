@@ -7,7 +7,7 @@ export default {
     `npm --prefix codigo-fonte/mobile run lint -- --fix ${files.join(" ")}`,
     `prettier --write ${files.join(" ")}`,
   ],
-  "codigo-fonte/{web,mobile}/**/*.{json,css,md}": "prettier --write",
+  "codigo-fonte/{web,mobile}/**/*.{json,css,html, md}": "prettier --write",
   "codigo-fonte/backend/**/*.java": () =>
     "./codigo-fonte/backend/mvnw -f codigo-fonte/backend/pom.xml spotless:apply",
 };

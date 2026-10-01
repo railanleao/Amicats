@@ -1,0 +1,38 @@
+package org.amicats.backend.domain.usecase.user.read;
+
+import java.time.LocalDateTime;
+import org.amicats.backend.domain.entity.User;
+import org.amicats.backend.domain.enums.AccessType;
+
+public record ReadUserOutput(
+    Integer id,
+    String fullName,
+    String email,
+    String phoneNumber,
+    String imageUrl,
+    AccessType accessType,
+    String crmv,
+    String ufCrmv,
+    boolean active,
+    LocalDateTime createdAt,
+    LocalDateTime lastLoginAt) {
+
+  public static ReadUserOutput from(User user, String email) {
+    return new ReadUserOutput(
+        user.getId(),
+        user.getFullName(),
+        email,
+        user.getPhoneNumber(),
+        photoPath(user),
+        user.getAccessType(),
+        user.getCrmv(),
+        user.getUfCrmv(),
+        user.isActive(),
+        user.getCreatedAt(),
+        user.getLastLoginAt());
+  }
+
+  private static String photoPath(User user) {
+    return user.getImageUrl() == null ? null : "/users/" + user.getId() + "/photo";
+  }
+}
