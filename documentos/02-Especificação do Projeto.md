@@ -89,7 +89,7 @@ silenciosamente.
 
 ## Project Model Canvas
 
-![Project Model Canvas](https://github.com/ICEI-PUC-Minas-PMV-ADS/PMV-ADS-2026-2-E5-PROJ-EMPEXT-T4-G3/blob/feature/task-016-doc-adicionar-estimativas-custos-project-model-canvas/documentos/img/Project%20Model%20Canvas.png)
+![Project Model Canvas](img/Project%20Model%20Canvas.png)
 
 | Bloco              | Conteúdo                                                                                                                                                                                                                                                     |
 |--------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -182,7 +182,7 @@ O projeto está restrito pelos itens apresentados na tabela a seguir.
 
 ## Diagrama de Caso de Uso
 
-![Diagrama de Casos de Uso](https://github.com/ICEI-PUC-Minas-PMV-ADS/PMV-ADS-2026-2-E5-PROJ-EMPEXT-T4-G3/blob/feature/task-014-doc-criar-diagrama-de-casos-de-uso/documentos/img/Diagrama%20de%20Casos%20de%20Uso.jpeg)
+![Diagrama de Casos de Uso](img/Diagrama%20de%20Casos%20de%20Uso.jpeg)
 
 ### Atores
 
