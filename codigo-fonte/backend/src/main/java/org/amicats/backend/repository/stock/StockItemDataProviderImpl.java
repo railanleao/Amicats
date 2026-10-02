@@ -1,6 +1,7 @@
 package org.amicats.backend.repository.stock;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.amicats.backend.domain.entity.StockItem;
@@ -50,6 +51,11 @@ public class StockItemDataProviderImpl implements StockItemDataProvider {
         result.getSize(),
         result.getTotalElements(),
         result.getTotalPages());
+  }
+
+  @Override
+  public List<StockItem> findAllByCategory(String category) {
+    return stockItemRepository.findAllByCategoryIgnoreCase(category);
   }
 
   private String toSearchPattern(String search) {

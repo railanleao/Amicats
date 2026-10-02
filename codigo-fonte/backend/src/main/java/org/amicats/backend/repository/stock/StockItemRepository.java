@@ -1,6 +1,7 @@
 package org.amicats.backend.repository.stock;
 
 import java.time.LocalDate;
+import java.util.List;
 import org.amicats.backend.domain.entity.StockItem;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -51,4 +52,6 @@ public interface StockItemRepository extends JpaRepository<StockItem, Integer> {
       @Param("expirationTo") LocalDate expirationTo,
       @Param("today") LocalDate today,
       Pageable pageable);
+
+  List<StockItem> findAllByCategoryIgnoreCase(String category);
 }
