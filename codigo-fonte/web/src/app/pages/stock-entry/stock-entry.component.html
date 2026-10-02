@@ -1,0 +1,251 @@
+<div class="page">
+  <header class="page-header">
+    <a
+      routerLink="/stock"
+      class="page-header__back"
+      aria-label="Voltar para estoque"
+    >
+      ←
+    </a>
+
+    <a routerLink="/stock" class="page-header__crumb">
+      Estoque
+    </a>
+
+    <span class="page-header__separator">/</span>
+
+    <h1>Registrar entrada</h1>
+  </header>
+
+  @if (loadError()) {
+  <div class="feedback feedback--error" role="alert">
+    <span>{{ loadError() }}</span>
+
+    <button
+      type="button"
+      class="feedback__retry"
+      (click)="loadStockItems()"
+    >
+      Tentar novamente
+    </button>
+  </div>
+  }
+
+  <div class="entry-layout">
+    <form
+      class="form-card"
+      [formGroup]="form"
+      (ngSubmit)="onSubmit()"
+      novalidate
+    >
+      @if (saveError()) {
+      <div class="feedback feedback--error" role="alert">
+        {{ saveError() }}
+      </div>
+      }
+
+      <div class="field">
+        <label for="stockItemId">Medicamento</label>
+
+        <select
+          id="stockItemId"
+          formControlName="stockItemId"
+          (change)="onStockItemChange()"
+          [class.field__input--invalid]="
+            form.controls.stockItemId.invalid &&
+            form.controls.stockItemId.touched
+          "
+        >
+          <option [ngValue]="null">
+            {{
+            loadingItems()
+            ? 'Carregando medicamentos...'
+            : 'Selecione um medicamento'
+            }}
+          </option>
+
+          @for (item of items(); track item.id) {
+          <option [ngValue]="item.id">
+            {{ item.name }}
+          </option>
+          }
+        </select>
+
+        @if (
+        form.controls.stockItemId.invalid &&
+        form.controls.stockItemId.touched
+        ) {
+        <span class="field-error">
+            Selecione um medicamento.
+          </span>
+        }
+      </div>
+
+      <div class="form-row">
+        <div class="field">
+          <label for="origin">Origem</label>
+
+          <select
+            id="origin"
+            formControlName="origin"
+            (change)="onOriginChange()"
+            [class.field__input--invalid]="
+              form.controls.origin.invalid &&
+              form.controls.origin.touched
+            "
+          >
+            <option value="">Selecione a origem</option>
+            <option value="DONATED">Doado</option>
+            <option value="PURCHASED">Comprado</option>
+          </select>
+
+          @if (
+          form.controls.origin.invalid &&
+          form.controls.origin.touched
+          ) {
+          <span class="field-error">
+              Selecione a origem.
+            </span>
+          }
+        </div>
+
+        <div class="field">
+          <label for="donorName">Nome do doador</label>
+
+          <input
+            id="donorName"
+            type="text"
+            placeholder="Ex.: Clínica VetAmigo"
+            formControlName="donorName"
+            [class.field__input--invalid]="
+              form.controls.donorName.invalid &&
+              form.controls.donorName.touched
+            "
+          />
+
+          @if (
+          form.controls.donorName.invalid &&
+          form.controls.donorName.touched
+          ) {
+          <span class="field-error">
+              Informe o nome do doador.
+            </span>
+          }
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="field">
+          <label for="quantity">Quantidade</label>
+
+          <input
+            id="quantity"
+            type="number"
+            min="0.001"
+            step="0.001"
+            placeholder="Ex.: 10"
+            formControlName="quantity"
+            [class.field__input--invalid]="
+              form.controls.quantity.invalid &&
+              form.controls.quantity.touched
+            "
+          />
+
+          @if (
+          form.controls.quantity.invalid &&
+          form.controls.quantity.touched
+          ) {
+          <span class="field-error">
+              Informe uma quantidade maior que zero.
+            </span>
+          }
+        </div>
+
+        <div class="field">
+          <label for="entryDate">Data de entrada</label>
+
+          <input
+            id="entryDate"
+            type="date"
+            formControlName="entryDate"
+            [class.field__input--invalid]="
+              form.controls.entryDate.invalid &&
+              form.controls.entryDate.touched
+            "
+          />
+
+          @if (
+          form.controls.entryDate.invalid &&
+          form.controls.entryDate.touched
+          ) {
+          <span class="field-error">
+              Informe a data de entrada.
+            </span>
+          }
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="expirationDate">Data de validade</label>
+
+        <input
+          id="expirationDate"
+          type="date"
+          formControlName="expirationDate"
+        />
+      </div>
+
+      <div class="form-actions">
+        <a
+          routerLink="/stock"
+          class="cancel-button"
+        >
+          Cancelar
+        </a>
+
+        <button
+          type="submit"
+          class="submit-button"
+          [disabled]="saving()"
+        >
+          {{ saving() ? 'Registrando...' : 'Registrar entrada' }}
+        </button>
+      </div>
+    </form>
+
+    <aside class="status-card">
+      <span class="status-card__eyebrow">
+        Situação atual do item
+      </span>
+
+      @if (selectedStockItem(); as item) {
+      <h2>{{ item.name }}</h2>
+
+      <span
+        class="status-badge"
+        [class.status-badge--normal]="item.status === 'Normal'"
+        [class.status-badge--low]="item.status === 'Low'"
+        [class.status-badge--out]="item.status === 'OutOfStock'"
+      >
+          {{ statusLabel(item.status) }}
+        </span>
+
+      <dl class="status-card__details">
+        <div>
+          <dt>Quantidade atual</dt>
+          <dd>{{ quantityLabel(item) }}</dd>
+        </div>
+
+        <div>
+          <dt>Validade mais próxima</dt>
+          <dd>{{ expirationLabel(item.expirationDate) }}</dd>
+        </div>
+      </dl>
+      } @else {
+      <p class="status-card__empty">
+        Selecione um medicamento para visualizar a situação atual.
+      </p>
+      }
+    </aside>
+  </div>
+</div>

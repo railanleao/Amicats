@@ -19,6 +19,8 @@ import { RoomsComponent } from './pages/rooms/rooms.component';
 import { RoomFormComponent } from './pages/room-form/room-form.component';
 import { MedicalRecordsComponent } from './pages/medical-records/medical-records.component';
 import { MedicalRecordDetailComponent } from './pages/medical-record-detail/medical-record-detail.component';
+import { StockComponent } from './pages/stock/stock.component';
+import { StockEntryComponent } from './pages/stock-entry/stock-entry.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -82,6 +84,8 @@ export const routes: Routes = [
       },
       { path: 'medical-records', component: MedicalRecordsComponent },
       { path: 'medical-records/:id', component: MedicalRecordDetailComponent },
+      { path: 'stock', component: StockComponent },
+      { path: 'stock/entries/new', component: StockEntryComponent },
     ],
   },
   { path: '**', redirectTo: '' },
