@@ -37,6 +37,13 @@ export async function listCats(params: ListCatsParams = {}): Promise<Cat[]> {
   return result.content;
 }
 
+// Just the count, for the Busca screen's room occupancy ("X/Y ocupada") — size=1 keeps the
+// response small since only `totalElements` is read.
+export async function countCatsInRoom(roomId: number): Promise<number> {
+  const result = await apiRequest<PagedResult<Cat>>(`/cats?roomId=${roomId}&page=0&size=1`);
+  return result.totalElements;
+}
+
 // `Image`'s `source.headers` lets us attach the bearer token to an otherwise plain
 // authenticated GET, the same way apiRequest does for JSON calls. Native iOS/Android
 // honor this; Expo's web target renders `Image` as a plain <img>, which the browser

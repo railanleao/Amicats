@@ -4,6 +4,10 @@ import { radii, spacing } from '../theme/spacing';
 import { fontSizes } from '../theme/typography';
 
 export const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
   content: {
     flexGrow: 1,
     backgroundColor: colors.background,
@@ -65,5 +69,37 @@ export const styles = StyleSheet.create({
   contactSubtitle: {
     fontSize: fontSizes.xs,
     color: colors.inkFaint,
+  },
+  occupancyCard: {
+    gap: spacing.xs,
+    backgroundColor: colors.surface,
+    borderColor: colors.border,
+    borderWidth: 1.5,
+    borderRadius: radii.sm,
+    padding: spacing.md,
+  },
+  occupancyHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  occupancyName: {
+    fontSize: fontSizes.md,
+    fontWeight: '700',
+    color: colors.ink,
+  },
+  occupancyCount: {
+    fontSize: fontSizes.sm,
+    color: colors.inkSoft,
+  },
+  occupancyTrack: {
+    height: 6,
+    borderRadius: radii.sm,
+    backgroundColor: colors.border,
+    overflow: 'hidden',
+  },
+  occupancyFill: {
+    height: '100%',
+    borderRadius: radii.sm,
   },
 });
