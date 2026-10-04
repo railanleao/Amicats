@@ -1,0 +1,175 @@
+<div class="page">
+  <header class="breadcrumb">
+    <a routerLink="/cats" class="breadcrumb__back" aria-label="Voltar para Gatos">
+      <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+        <path
+          d="M11 3.5L5 9l6 5.5"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+    </a>
+    <a routerLink="/cats" class="breadcrumb__link">Gatos</a>
+    <span class="breadcrumb__separator">/</span>
+    <span class="breadcrumb__current">Ficha do gato</span>
+  </header>
+
+  @if (errorMessage()) {
+    <div class="feedback feedback--error" role="alert">
+      {{ errorMessage() }}
+      <button type="button" class="feedback__retry" (click)="loadCat()">
+        Tentar novamente
+      </button>
+    </div>
+  } @else if (loading() || !cat()) {
+    <div class="feedback">Carregando ficha...</div>
+  } @else {
+    @let c = cat()!;
+
+    <div class="layout">
+      <section class="main-card">
+        <div class="cover">
+          <app-cat-cover [catId]="c.id" [hasPhoto]="!!c.photoUrl" />
+        </div>
+
+        <div class="field-row">
+          <div class="field field--grow">
+            <span class="field__label">Nome</span>
+            <div class="field__value-box">{{ c.name }}</div>
+          </div>
+          <div class="field">
+            <span class="field__label">Sexo</span>
+            <div class="field__value-box">{{ sexLabel(c) }}</div>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field field--grow">
+            <span class="field__label">Idade estimada</span>
+            <div class="field__value-box">{{ ageLabel(c) }}</div>
+          </div>
+          <div class="field">
+            <span class="field__label">Cor / Pelagem</span>
+            <div class="field__value-box">{{ c.coat || "—" }}</div>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field field--grow">
+            <span class="field__label">Microchip</span>
+            <div class="field__value-box">{{ c.microchip || "—" }}</div>
+          </div>
+          <div class="field">
+            <span class="field__label">Sala atual</span>
+            <div class="field__value-box field__value-box--inset">
+              {{ roomLabel(c) }}
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <span class="section__title">Saúde</span>
+
+          <div class="field-row">
+            <div class="field">
+              <span class="field__label">FIV</span>
+              <div
+                class="field__value-box"
+                [class.field__value-box--positive]="fivTone(c) === 'positive'"
+                [class.field__value-box--negative]="fivTone(c) === 'negative'"
+              >
+                {{ fivLabel(c) }}
+              </div>
+            </div>
+            <div class="field">
+              <span class="field__label">FeLV</span>
+              <div
+                class="field__value-box"
+                [class.field__value-box--positive]="felvTone(c) === 'positive'"
+                [class.field__value-box--negative]="felvTone(c) === 'negative'"
+              >
+                {{ felvLabel(c) }}
+              </div>
+            </div>
+            <div class="field">
+              <span class="field__label">PIF</span>
+              <div
+                class="field__value-box"
+                [class.field__value-box--positive]="pifTone(c) === 'positive'"
+                [class.field__value-box--negative]="pifTone(c) === 'negative'"
+              >
+                {{ pifLabel(c) }}
+              </div>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field field--grow">
+              <span class="field__label">Castrado(a)</span>
+              <div class="field__value-box">{{ neuteringLabel(c) }}</div>
+            </div>
+            <div class="field field--grow">
+              <span class="field__label">Situação clínica</span>
+              <div class="field__value-box">{{ generalStatusLabel(c) }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <span class="section__title">Resgate</span>
+
+          <div class="field-row">
+            <div class="field field--grow">
+              <span class="field__label">Data de resgate</span>
+              <div class="field__value-box">{{ c.rescueDate || "—" }}</div>
+            </div>
+            <div class="field field--grow">
+              <span class="field__label">Condições encontradas</span>
+              <div class="field__value-box">{{ c.foundConditions || "—" }}</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="sidebar">
+        <div class="side-card">
+          <span class="section__title">Apadrinhamento</span>
+
+          <div class="field">
+            <span class="field__label">Nome do padrinho / madrinha</span>
+            <div class="field__value-box">{{ c.sponsorName || "—" }}</div>
+          </div>
+
+          <div class="field">
+            <span class="field__label">Telefone</span>
+            <div class="field__value-box">{{ c.sponsorPhone || "—" }}</div>
+          </div>
+
+          <div class="field">
+            <span class="field__label">O que o padrinho custeia</span>
+            <div class="field__value-box field__value-box--multiline">
+              {{ c.sponsorFunding || "—" }}
+            </div>
+          </div>
+        </div>
+
+        <div class="side-card">
+          <span class="section__title">Metadados</span>
+
+          <div class="metadata-row">
+            <span class="metadata-row__label">Cadastrada em</span>
+            <span class="metadata-row__value">{{ createdAtLabel(c) }}</span>
+          </div>
+
+          <div class="metadata-row">
+            <span class="metadata-row__label">Cadastrada por</span>
+            <span class="metadata-row__value">—</span>
+          </div>
+        </div>
+      </aside>
+    </div>
+  }
+</div>

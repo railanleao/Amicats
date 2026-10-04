@@ -1,4 +1,12 @@
-import { Component, Input, OnChanges, OnDestroy, SimpleChanges, inject, signal } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnChanges,
+  OnDestroy,
+  SimpleChanges,
+  inject,
+  signal,
+} from '@angular/core';
 import { Subscription } from 'rxjs';
 
 import { UserService } from '../../services/resources/user.service';

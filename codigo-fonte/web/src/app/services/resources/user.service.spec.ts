@@ -60,7 +60,9 @@ describe('UserService (integration)', () => {
     };
 
     let received: PagedResult<User> | undefined;
-    service.list({ page: 0, size: 20 }).subscribe((result) => (received = result));
+    service
+      .list({ page: 0, size: 20 })
+      .subscribe((result) => (received = result));
 
     const request = httpMock.expectOne(
       `${environment.apiUrl}/users?page=0&size=20`,
@@ -73,14 +75,26 @@ describe('UserService (integration)', () => {
 
   it('includes search, accessType and active only when provided', () => {
     service
-      .list({ search: 'carla', accessType: 'Veterinarian', active: false, page: 1, size: 10 })
+      .list({
+        search: 'carla',
+        accessType: 'Veterinarian',
+        active: false,
+        page: 1,
+        size: 10,
+      })
       .subscribe();
 
     const request = httpMock.expectOne(
       `${environment.apiUrl}/users?page=1&size=10&search=carla&accessType=Veterinarian&active=false`,
     );
     expect(request.request.method).toBe('GET');
-    request.flush({ content: [], page: 1, size: 10, totalElements: 0, totalPages: 0 });
+    request.flush({
+      content: [],
+      page: 1,
+      size: 10,
+      totalElements: 0,
+      totalPages: 0,
+    });
   });
 
   it('omits search, accessType and active when not provided', () => {
@@ -92,7 +106,13 @@ describe('UserService (integration)', () => {
     expect(request.request.url.includes('search')).toBeFalse();
     expect(request.request.url.includes('accessType')).toBeFalse();
     expect(request.request.url.includes('active')).toBeFalse();
-    request.flush({ content: [], page: 0, size: 20, totalElements: 0, totalPages: 0 });
+    request.flush({
+      content: [],
+      page: 0,
+      size: 20,
+      totalElements: 0,
+      totalPages: 0,
+    });
   });
 
   it('sends a PATCH with active=false to deactivate a user', () => {
@@ -165,7 +185,6 @@ describe('UserService (integration)', () => {
     expect(request.request.body).toEqual(payload);
     request.flush(mockUser());
   });
-
 
   it('puts the file as multipart form data to upload a photo', () => {
     const file = new File(['x'], 'foto.png', { type: 'image/png' });

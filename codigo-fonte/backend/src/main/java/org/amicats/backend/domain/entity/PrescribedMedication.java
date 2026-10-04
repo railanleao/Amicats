@@ -1,0 +1,147 @@
+package org.amicats.backend.domain.entity;
+
+import jakarta.persistence.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.amicats.backend.domain.enums.AdministrationRoute;
+import org.amicats.backend.domain.enums.MedicalPrescriptionOrigin;
+import org.amicats.backend.domain.enums.PrescribedMedicationStatus;
+import org.amicats.backend.exception.InvalidPrescribedMedicationException;
+
+@Entity
+@Table(name = "prescribed_medications")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class PrescribedMedication {
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "id_prescribed_medication")
+  private Integer id;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "id_internal_medical_prescription")
+  private InternalMedicalPrescription internalMedicalPrescription;
+
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(name = "id_cat", nullable = false)
+  private Cat cat;
+
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(name = "id_stock_item", nullable = false)
+  private StockItem medication;
+
+  @Column(nullable = false, length = 50)
+  private String dosage;
+
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false, length = 20)
+  private AdministrationRoute route;
+
+  @Column(name = "interval_hours", nullable = false)
+  private Integer intervalHours;
+
+  @Column(name = "duration_days", nullable = false)
+  private Integer durationDays;
+
+  @Column(name = "start_date", nullable = false)
+  private LocalDate startDate;
+
+  @Column(name = "end_date", nullable = false)
+  private LocalDate endDate;
+
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false, length = 20)
+  private PrescribedMedicationStatus status;
+
+  @Column(name = "cancelled_at")
+  private LocalDateTime cancelledAt;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "id_user_cancelled_by")
+  private User cancelledBy;
+
+  @Column(name = "cancel_reason", columnDefinition = "text")
+  private String cancelReason;
+
+  @Column(name = "created_at", nullable = false)
+  private LocalDateTime createdAt;
+
+  private PrescribedMedication(
+      Cat cat,
+      StockItem medication,
+      String dosage,
+      AdministrationRoute route,
+      int intervalHours,
+      int durationDays,
+      LocalDate startDate,
+      LocalDateTime createdAt) {
+    this.cat = cat;
+    this.medication = medication;
+    this.dosage = dosage;
+    this.route = route;
+    this.intervalHours = intervalHours;
+    this.durationDays = durationDays;
+    this.startDate = startDate;
+    this.endDate = startDate.plusDays(durationDays - 1L);
+    this.status = PrescribedMedicationStatus.Active;
+    this.createdAt = createdAt;
+  }
+
+  public static PrescribedMedication fromInternal(
+      InternalMedicalPrescription internalMedicalPrescription,
+      StockItem medication,
+      String dosage,
+      AdministrationRoute route,
+      int intervalHours,
+      int durationDays,
+      LocalDate startDate,
+      LocalDateTime createdAt) {
+    PrescribedMedication prescribedMedication =
+        new PrescribedMedication(
+            internalMedicalPrescription.getCat(),
+            medication,
+            dosage,
+            route,
+            intervalHours,
+            durationDays,
+            startDate,
+            createdAt);
+    prescribedMedication.internalMedicalPrescription = internalMedicalPrescription;
+    return prescribedMedication;
+  }
+
+  public MedicalPrescriptionOrigin getOrigin() {
+    return internalMedicalPrescription != null
+        ? MedicalPrescriptionOrigin.Internal
+        : MedicalPrescriptionOrigin.ExternalClinic;
+  }
+
+  public Integer getMedicalPrescriptionId() {
+    return internalMedicalPrescription != null ? internalMedicalPrescription.getId() : null;
+  }
+
+  public boolean isActiveOn(LocalDate date) {
+    return status == PrescribedMedicationStatus.Active && !endDate.isBefore(date);
+  }
+
+  public PrescribedMedicationStatus getEffectiveStatus(LocalDate date) {
+    if (status == PrescribedMedicationStatus.Active && endDate.isBefore(date)) {
+      return PrescribedMedicationStatus.Completed;
+    }
+    return status;
+  }
+
+  public void cancel(User cancelledBy, String reason, LocalDateTime now) {
+    if (!isActiveOn(now.toLocalDate())) {
+      throw new InvalidPrescribedMedicationException("Só é possível cancelar uma medicação ativa.");
+    }
+    this.status = PrescribedMedicationStatus.Cancelled;
+    this.cancelledBy = cancelledBy;
+    this.cancelReason = reason;
+    this.cancelledAt = now;
+  }
+}

@@ -1,14 +1,21 @@
-import {Component, DestroyRef, OnDestroy, OnInit, inject, signal} from '@angular/core';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {
+  Component,
+  DestroyRef,
+  OnDestroy,
+  OnInit,
+  inject,
+  signal,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
-import {Subject, debounceTime, distinctUntilChanged, finalize} from 'rxjs';
+import { Subject, debounceTime, distinctUntilChanged, finalize } from 'rxjs';
 
-import {ConfirmDialogComponent} from '../../components/confirm-dialog/confirm-dialog.component';
-import {PaginationComponent} from '../../components/pagination/pagination.component';
+import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
+import { PaginationComponent } from '../../components/pagination/pagination.component';
 import { ToggleComponent } from '../../components/toggle/toggle.component';
-import {AccessType} from '../../models/auth.model';
-import {ACCESS_TYPE_LABELS, User} from '../../models/user.model';
-import {UserService} from '../../services/resources/user.service';
+import { AccessType } from '../../models/auth.model';
+import { ACCESS_TYPE_LABELS, User } from '../../models/user.model';
+import { UserService } from '../../services/resources/user.service';
 import { UserAvatarComponent } from '../../components/user-avatar/user-avatar.component';
 
 const PAGE_SIZE = 20;
@@ -17,7 +24,12 @@ const SEARCH_DEBOUNCE_MS = 300;
 @Component({
   selector: 'app-users',
   standalone: true,
-  imports: [ConfirmDialogComponent, PaginationComponent, ToggleComponent, UserAvatarComponent],
+  imports: [
+    ConfirmDialogComponent,
+    PaginationComponent,
+    ToggleComponent,
+    UserAvatarComponent,
+  ],
   templateUrl: './users.component.html',
   styleUrl: './users.component.css',
 })
@@ -46,7 +58,11 @@ export class UsersComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.searchInput$
-      .pipe(debounceTime(SEARCH_DEBOUNCE_MS), distinctUntilChanged(), takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        debounceTime(SEARCH_DEBOUNCE_MS),
+        distinctUntilChanged(),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe((term) => {
         this.searchTerm = term;
         this.page.set(0);
@@ -68,7 +84,9 @@ export class UsersComponent implements OnInit, OnDestroy {
       .list({
         search: this.searchTerm || undefined,
         accessType: (this.selectedProfile as AccessType) || undefined,
-        active: this.selectedStatus ? this.selectedStatus === 'Active' : undefined,
+        active: this.selectedStatus
+          ? this.selectedStatus === 'Active'
+          : undefined,
         page: this.page(),
         size: this.pageSize,
       })
@@ -83,7 +101,9 @@ export class UsersComponent implements OnInit, OnDestroy {
           this.totalPages.set(result.totalPages);
         },
         error: () =>
-          this.errorMessage.set('Não foi possível carregar os usuários. Tente novamente.'),
+          this.errorMessage.set(
+            'Não foi possível carregar os usuários. Tente novamente.',
+          ),
       });
   }
 
@@ -167,7 +187,9 @@ export class UsersComponent implements OnInit, OnDestroy {
           this.loadUsers();
         },
         error: () => {
-          this.errorMessage.set('Não foi possível desativar o usuário. Tente novamente.');
+          this.errorMessage.set(
+            'Não foi possível desativar o usuário. Tente novamente.',
+          );
           this.userPendingDeactivation.set(null);
         },
       });
@@ -206,7 +228,9 @@ export class UsersComponent implements OnInit, OnDestroy {
           this.loadUsers();
         },
         error: () => {
-          this.errorMessage.set('Não foi possível reativar o usuário. Tente novamente.');
+          this.errorMessage.set(
+            'Não foi possível reativar o usuário. Tente novamente.',
+          );
           this.userPendingReactivation.set(null);
         },
       });

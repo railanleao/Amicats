@@ -10,7 +10,9 @@ describe('authTokenInterceptor', () => {
   let authServiceSpy: jasmine.SpyObj<AuthService>;
 
   beforeEach(() => {
-    authServiceSpy = jasmine.createSpyObj<AuthService>('AuthService', ['getToken']);
+    authServiceSpy = jasmine.createSpyObj<AuthService>('AuthService', [
+      'getToken',
+    ]);
 
     TestBed.configureTestingModule({
       providers: [{ provide: AuthService, useValue: authServiceSpy }],
@@ -24,8 +26,11 @@ describe('authTokenInterceptor', () => {
 
     TestBed.runInInjectionContext(() => authTokenInterceptor(request, next));
 
-    const forwardedRequest = next.calls.mostRecent().args[0] as HttpRequest<unknown>;
-    expect(forwardedRequest.headers.get('Authorization')).toBe('Bearer fake-jwt-token');
+    const forwardedRequest = next.calls.mostRecent()
+      .args[0] as HttpRequest<unknown>;
+    expect(forwardedRequest.headers.get('Authorization')).toBe(
+      'Bearer fake-jwt-token',
+    );
   });
 
   it('does not attach a header when there is no token', () => {
@@ -40,7 +45,10 @@ describe('authTokenInterceptor', () => {
 
   it('does not leak the token to a third-party absolute URL', () => {
     authServiceSpy.getToken.and.returnValue('fake-jwt-token');
-    const request = new HttpRequest('GET', 'https://third-party.example.com/track');
+    const request = new HttpRequest(
+      'GET',
+      'https://third-party.example.com/track',
+    );
     const next = jasmine.createSpy('next').and.returnValue(of());
 
     TestBed.runInInjectionContext(() => authTokenInterceptor(request, next));

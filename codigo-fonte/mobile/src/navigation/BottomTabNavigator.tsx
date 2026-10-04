@@ -1,7 +1,10 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import type { RouteProp } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
+import { CatsScreen } from "../screens/CatsScreen";
 import { ComingSoonScreen } from "../screens/ComingSoonScreen";
+import { HomeScreen } from "../screens/HomeScreen";
+import { SearchScreen } from "../screens/SearchScreen";
 import { colors } from "../theme/colors";
 import type { User } from "../types/auth";
 
@@ -37,11 +40,15 @@ const TAB_ICONS_OUTLINE: Record<
 interface BottomTabNavigatorProps {
   user: User;
   onLogout: () => void;
+  onNewCat: () => void;
+  onOpenCat: (catId: number) => void;
 }
 
 export function BottomTabNavigator({
-  user: _user,
+  user,
   onLogout,
+  onNewCat,
+  onOpenCat,
 }: BottomTabNavigatorProps) {
   return (
     <Tab.Navigator
@@ -75,16 +82,16 @@ export function BottomTabNavigator({
       })}
     >
       <Tab.Screen name="Home" options={{ title: "Início" }}>
-        {() => <ComingSoonScreen title="Início" onLogout={onLogout} />}
+        {() => <HomeScreen user={user} onNewCat={onNewCat} />}
       </Tab.Screen>
       <Tab.Screen name="Cats" options={{ title: "Gatos" }}>
-        {() => <ComingSoonScreen title="Gatos" onLogout={onLogout} />}
+        {() => <CatsScreen onOpenCat={onOpenCat} />}
       </Tab.Screen>
       <Tab.Screen name="Doses">
         {() => <ComingSoonScreen title="Doses" onLogout={onLogout} />}
       </Tab.Screen>
       <Tab.Screen name="Search" options={{ title: "Busca" }}>
-        {() => <ComingSoonScreen title="Busca" onLogout={onLogout} />}
+        {() => <SearchScreen onOpenCat={onOpenCat} />}
       </Tab.Screen>
     </Tab.Navigator>
   );

@@ -70,7 +70,8 @@ describe('ToggleComponent', () => {
     component.hint = 'Desativar usuário';
     fixture.detectChanges();
 
-    const wrapper: HTMLElement = fixture.nativeElement.querySelector('.toggle-wrapper');
+    const wrapper: HTMLElement =
+      fixture.nativeElement.querySelector('.toggle-wrapper');
     expect(wrapper.getAttribute('title')).toBe('Desativar usuário');
   });
 });

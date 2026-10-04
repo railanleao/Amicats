@@ -2,7 +2,12 @@ import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Observable, catchError, finalize, map, of, switchMap } from 'rxjs';
 
@@ -51,11 +56,15 @@ export class UserFormComponent {
     ? Number(this.route.snapshot.paramMap.get('id'))
     : null;
   readonly title = this.isEditing ? 'Editar usuário' : 'Novo usuário';
-  readonly submitLabel = this.isEditing ? 'Salvar alterações' : 'Cadastrar usuário';
+  readonly submitLabel = this.isEditing
+    ? 'Salvar alterações'
+    : 'Cadastrar usuário';
   readonly justCreated = this.isEditing && history.state?.created === true;
   readonly photoFailed = this.isEditing && history.state?.photoFailed === true;
 
-  readonly accessTypeOptions = (Object.keys(ACCESS_TYPE_LABELS) as AccessType[]).map((value) => ({
+  readonly accessTypeOptions = (
+    Object.keys(ACCESS_TYPE_LABELS) as AccessType[]
+  ).map((value) => ({
     value,
     label: ACCESS_TYPE_LABELS[value],
   }));
@@ -87,7 +96,11 @@ export class UserFormComponent {
     }),
     email: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.email, Validators.maxLength(150)],
+      validators: [
+        Validators.required,
+        Validators.email,
+        Validators.maxLength(150),
+      ],
     }),
     phoneNumber: new FormControl('', {
       nonNullable: true,
@@ -152,7 +165,9 @@ export class UserFormComponent {
   }
 
   get hasPhoto(): boolean {
-    return this.isEditing ? !!this.user()?.imageUrl : this.pendingPhoto() !== null;
+    return this.isEditing
+      ? !!this.user()?.imageUrl
+      : this.pendingPhoto() !== null;
   }
 
   onSubmit(): void {
@@ -175,7 +190,9 @@ export class UserFormComponent {
       phoneNumber: values.phoneNumber.trim() || null,
       accessType,
       crmv: isVeterinarian ? values.crmv.trim() || null : null,
-      ufCrmv: isVeterinarian ? values.ufCrmv.trim().toUpperCase() || null : null,
+      ufCrmv: isVeterinarian
+        ? values.ufCrmv.trim().toUpperCase() || null
+        : null,
     };
 
     this.saving.set(true);
@@ -368,11 +385,16 @@ export class UserFormComponent {
           }
           this.photoVersion.update((version) => version + 1);
         },
-        error: () => this.photoError.set('Não foi possível remover a foto. Tente novamente.'),
+        error: () =>
+          this.photoError.set(
+            'Não foi possível remover a foto. Tente novamente.',
+          ),
       });
   }
 
-  private uploadChosenPhoto(created: User): Observable<{ created: User; photoFailed: boolean }> {
+  private uploadChosenPhoto(
+    created: User,
+  ): Observable<{ created: User; photoFailed: boolean }> {
     const photo = this.pendingPhoto();
     if (!photo) {
       return of({ created, photoFailed: false });
@@ -439,7 +461,9 @@ export class UserFormComponent {
     const { crmv, ufCrmv } = this.form.controls;
 
     crmv.setValidators(
-      required ? [Validators.required, Validators.maxLength(20)] : [Validators.maxLength(20)],
+      required
+        ? [Validators.required, Validators.maxLength(20)]
+        : [Validators.maxLength(20)],
     );
     ufCrmv.setValidators(
       required

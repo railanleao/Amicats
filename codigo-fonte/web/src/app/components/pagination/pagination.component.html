@@ -1,6 +1,7 @@
 <div class="pagination">
   <div class="pagination__summary">
-    Mostrando {{ rangeStart }}–{{ rangeEnd }} de {{ totalElements }} {{ itemLabel }}
+    Mostrando {{ rangeStart }}–{{ rangeEnd }} de {{ totalElements }}
+    {{ itemLabel }}
   </div>
 
   <div class="pagination__controls">
@@ -11,7 +12,12 @@
       aria-label="Página anterior"
       (click)="goToPrevious()"
     >
-      <svg width="14" height="14" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+      <svg
+        width="14"
+        height="14"
+        viewBox="0 0 18 18"
+        xmlns="http://www.w3.org/2000/svg"
+      >
         <path
           d="M11 4l-5 5 5 5"
           fill="none"
@@ -23,7 +29,9 @@
       </svg>
     </button>
 
-    <div class="pagination__page">Página {{ page + 1 }} de {{ displayedTotalPages }}</div>
+    <div class="pagination__page">
+      Página {{ page + 1 }} de {{ displayedTotalPages }}
+    </div>
 
     <button
       type="button"
@@ -32,7 +40,12 @@
       aria-label="Próxima página"
       (click)="goToNext()"
     >
-      <svg width="14" height="14" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+      <svg
+        width="14"
+        height="14"
+        viewBox="0 0 18 18"
+        xmlns="http://www.w3.org/2000/svg"
+      >
         <path
           d="M7 4l5 5-5 5"
           fill="none"

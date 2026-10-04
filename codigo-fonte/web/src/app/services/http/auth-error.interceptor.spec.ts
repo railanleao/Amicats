@@ -12,7 +12,9 @@ describe('authErrorInterceptor', () => {
   let router: Router;
 
   beforeEach(() => {
-    authServiceSpy = jasmine.createSpyObj<AuthService>('AuthService', ['clearSession']);
+    authServiceSpy = jasmine.createSpyObj<AuthService>('AuthService', [
+      'clearSession',
+    ]);
 
     TestBed.configureTestingModule({
       providers: [{ provide: AuthService, useValue: authServiceSpy }],
@@ -26,7 +28,9 @@ describe('authErrorInterceptor', () => {
     const request = new HttpRequest('GET', url);
     const next = jasmine
       .createSpy('next')
-      .and.returnValue(throwError(() => new HttpErrorResponse({ status, url })));
+      .and.returnValue(
+        throwError(() => new HttpErrorResponse({ status, url })),
+      );
 
     let receivedError: unknown;
     TestBed.runInInjectionContext(() =>

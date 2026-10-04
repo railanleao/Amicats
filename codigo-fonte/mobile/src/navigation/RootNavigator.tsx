@@ -1,7 +1,9 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { CatDetailScreen } from "../screens/CatDetailScreen";
 import { ForgotPasswordScreen } from "../screens/ForgotPasswordScreen";
 import { LoginScreen } from "../screens/LoginScreen";
+import { NewCatScreen } from "../screens/NewCatScreen";
 import { NewPasswordScreen } from "../screens/NewPasswordScreen";
 import { TermsAcceptanceScreen } from "../screens/TermsAcceptanceScreen";
 import { BottomTabNavigator } from "./BottomTabNavigator";
@@ -13,6 +15,8 @@ type RootStackParamList = {
   TermsAcceptance: undefined;
   NewPassword: undefined;
   Main: undefined;
+  NewCat: { catId?: number } | undefined;
+  CatDetail: { catId: number };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -62,9 +66,36 @@ export function RootNavigator({
             {() => <NewPasswordScreen onSubmit={onChangePassword} />}
           </Stack.Screen>
         ) : (
-          <Stack.Screen name="Main">
-            {() => <BottomTabNavigator user={user} onLogout={onLogout} />}
-          </Stack.Screen>
+          <>
+            <Stack.Screen name="Main">
+              {({ navigation }) => (
+                <BottomTabNavigator
+                  user={user}
+                  onLogout={onLogout}
+                  onNewCat={() => navigation.navigate("NewCat")}
+                  onOpenCat={(catId) => navigation.navigate("CatDetail", { catId })}
+                />
+              )}
+            </Stack.Screen>
+            <Stack.Screen name="NewCat" options={{ presentation: "modal" }}>
+              {({ navigation, route }) => (
+                <NewCatScreen
+                  catId={route.params?.catId}
+                  onBack={() => navigation.goBack()}
+                  onSaved={() => navigation.goBack()}
+                />
+              )}
+            </Stack.Screen>
+            <Stack.Screen name="CatDetail">
+              {({ navigation, route }) => (
+                <CatDetailScreen
+                  catId={route.params.catId}
+                  onBack={() => navigation.goBack()}
+                  onEdit={(catId) => navigation.navigate("NewCat", { catId })}
+                />
+              )}
+            </Stack.Screen>
+          </>
         )}
       </Stack.Navigator>
     </NavigationContainer>
