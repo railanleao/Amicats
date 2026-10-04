@@ -1,0 +1,137 @@
+<div class="page-content">
+  <!-- Page header -->
+
+  <header class="page-header">
+    <div class="breadcrumb">
+      <span class="back-icon"> ‹ </span>
+      <span class="breadcrumb-section"> Prontuários </span>
+      <span class="separator"> / </span>
+      <h1>Anexar atendimento externo</h1>
+    </div>
+  </header>
+
+  <!-- Main content -->
+
+  <main class="content-area">
+    <!-- Attendance form -->
+
+    <section class="form-card">
+      <form>
+        <!-- Cat and clinic -->
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="cat"> Gato </label>
+            <select id="cat" name="cat" [(ngModel)]="externalAttendance.cat">
+              <option *ngFor="let cat of cats" [value]="cat">
+                {{ cat }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="partnerClinic"> Clínica parceira </label>
+            <select
+              id="partnerClinic"
+              name="partnerClinic"
+              [(ngModel)]="externalAttendance.partnerClinic"
+            >
+              <option *ngFor="let clinic of partnerClinics" [value]="clinic">
+                {{ clinic }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Veterinarian and CRMV -->
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="veterinarian"> Veterinário responsável </label>
+            <input
+              id="veterinarian"
+              name="veterinarian"
+              type="text"
+              [(ngModel)]="externalAttendance.veterinarian"
+            />
+          </div>
+          <div class="form-group small-field">
+            <label for="crmv"> CRMV / UF </label>
+            <input
+              id="crmv"
+              name="crmv"
+              type="text"
+              [(ngModel)]="externalAttendance.crmv"
+            />
+          </div>
+        </div>
+
+        <!-- Attendance date -->
+        <div class="form-group full-width">
+          <label for="attendanceDate"> Data do atendimento </label>
+          <input
+            id="attendanceDate"
+            name="attendanceDate"
+            type="text"
+            [(ngModel)]="externalAttendance.attendanceDate"
+          />
+        </div>
+
+        <!-- Diagnosis -->
+
+        <div class="form-group full-width">
+          <label for="diagnosis"> Diagnóstico / observações </label>
+          <textarea
+            id="diagnosis"
+            name="diagnosis"
+            rows="3"
+            [(ngModel)]="externalAttendance.diagnosis"
+          >
+          </textarea>
+        </div>
+        <div class="divider"></div>
+
+        <!-- File attachment -->
+
+        <div class="file-section">
+          <span class="file-label"> Anexo do prontuário recebido </span>
+          <div class="file-box">
+            <div class="file-info">
+              <span class="file-icon"> ▤ </span>
+              <span class="file-name">
+                {{ externalAttendance.attachedFile }}
+              </span>
+            </div>
+            <label for="attachment" class="change-file"> Trocar arquivo </label>
+            <input
+              id="attachment"
+              type="file"
+              accept=".pdf,.jpg,.jpeg,.png"
+              (change)="selectFile($event)"
+            />
+          </div>
+        </div>
+        <div class="divider"></div>
+
+        <!-- Actions -->
+
+        <div class="form-actions">
+          <button type="button" class="btn-cancel" (click)="cancel()">
+            Cancelar
+          </button>
+          <button type="button" class="btn-save" (click)="saveAttendance()">
+            Salvar atendimento
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Cat information -->
+    <aside class="cat-card">
+      <span class="card-label"> SOBRE O GATO </span>
+      <h2>Zeca</h2>
+      <p>Macho · Idoso e ESC</p>
+      <span class="status"> Disponível para adoção </span>
+    </aside>
+  </main>
+</div>

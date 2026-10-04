@@ -19,6 +19,7 @@ import { RoomsComponent } from './pages/rooms/rooms.component';
 import { RoomFormComponent } from './pages/room-form/room-form.component';
 import { MedicalRecordsComponent } from './pages/medical-records/medical-records.component';
 import { MedicalRecordDetailComponent } from './pages/medical-record-detail/medical-record-detail.component';
+import { ExternalAttendanceFormComponent } from './pages/external-attendance/external-attendance-form.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -82,6 +83,17 @@ export const routes: Routes = [
       },
       { path: 'medical-records', component: MedicalRecordsComponent },
       { path: 'medical-records/:id', component: MedicalRecordDetailComponent },
+    ],
+  },
+  {
+    path: '',
+    component: DashboardLayoutComponent,
+    canActivate: [authGuard],
+    children: [
+      {
+        path: 'external-attendance',
+        component: ExternalAttendanceFormComponent,
+      },
     ],
   },
   { path: '**', redirectTo: '' },
