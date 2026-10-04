@@ -19,6 +19,7 @@ import { RoomsComponent } from './pages/rooms/rooms.component';
 import { RoomFormComponent } from './pages/room-form/room-form.component';
 import { MedicalRecordsComponent } from './pages/medical-records/medical-records.component';
 import { MedicalRecordDetailComponent } from './pages/medical-record-detail/medical-record-detail.component';
+import { SearchComponent } from './pages/search/search.component';
 import { veterinarianGuard } from './guards/veterinarian.guard';
 import { InternalPrescriptionFormComponent } from './pages/internal-prescription-form/internal-prescription-form.component';
 
@@ -41,6 +42,7 @@ export const routes: Routes = [
     canActivate: [authGuard],
     children: [
       { path: '', component: HomeComponent },
+      { path: 'search', component: SearchComponent },
       { path: 'cats', component: CatsComponent },
       // No role guard here (unlike /users/new): cat creation/edit is allowed for Administrator
       // AND Veterinarian (UC-06), and there's no existing guard for that combination. The backend
