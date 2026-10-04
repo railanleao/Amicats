@@ -1,7 +1,14 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
+import { Observable, catchError, forkJoin, map, of, switchMap } from 'rxjs';
 
+import { Cat } from '../../models/cat.model';
+import { Room } from '../../models/room.model';
 import { AuthService } from '../../services/resources/auth.service';
+import { CatService } from '../../services/resources/cat.service';
+import { RoomService } from '../../services/resources/room.service';
+import { StockService } from '../../services/resources/stock.service';
 
 interface StatCard {
   value: string;
@@ -43,8 +50,12 @@ const YEAR_FORMATTER = new Intl.DateTimeFormat('pt-BR', { year: 'numeric' });
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit {
   private readonly authService = inject(AuthService);
+  private readonly catService = inject(CatService);
+  private readonly roomService = inject(RoomService);
+  private readonly stockService = inject(StockService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly firstName = computed(() => {
     const name = this.authService.currentUser()?.name ?? '';
@@ -53,16 +64,20 @@ export class HomeComponent {
 
   readonly today = this.formatToday();
 
-  // Mock data until the dashboard has real endpoints to back it (RF-014, Etapa 4).
-  // Cats, medications, adoptions and the audit log don't exist in the backend yet — only the
-  // greeting above and the room count/occupancy would be real once /cats and /rooms/{id}/... grow
-  // the fields this needs. Replace each section as its data becomes available.
-  readonly stats: StatCard[] = [
-    { value: '47', label: 'Gatinhos ativos' },
-    { value: '18', label: 'Disponíveis para adoção' },
-    { value: '68%', label: 'Ocupação das salas' },
-    { value: '3', label: 'Medicamentos em falta', tone: 'danger' },
-  ];
+  // Real: backed by /cats, /rooms and /stock (all added this round). Shows "—" placeholders
+  // until the first load resolves, same idea as a loading skeleton without the extra markup.
+  readonly stats = signal<StatCard[]>([
+    { value: '—', label: 'Gatinhos ativos' },
+    { value: '—', label: 'Disponíveis para adoção' },
+    { value: '—', label: 'Ocupação das salas' },
+    { value: '—', label: 'Medicamentos em falta' },
+  ]);
+
+  readonly roomOccupancy = signal<RoomOccupancy[]>([]);
+
+  // The one danger reminder is real (derived from /stock); the other three stay mocked because
+  // vaccines, castrations and prescriptions don't have a backend yet (outside this round's scope).
+  readonly stockReminder = signal<Reminder | null>(null);
 
   // "+ Novo gatinho" is a real link (see the template) — it's the only one of the four whose form
   // and backend exist today.
@@ -72,6 +87,7 @@ export class HomeComponent {
     '+ Nova adoção',
   ];
 
+  // Mock: no vaccine/castration/prescription-schedule entity exists yet.
   readonly reminders: Reminder[] = [
     {
       date: '12/09',
@@ -84,24 +100,13 @@ export class HomeComponent {
       text: 'Renovar prescrição — Interferon felino (Nina)',
       tone: 'gold',
     },
-    {
-      date: 'Hoje',
-      text: 'Estoque baixo — Doramectina injetável, 0 unidades',
-      tone: 'danger',
-    },
   ];
 
-  readonly roomOccupancy: RoomOccupancy[] = [
-    {
-      name: 'Saudáveis — Adultos',
-      occupied: 14,
-      capacity: 16,
-      tone: 'primary',
-    },
-    { name: 'FIV — Adultos', occupied: 8, capacity: 12, tone: 'primary' },
-    { name: 'Observação Intensiva', occupied: 7, capacity: 8, tone: 'gold' },
-  ];
+  ngOnInit(): void {
+    this.loadDashboardData();
+  }
 
+  // Mock: no audit-log entity exists yet.
   readonly activity: ActivityEntry[] = [
     {
       date: '10/09 · 14:32',
@@ -173,5 +178,100 @@ export class HomeComponent {
     const capitalizedWeekday =
       weekday.charAt(0).toUpperCase() + weekday.slice(1);
     return `${capitalizedWeekday}, ${DAY_FORMATTER.format(now)} de ${MONTH_FORMATTER.format(now)} de ${YEAR_FORMATTER.format(now)}`;
+  }
+
+  private loadDashboardData(): void {
+    forkJoin({
+      total: this.countCats(),
+      available: this.countCats({ generalStatus: 'AvailableForAdoption' }),
+      adopted: this.countCats({ generalStatus: 'Adopted' }),
+      deceased: this.countCats({ generalStatus: 'Deceased' }),
+      activeRooms: this.roomService.list({ active: true, page: 0, size: 20 }).pipe(
+        map((page) => page.content),
+        catchError(() => of<Room[]>([])),
+      ),
+      stockLow: this.stockService
+        .list({ status: 'Low', page: 0, size: 5 })
+        .pipe(catchError(() => of({ content: [], totalElements: 0 }))),
+      stockOut: this.stockService
+        .list({ status: 'OutOfStock', page: 0, size: 5 })
+        .pipe(catchError(() => of({ content: [], totalElements: 0 }))),
+    })
+      .pipe(
+        switchMap((base) =>
+          this.roomOccupancies(base.activeRooms).pipe(
+            map((occupancies) => ({ ...base, occupancies })),
+          ),
+        ),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(({ total, available, adopted, deceased, stockLow, stockOut, occupancies }) => {
+        const activeCats = Math.max(total - adopted - deceased, 0);
+        const totalCapacity = occupancies.reduce((sum, room) => sum + room.capacity, 0);
+        const totalOccupied = occupancies.reduce((sum, room) => sum + room.occupied, 0);
+        const occupancyPercent =
+          totalCapacity > 0 ? Math.round((totalOccupied / totalCapacity) * 100) : 0;
+        const lowStockCount = stockLow.totalElements + stockOut.totalElements;
+
+        this.stats.set([
+          { value: String(activeCats), label: 'Gatinhos ativos' },
+          { value: String(available), label: 'Disponíveis para adoção' },
+          { value: `${occupancyPercent}%`, label: 'Ocupação das salas' },
+          {
+            value: String(lowStockCount),
+            label: 'Medicamentos em falta',
+            tone: lowStockCount > 0 ? 'danger' : undefined,
+          },
+        ]);
+
+        this.roomOccupancy.set(
+          [...occupancies]
+            .sort((a, b) => b.occupied / b.capacity - a.occupied / a.capacity)
+            .slice(0, 3),
+        );
+
+        const urgentItem = stockOut.content[0] ?? stockLow.content[0];
+        this.stockReminder.set(
+          urgentItem
+            ? {
+                date: 'Hoje',
+                text: `Estoque baixo — ${urgentItem.name}, ${urgentItem.quantity} ${urgentItem.unit}`,
+                tone: 'danger',
+              }
+            : null,
+        );
+      });
+  }
+
+  private countCats(filter: { generalStatus?: Cat['generalStatus'] } = {}): Observable<number> {
+    return this.catService.list({ ...filter, page: 0, size: 1 }).pipe(
+      map((page) => page.totalElements),
+      catchError(() => of(0)),
+    );
+  }
+
+  private roomOccupancies(rooms: Room[]): Observable<RoomOccupancy[]> {
+    const withCapacity = rooms.filter((room) => (room.maxCapacity ?? 0) > 0);
+    if (withCapacity.length === 0) {
+      return of([]);
+    }
+
+    return forkJoin(
+      withCapacity.map((room) =>
+        this.catService.list({ roomId: room.id, page: 0, size: 1 }).pipe(
+          map((page) => page.totalElements),
+          catchError(() => of(0)),
+          map((occupied) => {
+            const capacity = room.maxCapacity as number;
+            return {
+              name: room.title,
+              occupied,
+              capacity,
+              tone: (occupied / capacity >= 0.85 ? 'gold' : 'primary') as 'primary' | 'gold',
+            };
+          }),
+        ),
+      ),
+    );
   }
 }
