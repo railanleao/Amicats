@@ -1,5 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import { RootNavigator } from "./src/navigation/RootNavigator";
 import { useAuth } from "./src/hooks/useAuth";
 import { colors } from "./src/theme/colors";
@@ -17,7 +18,7 @@ export default function App() {
   }
 
   return (
-    <>
+    <SafeAreaProvider>
       <RootNavigator
         user={user}
         onLogin={login}
@@ -26,7 +27,7 @@ export default function App() {
         onChangePassword={changePassword}
       />
       <StatusBar style="auto" />
-    </>
+    </SafeAreaProvider>
   );
 }
 

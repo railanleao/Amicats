@@ -26,7 +26,7 @@ public class StockControllerImpl implements StockController {
   private final UpdateStockItemFactory updateStockItemFactory;
 
   @Override
-  @PreAuthorize("hasAnyRole('Administrator', 'Assistant')")
+  @PreAuthorize("hasAnyRole('Administrator', 'Assistant', 'Veterinarian')")
   public PagedResult<ReadStockItemOutput> list(
       String search,
       String category,
@@ -44,7 +44,7 @@ public class StockControllerImpl implements StockController {
   }
 
   @Override
-  @PreAuthorize("hasAnyRole('Administrator', 'Assistant')")
+  @PreAuthorize("hasAnyRole('Administrator', 'Assistant', 'Veterinarian')")
   public ReadStockItemOutput findById(Integer id) {
     return readStockItemFactory.create().findById(id);
   }

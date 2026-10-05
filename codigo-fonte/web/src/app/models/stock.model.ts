@@ -1,6 +1,15 @@
+// Mirrors the backend's StockItem domain (org.amicats.backend.domain.entity.StockItem and
+// ReadStockItemOutput). `status` is derived server-side from `quantity` (Normal/Low/OutOfStock),
+// not something the client sets. `category` is a free-text string on the backend — there's no
+// StockCategory enum to mirror here.
 export type StockStatus = 'Normal' | 'Low' | 'OutOfStock';
 
 export type StockOrigin = 'DONATED' | 'PURCHASED';
+export const STOCK_STATUS_LABELS: Record<StockStatus, string> = {
+  Normal: 'Normal',
+  Low: 'Baixo',
+  OutOfStock: 'Em falta',
+};
 
 export interface StockItem {
   id: number;
@@ -13,7 +22,7 @@ export interface StockItem {
   notes: string | null;
 }
 
-export interface StockItemSearchParams {
+export interface StockSearchParams {
   search?: string;
   category?: string;
   status?: StockStatus;

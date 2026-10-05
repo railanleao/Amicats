@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
@@ -169,7 +170,7 @@ export function CatDetailScreen({ catId, onBack, onEdit }: CatDetailScreenProps)
   }
 
   return (
-    <View style={styles.screen}>
+    <SafeAreaView style={styles.screen} edges={['top']}>
       <View style={styles.header}>
         <TouchableOpacity onPress={onBack} accessibilityRole="button" accessibilityLabel="Voltar">
           <Ionicons name="chevron-back" size={22} color={colors.ink} />
@@ -274,6 +275,6 @@ export function CatDetailScreen({ catId, onBack, onEdit }: CatDetailScreenProps)
           </TouchableOpacity>
         </ScrollView>
       )}
-    </View>
+    </SafeAreaView>
   );
 }
