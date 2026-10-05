@@ -221,6 +221,47 @@
   border-radius: 8px;
 }
 
+.notice {
+  margin-bottom: 16px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.notice--success {
+  background: #dcefd8;
+  color: #3f6839;
+}
+
+.notice--warning {
+  background: #f6dddd;
+  color: #a04444;
+}
+
+.medication-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 0;
+  border-bottom: 1px solid #edf1ec;
+}
+
+.medication-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.medication-row__name {
+  color: #263229;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.medication-row__meta {
+  color: #6b756a;
+  font-size: 13px;
+}
+
 @media (max-width: 900px) {
   .record-grid {
     grid-template-columns: 1fr;
