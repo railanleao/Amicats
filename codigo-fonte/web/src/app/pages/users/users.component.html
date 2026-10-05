@@ -1,0 +1,228 @@
+<div class="page">
+  <header class="page-header">
+    <h1>Usuários</h1>
+    <button type="button" class="new-button" (click)="createUser()">
+      <span>＋</span>
+      Novo usuário
+    </button>
+  </header>
+
+  <section class="users-container">
+    <div class="toolbar">
+      <div class="search-box">
+        <span class="search-icon">⌕</span>
+        <input
+          type="text"
+          placeholder="Buscar por nome ou e-mail..."
+          (input)="onSearch($event)"
+        />
+      </div>
+
+      <button type="button" class="filter-button" (click)="toggleFilters()">
+        <span>☷</span>
+        Filtros
+      </button>
+    </div>
+
+    @if (showFilters) {
+      <div class="filter-panel">
+        <div class="filter-field">
+          <label for="profile">Função</label>
+
+          <div class="select-wrapper">
+            <select id="profile" (change)="onProfileChange($event)">
+              <option value="">Todas as funções</option>
+              <option value="Administrator">Administrador</option>
+              <option value="Veterinarian">Veterinário</option>
+              <option value="Assistant">Assistente</option>
+              <option value="Viewer">Visualizador</option>
+            </select>
+            <svg
+              class="select-chevron"
+              width="12"
+              height="12"
+              viewBox="0 0 18 18"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M4 7l5 5 5-5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </div>
+        </div>
+        <div class="filter-field">
+          <label for="status">Status</label>
+
+          <div class="select-wrapper">
+            <select id="status" (change)="onStatusChange($event)">
+              <option value="">Todos os status</option>
+              <option value="Active">Ativo</option>
+              <option value="Inactive">Inativo</option>
+            </select>
+            <svg
+              class="select-chevron"
+              width="12"
+              height="12"
+              viewBox="0 0 18 18"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M4 7l5 5 5-5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </div>
+        </div>
+      </div>
+    }
+
+    @if (errorMessage()) {
+      <div class="feedback feedback--error" role="alert">
+        {{ errorMessage() }}
+        <button type="button" class="feedback__retry" (click)="loadUsers()">
+          Tentar novamente
+        </button>
+      </div>
+    }
+
+    @if (loading() && users().length === 0) {
+      <div class="feedback">Carregando usuários...</div>
+    } @else {
+      <div class="table-header">
+        <span>USUÁRIO</span>
+        <span>E-MAIL</span>
+        <span>TELEFONE</span>
+        <span>FUNÇÃO</span>
+        <span>STATUS</span>
+        <span>AÇÕES</span>
+      </div>
+      <div class="users-list">
+        @for (user of users(); track user.id) {
+          <div class="user-row" [class.inactive-row]="!user.active">
+            <div class="user-name">
+              <app-user-avatar
+                [name]="user.fullName"
+                [userId]="user.id"
+                [hasPhoto]="!!user.imageUrl"
+                [size]="40"
+              />
+
+              <span>{{ user.fullName }}</span>
+            </div>
+
+            <span>{{ user.email }}</span>
+            <span>{{ user.phoneNumber || "—" }}</span>
+
+            <span
+              class="profile"
+              [class.administrator]="user.accessType === 'Administrator'"
+              [class.veterinarian]="user.accessType === 'Veterinarian'"
+              [class.volunteer]="user.accessType === 'Assistant'"
+              [class.viewer]="user.accessType === 'Viewer'"
+            >
+              {{ profileLabel(user.accessType) }}
+            </span>
+
+            <span
+              class="status"
+              [class.active]="user.active"
+              [class.inactive]="!user.active"
+            >
+              @if (user.active) {
+                Ativo
+              } @else {
+                Inativo
+              }
+            </span>
+
+            <div class="actions">
+              <button
+                type="button"
+                class="edit-button"
+                title="Editar usuário"
+                [attr.aria-label]="'Editar ' + user.fullName"
+                (click)="editUser(user)"
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                  <path d="m15 5 4 4" />
+                </svg>
+              </button>
+
+              <app-toggle
+                [label]="'Status de ' + user.fullName"
+                [checked]="user.active"
+                [disabled]="
+                  deactivatingId() === user.id || activatingId() === user.id
+                "
+                [hint]="user.active ? 'Desativar usuário' : 'Reativar usuário'"
+                (toggled)="onToggleStatus(user)"
+              />
+            </div>
+          </div>
+        } @empty {
+          <div class="feedback">Nenhum usuário encontrado.</div>
+        }
+      </div>
+
+      <app-pagination
+        [page]="page()"
+        [size]="pageSize"
+        [totalPages]="totalPages()"
+        [totalElements]="totalElements()"
+        itemLabel="usuários"
+        (pageChange)="onPageChange($event)"
+      />
+    }
+  </section>
+
+  @if (userPendingDeactivation(); as user) {
+    <app-confirm-dialog
+      title="Desativar usuário"
+      [message]="
+        'Desativar o acesso de ' +
+        user.fullName +
+        '? O usuário perde acesso ao sistema imediatamente.'
+      "
+      confirmLabel="Desativar"
+      [confirmLoading]="deactivatingId() === user.id"
+      (confirmed)="confirmDeactivation()"
+      (cancelled)="cancelDeactivation()"
+    />
+  }
+
+  @if (userPendingReactivation(); as user) {
+    <app-confirm-dialog
+      title="Reativar usuário"
+      [message]="
+        'Reativar o acesso de ' +
+        user.fullName +
+        '? O usuário volta a poder entrar no sistema.'
+      "
+      confirmLabel="Reativar"
+      confirmVariant="success"
+      [confirmLoading]="activatingId() === user.id"
+      (confirmed)="confirmReactivation()"
+      (cancelled)="cancelReactivation()"
+    />
+  }
+</div>

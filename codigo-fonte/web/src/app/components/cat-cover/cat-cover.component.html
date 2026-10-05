@@ -1,0 +1,9 @@
+<span class="cat-cover" aria-hidden="true">
+  @if (previewUrl) {
+    <img [src]="previewUrl" alt="" />
+  } @else {
+    @if (photoUrl(); as url) {
+      <img [src]="url" alt="" />
+    }
+  }
+</span>

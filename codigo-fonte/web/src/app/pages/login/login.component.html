@@ -1,0 +1,45 @@
+<app-auth-layout>
+  <div class="login-card">
+    <div class="login-card__header">
+      <h1>Bem-vinda de volta</h1>
+      <p>Entre com sua conta para acessar o painel do abrigo.</p>
+    </div>
+
+    @if (errorMessage()) {
+      <div class="login-card__error" role="alert">{{ errorMessage() }}</div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="login-card__form">
+      <app-text-field
+        inputId="email"
+        label="E-mail"
+        type="email"
+        autocomplete="email"
+        [control]="form.controls.email"
+        [errorMessages]="emailErrorMessages"
+      />
+      <app-text-field
+        inputId="password"
+        label="Senha"
+        type="password"
+        autocomplete="current-password"
+        [control]="form.controls.password"
+        [errorMessages]="passwordErrorMessages"
+      />
+
+      <a routerLink="/recuperar-senha" class="login-card__forgot-link"
+        >Esqueci minha senha</a
+      >
+
+      <app-submit-button
+        label="Entrar"
+        loadingLabel="Entrando..."
+        [loading]="loading()"
+      />
+    </form>
+
+    <p class="login-card__disclaimer">
+      Acesso restrito à equipe e voluntários cadastrados da ONG Amicats.
+    </p>
+  </div>
+</app-auth-layout>

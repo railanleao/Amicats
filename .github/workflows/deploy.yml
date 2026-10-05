@@ -1,0 +1,48 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy to production
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build package
+        run: git archive --format=tar.gz -o amicats-deploy.tar.gz HEAD
+
+      - name: Configure SSH
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
+
+      - name: Deploy
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+        run: |
+          ssh -i ~/.ssh/deploy_key \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes \
+            -o ServerAliveInterval=30 \
+            "deployer@${DEPLOY_HOST}" < amicats-deploy.tar.gz
+
+      - name: Clean up
+        if: always()
+        run: rm -f ~/.ssh/deploy_key
