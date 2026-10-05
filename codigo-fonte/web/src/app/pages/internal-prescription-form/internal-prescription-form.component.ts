@@ -11,9 +11,9 @@ import {
 } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
+  Observable,
   catchError,
   debounceTime,
-  distinctUntilChanged,
   finalize,
   map,
   of,
@@ -23,6 +23,8 @@ import {
 import { SubmitButtonComponent } from '../../components/submit-button/submit-button.component';
 import { TextFieldComponent } from '../../components/text-field/text-field.component';
 import { ToggleComponent } from '../../components/toggle/toggle.component';
+import { formatAge } from '../../lib/cat-age';
+import { felvResult, fivResult, isNeutered } from '../../lib/cat-health';
 import {
   AGE_GROUP_LABELS,
   Cat,
@@ -44,6 +46,20 @@ import { StockService } from '../../services/resources/stock.service';
 
 const SEARCH_DEBOUNCE_MS = 300;
 const SUGGESTION_LIMIT = 10;
+
+interface MedicationSearchResult {
+  term: string | null;
+  items: StockItem[];
+}
+
+function normalizeMedicationName(name: string): string {
+  return name
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase();
+}
 
 @Component({
   selector: 'app-internal-prescription-form',
@@ -92,6 +108,7 @@ export class InternalPrescriptionFormComponent {
   readonly selectedMedication = signal<StockItem | null>(null);
   readonly suggestions = signal<StockItem[]>([]);
   readonly suggestionsOpen = signal(false);
+  readonly searchedTerm = signal<string | null>(null);
   private readonly medicationFocused = signal(false);
 
   readonly saving = signal(false);
@@ -168,10 +185,12 @@ export class InternalPrescriptionFormComponent {
   }
 
   get isNewMedication(): boolean {
+    const name = this.medicationControls.name.value.trim();
     return (
       this.prescribeMedication() &&
       this.selectedMedication() === null &&
-      this.medicationControls.name.value.trim().length > 0
+      name.length > 0 &&
+      this.searchedTerm() === name
     );
   }
 
@@ -191,14 +210,14 @@ export class InternalPrescriptionFormComponent {
 
   get healthTag(): string | null {
     const status = this.cat()?.healthStatus;
-    return status === 'Fiv' || status === 'Felv' || status === 'FivFelv'
-      ? HEALTH_STATUS_LABELS[status]
-      : null;
+    const positive =
+      fivResult(status) === 'positive' || felvResult(status) === 'positive';
+    return status && positive ? HEALTH_STATUS_LABELS[status] : null;
   }
 
   get neuteredTag(): string | null {
     const cat = this.cat();
-    if (cat?.neuteringStatus !== 'Neutered') {
+    if (!cat || !isNeutered(cat.neuteringStatus)) {
       return null;
     }
     return cat.sex === 'Male' ? 'Castrado' : 'Castrada';
@@ -308,28 +327,46 @@ export class InternalPrescriptionFormComponent {
       .pipe(
         map((value) => value.trim()),
         debounceTime(SEARCH_DEBOUNCE_MS),
-        distinctUntilChanged(),
-        switchMap((term) =>
-          term
-            ? this.stockService
-                .list({
-                  category: MEDICATION_CATEGORY,
-                  search: term,
-                  page: 0,
-                  size: SUGGESTION_LIMIT,
-                })
-                .pipe(
-                  map((page) => page.content),
-                  catchError(() => of<StockItem[]>([])),
-                )
-            : of<StockItem[]>([]),
-        ),
+        switchMap((term) => this.searchMedications(term)),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe((items) => {
+      .subscribe(({ term, items }) => {
         this.suggestions.set(items);
+        this.searchedTerm.set(term);
+
+        const exactMatch = term
+          ? items.find(
+              (item) =>
+                normalizeMedicationName(item.name) ===
+                normalizeMedicationName(term),
+            )
+          : undefined;
+
+        if (exactMatch) {
+          this.onSelectMedication(exactMatch);
+          return;
+        }
+
         this.suggestionsOpen.set(this.medicationFocused() && items.length > 0);
       });
+  }
+
+  private searchMedications(term: string): Observable<MedicationSearchResult> {
+    if (!term) {
+      return of({ term, items: [] });
+    }
+
+    return this.stockService
+      .list({
+        category: MEDICATION_CATEGORY,
+        search: term,
+        page: 0,
+        size: SUGGESTION_LIMIT,
+      })
+      .pipe(
+        map((page): MedicationSearchResult => ({ term, items: page.content })),
+        catchError(() => of<MedicationSearchResult>({ term: null, items: [] })),
+      );
   }
 
   private loadCat(): void {
@@ -366,23 +403,10 @@ export class InternalPrescriptionFormComponent {
   }
 
   private ageLabel(cat: Cat): string | null {
-    if (cat.estimatedBirthDate) {
-      const [year, month, day] = cat.estimatedBirthDate.split('-').map(Number);
-      const today = new Date();
-      let months =
-        (today.getFullYear() - year) * 12 + (today.getMonth() + 1 - month);
-      if (today.getDate() < day) {
-        months--;
-      }
-      if (months >= 12) {
-        const years = Math.floor(months / 12);
-        return years === 1 ? '1 ano' : `${years} anos`;
-      }
-      if (months >= 0) {
-        return months === 1 ? '1 mês' : `${months} meses`;
-      }
-    }
-    return cat.ageGroup ? AGE_GROUP_LABELS[cat.ageGroup] : null;
+    return (
+      formatAge(cat.estimatedBirthDate) ??
+      (cat.ageGroup ? AGE_GROUP_LABELS[cat.ageGroup] : null)
+    );
   }
 
   private handleSaveError(error: HttpErrorResponse): void {

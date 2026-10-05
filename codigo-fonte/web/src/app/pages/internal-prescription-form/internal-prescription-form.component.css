@@ -300,7 +300,7 @@
 .side-card__title {
   margin: 0 0 4px;
   color: var(--color-ink-soft);
-  font-size: 12.5px;
+  font-size: var(--text-xs);
   font-weight: 700;
   letter-spacing: 0.03em;
   text-transform: uppercase;

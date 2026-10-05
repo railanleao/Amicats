@@ -20,7 +20,6 @@ export interface StockItem {
   expirationDate: string | null;
   unit: string;
   notes: string | null;
-  status: StockStatus;
 }
 
 export interface StockSearchParams {

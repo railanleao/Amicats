@@ -1,11 +1,18 @@
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 
 import { CatAvatarComponent } from '../../components/cat-avatar/cat-avatar.component';
+import {
+  felvResult,
+  fivResult,
+  neuteringLabel,
+  TestTag,
+  testTagLabel,
+} from '../../lib/cat-health';
 import {
   AGE_GROUP_LABELS,
   Cat,
@@ -17,7 +24,10 @@ import { AuthService } from '../../services/resources/auth.service';
 import { CatService } from '../../services/resources/cat.service';
 import { PrescribedMedicationService } from '../../services/resources/prescribed-medication.service';
 
-type TestTag = 'positive' | 'negative' | 'not-tested';
+interface PrescriptionNavigationState {
+  prescriptionCreated?: boolean;
+  stockWarning?: string | null;
+}
 
 @Component({
   selector: 'app-medical-record-detail',
@@ -37,8 +47,12 @@ export class MedicalRecordDetailComponent {
   private readonly destroyRef = inject(DestroyRef);
 
   readonly catId = Number(this.route.snapshot.paramMap.get('id'));
-  readonly prescriptionCreated = history.state?.prescriptionCreated === true;
-  readonly stockWarning: string | null = history.state?.stockWarning ?? null;
+
+  private readonly navigationState = this.readNavigationState();
+  readonly prescriptionCreated =
+    this.navigationState?.prescriptionCreated === true;
+  readonly stockWarning: string | null =
+    this.navigationState?.stockWarning ?? null;
 
   readonly cat = signal<Cat | null>(null);
   readonly loading = signal(false);
@@ -76,32 +90,15 @@ export class MedicalRecordDetailComponent {
   }
 
   get fivTag(): TestTag {
-    const status = this.cat()?.healthStatus;
-    if (!status || status === 'NotTested') {
-      return 'not-tested';
-    }
-    return status === 'Fiv' || status === 'FivFelv' ? 'positive' : 'negative';
+    return fivResult(this.cat()?.healthStatus);
   }
 
   get felvTag(): TestTag {
-    const status = this.cat()?.healthStatus;
-    if (!status || status === 'NotTested') {
-      return 'not-tested';
-    }
-    return status === 'Felv' || status === 'FivFelv' ? 'positive' : 'negative';
+    return felvResult(this.cat()?.healthStatus);
   }
 
   get neuteredLabel(): string {
-    switch (this.cat()?.neuteringStatus) {
-      case 'Neutered':
-        return 'Sim';
-      case 'NotNeutered':
-        return 'Não';
-      case 'Scheduled':
-        return 'Agendada';
-      default:
-        return '—';
-    }
+    return neuteringLabel(this.cat()?.neuteringStatus);
   }
 
   get weightLabel(): string {
@@ -110,14 +107,7 @@ export class MedicalRecordDetailComponent {
   }
 
   tagLabel(tag: TestTag): string {
-    switch (tag) {
-      case 'positive':
-        return 'Positivo';
-      case 'negative':
-        return 'Negativo';
-      default:
-        return 'Não testado';
-    }
+    return testTagLabel(tag);
   }
 
   onNewPrescription(): void {
@@ -131,6 +121,18 @@ export class MedicalRecordDetailComponent {
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   onRegisterExternalVisit(): void {}
+
+  private readNavigationState(): PrescriptionNavigationState | undefined {
+    const navigation = this.router.getCurrentNavigation();
+    if (
+      !navigation ||
+      navigation.trigger !== 'imperative' ||
+      !navigation.previousNavigation
+    ) {
+      return undefined;
+    }
+    return navigation.extras.state as PrescriptionNavigationState | undefined;
+  }
 
   private loadCat(): void {
     this.loading.set(true);

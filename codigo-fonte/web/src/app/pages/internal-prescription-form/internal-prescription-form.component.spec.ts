@@ -8,12 +8,12 @@ import {
 } from '@angular/router';
 import { Subject, of, throwError } from 'rxjs';
 
-import { Cat, PagedResult } from '../../models/cat.model';
+import { Cat } from '../../models/cat.model';
 import {
   InternalMedicalPrescription,
   PrescribedMedication,
 } from '../../models/medical-prescription.model';
-import { StockItem } from '../../models/stock.model';
+import { PagedResult, StockItem } from '../../models/stock.model';
 import { CatService } from '../../services/resources/cat.service';
 import { InternalMedicalPrescriptionService } from '../../services/resources/internal-medical-prescription.service';
 import { PrescribedMedicationService } from '../../services/resources/prescribed-medication.service';
@@ -66,6 +66,7 @@ describe('InternalPrescriptionFormComponent', () => {
       category: 'Medicamento',
       quantity: 20,
       unit: 'ml',
+      expirationDate: null,
       notes: null,
       status: 'Normal',
       ...overrides,
@@ -214,14 +215,18 @@ describe('InternalPrescriptionFormComponent', () => {
 
   it('builds the summary and tags shown in the side card', () => {
     jasmine.clock().install();
-    jasmine.clock().mockDate(new Date(2026, 9, 2));
-    createComponent();
+    try {
+      jasmine.clock().mockDate(new Date(2026, 9, 2));
+      createComponent();
 
-    expect(component.catSummary).toBe('Fêmea · 4 anos · Observação Intensiva');
-    expect(component.healthTag).toBe('FIV+');
-    expect(component.neuteredTag).toBe('Castrada');
-
-    jasmine.clock().uninstall();
+      expect(component.catSummary).toBe(
+        'Fêmea · 4 anos · Observação Intensiva',
+      );
+      expect(component.healthTag).toBe('FIV+');
+      expect(component.neuteredTag).toBe('Castrada');
+    } finally {
+      jasmine.clock().uninstall();
+    }
   });
 
   it('searches the medications in stock after the user stops typing', fakeAsync(() => {
@@ -243,15 +248,51 @@ describe('InternalPrescriptionFormComponent', () => {
     expect(component.suggestionsOpen()).toBeTrue();
   }));
 
-  it('forgets the chosen medication when the user types a different name', () => {
+  it('forgets the chosen medication when the user types a different name', fakeAsync(() => {
     createComponent();
     component.onSelectMedication(stockItem());
 
     component.medicationControls.name.setValue('Meloxicam');
-
     expect(component.selectedMedication()).toBeNull();
+
+    tick(300);
     expect(component.isNewMedication).toBeTrue();
-  });
+  }));
+
+  it('only warns about a new medication after the search answers', fakeAsync(() => {
+    createComponent();
+
+    component.medicationControls.name.setValue('Meloxicam');
+    expect(component.isNewMedication).toBeFalse();
+
+    tick(300);
+    expect(component.isNewMedication).toBeTrue();
+  }));
+
+  it('does not warn about a new medication when the search fails', fakeAsync(() => {
+    stockServiceSpy.list.and.returnValue(
+      throwError(() => new HttpErrorResponse({ status: 500 })),
+    );
+    createComponent();
+
+    component.medicationControls.name.setValue('Meloxicam');
+    tick(300);
+
+    expect(component.isNewMedication).toBeFalse();
+  }));
+
+  it('selects the stock item when the typed name matches it, ignoring case and accents', fakeAsync(() => {
+    stockServiceSpy.list.and.returnValue(
+      of(stockPage([stockItem({ name: 'Amoxicilina' })])),
+    );
+    createComponent();
+
+    component.medicationControls.name.setValue('  amoxicilína ');
+    tick(300);
+
+    expect(component.selectedMedication()?.id).toBe(5);
+    expect(component.isNewMedication).toBeFalse();
+  }));
 
   it('does not submit an invalid form and marks the fields as touched', () => {
     createComponent();

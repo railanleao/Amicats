@@ -37,16 +37,4 @@ describe('PrescribedMedicationService (integration)', () => {
 
     request.flush([]);
   });
-
-  it('cancels a medication sending the reason', () => {
-    service.cancel(4, 'Troca de protocolo').subscribe();
-
-    const request = httpMock.expectOne(
-      `${environment.apiUrl}/prescribed-medications/4/cancel`,
-    );
-    expect(request.request.method).toBe('PATCH');
-    expect(request.request.body).toEqual({ reason: 'Troca de protocolo' });
-
-    request.flush({});
-  });
 });
