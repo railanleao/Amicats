@@ -4,6 +4,7 @@ import { finalize } from 'rxjs';
 
 import { CatCoverComponent } from '../../components/cat-cover/cat-cover.component';
 import { formatAge } from '../../lib/cat-age';
+import { felvResult, fivResult, testTagLabel } from '../../lib/cat-health';
 import {
   Cat,
   GENERAL_STATUS_LABELS,
@@ -80,31 +81,19 @@ export class CatDetailComponent implements OnInit {
   // The backend tracks FIV and FeLV as one combined result (healthStatus), not two
   // independent exams — split it back out into the two rows the design shows.
   fivLabel(cat: Cat): string {
-    if (cat.healthStatus === 'NotTested') return 'Não testado';
-    return cat.healthStatus === 'Fiv' || cat.healthStatus === 'FivFelv'
-      ? 'Positivo'
-      : 'Negativo';
+    return testTagLabel(fivResult(cat.healthStatus));
   }
 
   fivTone(cat: Cat): ExamTone {
-    if (cat.healthStatus === 'NotTested') return 'not-tested';
-    return cat.healthStatus === 'Fiv' || cat.healthStatus === 'FivFelv'
-      ? 'positive'
-      : 'negative';
+    return fivResult(cat.healthStatus);
   }
 
   felvLabel(cat: Cat): string {
-    if (cat.healthStatus === 'NotTested') return 'Não testado';
-    return cat.healthStatus === 'Felv' || cat.healthStatus === 'FivFelv'
-      ? 'Positivo'
-      : 'Negativo';
+    return testTagLabel(felvResult(cat.healthStatus));
   }
 
   felvTone(cat: Cat): ExamTone {
-    if (cat.healthStatus === 'NotTested') return 'not-tested';
-    return cat.healthStatus === 'Felv' || cat.healthStatus === 'FivFelv'
-      ? 'positive'
-      : 'negative';
+    return felvResult(cat.healthStatus);
   }
 
   pifLabel(cat: Cat): string {

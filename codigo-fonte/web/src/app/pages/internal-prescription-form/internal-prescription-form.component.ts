@@ -11,11 +11,11 @@ import {
 } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
-  Observable,
   catchError,
   debounceTime,
   finalize,
   map,
+  Observable,
   of,
   switchMap,
 } from 'rxjs';
@@ -342,7 +342,7 @@ export class InternalPrescriptionFormComponent {
             )
           : undefined;
 
-        if (exactMatch) {
+        if (exactMatch && nameControl.value.trim() === term) {
           this.onSelectMedication(exactMatch);
           return;
         }

@@ -294,6 +294,22 @@ describe('InternalPrescriptionFormComponent', () => {
     expect(component.isNewMedication).toBeFalse();
   }));
 
+  it('does not select a stale match when the user kept typing before the search answered', fakeAsync(() => {
+    const response = new Subject<PagedResult<StockItem>>();
+    stockServiceSpy.list.and.returnValue(response);
+    createComponent();
+
+    component.medicationControls.name.setValue('Interferon felino');
+    tick(300);
+    component.medicationControls.name.setValue('Interferon felino 2');
+
+    response.next(stockPage([stockItem()]));
+
+    expect(component.selectedMedication()).toBeNull();
+    expect(component.medicationControls.name.value).toBe('Interferon felino 2');
+    tick(300);
+  }));
+
   it('does not submit an invalid form and marks the fields as touched', () => {
     createComponent();
 
