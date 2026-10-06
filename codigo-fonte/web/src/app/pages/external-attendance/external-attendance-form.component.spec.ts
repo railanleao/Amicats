@@ -24,7 +24,7 @@ describe('ExternalAttendanceFormComponent', () => {
       name: 'Nina',
       photoUrl: null,
       roomId: 2,
-      roomTitle: 'Obsenpm run lintrvação',
+      roomTitle: 'Observação',
       sex: 'Female',
       estimatedBirthDate: '2022-09-01',
       ageGroup: 'Adult',
