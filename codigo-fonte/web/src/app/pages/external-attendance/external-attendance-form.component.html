@@ -1,137 +1,212 @@
-<div class="page-content">
-  <!-- Page header -->
-
+<div class="page">
   <header class="page-header">
-    <div class="breadcrumb">
-      <span class="back-icon"> ‹ </span>
-      <span class="breadcrumb-section"> Prontuários </span>
-      <span class="separator"> / </span>
-      <h1>Anexar atendimento externo</h1>
-    </div>
+    <a
+      routerLink="/medical-records"
+      class="page-header__back"
+      aria-label="Voltar para prontuários"
+    >
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="m15 18-6-6 6-6" />
+      </svg>
+    </a>
+    <a routerLink="/medical-records" class="page-header__crumb">Prontuários</a>
+    <span class="page-header__separator">/</span>
+    <h1>Anexar atendimento externo</h1>
   </header>
 
-  <!-- Main content -->
+  @if (loadError()) {
+    <div class="feedback feedback--error" role="alert">
+      {{ loadError() }}
+    </div>
+  }
 
   <main class="content-area">
-    <!-- Attendance form -->
-
-    <section class="form-card">
-      <form>
-        <!-- Cat and clinic -->
-
-        <div class="form-row">
-          <div class="form-group">
-            <label for="cat"> Gato </label>
-            <select id="cat" name="cat" [(ngModel)]="externalAttendance.cat">
-              <option *ngFor="let cat of cats" [value]="cat">
-                {{ cat }}
-              </option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="partnerClinic"> Clínica parceira </label>
-            <select
-              id="partnerClinic"
-              name="partnerClinic"
-              [(ngModel)]="externalAttendance.partnerClinic"
-            >
-              <option *ngFor="let clinic of partnerClinics" [value]="clinic">
-                {{ clinic }}
-              </option>
-            </select>
-          </div>
-        </div>
-
-        <!-- Veterinarian and CRMV -->
-
-        <div class="form-row">
-          <div class="form-group">
-            <label for="veterinarian"> Veterinário responsável </label>
-            <input
-              id="veterinarian"
-              name="veterinarian"
-              type="text"
-              [(ngModel)]="externalAttendance.veterinarian"
-            />
-          </div>
-          <div class="form-group small-field">
-            <label for="crmv"> CRMV / UF </label>
-            <input
-              id="crmv"
-              name="crmv"
-              type="text"
-              [(ngModel)]="externalAttendance.crmv"
-            />
-          </div>
-        </div>
-
-        <!-- Attendance date -->
-        <div class="form-group full-width">
-          <label for="attendanceDate"> Data do atendimento </label>
-          <input
-            id="attendanceDate"
-            name="attendanceDate"
-            type="text"
-            [(ngModel)]="externalAttendance.attendanceDate"
-          />
-        </div>
-
-        <!-- Diagnosis -->
-
-        <div class="form-group full-width">
-          <label for="diagnosis"> Diagnóstico / observações </label>
-          <textarea
-            id="diagnosis"
-            name="diagnosis"
-            rows="3"
-            [(ngModel)]="externalAttendance.diagnosis"
+    <form
+      class="form-card"
+      [formGroup]="form"
+      (ngSubmit)="onSubmit()"
+      novalidate
+    >
+      <div class="form-row">
+        <div class="field">
+          <label for="cat">Gato</label>
+          <select
+            id="cat"
+            [formControl]="form.controls.catId"
+            [class.field__input--invalid]="
+              form.controls.catId.invalid && form.controls.catId.touched
+            "
           >
-          </textarea>
+            <option [ngValue]="null">Selecione um gato</option>
+            @for (cat of cats(); track cat.id) {
+              <option [ngValue]="cat.id">{{ cat.name }}</option>
+            }
+          </select>
+          @if (form.controls.catId.invalid && form.controls.catId.touched) {
+            <span class="field-error"
+              >Selecione o gato relacionado ao atendimento.</span
+            >
+          }
         </div>
-        <div class="divider"></div>
 
-        <!-- File attachment -->
+        <div class="field">
+          <label for="partnerClinic">Clínica parceira</label>
+          <select
+            id="partnerClinic"
+            [formControl]="form.controls.partnerClinic"
+            [class.field__input--invalid]="
+              form.controls.partnerClinic.invalid &&
+              form.controls.partnerClinic.touched
+            "
+          >
+            <option value="">Selecione uma clínica</option>
+            @for (clinic of partnerClinics(); track clinic) {
+              <option [value]="clinic">{{ clinic }}</option>
+            }
+          </select>
+          @if (
+            form.controls.partnerClinic.invalid &&
+            form.controls.partnerClinic.touched
+          ) {
+            <span class="field-error">{{ errors.partnerClinic.required }}</span>
+          }
+          @if (loadingClinics()) {
+            <span class="field-hint">Carregando clínicas...</span>
+          } @else if (clinicLoadMessage()) {
+            <span class="field-hint">{{ clinicLoadMessage() }}</span>
+          }
+        </div>
+      </div>
 
-        <div class="file-section">
-          <span class="file-label"> Anexo do prontuário recebido </span>
-          <div class="file-box">
-            <div class="file-info">
-              <span class="file-icon"> ▤ </span>
-              <span class="file-name">
-                {{ externalAttendance.attachedFile }}
-              </span>
-            </div>
-            <label for="attachment" class="change-file"> Trocar arquivo </label>
-            <input
-              id="attachment"
-              type="file"
-              accept=".pdf,.jpg,.jpeg,.png"
-              (change)="selectFile($event)"
-            />
+      <div class="form-row">
+        <app-text-field
+          inputId="veterinarian"
+          label="Veterinário responsável"
+          [control]="form.controls.veterinarian"
+          autocomplete="name"
+          [errorMessages]="errors.veterinarian"
+        />
+
+        <app-text-field
+          inputId="crmv"
+          label="CRMV / UF"
+          [control]="form.controls.crmv"
+          autocomplete="off"
+          [errorMessages]="errors.crmv"
+        />
+      </div>
+
+      <div class="field">
+        <label for="attendanceDate">Data do atendimento</label>
+        <input
+          id="attendanceDate"
+          type="date"
+          [formControl]="form.controls.attendanceDate"
+          [class.field__input--invalid]="
+            form.controls.attendanceDate.invalid &&
+            form.controls.attendanceDate.touched
+          "
+        />
+        @if (
+          form.controls.attendanceDate.invalid &&
+          form.controls.attendanceDate.touched
+        ) {
+          <span class="field-error">{{ errors.attendanceDate.required }}</span>
+        }
+      </div>
+
+      <div class="field">
+        <label for="diagnosis">Diagnóstico / observações</label>
+        <textarea
+          id="diagnosis"
+          rows="4"
+          placeholder="Descreva o atendimento realizado, diagnóstico e orientações recebidas."
+          [formControl]="form.controls.diagnosis"
+          [class.field__input--invalid]="
+            form.controls.diagnosis.invalid && form.controls.diagnosis.touched
+          "
+        ></textarea>
+        @if (
+          form.controls.diagnosis.invalid && form.controls.diagnosis.touched
+        ) {
+          <span class="field-error">
+            {{
+              form.controls.diagnosis.hasError("required")
+                ? errors.diagnosis.required
+                : errors.diagnosis.maxlength
+            }}
+          </span>
+        }
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="file-section">
+        <span class="field-label">Anexo do prontuário recebido</span>
+        <div class="file-box">
+          <div class="file-info">
+            <span class="file-icon" aria-hidden="true">▤</span>
+            <span class="file-name">
+              {{ selectedFileName() ?? "Nenhum arquivo selecionado" }}
+            </span>
           </div>
-        </div>
-        <div class="divider"></div>
 
-        <!-- Actions -->
-
-        <div class="form-actions">
-          <button type="button" class="btn-cancel" (click)="cancel()">
-            Cancelar
+          <input
+            #attachmentInput
+            id="attachment"
+            type="file"
+            class="visually-hidden"
+            accept=".pdf,.jpg,.jpeg,.png"
+            (change)="onFileSelected($event)"
+          />
+          <button
+            type="button"
+            class="change-file"
+            (click)="attachmentInput.click()"
+          >
+            {{ selectedFileName() ? "Trocar arquivo" : "Selecionar arquivo" }}
           </button>
-          <button type="button" class="btn-save" (click)="saveAttendance()">
-            Salvar atendimento
-          </button>
         </div>
-      </form>
-    </section>
+        <span class="field-hint">PDF, JPG ou PNG.</span>
+      </div>
 
-    <!-- Cat information -->
-    <aside class="cat-card">
-      <span class="card-label"> SOBRE O GATO </span>
-      <h2>Zeca</h2>
-      <p>Macho · Idoso e ESC</p>
-      <span class="status"> Disponível para adoção </span>
+      @if (saveError()) {
+        <div class="feedback feedback--error" role="alert">
+          {{ saveError() }}
+        </div>
+      }
+
+      <div class="form-actions">
+        <a routerLink="/medical-records" class="cancel-button">Cancelar</a>
+        <app-submit-button
+          label="Salvar atendimento"
+          loadingLabel="Salvando..."
+          [loading]="saving()"
+        />
+      </div>
+    </form>
+
+    <aside class="cat-card" aria-live="polite">
+      <span class="card-label">SOBRE O GATO</span>
+
+      @if (selectedCat; as cat) {
+        <h2>{{ cat.name }}</h2>
+        <p>{{ selectedCatDetails || "Informações não cadastradas" }}</p>
+        <span class="status">{{ selectedCatStatus }}</span>
+      } @else {
+        <h2>Nenhum gato selecionado</h2>
+        <p>{{ selectedCatDetails }}</p>
+      }
     </aside>
   </main>
 </div>
