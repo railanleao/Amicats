@@ -22,6 +22,7 @@ import { MedicalRecordDetailComponent } from './pages/medical-record-detail/medi
 import { SearchComponent } from './pages/search/search.component';
 import { veterinarianGuard } from './guards/veterinarian.guard';
 import { InternalPrescriptionFormComponent } from './pages/internal-prescription-form/internal-prescription-form.component';
+import { ExternalAttendanceFormComponent } from './pages/external-attendance/external-attendance-form.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -89,6 +90,11 @@ export const routes: Routes = [
       {
         path: 'medical-records/:id/internal-prescriptions/new',
         component: InternalPrescriptionFormComponent,
+        canActivate: [veterinarianGuard],
+      },
+      {
+        path: 'medical-records/:id/external-attendances/new',
+        component: ExternalAttendanceFormComponent,
         canActivate: [veterinarianGuard],
       },
     ],
