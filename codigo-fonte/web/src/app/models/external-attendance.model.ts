@@ -5,7 +5,7 @@ export interface CreateExternalAttendanceRequest {
   crmv: string;
   attendanceDate: string;
   diagnosis: string;
-  attachedFile: string;
+  file: File;
 }
 
 export interface ExternalAttendance {
@@ -17,5 +17,6 @@ export interface ExternalAttendance {
   attendanceDate: string;
   diagnosis: string;
   attachedFile: string;
+  attachmentContentType: string;
   createdAt: string;
 }

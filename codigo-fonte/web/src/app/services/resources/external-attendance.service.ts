@@ -14,16 +14,39 @@ export class ExternalAttendanceService {
   create(
     request: CreateExternalAttendanceRequest,
   ): Observable<ExternalAttendance> {
-    return this.http.post<ExternalAttendance>('/external-attendances', request);
+    const data = new FormData();
+    data.append(
+      'data',
+      new Blob(
+        [
+          JSON.stringify({
+            partnerClinic: request.partnerClinic,
+            veterinarian: request.veterinarian,
+            crmv: request.crmv,
+            attendanceDate: request.attendanceDate,
+            diagnosis: request.diagnosis,
+          }),
+        ],
+        { type: 'application/json' },
+      ),
+    );
+    data.append('file', request.file);
+
+    return this.http.post<ExternalAttendance>(
+      `/cats/${request.catId}/external-attendances`,
+      data,
+    );
   }
 
   listByCat(catId: number): Observable<ExternalAttendance[]> {
     return this.http.get<ExternalAttendance[]>(
-      `/external-attendances/cat/${catId}`,
+      `/cats/${catId}/external-attendances`,
     );
   }
 
-  listClinics(): Observable<string[]> {
-    return this.http.get<string[]>('/external-attendances/clinics');
+  attachment(id: number): Observable<Blob> {
+    return this.http.get(`/external-attendances/${id}/attachment`, {
+      responseType: 'blob',
+    });
   }
 }
