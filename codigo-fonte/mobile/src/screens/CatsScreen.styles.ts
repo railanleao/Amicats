@@ -4,6 +4,10 @@ import { radii, spacing } from '../theme/spacing';
 import { fontSizes } from '../theme/typography';
 
 export const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
   content: {
     flexGrow: 1,
     backgroundColor: colors.background,

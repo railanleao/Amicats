@@ -53,15 +53,13 @@ export function RootNavigator({ user, onLogin, onLogout, onAcceptTerms, onChange
           <>
             <Stack.Screen name="Main">
               {({ navigation }) => (
-                <StatusBarInset>
-                  <BottomTabNavigator
-                    user={user}
-                    onLogout={onLogout}
-                    onNewCat={() => navigation.navigate('NewCat')}
-                    onOpenCat={(catId) => navigation.navigate('CatDetail', { catId })}
-                    onOpenSync={() => navigation.navigate('Sync')}
-                  />
-                </StatusBarInset>
+                <BottomTabNavigator
+                  user={user}
+                  onLogout={onLogout}
+                  onNewCat={() => navigation.navigate('NewCat')}
+                  onOpenCat={(catId) => navigation.navigate('CatDetail', { catId })}
+                  onOpenSync={() => navigation.navigate('Sync')}
+                />
               )}
             </Stack.Screen>
             <Stack.Screen name="NewCat" options={{ presentation: 'modal' }}>
@@ -73,13 +71,11 @@ export function RootNavigator({ user, onLogin, onLogout, onAcceptTerms, onChange
             </Stack.Screen>
             <Stack.Screen name="CatDetail">
               {({ navigation, route }) => (
-                <StatusBarInset>
-                  <CatDetailScreen
-                    catId={route.params.catId}
-                    onBack={() => navigation.goBack()}
-                    onEdit={(catId) => navigation.navigate('NewCat', { catId })}
-                  />
-                </StatusBarInset>
+                <CatDetailScreen
+                  catId={route.params.catId}
+                  onBack={() => navigation.goBack()}
+                  onEdit={(catId) => navigation.navigate('NewCat', { catId })}
+                />
               )}
             </Stack.Screen>
             <Stack.Screen name="Sync">

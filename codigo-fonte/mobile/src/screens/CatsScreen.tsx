@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Image, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Button, StatusBadge } from '../components';
 import { catRepository } from '../sync/runtime';
@@ -112,75 +113,77 @@ export function CatsScreen({ onOpenCat }: CatsScreenProps) {
   }, [searchTerm, activeFilter, reloadToken, dataVersion]);
 
   return (
-    <ScrollView contentContainerStyle={styles.content}>
-      <Text style={styles.title}>Gatos</Text>
+    <SafeAreaView style={styles.safeArea} edges={['top']}>
+      <ScrollView contentContainerStyle={styles.content}>
+        <Text style={styles.title}>Gatos</Text>
 
-      <View style={styles.toolbar}>
-        <View style={styles.searchBox}>
-          <Ionicons name="search-outline" size={16} color={colors.inkFaint} />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Buscar por nome ou microchip…"
-            placeholderTextColor={colors.inkFaint}
-            value={searchInput}
-            onChangeText={setSearchInput}
-          />
+        <View style={styles.toolbar}>
+          <View style={styles.searchBox}>
+            <Ionicons name="search-outline" size={16} color={colors.inkFaint} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Buscar por nome ou microchip…"
+              placeholderTextColor={colors.inkFaint}
+              value={searchInput}
+              onChangeText={setSearchInput}
+            />
+          </View>
+
+          <TouchableOpacity style={styles.filterButton} accessibilityRole="button" accessibilityLabel="Filtros">
+            <Ionicons name="options-outline" size={18} color={colors.inkSoft} />
+          </TouchableOpacity>
         </View>
 
-        <TouchableOpacity style={styles.filterButton} accessibilityRole="button" accessibilityLabel="Filtros">
-          <Ionicons name="options-outline" size={18} color={colors.inkSoft} />
-        </TouchableOpacity>
-      </View>
+        <View style={styles.chipsRow}>
+          {QUICK_FILTERS.map((filter) => {
+            const isActive = filter.value === activeFilter;
+            return (
+              <TouchableOpacity
+                key={filter.value}
+                style={[styles.chip, isActive ? styles.chipActive : null]}
+                onPress={() => {
+                  setActiveFilter(filter.value);
+                  setLoading(true);
+                  setErrorMessage(null);
+                }}
+                accessibilityRole="button"
+              >
+                <Text style={[styles.chipText, isActive ? styles.chipTextActive : null]}>{filter.label}</Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
 
-      <View style={styles.chipsRow}>
-        {QUICK_FILTERS.map((filter) => {
-          const isActive = filter.value === activeFilter;
-          return (
-            <TouchableOpacity
-              key={filter.value}
-              style={[styles.chip, isActive ? styles.chipActive : null]}
+        {errorMessage ? (
+          <View style={styles.feedback}>
+            <Text style={styles.feedbackText}>{errorMessage}</Text>
+            <Button
+              variant="outline"
+              title="Tentar novamente"
               onPress={() => {
-                setActiveFilter(filter.value);
+                setReloadToken((token) => token + 1);
                 setLoading(true);
                 setErrorMessage(null);
               }}
-              accessibilityRole="button"
-            >
-              <Text style={[styles.chipText, isActive ? styles.chipTextActive : null]}>{filter.label}</Text>
-            </TouchableOpacity>
-          );
-        })}
-      </View>
-
-      {errorMessage ? (
-        <View style={styles.feedback}>
-          <Text style={styles.feedbackText}>{errorMessage}</Text>
-          <Button
-            variant="outline"
-            title="Tentar novamente"
-            onPress={() => {
-              setReloadToken((token) => token + 1);
-              setLoading(true);
-              setErrorMessage(null);
-            }}
-            style={styles.retryButton}
-          />
-        </View>
-      ) : loading && cats.length === 0 ? (
-        <View style={styles.feedback}>
-          <ActivityIndicator color={colors.primary} />
-        </View>
-      ) : cats.length === 0 ? (
-        <View style={styles.feedback}>
-          <Text style={styles.feedbackText}>Nenhum gato encontrado.</Text>
-        </View>
-      ) : (
-        <View style={styles.list}>
-          {cats.map((cat) => (
-            <CatRow key={cat.id} cat={cat} onPress={() => onOpenCat(cat.id)} />
-          ))}
-        </View>
-      )}
-    </ScrollView>
+              style={styles.retryButton}
+            />
+          </View>
+        ) : loading && cats.length === 0 ? (
+          <View style={styles.feedback}>
+            <ActivityIndicator color={colors.primary} />
+          </View>
+        ) : cats.length === 0 ? (
+          <View style={styles.feedback}>
+            <Text style={styles.feedbackText}>Nenhum gato encontrado.</Text>
+          </View>
+        ) : (
+          <View style={styles.list}>
+            {cats.map((cat) => (
+              <CatRow key={cat.id} cat={cat} onPress={() => onOpenCat(cat.id)} />
+            ))}
+          </View>
+        )}
+      </ScrollView>
+    </SafeAreaView>
   );
 }

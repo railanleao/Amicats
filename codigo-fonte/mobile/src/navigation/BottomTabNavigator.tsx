@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { CatsScreen } from '../screens/CatsScreen';
 import { ComingSoonScreen } from '../screens/ComingSoonScreen';
 import { HomeScreen } from '../screens/HomeScreen';
+import { SearchScreen } from '../screens/SearchScreen';
 import { colors } from '../theme/colors';
 import type { User } from '../types/auth';
 
@@ -66,7 +67,7 @@ export function BottomTabNavigator({ user, onLogout, onNewCat, onOpenCat, onOpen
       </Tab.Screen>
       <Tab.Screen name="Doses">{() => <ComingSoonScreen title="Doses" onLogout={onLogout} />}</Tab.Screen>
       <Tab.Screen name="Search" options={{ title: 'Busca' }}>
-        {() => <ComingSoonScreen title="Busca" onLogout={onLogout} />}
+        {() => <SearchScreen onOpenCat={onOpenCat} />}
       </Tab.Screen>
     </Tab.Navigator>
   );

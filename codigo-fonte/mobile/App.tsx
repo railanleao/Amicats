@@ -1,5 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { RootNavigator } from './src/navigation/RootNavigator';
 import { useAuth } from './src/hooks/useAuth';
 import { SyncProvider } from './src/sync/SyncContext';
@@ -18,10 +19,12 @@ export default function App() {
   }
 
   return (
-    <SyncProvider userId={user?.id ?? null}>
-      <RootNavigator user={user} onLogin={login} onLogout={logout} onAcceptTerms={acceptTerms} onChangePassword={changePassword} />
-      <StatusBar style="auto" />
-    </SyncProvider>
+    <SafeAreaProvider>
+      <SyncProvider userId={user?.id ?? null}>
+        <RootNavigator user={user} onLogin={login} onLogout={logout} onAcceptTerms={acceptTerms} onChangePassword={changePassword} />
+        <StatusBar style="auto" />
+      </SyncProvider>
+    </SafeAreaProvider>
   );
 }
 

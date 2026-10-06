@@ -1,0 +1,118 @@
+<div class="page">
+  <header class="page-header">
+    <h1>Busca</h1>
+  </header>
+
+  <section class="search-container">
+    <div class="search-box">
+      <span class="search-icon">⌕</span>
+      <input
+        type="text"
+        placeholder="Buscar por nome, e-mail, microchip, item..."
+        (input)="onSearch($event)"
+      />
+    </div>
+
+    @if (searchTerm()) {
+      <span class="results-count">
+        {{ totalCount }} resultado{{ totalCount === 1 ? "" : "s" }} para "{{
+          searchTerm()
+        }}"
+      </span>
+
+      <div class="tabs">
+        <button
+          type="button"
+          class="tab"
+          [class.tab--active]="activeTab() === 'all'"
+          (click)="selectTab('all')"
+        >
+          Todos ({{ totalCount }})
+        </button>
+        <button
+          type="button"
+          class="tab"
+          [class.tab--active]="activeTab() === 'cats'"
+          (click)="selectTab('cats')"
+        >
+          Gatos ({{ cats().length }})
+        </button>
+        <button
+          type="button"
+          class="tab"
+          [class.tab--active]="activeTab() === 'users'"
+          (click)="selectTab('users')"
+        >
+          Usuários ({{ users().length }})
+        </button>
+        <button
+          type="button"
+          class="tab"
+          [class.tab--active]="activeTab() === 'stock'"
+          (click)="selectTab('stock')"
+        >
+          Medicamentos ({{ stockItems().length }})
+        </button>
+      </div>
+
+      @if (loading()) {
+        <div class="feedback">Buscando...</div>
+      } @else if (results.length === 0) {
+        <div class="feedback">Nenhum resultado encontrado.</div>
+      } @else {
+        <div class="results-list">
+          @for (result of results; track result.type + '-' + result.id) {
+            <div
+              class="result-card"
+              [class.result-card--static]="result.type === 'stock'"
+              [attr.role]="result.type === 'stock' ? null : 'button'"
+              [attr.tabindex]="result.type === 'stock' ? null : 0"
+              (click)="openResult(result)"
+              (keydown.enter)="openResult(result)"
+            >
+              @if (result.type === "cat") {
+                <app-cat-avatar
+                  [name]="result.title"
+                  [catId]="result.cat!.id"
+                  [hasPhoto]="!!result.cat!.photoUrl"
+                  [size]="36"
+                />
+              } @else if (result.type === "user") {
+                <app-user-avatar
+                  [name]="result.title"
+                  [userId]="result.user!.id"
+                  [hasPhoto]="!!result.user!.imageUrl"
+                  [size]="36"
+                />
+              } @else {
+                <span class="stock-avatar" aria-hidden="true"></span>
+              }
+
+              <div class="result-info">
+                <span class="result-title">{{ result.title }}</span>
+                <span class="result-subtitle">{{ result.subtitle }}</span>
+              </div>
+
+              <span
+                class="result-badge"
+                [class.result-badge--cat]="result.type === 'cat'"
+                [class.result-badge--user]="result.type === 'user'"
+                [class.result-badge--stock]="result.type === 'stock'"
+              >
+                {{
+                  result.type === "cat"
+                    ? "Gato"
+                    : result.type === "user"
+                      ? "Usuário"
+                      : "Medicamento"
+                }}
+              </span>
+            </div>
+          }
+        </div>
+      }
+    } @else {
+      <div class="feedback">Digite algo para buscar em gatos, usuários e medicamentos.</div>
+    }
+  </section>
+</div>
