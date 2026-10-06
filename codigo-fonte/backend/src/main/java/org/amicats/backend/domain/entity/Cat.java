@@ -14,6 +14,7 @@ import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -167,7 +168,7 @@ public class Cat {
     this.sponsorPhone = sponsorPhone;
     this.sponsorFunding = sponsorFunding;
     this.createdBy = createdBy;
-    this.createdAt = LocalDateTime.now();
+    this.createdAt = LocalDateTime.now(ZoneOffset.UTC);
   }
 
   private static AgeGroup calculateAgeGroup(LocalDate estimatedBirthDate) {

@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Optional;
 import org.amicats.backend.domain.entity.User;
 import org.amicats.backend.domain.entity.UserAuth;
@@ -37,7 +38,13 @@ class AuthServiceTest {
   void returnsTermsAcceptedAndMustChangePasswordFromTheUserState() {
     User user =
         new User(
-            "Marina Alves", null, null, AccessType.Administrator, null, null, LocalDateTime.now());
+            "Marina Alves",
+            null,
+            null,
+            AccessType.Administrator,
+            null,
+            null,
+            LocalDateTime.now(ZoneOffset.UTC));
     UserAuth auth = new UserAuth(user, "marina.alves@amicats.org.br", "hash");
     auth.setMustChangePassword(true);
 

@@ -15,7 +15,7 @@ public class RegisterSyncHeartbeatUseCase {
 
   private SyncDeviceDataProvider syncDeviceDataProvider;
   private UserDataProvider userDataProvider;
-  @Builder.Default private Clock clock = Clock.systemDefaultZone();
+  @Builder.Default private Clock clock = Clock.systemUTC();
 
   @Transactional
   public void execute(Integer userId, SyncHeartbeatInput input) {

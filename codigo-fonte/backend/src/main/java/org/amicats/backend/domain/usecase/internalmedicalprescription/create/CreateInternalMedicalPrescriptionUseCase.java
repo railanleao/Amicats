@@ -28,7 +28,7 @@ public class CreateInternalMedicalPrescriptionUseCase {
   private UserDataProvider userDataProvider;
   private InternalMedicalPrescriptionDataProvider internalMedicalPrescriptionDataProvider;
   private CreatePrescribedMedicationUseCase createPrescribedMedicationUseCase;
-  @Builder.Default private Clock clock = Clock.systemDefaultZone();
+  @Builder.Default private Clock clock = Clock.systemUTC();
 
   @Transactional
   public ReadInternalMedicalPrescriptionOutput execute(

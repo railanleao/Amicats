@@ -1,3 +1,5 @@
+import { parseServerDateTime } from './server-date';
+
 export function formatRelativeTime(
   isoDate: string | null,
   now: Date = new Date(),
@@ -7,7 +9,7 @@ export function formatRelativeTime(
   }
 
   const minutes = Math.floor(
-    (now.getTime() - new Date(isoDate).getTime()) / 60_000,
+    (now.getTime() - parseServerDateTime(isoDate).getTime()) / 60_000,
   );
 
   if (minutes < 1) {

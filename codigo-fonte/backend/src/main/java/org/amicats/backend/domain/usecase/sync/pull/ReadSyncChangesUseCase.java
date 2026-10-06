@@ -28,7 +28,7 @@ public class ReadSyncChangesUseCase {
 
   private SyncChangesDataProvider syncChangesDataProvider;
   private StockEntryDataProvider stockEntryDataProvider;
-  @Builder.Default private Clock clock = Clock.systemDefaultZone();
+  @Builder.Default private Clock clock = Clock.systemUTC();
 
   @Transactional(readOnly = true)
   public SyncChangesOutput execute(LocalDateTime since, AccessType role) {

@@ -10,6 +10,8 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -216,7 +218,8 @@ class OfflineSyncFlowIntegrationTest {
     Map<String, Object> afterCursor = parse(get("/sync/pull?since=" + cursor, token));
     assertThat(ids(afterCursor, "rooms")).contains(roomId);
 
-    LocalDateTime future = LocalDateTime.now().plusDays(1);
+    LocalDateTime future =
+        LocalDateTime.now(ZoneOffset.UTC).plusDays(1).truncatedTo(ChronoUnit.SECONDS);
     Map<String, Object> empty = parse(get("/sync/pull?since=" + future, token));
     assertThat(ids(empty, "rooms")).isEmpty();
     assertThat(ids(empty, "stockItems")).isEmpty();
@@ -226,7 +229,7 @@ class OfflineSyncFlowIntegrationTest {
   @Test
   void pullSeesUpdatesMadeAfterTheCursor() throws Exception {
     String token = loginAndGetToken(assistantEmail);
-    LocalDateTime before = LocalDateTime.now().minusMinutes(1);
+    LocalDateTime before = LocalDateTime.now(ZoneOffset.UTC).minusMinutes(10);
 
     Room room = roomRepository.save(new Room("Sala upd " + UUID.randomUUID(), null, null, 3));
     createdRoomIds.add(room.getId());
@@ -331,7 +334,9 @@ class OfflineSyncFlowIntegrationTest {
 
   private Integer seedUser(String fullName, AccessType accessType) {
     return userRepository
-        .save(new User(fullName, null, null, accessType, null, null, LocalDateTime.now()))
+        .save(
+            new User(
+                fullName, null, null, accessType, null, null, LocalDateTime.now(ZoneOffset.UTC)))
         .getId();
   }
 

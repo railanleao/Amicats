@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { CAT_REQUEST, createHarness, emptyPull, serverCat } from '../testing/harness';
-import { toLocalDateTime } from './engine';
+import { toUtcDateTime } from './engine';
 import { HttpError } from './types';
 import type { HttpRequest } from './types';
 import { discardOperation } from './queueActions';
@@ -59,7 +59,7 @@ describe('SyncEngine', () => {
       appVersion: '1.0.0',
       pendingCount: 0,
       rejectedCount: 0,
-      lastSyncAt: toLocalDateTime(new Date('2026-10-03T12:00:00Z')),
+      lastSyncAt: toUtcDateTime(new Date('2026-10-03T12:00:00Z')),
     });
   });
 

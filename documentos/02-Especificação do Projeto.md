@@ -198,6 +198,8 @@ causa do atraso do envio, sem permitir datas absurdas. A edição de um gato que
 | `POST /sync/heartbeat` | O aparelho informa identificador, modelo, plataforma, versão, pendências, recusadas e última sincronização. |
 | `GET /sync/devices` | Lista de aparelhos para a administração. Somente Administrador. |
 
+**Fuso horário.** O back-end trabalha sempre em UTC: o relógio da aplicação, a sessão do banco e todo `LocalDateTime` trafegado pela API (por exemplo `recordedAt`, `lastSyncAt` e o cursor do pull) representam a hora UTC, sem sufixo de fuso. O mobile envia essas datas em UTC, e web e mobile convertem para o fuso do dispositivo apenas na exibição. Datas de calendário (`LocalDate`, como nascimento e resgate) não sofrem conversão.
+
 **Monitoramento na web**
 
 A tela **Sincronização** (somente Administrador) lista os aparelhos com usuário, perfil, última sincronização, pendências e situação

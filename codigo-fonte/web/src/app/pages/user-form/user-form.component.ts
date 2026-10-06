@@ -20,6 +20,7 @@ import { AccessType } from '../../models/auth.model';
 import { ACCESS_TYPE_LABELS, User } from '../../models/user.model';
 import { AuthService } from '../../services/resources/auth.service';
 import { UserService } from '../../services/resources/user.service';
+import { parseServerDateTime } from '../../lib/server-date';
 
 export type UserFormMode = 'create' | 'edit';
 
@@ -44,6 +45,8 @@ const PHOTO_TYPES = ['image/jpeg', 'image/png'];
   styleUrl: './user-form.component.css',
 })
 export class UserFormComponent {
+  readonly parseServerDateTime = parseServerDateTime;
+
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly userService = inject(UserService);

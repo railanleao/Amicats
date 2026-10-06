@@ -287,7 +287,7 @@ export class SyncEngine {
           appVersion: device.appVersion,
           pendingCount: counts.pending,
           rejectedCount: counts.rejected,
-          lastSyncAt: this.lastSyncAt ? toLocalDateTime(new Date(this.lastSyncAt)) : null,
+          lastSyncAt: this.lastSyncAt ? toUtcDateTime(new Date(this.lastSyncAt)) : null,
         },
       });
     } catch {
@@ -322,11 +322,6 @@ function hasStatus(error: unknown): error is { status?: number } {
   return typeof error === 'object' && error !== null && 'status' in error;
 }
 
-export function toLocalDateTime(date: Date): string {
-  const pad = (value: number) => String(value).padStart(2, '0');
-
-  return (
-    `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}` +
-    `T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`
-  );
+export function toUtcDateTime(date: Date): string {
+  return date.toISOString().slice(0, 19);
 }
