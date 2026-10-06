@@ -1,6 +1,7 @@
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { DoseCard, InfoBanner, SectionLabel } from '../components';
+import { useSync } from '../sync/SyncContext';
 import { colors } from '../theme/colors';
 import { formatLongDate } from '../utils/date';
 import type { User } from '../types/auth';
@@ -9,6 +10,7 @@ import { styles } from './HomeScreen.styles';
 interface HomeScreenProps {
   user: User;
   onNewCat: () => void;
+  onOpenSync: () => void;
 }
 
 // dados falsos até o dashboard (RF-014), e o registro de doses (RF-009) e os contatos
@@ -47,13 +49,50 @@ function firstName(fullName: string): string {
   return fullName.split(' ')[0];
 }
 
-export function HomeScreen({ user, onNewCat }: HomeScreenProps) {
+function pluralize(count: number, singular: string, plural: string): string {
+  return `${count} ${count === 1 ? singular : plural}`;
+}
+
+function syncSummary(online: boolean, pending: number, rejected: number): string {
+  if (rejected > 0) {
+    return `${pluralize(rejected, 'registro recusado', 'registros recusados')} na sincronização`;
+  }
+  if (!online) {
+    return pending > 0
+      ? `Sem conexão · ${pluralize(pending, 'pendência', 'pendências')}`
+      : 'Sem conexão · registros ficam salvos no aparelho';
+  }
+  if (pending > 0) {
+    return `${pluralize(pending, 'pendência', 'pendências')} para enviar`;
+  }
+  return 'Tudo sincronizado';
+}
+
+export function HomeScreen({ user, onNewCat, onOpenSync }: HomeScreenProps) {
+  const { online, pending, rejected } = useSync();
+  const needsAttention = !online || pending > 0 || rejected > 0;
+
   return (
     <ScrollView contentContainerStyle={styles.content}>
       <View style={styles.header}>
         <Text style={styles.greeting}>Olá, {firstName(user.fullName)}</Text>
         <Text style={styles.date}>{formatLongDate(new Date())}</Text>
       </View>
+
+      <TouchableOpacity
+        style={[styles.syncRow, needsAttention ? styles.syncRowAttention : null]}
+        onPress={onOpenSync}
+        accessibilityRole="button"
+        accessibilityLabel="Abrir sincronização"
+      >
+        <Ionicons
+          name={online ? 'sync-outline' : 'cloud-offline-outline'}
+          size={18}
+          color={needsAttention ? colors.warning : colors.primary}
+        />
+        <Text style={styles.syncText}>{syncSummary(online, pending, rejected)}</Text>
+        <Ionicons name="chevron-forward" size={16} color={colors.inkFaint} />
+      </TouchableOpacity>
 
       <View style={styles.section}>
         <SectionLabel>Doses pendentes agora</SectionLabel>

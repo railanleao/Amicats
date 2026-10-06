@@ -6,7 +6,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { Button, StatusBadge } from '../components';
 import type { StatusBadgeTone } from '../components';
 import { ApiError } from '../services/api';
-import { catPhotoSource, getCat, uploadCatPhoto } from '../services/catService';
+import { catPhotoSource, uploadCatPhoto } from '../services/catService';
+import { catRepository } from '../sync/runtime';
 import { colors } from '../theme/colors';
 import type { Cat } from '../types/cat';
 import { SEX_LABELS } from '../types/cat';
@@ -94,18 +95,17 @@ export function CatDetailScreen({ catId, onBack, onEdit }: CatDetailScreenProps)
     useCallback(() => {
       let cancelled = false;
 
-      getCat(catId)
+      catRepository
+        .getCat(catId)
         .then((result) => {
           if (!cancelled) {
             setCat(result);
-            setErrorMessage(null);
+            setErrorMessage(result ? null : 'Gato não encontrado.');
           }
         })
         .catch((error) => {
           if (!cancelled) {
-            setErrorMessage(
-              error instanceof ApiError ? error.message : 'Não foi possível carregar a ficha do gato.',
-            );
+            setErrorMessage(error instanceof ApiError ? error.message : 'Não foi possível carregar a ficha do gato.');
           }
         })
         .finally(() => {
@@ -124,9 +124,15 @@ export function CatDetailScreen({ catId, onBack, onEdit }: CatDetailScreenProps)
   );
 
   async function uploadPhoto(uri: string) {
+    if (catId < 0) {
+      Alert.alert('Aguarde a sincronização', 'Este gato ainda não foi enviado ao servidor.');
+      return;
+    }
+
     setUploadingPhoto(true);
     try {
       const updated = await uploadCatPhoto(catId, uri);
+      await catRepository.cacheCat(updated);
       setCat(updated);
       setPhotoVersion(Date.now());
     } catch {

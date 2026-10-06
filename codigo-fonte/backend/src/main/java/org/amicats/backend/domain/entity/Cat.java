@@ -41,6 +41,9 @@ public class Cat {
   @Column(name = "id_cat")
   private Integer id;
 
+  @Column(name = "updated_at", insertable = false, updatable = false)
+  private LocalDateTime updatedAt;
+
   @Column(nullable = false, length = 100)
   private String name;
 

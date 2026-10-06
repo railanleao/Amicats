@@ -16,6 +16,7 @@ import { CatFormComponent } from './pages/cat-form/cat-form.component';
 import { CatsComponent } from './pages/cats/cats.component';
 import { UserFormComponent } from './pages/user-form/user-form.component';
 import { RoomsComponent } from './pages/rooms/rooms.component';
+import { SyncComponent } from './pages/sync/sync.component';
 import { RoomFormComponent } from './pages/room-form/room-form.component';
 import { MedicalRecordsComponent } from './pages/medical-records/medical-records.component';
 import { MedicalRecordDetailComponent } from './pages/medical-record-detail/medical-record-detail.component';
@@ -79,6 +80,11 @@ export const routes: Routes = [
         component: RoomFormComponent,
         canActivate: [adminGuard],
         data: { mode: 'edit' },
+      },
+      {
+        path: 'sync',
+        component: SyncComponent,
+        canActivate: [adminGuard],
       },
       { path: 'medical-records', component: MedicalRecordsComponent },
       { path: 'medical-records/:id', component: MedicalRecordDetailComponent },

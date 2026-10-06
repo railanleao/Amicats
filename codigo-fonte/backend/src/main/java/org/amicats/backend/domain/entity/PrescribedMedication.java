@@ -22,6 +22,9 @@ public class PrescribedMedication {
   @Column(name = "id_prescribed_medication")
   private Integer id;
 
+  @Column(name = "updated_at", insertable = false, updatable = false)
+  private LocalDateTime updatedAt;
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "id_internal_medical_prescription")
   private InternalMedicalPrescription internalMedicalPrescription;

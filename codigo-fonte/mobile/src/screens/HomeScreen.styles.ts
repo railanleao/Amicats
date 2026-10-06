@@ -24,6 +24,26 @@ export const styles = StyleSheet.create({
     fontSize: fontSizes.sm,
     color: colors.inkSoft,
   },
+  syncRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    backgroundColor: colors.surface,
+    borderColor: colors.border,
+    borderWidth: 1,
+    borderRadius: radii.sm,
+    padding: spacing.md,
+  },
+  syncRowAttention: {
+    backgroundColor: colors.warningBg,
+    borderColor: colors.warningBg,
+  },
+  syncText: {
+    flex: 1,
+    fontSize: fontSizes.md,
+    fontWeight: '600',
+    color: colors.ink,
+  },
   section: {
     gap: spacing.sm + 2,
   },

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { StyleSheet, Text, TextInput, TextInputProps, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../../theme/colors';
+import { useRevealFocusedInput } from '../KeyboardAwareScrollView';
 import { radii, spacing } from '../../theme/spacing';
 
 interface TextFieldProps extends TextInputProps {
@@ -10,8 +11,9 @@ interface TextFieldProps extends TextInputProps {
   isPassword?: boolean;
 }
 
-export function TextField({ label, error, isPassword, style, ...inputProps }: TextFieldProps) {
+export function TextField({ label, error, isPassword, style, onFocus, ...inputProps }: TextFieldProps) {
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const revealFocusedInput = useRevealFocusedInput();
 
   return (
     <View style={styles.container}>
@@ -21,6 +23,10 @@ export function TextField({ label, error, isPassword, style, ...inputProps }: Te
           style={[styles.input, style]}
           placeholderTextColor={colors.inkFaint}
           secureTextEntry={isPassword && !passwordVisible}
+          onFocus={(event) => {
+            onFocus?.(event);
+            revealFocusedInput?.();
+          }}
           {...inputProps}
         />
         {isPassword ? (

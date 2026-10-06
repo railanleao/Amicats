@@ -2,6 +2,7 @@ package org.amicats.backend.domain.entity;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,6 +18,9 @@ public class StockItem {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id_stock_item")
   private Integer id;
+
+  @Column(name = "updated_at", insertable = false, updatable = false)
+  private LocalDateTime updatedAt;
 
   @Column(nullable = false, length = 150)
   private String name;

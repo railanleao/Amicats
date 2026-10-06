@@ -29,7 +29,8 @@
           "photosPermission": "O Amicats usa suas fotos para ilustrar a ficha do gato.",
           "cameraPermission": "O Amicats usa a câmera para fotografar o gato na ficha dele."
         }
-      ]
+      ],
+      "expo-sqlite"
     ]
   }
 }
