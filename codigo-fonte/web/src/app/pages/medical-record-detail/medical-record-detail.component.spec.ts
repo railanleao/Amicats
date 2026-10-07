@@ -14,7 +14,7 @@ import { PrescribedMedication } from '../../models/medical-prescription.model';
 import { AuthService } from '../../services/resources/auth.service';
 import { CatService } from '../../services/resources/cat.service';
 import { PrescribedMedicationService } from '../../services/resources/prescribed-medication.service';
-import { MedicalRecordDetailComponent } from '../../../../../../../medical-record-detail/medical-record-detail.component';
+import { MedicalRecordDetailComponent } from './medical-record-detail.component';
 
 describe('MedicalRecordDetailComponent (unit)', () => {
   let fixture: ComponentFixture<MedicalRecordDetailComponent>;
