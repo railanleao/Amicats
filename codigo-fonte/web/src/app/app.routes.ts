@@ -11,6 +11,7 @@ import { LoginComponent } from './pages/login/login.component';
 import { TermsAcceptanceComponent } from './pages/terms-acceptance/terms-acceptance.component';
 import { UsersComponent } from './pages/users/users.component';
 import { adminGuard } from './guards/admin.guard';
+import { roleGuard } from './guards/role.guard';
 import { CatDetailComponent } from './pages/cat-detail/cat-detail.component';
 import { CatFormComponent } from './pages/cat-form/cat-form.component';
 import { CatsComponent } from './pages/cats/cats.component';
@@ -22,6 +23,7 @@ import { MedicalRecordDetailComponent } from './pages/medical-record-detail/medi
 import { StockComponent } from './pages/stock/stock.component';
 import { StockEntryComponent } from './pages/stock-entry/stock-entry.component';
 import { SearchComponent } from './pages/search/search.component';
+import { StockFormComponent } from './pages/stock-form/stock-form.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -86,8 +88,28 @@ export const routes: Routes = [
       },
       { path: 'medical-records', component: MedicalRecordsComponent },
       { path: 'medical-records/:id', component: MedicalRecordDetailComponent },
-      { path: 'stock', component: StockComponent },
-      { path: 'stock/entries/new', component: StockEntryComponent },
+      {
+        path: 'stock',
+        component: StockComponent,
+        canActivate: [
+          roleGuard(['Administrator', 'Assistant', 'Veterinarian']),
+        ],
+      },
+      {
+        path: 'stock/:id/edit',
+        component: StockFormComponent,
+        canActivate: [
+          roleGuard(['Administrator', 'Assistant']),
+        ],
+        data: { mode: 'edit' },
+      },
+      {
+        path: 'stock/entries/new',
+        component: StockEntryComponent,
+        canActivate: [
+          roleGuard(['Administrator', 'Assistant']),
+        ],
+      },
     ],
   },
   { path: '**', redirectTo: '' },

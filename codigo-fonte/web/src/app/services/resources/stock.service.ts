@@ -4,7 +4,6 @@ import { Observable } from 'rxjs';
 
 import {
   CreateStockEntryRequest,
-  CreateStockItemRequest,
   PagedResult,
   StockItem,
   StockSearchParams,
@@ -43,10 +42,6 @@ export class StockService {
 
   findById(id: number): Observable<StockItem> {
     return this.http.get<StockItem>(`/stock/${id}`);
-  }
-
-  create(request: CreateStockItemRequest): Observable<StockItem> {
-    return this.http.post<StockItem>('/stock', request);
   }
 
   update(id: number, request: UpdateStockItemRequest): Observable<StockItem> {

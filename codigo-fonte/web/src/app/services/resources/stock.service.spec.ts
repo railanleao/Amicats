@@ -8,7 +8,6 @@ import { TestBed } from '@angular/core/testing';
 import { environment } from '../../../environments/environment';
 import {
   CreateStockEntryRequest,
-  CreateStockItemRequest,
   PagedResult,
   StockItem,
   UpdateStockItemRequest,
@@ -125,40 +124,25 @@ describe('StockService (integration)', () => {
   });
 
   it('fetches a stock item by id', () => {
-    let received: StockItem | undefined;
-
-    service.findById(1).subscribe((item) => (received = item));
-
-    const request = httpMock.expectOne(`${environment.apiUrl}/stock/1`);
-
-    expect(request.request.method).toBe('GET');
-    request.flush(mockStockItem());
-
-    expect(received).toEqual(mockStockItem());
-  });
-
-  it('posts the payload to create a stock item', () => {
-    const payload: CreateStockItemRequest = {
-      name: 'Amoxicilina 250mg',
-      category: 'Antibiótico',
-      quantity: 0,
-      unit: 'unidades',
-      notes: null,
-    };
+    const item = mockStockItem();
 
     let received: StockItem | undefined;
 
-    service.create(payload).subscribe((item) => (received = item));
+    service.findById(item.id).subscribe((result) => {
+      received = result;
+    });
 
-    const request = httpMock.expectOne(`${environment.apiUrl}/stock`);
+    const req = httpMock.expectOne(
+      `http://localhost:8080/stock/${item.id}`,
+    );
 
-    expect(request.request.method).toBe('POST');
-    expect(request.request.body).toEqual(payload);
+    expect(req.request.method).toBe('GET');
 
-    request.flush(mockStockItem());
+    req.flush(item);
 
-    expect(received).toEqual(mockStockItem());
+    expect(received).toEqual(item);
   });
+
 
   it('puts the payload to update a stock item', () => {
     const payload: UpdateStockItemRequest = {

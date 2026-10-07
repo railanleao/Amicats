@@ -3,7 +3,7 @@
 // not something the client sets. `category` is a free-text string on the backend — there's no
 // StockCategory enum to mirror here.
 export type StockStatus = 'Normal' | 'Low' | 'OutOfStock';
-
+export type { PagedResult } from './paged-result.model';
 export type StockOrigin = 'DONATED' | 'PURCHASED';
 export const STOCK_STATUS_LABELS: Record<StockStatus, string> = {
   Normal: 'Normal',
@@ -40,13 +40,7 @@ export interface CreateStockItemRequest {
   notes: string | null;
 }
 
-export interface UpdateStockItemRequest {
-  name: string;
-  category: string;
-  quantity: number;
-  unit: string;
-  notes: string | null;
-}
+export type UpdateStockItemRequest = CreateStockItemRequest;
 
 export interface CreateStockEntryRequest {
   stockItemId: number;
@@ -55,12 +49,4 @@ export interface CreateStockEntryRequest {
   quantity: number;
   entryDate: string;
   expirationDate: string | null;
-}
-
-export interface PagedResult<T> {
-  content: T[];
-  page: number;
-  size: number;
-  totalElements: number;
-  totalPages: number;
 }

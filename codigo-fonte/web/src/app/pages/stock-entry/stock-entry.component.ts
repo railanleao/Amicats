@@ -1,26 +1,84 @@
 import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { TextFieldComponent } from '../../components/text-field/text-field.component';
 import {
+  AbstractControl,
   FormControl,
   FormGroup,
   ReactiveFormsModule,
+  ValidationErrors,
+  ValidatorFn,
   Validators,
 } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { finalize } from 'rxjs';
+import {
+  debounceTime,
+  distinctUntilChanged,
+  finalize,
+} from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { formatExpirationDate } from '../../lib/date.utils';
 
 import {
   CreateStockEntryRequest,
   StockItem,
   StockOrigin,
-  StockStatus,
 } from '../../models/stock.model';
+import { SubmitButtonComponent } from '../../components/submit-button/submit-button.component';
+import { StockStatusBadgeComponent } from '../../components/stock-status-badge/stock-status-badge.component';
 import { StockService } from '../../services/resources/stock.service';
+
+function todayIsoDate(): string {
+  const today = new Date();
+
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
+}
+
+const notFutureDateValidator: ValidatorFn = (
+  control: AbstractControl,
+): ValidationErrors | null => {
+  const value = control.value as string;
+
+  if (!value) {
+    return null;
+  }
+
+  return value > todayIsoDate()
+    ? { futureDate: true }
+    : null;
+};
+
+const expirationNotBeforeEntryValidator: ValidatorFn = (
+  control: AbstractControl,
+): ValidationErrors | null => {
+  const entryDate = control.get('entryDate')?.value as string;
+  const expirationDate = control.get('expirationDate')?.value as string;
+
+  if (!entryDate || !expirationDate) {
+    return null;
+  }
+
+  return expirationDate < entryDate
+    ? { expirationBeforeEntry: true }
+    : null;
+};
+
+const STOCK_SEARCH_SIZE = 20;
+const STOCK_SEARCH_DEBOUNCE_MS = 300;
 
 @Component({
   selector: 'app-stock-entry',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [
+    ReactiveFormsModule,
+    RouterLink,
+    SubmitButtonComponent,
+    StockStatusBadgeComponent,
+    TextFieldComponent,
+  ],
   templateUrl: './stock-entry.component.html',
   styleUrl: './stock-entry.component.css',
 })
@@ -37,6 +95,23 @@ export class StockEntryComponent implements OnInit {
 
   readonly loadError = signal<string | null>(null);
   readonly saveError = signal<string | null>(null);
+
+  readonly stockSearchControl = new FormControl('', {
+    nonNullable: true,
+  });
+
+  readonly expirationLabel = formatExpirationDate;
+
+  readonly today = todayIsoDate();
+
+
+  readonly errors = {
+    donorName: {
+      required: 'Informe o nome do doador.',
+      maxlength: 'O nome do doador deve ter no máximo 150 caracteres.',
+    },
+  };
+
 
   readonly form = new FormGroup({
     stockItemId: new FormControl<number | null>(null, {
@@ -56,27 +131,84 @@ export class StockEntryComponent implements OnInit {
     quantity: new FormControl<number | null>(null, {
       validators: [Validators.required, Validators.min(0.001)],
     }),
-    entryDate: new FormControl('', {
+    entryDate: new FormControl(this.today, {
       nonNullable: true,
-      validators: [Validators.required],
+      validators: [
+        Validators.required,
+        notFutureDateValidator,
+      ],
     }),
     expirationDate: new FormControl('', {
       nonNullable: true,
     }),
-  });
+    }, {
+      validators: [expirationNotBeforeEntryValidator],
+    });
 
   ngOnInit(): void {
     this.loadStockItems();
+
+ngOnInit(): void {
+  this.loadStockItems();
+
+  this.stockSearchControl.valueChanges
+    .pipe(
+      debounceTime(STOCK_SEARCH_DEBOUNCE_MS),
+      distinctUntilChanged(),
+      takeUntilDestroyed(this.destroyRef),
+    )
+    .subscribe((searchTerm) => {
+      this.loadStockItems(searchTerm);
+    });
+
+  this.form.controls.stockItemId.valueChanges
+    .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((stockItemId) => {
+        const item =
+          this.items().find(
+            (stockItem) => stockItem.id === stockItemId,
+          ) ?? null;
+
+        this.selectedStockItem.set(item);
+      });
+
+    this.form.controls.origin.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((origin) => {
+        const donorNameControl = this.form.controls.donorName;
+
+        if (origin === 'DONATED') {
+          donorNameControl.enable({ emitEvent: false });
+
+          donorNameControl.setValidators([
+            Validators.required,
+            Validators.maxLength(150),
+          ]);
+        } else {
+          donorNameControl.setValue('', { emitEvent: false });
+
+          donorNameControl.setValidators([
+            Validators.maxLength(150),
+          ]);
+
+          donorNameControl.disable({ emitEvent: false });
+        }
+
+        donorNameControl.updateValueAndValidity({
+          emitEvent: false,
+        });
+      });
   }
 
-  loadStockItems(): void {
+  loadStockItems(searchTerm = this.stockSearchControl.value): void {
     this.loadingItems.set(true);
     this.loadError.set(null);
 
     this.stockService
       .list({
+        search: searchTerm.trim() || undefined,
         page: 0,
-        size: 1000,
+        size: STOCK_SEARCH_SIZE,
       })
       .pipe(
         finalize(() => this.loadingItems.set(false)),
@@ -94,34 +226,7 @@ export class StockEntryComponent implements OnInit {
       });
   }
 
-  onStockItemChange(): void {
-    const stockItemId = this.form.controls.stockItemId.value;
 
-    const item =
-      this.items().find((stockItem) => stockItem.id === stockItemId) ?? null;
-
-    this.selectedStockItem.set(item);
-  }
-
-  onOriginChange(): void {
-    const origin = this.form.controls.origin.value;
-    const donorNameControl = this.form.controls.donorName;
-
-    if (origin === 'DONATED') {
-      donorNameControl.enable();
-
-      donorNameControl.setValidators([
-        Validators.required,
-        Validators.maxLength(150),
-      ]);
-    } else {
-      donorNameControl.setValue('');
-      donorNameControl.setValidators([Validators.maxLength(150)]);
-      donorNameControl.disable();
-    }
-
-    donorNameControl.updateValueAndValidity();
-  }
 
   onSubmit(): void {
     if (this.saving()) {
@@ -168,16 +273,6 @@ export class StockEntryComponent implements OnInit {
       });
   }
 
-  statusLabel(status: StockStatus): string {
-    switch (status) {
-      case 'Normal':
-        return 'Normal';
-      case 'Low':
-        return 'Baixo';
-      case 'OutOfStock':
-        return 'Em falta';
-    }
-  }
 
   quantityLabel(item: StockItem): string {
     const quantity = new Intl.NumberFormat('pt-BR', {
@@ -187,13 +282,4 @@ export class StockEntryComponent implements OnInit {
     return `${quantity} ${item.unit}`;
   }
 
-  expirationLabel(expirationDate: string | null): string {
-    if (!expirationDate) {
-      return '—';
-    }
-
-    const [year, month] = expirationDate.split('-');
-
-    return `${month}/${year}`;
-  }
 }

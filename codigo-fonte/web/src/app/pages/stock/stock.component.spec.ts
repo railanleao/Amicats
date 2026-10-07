@@ -1,12 +1,17 @@
+import { signal } from '@angular/core';
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
+import { STOCK_CATEGORIES } from '../../models/stock-category.model';
+
+import { AccessType } from '../../models/auth.model';
 
 import {
   PagedResult,
   StockItem,
-  StockItemSearchParams,
+  StockSearchParams,
 } from '../../models/stock.model';
+import { AuthService } from '../../services/resources/auth.service';
 import { StockService } from '../../services/resources/stock.service';
 import { StockComponent } from './stock.component';
 
@@ -14,6 +19,11 @@ describe('StockComponent', () => {
   let fixture: ComponentFixture<StockComponent>;
   let component: StockComponent;
   let stockServiceSpy: jasmine.SpyObj<StockService>;
+  const currentUser = signal<{
+    id: number;
+    name: string;
+    accessType: AccessType;
+  } | null>(null);
 
   function mockItems(): StockItem[] {
     return [
@@ -55,10 +65,15 @@ describe('StockComponent', () => {
   }
 
   beforeEach(async () => {
-    stockServiceSpy = jasmine.createSpyObj<StockService>('StockService', [
-      'list',
-      'update',
-    ]);
+    currentUser.set({
+      id: 1,
+      name: 'Ana',
+      accessType: 'Administrator',
+    });
+
+   stockServiceSpy = jasmine.createSpyObj<StockService>('StockService', [
+     'list',
+   ]);
 
     stockServiceSpy.list.and.returnValue(of(pagedResult(mockItems())));
 
@@ -66,6 +81,7 @@ describe('StockComponent', () => {
       imports: [StockComponent],
       providers: [
         provideRouter([]),
+        { provide: AuthService, useValue: { currentUser } },
         { provide: StockService, useValue: stockServiceSpy },
       ],
     }).compileComponents();
@@ -84,7 +100,7 @@ describe('StockComponent', () => {
       expirationTo: undefined,
       page: 0,
       size: 20,
-    } as StockItemSearchParams);
+    } as StockSearchParams);
   });
 
   it('populates the stock list and pagination data', () => {
@@ -99,12 +115,45 @@ describe('StockComponent', () => {
       throwError(() => new Error('network error')),
     );
 
+    component.items.set([]);
+
     component.loadStock();
+    fixture.detectChanges();
 
     expect(component.errorMessage()).toBe(
       'Não foi possível carregar o estoque. Tente novamente.',
     );
+
+    const errorFeedback =
+      fixture.nativeElement.querySelector('.feedback--error');
+
+    const emptyState =
+      fixture.nativeElement.querySelector('.empty-state');
+
+    expect(errorFeedback).not.toBeNull();
+    expect(emptyState).toBeNull();
   });
+
+it('shows the shared stock categories in the category filter', () => {
+  fixture.detectChanges();
+
+  component.showFilters = true;
+  fixture.detectChanges();
+
+  const select = fixture.nativeElement.querySelector(
+    '#category',
+  ) as HTMLSelectElement;
+
+  const options = Array.from(select.options).map(
+    (option) => option.value,
+  );
+
+  expect(options).toEqual([
+    '',
+    ...STOCK_CATEGORIES,
+  ]);
+});
+
 
   it('debounces search and resets the page', fakeAsync(() => {
     stockServiceSpy.list.calls.reset();
@@ -170,65 +219,93 @@ describe('StockComponent', () => {
     expect(navigate).toHaveBeenCalledWith(['/stock/entries/new']);
   });
 
-  it('fills the edit form with the selected stock item', () => {
-    const item = mockItems()[0];
+  it('navigates to the stock edit page', () => {
+    const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(
+      true,
+    );
 
-    component.startEdit(item);
+    component.editItem(1);
 
-    expect(component.editingItem()).toEqual(item);
-    expect(component.editForm.controls.name.value).toBe('Amoxicilina 250mg');
-    expect(component.editForm.controls.category.value).toBe('Antibiótico');
-    expect(component.editForm.controls.quantity.value).toBe(42);
-    expect(component.editForm.controls.unit.value).toBe('unidades');
-    expect(component.editForm.controls.notes.value).toBe('');
-  });
-
-  it('does not update when the edit form is invalid', () => {
-    component.startEdit(mockItems()[0]);
-
-    component.editForm.controls.name.setValue('');
-
-    component.saveEdit();
-
-    expect(stockServiceSpy.update).not.toHaveBeenCalled();
-    expect(component.editForm.controls.name.touched).toBeTrue();
-  });
-
-  it('updates the stock item with trimmed values', () => {
-    const item = mockItems()[0];
-
-    stockServiceSpy.update.and.returnValue(of(item));
-
-    component.startEdit(item);
-
-    component.editForm.setValue({
-      name: '  Amoxicilina 250mg  ',
-      category: '  Antibiótico  ',
-      quantity: 50,
-      unit: '  unidades  ',
-      notes: '  Estoque atualizado  ',
-    });
-
-    component.saveEdit();
-
-    expect(stockServiceSpy.update).toHaveBeenCalledWith(1, {
-      name: 'Amoxicilina 250mg',
-      category: 'Antibiótico',
-      quantity: 50,
-      unit: 'unidades',
-      notes: 'Estoque atualizado',
-    });
-
-    expect(component.editingItem()).toBeNull();
+    expect(navigate).toHaveBeenCalledWith(['/stock', 1, 'edit']);
   });
 
   it('formats stock values for display', () => {
-    expect(component.statusLabel('Normal')).toBe('Normal');
-    expect(component.statusLabel('Low')).toBe('Baixo');
-    expect(component.statusLabel('OutOfStock')).toBe('Em falta');
+
 
     expect(component.quantityLabel(mockItems()[0])).toBe('42 unidades');
     expect(component.expirationLabel('2027-03-01')).toBe('03/2027');
     expect(component.expirationLabel(null)).toBe('—');
+  });
+
+  it('shows stock management actions for an administrator', () => {
+    currentUser.set({
+      id: 1,
+      name: 'Ana',
+      accessType: 'Administrator',
+    });
+
+    fixture.detectChanges();
+
+    const registerEntryButton =
+      fixture.nativeElement.querySelector('.new-button');
+    const editButton =
+      fixture.nativeElement.querySelector('.edit-button');
+
+    expect(registerEntryButton).not.toBeNull();
+    expect(editButton).not.toBeNull();
+  });
+
+  it('shows stock management actions for an assistant', () => {
+    currentUser.set({
+      id: 2,
+      name: 'Rui',
+      accessType: 'Assistant',
+    });
+
+    fixture.detectChanges();
+
+    const registerEntryButton =
+      fixture.nativeElement.querySelector('.new-button');
+    const editButton =
+      fixture.nativeElement.querySelector('.edit-button');
+
+    expect(registerEntryButton).not.toBeNull();
+    expect(editButton).not.toBeNull();
+  });
+
+  it('hides stock management actions from a veterinarian', () => {
+    currentUser.set({
+      id: 3,
+      name: 'Marina',
+      accessType: 'Veterinarian',
+    });
+
+    fixture.detectChanges();
+
+    const registerEntryButton =
+      fixture.nativeElement.querySelector('.new-button');
+    const editButton =
+      fixture.nativeElement.querySelector('.edit-button');
+
+    expect(registerEntryButton).toBeNull();
+    expect(editButton).toBeNull();
+  });
+
+  it('hides stock management actions from a viewer', () => {
+    currentUser.set({
+      id: 4,
+      name: 'Paula',
+      accessType: 'Viewer',
+    });
+
+    fixture.detectChanges();
+
+    const registerEntryButton =
+      fixture.nativeElement.querySelector('.new-button');
+    const editButton =
+      fixture.nativeElement.querySelector('.edit-button');
+
+    expect(registerEntryButton).toBeNull();
+    expect(editButton).toBeNull();
   });
 });

@@ -1,4 +1,10 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpErrorResponse } from '@angular/common/http';
+import {
+  ComponentFixture,
+  fakeAsync,
+  TestBed,
+  tick,
+} from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { EMPTY, of, throwError } from 'rxjs';
 
@@ -20,7 +26,7 @@ describe('StockEntryComponent', () => {
     const emptyPage: PagedResult<StockItem> = {
       content: [],
       page: 0,
-      size: 1000,
+      size: 20,
       totalElements: 0,
       totalPages: 0,
     };
@@ -46,10 +52,29 @@ describe('StockEntryComponent', () => {
 
   it('loads stock items on init', () => {
     expect(stockServiceSpy.list).toHaveBeenCalledWith({
+      search: undefined,
       page: 0,
-      size: 1000,
+      size: 20,
     });
   });
+
+it('searches stock items after the debounce time', fakeAsync(() => {
+  stockServiceSpy.list.calls.reset();
+
+  component.stockSearchControl.setValue('amoxi');
+
+  tick(299);
+
+  expect(stockServiceSpy.list).not.toHaveBeenCalled();
+
+  tick(1);
+
+  expect(stockServiceSpy.list).toHaveBeenCalledOnceWith({
+    search: 'amoxi',
+    page: 0,
+    size: 20,
+  });
+}));
 
   it('stores the stock items returned by the service', () => {
     const items: StockItem[] = [
@@ -69,7 +94,7 @@ describe('StockEntryComponent', () => {
       of({
         content: items,
         page: 0,
-        size: 1000,
+        size: 20,
         totalElements: 1,
         totalPages: 1,
       }),
@@ -95,7 +120,6 @@ describe('StockEntryComponent', () => {
     component.items.set([item]);
     component.form.controls.stockItemId.setValue(1);
 
-    component.onStockItemChange();
 
     expect(component.selectedStockItem()).toEqual(item);
   });
@@ -106,7 +130,6 @@ describe('StockEntryComponent', () => {
     expect(donorNameControl.disabled).toBeTrue();
 
     component.form.controls.origin.setValue('DONATED');
-    component.onOriginChange();
 
     expect(donorNameControl.enabled).toBeTrue();
 
@@ -120,17 +143,50 @@ describe('StockEntryComponent', () => {
     const donorNameControl = component.form.controls.donorName;
 
     component.form.controls.origin.setValue('DONATED');
-    component.onOriginChange();
+
 
     donorNameControl.setValue('Clínica VetAmigo');
 
     component.form.controls.origin.setValue('PURCHASED');
-    component.onOriginChange();
+
 
     expect(donorNameControl.disabled).toBeTrue();
     expect(donorNameControl.value).toBe('');
     expect(donorNameControl.hasError('required')).toBeFalse();
   });
+
+   it('starts the entry date with today', () => {
+     expect(component.form.controls.entryDate.value).toBe(component.today);
+   });
+
+   it('does not allow a future entry date', () => {
+     const entryDateControl = component.form.controls.entryDate;
+
+     entryDateControl.setValue('9999-12-31');
+     entryDateControl.updateValueAndValidity();
+
+     expect(entryDateControl.hasError('futureDate')).toBeTrue();
+   });
+
+   it('validates expiration date against the entry date', () => {
+     component.form.controls.entryDate.setValue('2026-09-10');
+
+     component.form.controls.expirationDate.setValue('2026-09-09');
+     component.form.updateValueAndValidity();
+
+     expect(component.form.hasError('expirationBeforeEntry')).toBeTrue();
+
+     component.form.controls.expirationDate.setValue('2026-09-10');
+     component.form.updateValueAndValidity();
+
+     expect(component.form.hasError('expirationBeforeEntry')).toBeFalse();
+
+     component.form.controls.expirationDate.setValue('2026-09-11');
+     component.form.updateValueAndValidity();
+
+     expect(component.form.hasError('expirationBeforeEntry')).toBeFalse();
+   });
+
 
   it('does not register an entry when the form is invalid', () => {
     component.onSubmit();
@@ -147,7 +203,7 @@ describe('StockEntryComponent', () => {
 
     component.form.controls.stockItemId.setValue(1);
     component.form.controls.origin.setValue('DONATED');
-    component.onOriginChange();
+
 
     component.form.controls.donorName.setValue('Clínica VetAmigo');
     component.form.controls.quantity.setValue(10);
@@ -175,7 +231,7 @@ describe('StockEntryComponent', () => {
 
     component.form.controls.stockItemId.setValue(1);
     component.form.controls.origin.setValue('PURCHASED');
-    component.onOriginChange();
+
 
     component.form.controls.quantity.setValue(10);
     component.form.controls.entryDate.setValue('2026-09-10');
@@ -187,12 +243,18 @@ describe('StockEntryComponent', () => {
 
 it('shows an error message when entry registration fails', () => {
   stockServiceSpy.registerEntry.and.returnValue(
-    throwError(() => new Error('server error')),
+    throwError(
+      () =>
+        new HttpErrorResponse({
+          status: 500,
+          statusText: 'Server Error',
+        }),
+    )
   );
 
   component.form.controls.stockItemId.setValue(1);
   component.form.controls.origin.setValue('PURCHASED');
-  component.onOriginChange();
+
 
   component.form.controls.quantity.setValue(10);
   component.form.controls.entryDate.setValue('2026-09-10');
@@ -205,7 +267,13 @@ it('shows an error message when entry registration fails', () => {
 });
 it('shows an error message when stock items fail to load', () => {
   stockServiceSpy.list.and.returnValue(
-    throwError(() => new Error('network error')),
+    throwError(
+      () =>
+        new HttpErrorResponse({
+          status: 500,
+          statusText: 'Network Error',
+        }),
+    )
   );
 
   component.loadStockItems();

@@ -3,8 +3,8 @@
   min-height: 100vh;
   padding: 28px 40px;
   box-sizing: border-box;
-  background: var(--color-bg, #eef3eb);
-}
+  background: var(--color-bg);
+ }
 
 .page-header {
   display: flex;
@@ -15,9 +15,9 @@
 
 .page-header h1 {
   margin: 0;
-  color: var(--color-ink, #263229);
+  color: var(--color-ink);
   font-family: var(--font-display);
-  font-size: 24px;
+  font-size: var(--text-lg);
   font-weight: 600;
 }
 
@@ -29,21 +29,20 @@
   justify-content: center;
   flex-shrink: 0;
   border-radius: 50%;
-  background: var(--color-sage-100, #e8efe5);
-  color: var(--color-sage-700, #557b52);
+  background: var(--color-sage-100);
+  color: var(--color-sage-700);
   text-decoration: none;
-  font-size: 20px;
   transition: background 0.2s ease;
 }
 
 .page-header__back:hover {
-  background: var(--color-sage-300, #d1dfcd);
+  background: var(--color-sage-300);
 }
 
 .page-header__crumb {
-  color: var(--color-ink-soft, #667064);
+  color: var(--color-ink-soft);
   text-decoration: none;
-  font-size: 13px;
+  font-size: var(--text-xs);
 }
 
 .page-header__crumb:hover {
@@ -51,7 +50,7 @@
 }
 
 .page-header__separator {
-  color: var(--color-ink-faint, #9aa39a);
+  color: var(--color-ink-faint);
 }
 
 .entry-layout {
@@ -66,9 +65,9 @@
   flex-direction: column;
   gap: 18px;
   padding: 28px;
-  border: 1px solid var(--color-border, #dce8d9);
+  border: 1px solid var(--color-border);
   border-radius: 12px;
-  background: var(--color-surface, #ffffff);
+  background: var(--color-surface);
 }
 
 .form-row {
@@ -84,8 +83,8 @@
 }
 
 .field label {
-  color: var(--color-ink-soft, #4f684d);
-  font-size: 12px;
+  color: var(--color-ink-soft);
+  font-size: var(--text-xs);
   font-weight: 600;
 }
 
@@ -95,84 +94,29 @@
   height: 40px;
   padding: 0 12px;
   box-sizing: border-box;
-  border: 1.5px solid var(--color-border, #cdd7ca);
+  border: 1.5px solid var(--color-border);
   border-radius: 8px;
   outline: none;
-  background: var(--color-surface, #ffffff);
-  color: var(--color-ink, #263229);
+  background: var(--color-surface);
+  color: var(--color-ink);
   font-family: var(--font-body);
-  font-size: 13px;
+  font-size: var(--text-xs);
 }
 
 .field input:focus,
 .field select:focus {
-  border-color: #7d8979;
-  box-shadow: 0 0 0 3px rgba(125, 137, 121, 0.15);
+  border-color: var(--color-sage-500);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-sage-500) 15%, transparent);
 }
 
-.field input:disabled {
-  background: #f3f5f2;
-  color: #9aa39a;
-  cursor: not-allowed;
+
+
+.form-actions__submit {
+  width: 190px;
 }
 
-.field__input--invalid {
-  border-color: var(--color-danger, #a04444) !important;
-}
 
-.field-error {
-  color: var(--color-danger, #a04444);
-  font-size: 12px;
-}
 
-.form-actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 12px;
-  padding-top: 18px;
-  border-top: 1px solid var(--color-border, #edf1ec);
-}
-
-.cancel-button,
-.submit-button {
-  height: 40px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 16px;
-  border-radius: 8px;
-  font-family: var(--font-body);
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.cancel-button {
-  border: 1px solid var(--color-border, #cdd7ca);
-  background: var(--color-surface, #ffffff);
-  color: var(--color-ink, #263229);
-  text-decoration: none;
-}
-
-.cancel-button:hover {
-  background: var(--color-bg, #eef3eb);
-}
-
-.submit-button {
-  border: none;
-  background: #557b52;
-  color: #ffffff;
-  cursor: pointer;
-}
-
-.submit-button:hover:not(:disabled) {
-  background: #476b45;
-}
-
-.submit-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
 
 .status-card {
   display: flex;
@@ -181,14 +125,14 @@
   min-height: 150px;
   padding: 22px;
   box-sizing: border-box;
-  border: 1px solid var(--color-border, #dce8d9);
+  border: 1px solid var(--color-border);
   border-radius: 12px;
-  background: var(--color-surface, #ffffff);
+  background: var(--color-surface);
 }
 
 .status-card__eyebrow {
-  color: #72806f;
-  font-size: 11px;
+  color: var(--color-sage-700);
+  font-size: var(--text-xs);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.03em;
@@ -196,36 +140,11 @@
 
 .status-card h2 {
   margin: 0;
-  color: var(--color-ink, #263229);
-  font-size: 17px;
+  color: var(--color-ink);
+  font-size: var(--text-base);
   font-weight: 700;
 }
 
-.status-badge {
-  width: fit-content;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 4px 9px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 600;
-}
-
-.status-badge--normal {
-  background: #e5f4e3;
-  color: #4a7548;
-}
-
-.status-badge--low {
-  background: #f8ecc8;
-  color: #8a6c19;
-}
-
-.status-badge--out {
-  background: #f8deda;
-  color: #9b4a40;
-}
 
 .status-card__details {
   display: flex;
@@ -242,22 +161,22 @@
 }
 
 .status-card__details dt {
-  color: #7b8678;
-  font-size: 12px;
+  color: var(--color-ink-soft);
+  font-size: var(--text-xs);
 }
 
 .status-card__details dd {
   margin: 0;
-  color: #3c493a;
-  font-size: 12px;
+  color: var(--color-sage-900);
+  font-size: var(--text-xs);
   font-weight: 600;
   text-align: right;
 }
 
 .status-card__empty {
   margin: 0;
-  color: #7b8678;
-  font-size: 13px;
+  color: var(--color-ink-soft);
+  font-size: var(--text-xs);
   line-height: 1.5;
 }
 
@@ -265,7 +184,7 @@
   margin-bottom: 18px;
   padding: 12px 14px;
   border-radius: 8px;
-  font-size: 13px;
+  font-size: var(--text-xs);
 }
 
 .feedback--error {
@@ -273,8 +192,8 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  background: var(--color-danger-bg, #f6dddd);
-  color: var(--color-danger, #a04444);
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
 }
 
 .feedback__retry {
@@ -283,14 +202,14 @@
   border-radius: 6px;
   background: transparent;
   color: inherit;
-  font-size: 12px;
+  font-size: var(--text-xs);
   font-weight: 600;
   cursor: pointer;
 }
 
 .feedback__retry:hover {
-  background: var(--color-danger, #a04444);
-  color: #ffffff;
+  background: var(--color-danger);
+  color: var(--color-surface);
 }
 
 @media (max-width: 900px) {
@@ -331,7 +250,7 @@
   }
 
   .cancel-button,
-  .submit-button {
+  .form-actions__submit {
     width: 100%;
     box-sizing: border-box;
   }

@@ -2,6 +2,7 @@
   <header class="page-header">
     <h1>Estoque</h1>
 
+    @if (canManageStock()) {
     <button
       type="button"
       class="new-button"
@@ -10,6 +11,7 @@
       <span>+</span>
       Registrar entrada
     </button>
+    }
   </header>
 
   <section class="stock-container">
@@ -39,13 +41,19 @@
     <div class="filter-panel">
       <div class="filter-field">
         <label for="category">Categoria</label>
-        <input
+        <select
           id="category"
-          type="text"
-          placeholder="Ex.: Antibiótico"
           [value]="selectedCategory"
           (change)="onCategoryChange($event)"
-        />
+        >
+          <option value="">Todas</option>
+
+          @for (category of stockCategories; track category) {
+          <option [value]="category">
+            {{ category }}
+          </option>
+          }
+        </select>
       </div>
 
       <div class="filter-field">
@@ -104,13 +112,12 @@
         Tentar novamente
       </button>
     </div>
-    }
-
-    @if (loading() && items().length === 0) {
+    } @else if (loading() && items().length === 0) {
     <div class="feedback">
       Carregando estoque...
     </div>
     } @else {
+
     <div class="table-wrapper">
       <table class="stock-table">
         <thead>
@@ -120,9 +127,14 @@
           <th>Quantidade</th>
           <th>Validade</th>
           <th>Situação</th>
+
+
+          @if (canManageStock()) {
           <th class="action-column">
             <span class="visually-hidden">Ações</span>
           </th>
+          }
+
         </tr>
         </thead>
 
@@ -146,33 +158,37 @@
           </td>
 
           <td>
-                  <span
-                    class="status-badge"
-                    [class.status-badge--normal]="item.status === 'Normal'"
-                    [class.status-badge--low]="item.status === 'Low'"
-                    [class.status-badge--out]="item.status === 'OutOfStock'"
-                  >
-                    {{ statusLabel(item.status) }}
-                  </span>
+
+            <app-stock-status-badge
+              [status]="item.status"
+            />
           </td>
 
+          @if (canManageStock()) {
           <td class="action-column">
             <button
               type="button"
               class="edit-button"
               [attr.aria-label]="'Editar ' + item.name"
               [title]="'Editar ' + item.name"
-              (click)="startEdit(item)"
+              (click)="editItem(item.id)"
             >
               ✎
             </button>
           </td>
+          }
+
         </tr>
         } @empty {
         <tr>
-          <td colspan="6" class="empty-state">
+
+          <td
+            [attr.colspan]="canManageStock() ? 6 : 5"
+            class="empty-state"
+          >
             Nenhum item de estoque encontrado.
           </td>
+
         </tr>
         }
         </tbody>
@@ -190,169 +206,4 @@
     }
   </section>
 
-  @if (editingItem(); as item) {
-  <div class="edit-overlay">
-    <section
-      class="edit-dialog"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="edit-stock-title"
-    >
-      <header class="edit-dialog__header">
-        <div>
-          <span class="edit-dialog__eyebrow">Editar item</span>
-          <h2 id="edit-stock-title">{{ item.name }}</h2>
-        </div>
-
-        <button
-          type="button"
-          class="edit-dialog__close"
-          aria-label="Fechar edição"
-          (click)="cancelEdit()"
-        >
-          ×
-        </button>
-      </header>
-
-      @if (editError()) {
-      <div class="feedback feedback--error" role="alert">
-        {{ editError() }}
-      </div>
-      }
-
-      <form
-        class="edit-form"
-        [formGroup]="editForm"
-        (ngSubmit)="saveEdit()"
-        novalidate
-      >
-        <div class="form-field">
-          <label for="edit-name">Medicamento</label>
-
-          <input
-            id="edit-name"
-            type="text"
-            formControlName="name"
-            [class.input-invalid]="
-                editForm.controls.name.invalid &&
-                editForm.controls.name.touched
-              "
-          />
-
-          @if (
-          editForm.controls.name.invalid &&
-          editForm.controls.name.touched
-          ) {
-          <span class="field-error">
-                Informe o nome do medicamento.
-              </span>
-          }
-        </div>
-
-        <div class="edit-form__row">
-          <div class="form-field">
-            <label for="edit-category">Categoria</label>
-
-            <input
-              id="edit-category"
-              type="text"
-              formControlName="category"
-              [class.input-invalid]="
-                  editForm.controls.category.invalid &&
-                  editForm.controls.category.touched
-                "
-            />
-
-            @if (
-            editForm.controls.category.invalid &&
-            editForm.controls.category.touched
-            ) {
-            <span class="field-error">
-                  Informe a categoria.
-                </span>
-            }
-          </div>
-
-          <div class="form-field">
-            <label for="edit-unit">Unidade</label>
-
-            <input
-              id="edit-unit"
-              type="text"
-              placeholder="Ex.: unidades, ml, frascos"
-              formControlName="unit"
-              [class.input-invalid]="
-                  editForm.controls.unit.invalid &&
-                  editForm.controls.unit.touched
-                "
-            />
-
-            @if (
-            editForm.controls.unit.invalid &&
-            editForm.controls.unit.touched
-            ) {
-            <span class="field-error">
-                  Informe a unidade.
-                </span>
-            }
-          </div>
-        </div>
-
-        <div class="form-field">
-          <label for="edit-quantity">Quantidade</label>
-
-          <input
-            id="edit-quantity"
-            type="number"
-            min="0"
-            step="0.001"
-            formControlName="quantity"
-            [class.input-invalid]="
-                editForm.controls.quantity.invalid &&
-                editForm.controls.quantity.touched
-              "
-          />
-
-          @if (
-          editForm.controls.quantity.invalid &&
-          editForm.controls.quantity.touched
-          ) {
-          <span class="field-error">
-                A quantidade deve ser igual ou maior que zero.
-              </span>
-          }
-        </div>
-
-        <div class="form-field">
-          <label for="edit-notes">Observações</label>
-
-          <textarea
-            id="edit-notes"
-            rows="3"
-            formControlName="notes"
-          ></textarea>
-        </div>
-
-        <div class="edit-dialog__actions">
-          <button
-            type="button"
-            class="cancel-button"
-            [disabled]="editSaving()"
-            (click)="cancelEdit()"
-          >
-            Cancelar
-          </button>
-
-          <button
-            type="submit"
-            class="save-button"
-            [disabled]="editSaving()"
-          >
-            {{ editSaving() ? 'Salvando...' : 'Salvar alterações' }}
-          </button>
-        </div>
-      </form>
-    </section>
-  </div>
-  }
 </div>

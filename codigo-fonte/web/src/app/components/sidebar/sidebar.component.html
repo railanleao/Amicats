@@ -77,11 +77,12 @@
         <span>Medicamentos</span>
       </a>
 
+      @if (canViewStock()) {
       <a class="menu-item" routerLink="/stock" routerLinkActive="active">
         <span class="menu-icon">▦</span>
         <span>Estoque</span>
       </a>
-
+      }
       <a class="menu-item">
         <span class="menu-icon">♢</span>
         <span>Vacinas</span>
