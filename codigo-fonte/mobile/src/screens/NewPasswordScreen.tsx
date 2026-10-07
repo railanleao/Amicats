@@ -1,12 +1,13 @@
-import { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
-import { ScrollView, Text, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { Button, TextField } from "../components";
-import { ApiError } from "../services/api";
-import { colors } from "../theme/colors";
-import type { ChangePasswordRequest } from "../types/auth";
-import { styles } from "./NewPasswordScreen.styles";
+import { useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import { ScrollView, View } from 'react-native';
+import { Text } from '../components/Text';
+import { Ionicons } from '@expo/vector-icons';
+import { Button, TextField } from '../components';
+import { ApiError } from '../services/api';
+import { colors } from '../theme/colors';
+import type { ChangePasswordRequest } from '../types/auth';
+import { styles } from './NewPasswordScreen.styles';
 
 interface NewPasswordScreenProps {
   onSubmit: (values: ChangePasswordRequest) => Promise<void>;
@@ -21,7 +22,7 @@ export function NewPasswordScreen({ onSubmit }: NewPasswordScreenProps) {
     getValues,
     formState: { errors },
   } = useForm<ChangePasswordRequest>({
-    defaultValues: { currentPassword: "", newPassword: "", confirmNewPassword: "" },
+    defaultValues: { currentPassword: '', newPassword: '', confirmNewPassword: '' },
   });
 
   async function submit(values: ChangePasswordRequest) {
@@ -30,9 +31,7 @@ export function NewPasswordScreen({ onSubmit }: NewPasswordScreenProps) {
     try {
       await onSubmit(values);
     } catch (error) {
-      setGeneralError(
-        error instanceof ApiError ? error.message : "Não foi possível salvar a nova senha.",
-      );
+      setGeneralError(error instanceof ApiError ? error.message : 'Não foi possível salvar a nova senha.');
     } finally {
       setSubmitting(false);
     }
@@ -46,9 +45,7 @@ export function NewPasswordScreen({ onSubmit }: NewPasswordScreenProps) {
         </View>
         <View style={styles.headerText}>
           <Text style={styles.title}>Defina sua nova senha</Text>
-          <Text style={styles.subtitle}>
-            Por segurança, você precisa criar uma nova senha antes de continuar.
-          </Text>
+          <Text style={styles.subtitle}>Por segurança, você precisa criar uma nova senha antes de continuar.</Text>
         </View>
       </View>
 
@@ -56,7 +53,7 @@ export function NewPasswordScreen({ onSubmit }: NewPasswordScreenProps) {
         <Controller
           control={control}
           name="currentPassword"
-          rules={{ required: "Informe sua senha atual." }}
+          rules={{ required: 'Informe sua senha atual.' }}
           render={({ field: { value, onChange } }) => (
             <TextField
               label="Senha atual (temporária)"
@@ -73,8 +70,8 @@ export function NewPasswordScreen({ onSubmit }: NewPasswordScreenProps) {
           control={control}
           name="newPassword"
           rules={{
-            required: "Informe a nova senha.",
-            minLength: { value: 8, message: "A nova senha deve ter pelo menos 8 caracteres." },
+            required: 'Informe a nova senha.',
+            minLength: { value: 8, message: 'A nova senha deve ter pelo menos 8 caracteres.' },
           }}
           render={({ field: { value, onChange } }) => (
             <TextField
@@ -92,9 +89,8 @@ export function NewPasswordScreen({ onSubmit }: NewPasswordScreenProps) {
           control={control}
           name="confirmNewPassword"
           rules={{
-            required: "Confirme a nova senha.",
-            validate: (value) =>
-              value === getValues("newPassword") || "As senhas não coincidem.",
+            required: 'Confirme a nova senha.',
+            validate: (value) => value === getValues('newPassword') || 'As senhas não coincidem.',
           }}
           render={({ field: { value, onChange } }) => (
             <TextField
@@ -111,12 +107,7 @@ export function NewPasswordScreen({ onSubmit }: NewPasswordScreenProps) {
         {generalError ? <Text style={styles.generalError}>{generalError}</Text> : null}
       </View>
 
-      <Button
-        title="Salvar e continuar"
-        onPress={handleSubmit(submit)}
-        loading={submitting}
-        style={styles.submitButton}
-      />
+      <Button title="Salvar e continuar" onPress={handleSubmit(submit)} loading={submitting} style={styles.submitButton} />
     </ScrollView>
   );
 }

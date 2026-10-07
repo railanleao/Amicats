@@ -6,6 +6,7 @@ import { ComingSoonScreen } from '../screens/ComingSoonScreen';
 import { HomeScreen } from '../screens/HomeScreen';
 import { SearchScreen } from '../screens/SearchScreen';
 import { colors } from '../theme/colors';
+import { resolveFontFamily } from '../theme/fonts';
 import type { User } from '../types/auth';
 
 export type BottomTabParamList = {
@@ -50,7 +51,7 @@ export function BottomTabNavigator({ user, onLogout, onNewCat, onOpenCat, onOpen
           backgroundColor: colors.surface,
           borderTopColor: colors.border,
         },
-        tabBarLabelStyle: { fontSize: 10.5, fontWeight: '700' },
+        tabBarLabelStyle: { fontSize: 10.5, fontFamily: resolveFontFamily(undefined, '700') },
         tabBarIcon: ({ focused, color, size }: { focused: boolean; color: string; size: number }) => {
           const name = focused
             ? TAB_ICONS[route.name as keyof BottomTabParamList]

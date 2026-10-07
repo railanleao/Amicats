@@ -1,5 +1,5 @@
-import { Text } from "react-native";
-import { styles } from "./SectionLabel.styles";
+import { Text } from '../Text';
+import { styles } from './SectionLabel.styles';
 
 interface SectionLabelProps {
   children: string;

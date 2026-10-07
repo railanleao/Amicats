@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { ActivityIndicator, Alert, Animated, Easing, Image, KeyboardAvoidingView, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Animated, Easing, Image, KeyboardAvoidingView, TouchableOpacity, View } from 'react-native';
+import { Text } from '../components/Text';
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
 import { Button, FormRow, KeyboardAwareScrollView, SectionLabel, SelectField, StepIndicator, TextField } from '../components';

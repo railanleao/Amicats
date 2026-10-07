@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import { StyleSheet, Text, TextInput, TextInputProps, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TextInputProps, TouchableOpacity, View } from 'react-native';
+import { Text } from '../Text';
+import { TextInput } from '../TextInput';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../../theme/colors';
 import { useRevealFocusedInput } from '../KeyboardAwareScrollView';

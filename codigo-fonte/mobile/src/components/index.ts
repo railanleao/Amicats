@@ -13,3 +13,5 @@ export * from './StatusBadge';
 export * from './TextField';
 export * from './StepIndicator';
 export * from './KeyboardAwareScrollView';
+export * from './Text';
+export * from './TextInput';
