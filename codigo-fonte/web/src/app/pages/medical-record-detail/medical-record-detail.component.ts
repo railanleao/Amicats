@@ -119,8 +119,14 @@ export class MedicalRecordDetailComponent {
     ]);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  onRegisterExternalVisit(): void {}
+  onRegisterExternalVisit(): void {
+    void this.router.navigate([
+      '/medical-records',
+      this.catId,
+      'external-attendances',
+      'new',
+    ]);
+  }
 
   private readNavigationState(): PrescriptionNavigationState | undefined {
     const navigation = this.router.getCurrentNavigation();
