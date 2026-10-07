@@ -1,23 +1,18 @@
-import { Text, View } from "react-native";
-import { StatusBadge } from "../StatusBadge";
-import { styles } from "./DoseCard.styles";
+import { View } from 'react-native';
+import { Text } from '../Text';
+import { StatusBadge } from '../StatusBadge';
+import { styles } from './DoseCard.styles';
 
 interface DoseCardProps {
   catName: string;
   medication: string;
   time: string;
   dosage: string;
-  status: "pending" | "late";
+  status: 'pending' | 'late';
 }
 
-export function DoseCard({
-  catName,
-  medication,
-  time,
-  dosage,
-  status,
-}: DoseCardProps) {
-  const isLate = status === "late";
+export function DoseCard({ catName, medication, time, dosage, status }: DoseCardProps) {
+  const isLate = status === 'late';
 
   return (
     <View style={styles.card}>
@@ -29,10 +24,7 @@ export function DoseCard({
           {time} · {dosage}
         </Text>
       </View>
-      <StatusBadge
-        label={isLate ? "Atrasada" : "Pendente"}
-        tone={isLate ? "danger" : "warning"}
-      />
+      <StatusBadge label={isLate ? 'Atrasada' : 'Pendente'} tone={isLate ? 'danger' : 'warning'} />
     </View>
   );
 }

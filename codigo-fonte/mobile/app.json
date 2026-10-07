@@ -30,7 +30,8 @@
           "cameraPermission": "O Amicats usa a câmera para fotografar o gato na ficha dele."
         }
       ],
-      "expo-sqlite"
+      "expo-sqlite",
+      "expo-font"
     ]
   }
 }

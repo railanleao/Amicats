@@ -2,6 +2,7 @@ import { StyleSheet } from 'react-native';
 import { colors } from '../theme/colors';
 import { radii, spacing } from '../theme/spacing';
 import { fontSizes } from '../theme/typography';
+import { DISPLAY_FONT } from '../theme/fonts';
 
 export const styles = StyleSheet.create({
   screen: {
@@ -17,6 +18,7 @@ export const styles = StyleSheet.create({
     paddingBottom: spacing.md,
   },
   headerTitle: {
+    fontFamily: DISPLAY_FONT,
     fontSize: fontSizes.xxl,
     fontWeight: '600',
     color: colors.ink,

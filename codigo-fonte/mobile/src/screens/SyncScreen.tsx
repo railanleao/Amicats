@@ -1,4 +1,5 @@
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, TouchableOpacity, View } from 'react-native';
+import { Text } from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { Button, LinkButton, SectionLabel, StatusBadge } from '../components';
 import { useSync } from '../sync/SyncContext';

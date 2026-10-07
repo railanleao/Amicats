@@ -22,9 +22,9 @@
   gap: 11px;
   padding-left: 10px;
   margin-bottom: 38px;
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--font-display);
   font-size: 19px;
-  font-weight: bold;
+  font-weight: 700;
 }
 
 .logotype-icon {
