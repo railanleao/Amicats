@@ -10,6 +10,8 @@ public interface PrescribedMedicationDataProvider {
   PrescribedMedication save(PrescribedMedication prescribedMedication);
 
   Optional<PrescribedMedication> findById(Integer id);
+  
+  Optional<PrescribedMedication> findByIdForUpdate(Integer id);
 
   Optional<PrescribedMedication> findActiveByCatAndMedication(
       Integer catId, Integer medicationId, LocalDate today);

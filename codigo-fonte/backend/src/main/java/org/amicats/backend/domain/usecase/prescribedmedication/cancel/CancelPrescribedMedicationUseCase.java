@@ -26,7 +26,7 @@ public class CancelPrescribedMedicationUseCase {
 
     PrescribedMedication prescribedMedication =
         prescribedMedicationDataProvider
-            .findById(prescribedMedicationId)
+            .findByIdForUpdate(prescribedMedicationId)
             .orElseThrow(() -> new ResourceNotFoundException("Medicação não encontrada."));
 
     LocalDateTime now = LocalDateTime.now(clock);
