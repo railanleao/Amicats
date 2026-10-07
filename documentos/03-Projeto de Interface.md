@@ -168,6 +168,8 @@ Aplicativo offline-first (React Native) usado por voluntários e equipe dentro d
 
 ### Início — Mobile
 
+O atalho **Ver prontuários** abre a lista de prontuários (RF-007).
+
 ![Início — Mobile](img/telas/mobile/04-inicio.png)
 
 ### Gatos — Mobile
@@ -181,6 +183,38 @@ Aplicativo offline-first (React Native) usado por voluntários e equipe dentro d
 ### Prontuário — Mobile
 
 ![Prontuário — Mobile](img/telas/mobile/07-prontuario.png)
+
+O botão **+** da linha do tempo abre o menu de novo registro, mostrado mais abaixo.
+
+### Prontuários — Mobile
+
+Lista de prontuários por gato (RF-007 e UC-10), acessada pelo atalho **Ver prontuários** da tela Início. Cada cartão mostra o gato, a sala, a data da última atualização, os alertas de saúde (FIV+ e FeLV+) e o status clínico. A busca é por nome do gato, os chips filtram por status e a lista carrega mais itens sob demanda. Ao tocar em um cartão, abre a linha do tempo do gato. Todos os perfis consultam; nenhum permite escrita nesta tela.
+
+![Prontuários — Mobile](img/telas/mobile/23-prontuarios.png)
+
+Quando a busca não encontra nenhum gato, a tela mostra o estado vazio com a opção de limpar a busca.
+
+![Prontuários — Mobile (vazio)](img/telas/mobile/27-prontuarios-vazio.png)
+
+### Prontuário — Menu de Novo Registro (Mobile)
+
+O botão **+** da linha do tempo oferece **Nova prescrição**, para o médico-veterinário, e **Anexar atendimento externo**, exibida apenas para o Administrador (UC-11).
+
+![Prontuário — Menu de Novo Registro (Mobile)](img/telas/mobile/28-prontuario-menu-novo-registro.png)
+
+### Anexar Atendimento Externo — Mobile
+
+Registra o atendimento realizado em clínica parceira e anexa o documento recebido (RF-008 e UC-11). O gato vem preenchido pelo prontuário de origem. Os campos são clínica parceira, veterinário responsável, CRMV e UF, data do atendimento, diagnóstico ou observações e o anexo, que pode vir da câmera, da galeria ou de um arquivo (PDF ou imagem, até 5 MB). O atendimento externo exige conexão com a internet e não entra na fila de sincronização offline.
+
+![Anexar Atendimento Externo — Mobile](img/telas/mobile/24-anexar-atendimento-externo.png)
+
+Ao salvar com campos obrigatórios vazios, cada campo exibe a mensagem de erro correspondente e o anexo é cobrado.
+
+![Anexar Atendimento Externo — Mobile (validação)](img/telas/mobile/25-anexar-atendimento-externo-validacao.png)
+
+Sem conexão, a tela avisa que o envio depende de internet e mantém o botão de salvar desabilitado.
+
+![Anexar Atendimento Externo — Mobile (sem conexão)](img/telas/mobile/26-anexar-atendimento-externo-sem-conexao.png)
 
 ### Nova Prescrição — Mobile
 
