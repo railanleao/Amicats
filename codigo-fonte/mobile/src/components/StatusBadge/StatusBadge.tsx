@@ -1,7 +1,8 @@
-import { Text, View } from "react-native";
-import { styles } from "./StatusBadge.styles";
+import { View } from 'react-native';
+import { Text } from '../Text';
+import { styles } from './StatusBadge.styles';
 
-export type StatusBadgeTone = "warning" | "danger" | "success" | "sky" | "neutral";
+export type StatusBadgeTone = 'warning' | 'danger' | 'success' | 'sky' | 'neutral';
 
 interface StatusBadgeProps {
   label: string;

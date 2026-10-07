@@ -1,4 +1,5 @@
-import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, ViewStyle } from 'react-native';
+import { ActivityIndicator, StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
+import { Text } from '../Text';
 import { colors } from '../../theme/colors';
 import { radii, spacing } from '../../theme/spacing';
 

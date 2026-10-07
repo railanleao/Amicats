@@ -1,8 +1,10 @@
 import { ReactNode } from 'react';
-import { Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextStyle, View } from 'react-native';
+import { Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TextStyle, View } from 'react-native';
+import { Text } from '../Text';
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
 import { fontSizes } from '../../theme/typography';
+import { DISPLAY_FONT } from '../../theme/fonts';
 
 interface AuthScreenLayoutProps {
   title: string;
@@ -64,6 +66,7 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
   },
   title: {
+    fontFamily: DISPLAY_FONT,
     fontSize: fontSizes.display,
     fontWeight: '500',
     color: colors.ink,

@@ -36,7 +36,11 @@ public class SecurityConfig {
 
   @Bean
   SecurityFilterChain securityFilterChain(
-      HttpSecurity http, Environment env, RateLimitFilter rateLimitFilter) throws Exception {
+      HttpSecurity http,
+      Environment env,
+      RateLimitFilter rateLimitFilter,
+      IdempotencyFilter idempotencyFilter)
+      throws Exception {
 
     // "/error" has to stay public: when an authenticated handler throws an exception (e.g. wrong
     // current password on /auth/change-password), the container forwards the response here via
@@ -55,6 +59,7 @@ public class SecurityConfig {
     return http.csrf(csrf -> csrf.disable())
         .cors(cors -> cors.configurationSource(corsConfigurationSource()))
         .addFilterBefore(rateLimitFilter, BearerTokenAuthenticationFilter.class)
+        .addFilterAfter(idempotencyFilter, BearerTokenAuthenticationFilter.class)
         .authorizeHttpRequests(
             auth ->
                 auth.requestMatchers(publicPaths.toArray(new String[0]))
@@ -80,7 +85,8 @@ public class SecurityConfig {
     configuration.setAllowedOrigins(List.of(allowedOrigins.split(",")));
     configuration.setAllowedMethods(
         Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-    configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+    configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Idempotency-Key"));
+    configuration.setExposedHeaders(List.of("Idempotent-Replayed"));
 
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/**", configuration);

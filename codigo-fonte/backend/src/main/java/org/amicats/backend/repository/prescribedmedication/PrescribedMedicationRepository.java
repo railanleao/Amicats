@@ -2,6 +2,7 @@ package org.amicats.backend.repository.prescribedmedication;
 
 import jakarta.persistence.LockModeType;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.amicats.backend.domain.entity.PrescribedMedication;
@@ -48,4 +49,13 @@ public interface PrescribedMedicationRepository
       @Param("catId") Integer catId,
       @Param("status") PrescribedMedicationStatus status,
       @Param("today") LocalDate today);
+
+  @Query(
+      """
+    select pm from PrescribedMedication pm
+    join fetch pm.medication
+    left join fetch pm.internalMedicalPrescription
+    where pm.updatedAt >= :since
+    """)
+  List<PrescribedMedication> findUpdatedSince(@Param("since") LocalDateTime since);
 }

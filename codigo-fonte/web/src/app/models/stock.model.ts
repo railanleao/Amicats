@@ -4,6 +4,7 @@
 // StockCategory enum to mirror here.
 export type StockStatus = 'Normal' | 'Low' | 'OutOfStock';
 
+export const MEDICATION_CATEGORY = 'Medicamento';
 export const STOCK_STATUS_LABELS: Record<StockStatus, string> = {
   Normal: 'Normal',
   Low: 'Baixo',

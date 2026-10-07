@@ -2,6 +2,7 @@ import { StyleSheet } from 'react-native';
 import { colors } from '../theme/colors';
 import { radii, spacing } from '../theme/spacing';
 import { fontSizes } from '../theme/typography';
+import { DISPLAY_FONT } from '../theme/fonts';
 
 export const styles = StyleSheet.create({
   safeArea: {
@@ -20,6 +21,7 @@ export const styles = StyleSheet.create({
     gap: 2,
   },
   greeting: {
+    fontFamily: DISPLAY_FONT,
     fontSize: fontSizes.display,
     fontWeight: '600',
     color: colors.ink,
@@ -27,6 +29,26 @@ export const styles = StyleSheet.create({
   date: {
     fontSize: fontSizes.sm,
     color: colors.inkSoft,
+  },
+  syncRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    backgroundColor: colors.surface,
+    borderColor: colors.border,
+    borderWidth: 1,
+    borderRadius: radii.sm,
+    padding: spacing.md,
+  },
+  syncRowAttention: {
+    backgroundColor: colors.warningBg,
+    borderColor: colors.warningBg,
+  },
+  syncText: {
+    flex: 1,
+    fontSize: fontSizes.md,
+    fontWeight: '600',
+    color: colors.ink,
   },
   section: {
     gap: spacing.sm + 2,

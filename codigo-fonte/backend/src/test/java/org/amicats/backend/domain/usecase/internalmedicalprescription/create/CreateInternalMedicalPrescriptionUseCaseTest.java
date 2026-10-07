@@ -85,7 +85,9 @@ class CreateInternalMedicalPrescriptionUseCaseTest {
 
     ReadInternalMedicalPrescriptionOutput output =
         useCase.execute(
-            CAT_ID, VET_ID, new CreateInternalMedicalPrescriptionInput("Reavaliação", " ", null));
+            CAT_ID,
+            VET_ID,
+            new CreateInternalMedicalPrescriptionInput("Reavaliação", " ", null, null));
 
     assertThat(output.status()).isEqualTo(MedicalPrescriptionStatus.Completed);
     assertThat(output.medication()).isNull();
@@ -225,7 +227,9 @@ class CreateInternalMedicalPrescriptionUseCaseTest {
     assertThatThrownBy(
             () ->
                 useCase.execute(
-                    CAT_ID, VET_ID, new CreateInternalMedicalPrescriptionInput("X", null, null)))
+                    CAT_ID,
+                    VET_ID,
+                    new CreateInternalMedicalPrescriptionInput("X", null, null, null)))
         .isInstanceOf(VeterinarianRequiredException.class);
     verifyNoInteractions(catDataProvider, internalMedicalPrescriptionDataProvider);
   }
@@ -237,9 +241,59 @@ class CreateInternalMedicalPrescriptionUseCaseTest {
     assertThatThrownBy(
             () ->
                 useCase.execute(
-                    CAT_ID, VET_ID, new CreateInternalMedicalPrescriptionInput("X", null, null)))
+                    CAT_ID,
+                    VET_ID,
+                    new CreateInternalMedicalPrescriptionInput("X", null, null, null)))
         .isInstanceOf(VeterinarianRequiredException.class)
         .hasMessageContaining("CRMV");
+  }
+
+  @Test
+  void usesTheRecordedAtFromTheDeviceAsTheClinicalDate() {
+    givenVeterinarian("12345");
+    givenCat();
+    when(stockItemDataProvider.findById(5))
+        .thenReturn(Optional.of(medication(5, "Interferon felino")));
+    when(prescribedMedicationDataProvider.findActiveByCatAndMedication(
+            CAT_ID, 5, LocalDate.of(2026, 9, 29)))
+        .thenReturn(Optional.empty());
+
+    ReadInternalMedicalPrescriptionOutput output =
+        useCase.execute(
+            CAT_ID,
+            VET_ID,
+            new CreateInternalMedicalPrescriptionInput(
+                "Reavaliação",
+                null,
+                medicationWithId(5),
+                java.time.LocalDateTime.of(2026, 9, 29, 8, 0)));
+
+    assertThat(output.createdAt()).isEqualTo(java.time.LocalDateTime.of(2026, 9, 29, 8, 0));
+    assertThat(output.medication().startDate()).isEqualTo(LocalDate.of(2026, 9, 29));
+  }
+
+  @Test
+  void rejectsARecordedAtInTheFutureOrTooOld() {
+    givenVeterinarian("12345");
+    givenCat();
+
+    assertThatThrownBy(
+            () ->
+                useCase.execute(
+                    CAT_ID,
+                    VET_ID,
+                    new CreateInternalMedicalPrescriptionInput(
+                        "X", null, null, java.time.LocalDateTime.of(2026, 10, 5, 8, 0))))
+        .isInstanceOf(InvalidPrescribedMedicationException.class);
+    assertThatThrownBy(
+            () ->
+                useCase.execute(
+                    CAT_ID,
+                    VET_ID,
+                    new CreateInternalMedicalPrescriptionInput(
+                        "X", null, null, java.time.LocalDateTime.of(2026, 7, 1, 8, 0))))
+        .isInstanceOf(InvalidPrescribedMedicationException.class);
+    verify(internalMedicalPrescriptionDataProvider, never()).save(any());
   }
 
   private void givenVeterinarian(String crmv) {
@@ -267,7 +321,7 @@ class CreateInternalMedicalPrescriptionUseCaseTest {
   private static CreateInternalMedicalPrescriptionInput input(
       CreatePrescribedMedicationInput medication) {
     return new CreateInternalMedicalPrescriptionInput(
-        "Reavaliação de FIV+", "Reavaliar em 30 dias.", medication);
+        "Reavaliação de FIV+", "Reavaliar em 30 dias.", medication, null);
   }
 
   private static CreatePrescribedMedicationInput medicationWithId(Integer medicationId) {
