@@ -1,7 +1,7 @@
-import { StyleSheet } from "react-native";
-import { colors } from "../../theme/colors";
-import { radii, spacing } from "../../theme/spacing";
-import { fontSizes } from "../../theme/typography";
+import { StyleSheet } from 'react-native';
+import { colors } from '../../theme/colors';
+import { radii, spacing } from '../../theme/spacing';
+import { fontSizes } from '../../theme/typography';
 
 export const styles = StyleSheet.create({
   container: {
@@ -9,13 +9,13 @@ export const styles = StyleSheet.create({
   },
   label: {
     fontSize: fontSizes.sm,
-    fontWeight: "600",
+    fontWeight: '600',
     color: colors.ink,
   },
   field: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     backgroundColor: colors.surface,
     borderColor: colors.border,
     borderWidth: 1.5,
@@ -40,26 +40,26 @@ export const styles = StyleSheet.create({
   },
   backdrop: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.3)",
-    justifyContent: "flex-end",
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    justifyContent: 'center',
+    paddingHorizontal: spacing.lg,
   },
   sheet: {
     backgroundColor: colors.surface,
-    borderTopLeftRadius: radii.md,
-    borderTopRightRadius: radii.md,
+    borderRadius: radii.md,
     padding: spacing.lg,
-    maxHeight: "60%",
+    maxHeight: '60%',
   },
   sheetTitle: {
     fontSize: fontSizes.lg,
-    fontWeight: "600",
+    fontWeight: '600',
     color: colors.ink,
     marginBottom: spacing.sm,
   },
   option: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingVertical: spacing.sm + 4,
     borderTopColor: colors.border,
     borderTopWidth: StyleSheet.hairlineWidth,

@@ -1,5 +1,7 @@
 package org.amicats.backend.repository.cat;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import org.amicats.backend.domain.entity.Cat;
 import org.amicats.backend.domain.enums.GeneralStatus;
@@ -24,4 +26,7 @@ public interface CatRepository extends JpaRepository<Cat, Integer> {
       @Param("roomId") Integer roomId,
       @Param("generalStatus") GeneralStatus generalStatus,
       Pageable pageable);
+
+  @Query("select c from Cat c left join fetch c.room where c.updatedAt >= :since")
+  List<Cat> findUpdatedSince(@Param("since") LocalDateTime since);
 }

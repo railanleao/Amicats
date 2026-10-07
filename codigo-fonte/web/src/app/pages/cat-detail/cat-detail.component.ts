@@ -13,6 +13,7 @@ import {
   SEX_LABELS,
 } from '../../models/cat.model';
 import { CatService } from '../../services/resources/cat.service';
+import { parseServerDateTime } from '../../lib/server-date';
 
 type ExamTone = 'positive' | 'negative' | 'not-tested';
 
@@ -106,6 +107,8 @@ export class CatDetailComponent implements OnInit {
   }
 
   createdAtLabel(cat: Cat): string {
-    return new Intl.DateTimeFormat('pt-BR').format(new Date(cat.createdAt));
+    return new Intl.DateTimeFormat('pt-BR').format(
+      parseServerDateTime(cat.createdAt),
+    );
   }
 }

@@ -1,6 +1,7 @@
 package org.amicats.backend.repository.stock;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.amicats.backend.domain.entity.StockItem;
 import org.springframework.data.domain.Page;
@@ -54,4 +55,7 @@ public interface StockItemRepository extends JpaRepository<StockItem, Integer> {
       Pageable pageable);
 
   List<StockItem> findAllByCategoryIgnoreCase(String category);
+
+  @Query("select s from StockItem s where s.updatedAt >= :since")
+  List<StockItem> findUpdatedSince(@Param("since") LocalDateTime since);
 }

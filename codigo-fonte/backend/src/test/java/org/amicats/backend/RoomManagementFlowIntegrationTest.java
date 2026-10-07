@@ -13,6 +13,7 @@ import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -91,7 +92,7 @@ class RoomManagementFlowIntegrationTest {
 
   private User seedReadyUser(String fullName, AccessType accessType) {
     return userRepository.save(
-        new User(fullName, null, null, accessType, null, null, LocalDateTime.now()));
+        new User(fullName, null, null, accessType, null, null, LocalDateTime.now(ZoneOffset.UTC)));
   }
 
   private Integer seedAuth(Integer userId, String email) {

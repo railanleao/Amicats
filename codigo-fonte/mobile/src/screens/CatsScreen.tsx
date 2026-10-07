@@ -3,8 +3,9 @@ import { ActivityIndicator, Image, ScrollView, Text, TextInput, TouchableOpacity
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Button, StatusBadge } from '../components';
-import { ApiError } from '../services/api';
-import { catPhotoSource, listCats } from '../services/catService';
+import { catRepository } from '../sync/runtime';
+import { useSync } from '../sync/SyncContext';
+import { catPhotoSource } from '../services/catService';
 import { colors } from '../theme/colors';
 import type { Cat, GeneralStatus } from '../types/cat';
 import { GENERAL_STATUS_LABELS, GENERAL_STATUS_TONE, SEX_LABELS } from '../types/cat';
@@ -51,12 +52,7 @@ function CatRow({ cat, onPress }: { cat: Cat; onPress: () => void }) {
           {sexLabel} · {roomLabel(cat)}
         </Text>
       </View>
-      {cat.generalStatus && (
-        <StatusBadge
-          label={GENERAL_STATUS_LABELS[cat.generalStatus]}
-          tone={GENERAL_STATUS_TONE[cat.generalStatus]}
-        />
-      )}
+      {cat.generalStatus && <StatusBadge label={GENERAL_STATUS_LABELS[cat.generalStatus]} tone={GENERAL_STATUS_TONE[cat.generalStatus]} />}
     </TouchableOpacity>
   );
 }
@@ -76,6 +72,7 @@ export function CatsScreen({ onOpenCat }: CatsScreenProps) {
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [reloadToken, setReloadToken] = useState(0);
+  const { dataVersion } = useSync();
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -89,20 +86,19 @@ export function CatsScreen({ onOpenCat }: CatsScreenProps) {
   useEffect(() => {
     let cancelled = false;
 
-    listCats({
-      search: searchTerm || undefined,
-      generalStatus: activeFilter === 'All' ? undefined : activeFilter,
-    })
+    catRepository
+      .listCats({
+        search: searchTerm || undefined,
+        generalStatus: activeFilter === 'All' ? undefined : activeFilter,
+      })
       .then((result) => {
         if (!cancelled) {
           setCats(result);
         }
       })
-      .catch((error) => {
+      .catch(() => {
         if (!cancelled) {
-          setErrorMessage(
-            error instanceof ApiError ? error.message : 'Não foi possível carregar os gatos. Tente novamente.',
-          );
+          setErrorMessage('Não foi possível carregar os gatos. Tente novamente.');
         }
       })
       .finally(() => {
@@ -114,7 +110,7 @@ export function CatsScreen({ onOpenCat }: CatsScreenProps) {
     return () => {
       cancelled = true;
     };
-  }, [searchTerm, activeFilter, reloadToken]);
+  }, [searchTerm, activeFilter, reloadToken, dataVersion]);
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>

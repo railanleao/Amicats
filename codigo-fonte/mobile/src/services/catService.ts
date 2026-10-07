@@ -1,4 +1,5 @@
 import { API_URL, apiRequest, apiUpload } from './api';
+import { buildPhotoFormData } from './multipart';
 import { getToken } from '../storage/authStorage';
 import type { PagedResult } from '../types/common';
 import type { Cat, CreateCatRequest, GeneralStatus } from '../types/cat';
@@ -57,17 +58,13 @@ export function catPhotoSource(catId: number): { uri: string; headers?: Record<s
   };
 }
 
-// `uri` is a local file:// path from expo-image-picker. React Native's fetch/FormData
-// understands that shape directly — no need to read the file into memory first.
+// `uri` is a local file:// path from expo-image-picker. Expo's fetch only accepts Blob parts in
+// FormData (the React Native `{ uri, name, type }` shape throws "Unsupported FormDataPart"),
+// so the file is read into a Blob first.
 // A single cover photo per cat (overwritten on re-upload), matching the Room/User pattern —
 // unlike what an earlier version of this screen assumed, cats don't have a photo gallery.
-export function uploadCatPhoto(catId: number, uri: string): Promise<Cat> {
-  const formData = new FormData();
-  formData.append('file', {
-    uri,
-    name: 'photo.jpg',
-    type: 'image/jpeg',
-  } as unknown as Blob);
+export async function uploadCatPhoto(catId: number, uri: string): Promise<Cat> {
+  const formData = await buildPhotoFormData(uri);
 
   return apiUpload<Cat>(`/cats/${catId}/photo`, formData, 'PUT');
 }
