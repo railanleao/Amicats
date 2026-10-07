@@ -1,0 +1,181 @@
+<div class="page">
+  <header class="page-header">
+    <a
+      [routerLink]="['/medical-records', catId]"
+      class="page-header__back"
+      aria-label="Voltar para o prontuário"
+    >
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="m15 18-6-6 6-6" />
+      </svg>
+    </a>
+    <a [routerLink]="['/medical-records', catId]" class="page-header__crumb"
+      >Prontuário</a
+    >
+    <span class="page-header__separator">/</span>
+    <h1>Anexar atendimento externo</h1>
+  </header>
+
+  @if (loadError()) {
+    <div class="feedback feedback--error" role="alert">{{ loadError() }}</div>
+  }
+
+  <main class="content-area">
+    <form
+      class="form-card"
+      [formGroup]="form"
+      (ngSubmit)="onSubmit()"
+      novalidate
+    >
+      <div class="form-row">
+        <app-text-field
+          inputId="partnerClinic"
+          label="Clínica parceira"
+          [control]="form.controls.partnerClinic"
+          autocomplete="organization"
+          [errorMessages]="errors.partnerClinic"
+        />
+        <app-text-field
+          inputId="veterinarian"
+          label="Veterinário responsável"
+          [control]="form.controls.veterinarian"
+          autocomplete="name"
+          [errorMessages]="errors.veterinarian"
+        />
+      </div>
+
+      <div class="form-row">
+        <app-text-field
+          inputId="crmv"
+          label="CRMV / UF"
+          [control]="form.controls.crmv"
+          autocomplete="off"
+          [errorMessages]="errors.crmv"
+        />
+
+        <div class="field">
+          <label for="attendanceDate">Data do atendimento</label>
+          <input
+            id="attendanceDate"
+            type="date"
+            [max]="today"
+            [formControl]="form.controls.attendanceDate"
+            [class.field__input--invalid]="
+              form.controls.attendanceDate.invalid &&
+              form.controls.attendanceDate.touched
+            "
+          />
+          @if (
+            form.controls.attendanceDate.invalid &&
+            form.controls.attendanceDate.touched
+          ) {
+            <span class="field-error">
+              {{
+                form.controls.attendanceDate.hasError("futureDate")
+                  ? errors.attendanceDate.futureDate
+                  : errors.attendanceDate.required
+              }}
+            </span>
+          }
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="diagnosis">Diagnóstico / observações</label>
+        <textarea
+          id="diagnosis"
+          rows="4"
+          placeholder="Descreva o atendimento realizado, diagnóstico e orientações recebidas."
+          [formControl]="form.controls.diagnosis"
+          [class.field__input--invalid]="
+            form.controls.diagnosis.invalid && form.controls.diagnosis.touched
+          "
+        ></textarea>
+        @if (
+          form.controls.diagnosis.invalid && form.controls.diagnosis.touched
+        ) {
+          <span class="field-error">{{
+            form.controls.diagnosis.hasError("required")
+              ? errors.diagnosis.required
+              : errors.diagnosis.maxlength
+          }}</span>
+        }
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="file-section">
+        <span class="field-label">Anexo do prontuário recebido</span>
+        <div class="file-box">
+          <div class="file-info">
+            <span class="file-icon" aria-hidden="true">▤</span>
+            <span class="file-name">{{
+              selectedFile()?.name ?? "Nenhum arquivo selecionado"
+            }}</span>
+          </div>
+          <input
+            #attachmentInput
+            id="attachment"
+            type="file"
+            class="visually-hidden"
+            accept=".pdf,.jpg,.jpeg,.png"
+            (change)="onFileSelected($event)"
+          />
+          <button
+            type="button"
+            class="change-file"
+            (click)="attachmentInput.click()"
+          >
+            {{ selectedFile() ? "Trocar arquivo" : "Selecionar arquivo" }}
+          </button>
+        </div>
+        <span class="field-hint">PDF, JPG ou PNG, até 5 MB.</span>
+        @if (selectedFileError()) {
+          <span class="field-error">{{ selectedFileError() }}</span>
+        }
+      </div>
+
+      @if (saveError()) {
+        <div class="feedback feedback--error" role="alert">
+          {{ saveError() }}
+        </div>
+      }
+
+      <div class="form-actions">
+        <a [routerLink]="['/medical-records', catId]" class="cancel-button"
+          >Cancelar</a
+        >
+        <app-submit-button
+          label="Salvar atendimento"
+          loadingLabel="Salvando..."
+          [loading]="saving()"
+        />
+      </div>
+    </form>
+
+    <aside class="cat-card" aria-live="polite">
+      <span class="card-label">SOBRE O GATO</span>
+      @if (cat(); as selectedCat) {
+        <h2>{{ selectedCat.name }}</h2>
+        <p>{{ selectedCatDetails || "Informações não cadastradas" }}</p>
+        <span class="status">{{ selectedCatStatus }}</span>
+      } @else if (loading()) {
+        <h2>Carregando...</h2>
+        <p>Buscando os dados do gato.</p>
+      } @else {
+        <h2>Gato não encontrado</h2>
+        <p>Não foi possível carregar os dados deste prontuário.</p>
+      }
+    </aside>
+  </main>
+</div>

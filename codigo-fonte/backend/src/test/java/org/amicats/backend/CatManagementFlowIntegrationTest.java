@@ -15,6 +15,7 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -106,7 +107,7 @@ class CatManagementFlowIntegrationTest {
 
   private User seedReadyUser(String fullName, AccessType accessType) {
     return userRepository.save(
-        new User(fullName, null, null, accessType, null, null, LocalDateTime.now()));
+        new User(fullName, null, null, accessType, null, null, LocalDateTime.now(ZoneOffset.UTC)));
   }
 
   private Integer seedAuth(Integer userId, String email) {

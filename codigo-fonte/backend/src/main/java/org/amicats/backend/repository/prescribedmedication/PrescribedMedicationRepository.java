@@ -1,6 +1,7 @@
 package org.amicats.backend.repository.prescribedmedication;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.amicats.backend.domain.entity.PrescribedMedication;
 import org.amicats.backend.domain.enums.PrescribedMedicationStatus;
@@ -41,4 +42,13 @@ public interface PrescribedMedicationRepository
       @Param("catId") Integer catId,
       @Param("status") PrescribedMedicationStatus status,
       @Param("today") LocalDate today);
+
+  @Query(
+      """
+    select pm from PrescribedMedication pm
+    join fetch pm.medication
+    left join fetch pm.internalMedicalPrescription
+    where pm.updatedAt >= :since
+    """)
+  List<PrescribedMedication> findUpdatedSince(@Param("since") LocalDateTime since);
 }

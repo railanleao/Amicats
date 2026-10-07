@@ -1,0 +1,303 @@
+<div class="page">
+  <header class="page-header">
+    <a
+      [routerLink]="['/medical-records', catId]"
+      class="page-header__back"
+      aria-label="Voltar para o prontuário"
+    >
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="m15 18-6-6 6-6" />
+      </svg>
+    </a>
+    <a [routerLink]="['/medical-records', catId]" class="page-header__crumb">
+      Prontuário
+      @if (cat(); as current) {
+        — {{ current.name }}
+      }
+    </a>
+    <span class="page-header__separator">/</span>
+    <h1>Novo atendimento interno</h1>
+  </header>
+
+  @if (loading()) {
+    <p class="feedback">Carregando gatinho...</p>
+  } @else if (loadError()) {
+    <div class="feedback feedback--error" role="alert">
+      {{ loadError() }}
+      <a routerLink="/medical-records">Voltar para os prontuários</a>
+    </div>
+  } @else {
+    @if (cat(); as current) {
+      <div class="layout">
+        <form
+          class="form-card"
+          [formGroup]="form"
+          (ngSubmit)="onSubmit()"
+          novalidate
+        >
+          @if (saveError()) {
+            <div class="feedback feedback--error" role="alert">
+              {{ saveError() }}
+            </div>
+          }
+
+          <div class="field">
+            <span class="field__label">Gato</span>
+            <div class="readonly-value">
+              {{ current.name }}
+              @if (current.roomTitle) {
+                — {{ current.roomTitle }}
+              }
+            </div>
+          </div>
+
+          <app-text-field
+            inputId="title"
+            label="Diagnóstico / título"
+            placeholder="Ex.: Reavaliação de FIV+ com prescrição de imunomodulador"
+            [control]="form.controls.title"
+            [errorMessages]="errors.title"
+          />
+
+          <section class="setting-row">
+            <div class="setting-row__text">
+              <h2>Prescrever medicação nesta consulta</h2>
+              <p>
+                Desative para registrar apenas uma consulta, sem alterar a
+                medicação em uso.
+              </p>
+            </div>
+            <div class="setting-row__control">
+              <span
+                class="status-label"
+                [class.status-label--off]="!prescribeMedication()"
+              >
+                {{ prescribeMedication() ? "Sim" : "Não" }}
+              </span>
+              <app-toggle
+                label="Prescrever medicação nesta consulta"
+                [checked]="prescribeMedication()"
+                (toggled)="onToggleMedication()"
+              />
+            </div>
+          </section>
+
+          @if (prescribeMedication()) {
+            <div class="form-row form-row--medication">
+              <div class="field medication-field">
+                <label for="medicationName">Medicamento</label>
+                <input
+                  id="medicationName"
+                  type="text"
+                  autocomplete="off"
+                  role="combobox"
+                  aria-controls="medication-suggestions"
+                  placeholder="Busque no estoque ou digite um novo"
+                  [attr.aria-expanded]="suggestionsOpen()"
+                  [class.field__input--invalid]="
+                    isInvalid(medicationControls.name)
+                  "
+                  [formControl]="medicationControls.name"
+                  (focus)="onMedicationFocus()"
+                  (blur)="onMedicationBlur()"
+                />
+
+                @if (suggestionsOpen()) {
+                  <ul
+                    id="medication-suggestions"
+                    class="suggestions"
+                    role="listbox"
+                  >
+                    @for (item of suggestions(); track item.id) {
+                      <li
+                        role="option"
+                        [attr.aria-selected]="
+                          selectedMedication()?.id === item.id
+                        "
+                      >
+                        <button
+                          type="button"
+                          class="suggestion"
+                          (mousedown)="$event.preventDefault()"
+                          (click)="onSelectMedication(item)"
+                        >
+                          <span>{{ item.name }}</span>
+                          <span
+                            class="suggestion__stock"
+                            [class.suggestion__stock--empty]="
+                              item.status === 'OutOfStock'
+                            "
+                          >
+                            {{ item.quantity }} {{ item.unit }}
+                          </span>
+                        </button>
+                      </li>
+                    }
+                  </ul>
+                }
+
+                @if (isInvalid(medicationControls.name)) {
+                  <span class="field-error">Informe o medicamento.</span>
+                } @else if (isNewMedication) {
+                  <span class="field-hint">
+                    Não encontrado no estoque: será cadastrado com estoque
+                    zerado.
+                  </span>
+                }
+              </div>
+
+              <app-text-field
+                inputId="dosage"
+                label="Dosagem"
+                placeholder="Ex.: 0,5 ml"
+                [control]="medicationControls.dosage"
+                [errorMessages]="errors.dosage"
+              />
+            </div>
+
+            @if (isNewMedication) {
+              <app-text-field
+                inputId="medicationUnit"
+                label="Unidade do medicamento (opcional)"
+                placeholder="Ex.: ml, comprimido"
+                [control]="medicationControls.unit"
+                [errorMessages]="errors.unit"
+              />
+            }
+
+            <div class="form-row form-row--three">
+              <div class="select-field">
+                <label for="route">Via de administração</label>
+                <select
+                  id="route"
+                  [class.field__input--invalid]="
+                    isInvalid(medicationControls.route)
+                  "
+                  [formControl]="medicationControls.route"
+                >
+                  <option value="">Selecione</option>
+                  @for (option of routeOptions; track option.value) {
+                    <option [value]="option.value">{{ option.label }}</option>
+                  }
+                </select>
+                @if (isInvalid(medicationControls.route)) {
+                  <span class="field-error">Selecione a via.</span>
+                }
+              </div>
+
+              <div class="field">
+                <label for="intervalHours">Frequência (a cada X horas)</label>
+                <input
+                  id="intervalHours"
+                  type="number"
+                  min="1"
+                  max="720"
+                  placeholder="Ex.: 48"
+                  [class.field__input--invalid]="
+                    isInvalid(medicationControls.intervalHours)
+                  "
+                  [formControl]="medicationControls.intervalHours"
+                />
+                @if (isInvalid(medicationControls.intervalHours)) {
+                  <span class="field-error">Informe de 1 a 720 horas.</span>
+                }
+              </div>
+
+              <div class="field">
+                <label for="durationDays">Duração (dias)</label>
+                <input
+                  id="durationDays"
+                  type="number"
+                  min="1"
+                  max="365"
+                  placeholder="Ex.: 90"
+                  [class.field__input--invalid]="
+                    isInvalid(medicationControls.durationDays)
+                  "
+                  [formControl]="medicationControls.durationDays"
+                />
+                @if (isInvalid(medicationControls.durationDays)) {
+                  <span class="field-error">Informe de 1 a 365 dias.</span>
+                }
+              </div>
+            </div>
+          }
+
+          <div class="field">
+            <label for="notes">Observações</label>
+            <textarea
+              id="notes"
+              rows="2"
+              placeholder="Ex.: Reavaliar em 30 dias. Monitorar apetite e peso semanalmente."
+              [formControl]="form.controls.notes"
+            ></textarea>
+          </div>
+
+          <div class="form-actions">
+            <a [routerLink]="['/medical-records', catId]" class="cancel-button"
+              >Cancelar</a
+            >
+            <div class="form-actions__submit">
+              <app-submit-button
+                label="Salvar atendimento"
+                loadingLabel="Salvando..."
+                [loading]="saving()"
+              />
+            </div>
+          </div>
+        </form>
+
+        <aside class="side">
+          <section class="side-card">
+            <h2 class="side-card__title">Sobre o gato</h2>
+            <p class="side-card__name">{{ current.name }}</p>
+            @if (catSummary) {
+              <p class="side-card__meta">{{ catSummary }}</p>
+            }
+            @if (healthTag || neuteredTag) {
+              <div class="tags">
+                @if (healthTag) {
+                  <span class="tag tag--danger">{{ healthTag }}</span>
+                }
+                @if (neuteredTag) {
+                  <span class="tag tag--success">{{ neuteredTag }}</span>
+                }
+              </div>
+            }
+          </section>
+
+          <section class="side-card">
+            <h2 class="side-card__title">Medicação ativa</h2>
+            @if (activeMedicationsError()) {
+              <p class="field-error">{{ activeMedicationsError() }}</p>
+            } @else {
+              @for (medication of activeMedications(); track medication.id) {
+                <div class="medication">
+                  <p class="medication__name">
+                    {{ medication.medicationName }}
+                  </p>
+                  <p class="side-card__meta">
+                    A cada {{ medication.intervalHours }}h · até
+                    {{ medication.endDate | date: "dd/MM/yyyy" }}
+                  </p>
+                </div>
+              } @empty {
+                <p class="side-card__meta">Nenhuma medicação ativa.</p>
+              }
+            }
+          </section>
+        </aside>
+      </div>
+    }
+  }
+</div>

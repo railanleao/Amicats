@@ -151,10 +151,15 @@ export class RoomFormComponent {
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
-        next: ({ created, photoFailed }) =>
-          void this.router.navigate(['/rooms', created.id, 'edit'], {
-            state: { created: true, photoFailed },
-          }),
+        next: ({ created, photoFailed }) => {
+          if (photoFailed) {
+            void this.router.navigate(['/rooms', created.id, 'edit'], {
+              state: { created: true, photoFailed },
+            });
+            return;
+          }
+          void this.router.navigate(['/rooms']);
+        },
         error: (error: HttpErrorResponse) => this.handleSaveError(error),
       });
   }

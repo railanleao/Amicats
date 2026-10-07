@@ -14,7 +14,7 @@ public class ReadPrescribedMedicationUseCase {
 
   private CatDataProvider catDataProvider;
   private PrescribedMedicationDataProvider prescribedMedicationDataProvider;
-  @Builder.Default private Clock clock = Clock.systemDefaultZone();
+  @Builder.Default private Clock clock = Clock.systemUTC();
 
   @Transactional(readOnly = true)
   public List<ReadPrescribedMedicationOutput> findActiveByCat(Integer catId) {

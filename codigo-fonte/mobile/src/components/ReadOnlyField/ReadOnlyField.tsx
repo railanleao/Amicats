@@ -1,5 +1,6 @@
-import { Text, View } from "react-native";
-import { styles } from "./ReadOnlyField.styles";
+import { View } from 'react-native';
+import { Text } from '../Text';
+import { styles } from './ReadOnlyField.styles';
 
 interface ReadOnlyFieldProps {
   label: string;

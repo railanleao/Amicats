@@ -6,6 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,6 +21,9 @@ public class Room {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id_room")
   private Integer id;
+
+  @Column(name = "updated_at", insertable = false, updatable = false)
+  private LocalDateTime updatedAt;
 
   @Column(nullable = false, length = 100)
   private String title;
