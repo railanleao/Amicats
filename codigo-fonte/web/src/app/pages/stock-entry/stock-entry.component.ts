@@ -145,8 +145,6 @@ export class StockEntryComponent implements OnInit {
       validators: [expirationNotBeforeEntryValidator],
     });
 
-  ngOnInit(): void {
-    this.loadStockItems();
 
 ngOnInit(): void {
   this.loadStockItems();
