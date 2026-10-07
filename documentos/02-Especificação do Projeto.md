@@ -74,6 +74,155 @@ fila à API, que aplica as operações e devolve os identificadores definitivos.
 Conflitos são resolvidos por acréscimo, e não por sobrescrita — coerente com a regra de que nenhum registro clínico pode ser alterado
 silenciosamente.
 
+#### Arquitetura da sincronização offline
+
+A sincronização atende RF-016, RNF-002, RNF-004 e UC-21. O princípio é que **o app grava sempre no banco local primeiro**, com ou sem
+internet: a conexão só decide *quando* a fila é enviada. Assim existe um único caminho de escrita e de leitura nas telas, em vez de um
+caminho "online" e outro "offline" que quase nunca seria exercitado.
+
+```mermaid
+flowchart LR
+    TELA["Telas do app"] --> REPO["Repositórios"]
+    REPO -->|"lê e grava"| DB[("SQLite<br/>dados + outbox")]
+    NET["NetInfo + ping no servidor"] --> SCH["Agendador"]
+    APPST["App volta ao primeiro plano"] --> SCH
+    BTN["Botão Sincronizar agora"] --> SCH
+    SCH --> ENG["Motor de sincronização<br/>(uma execução por vez)"]
+    ENG <-->|"lê a fila e aplica o resultado"| DB
+    ENG -->|"push: endpoints REST existentes<br/>+ Idempotency-Key"| API["Backend"]
+    ENG -->|"pull: GET /sync/pull?since="| API
+    ENG -->|"POST /sync/heartbeat"| API
+    API --> PG[("PostgreSQL")]
+    WEB["Web — tela Sincronização"] -->|"GET /sync/devices"| API
+```
+
+**Camadas do app mobile**
+
+| Camada | Responsabilidade |
+|---|---|
+| Repositórios | Único acesso a dados das telas. Leem do SQLite. Ao escrever, gravam a linha local **e** a operação na fila (`outbox`) na mesma transação, e a interface atualiza na hora. |
+| Detector de conexão | O `NetInfo` informa se há rede, mas não se o servidor responde. Por isso, antes de sincronizar, o app faz uma chamada leve ao backend (`GET /error`, rota pública). Estados exibidos ao usuário: sem conexão, sincronizando, aguardando envio, com registros recusados e sincronizado. |
+| Agendador | Decide *quando* sincronizar: ao reconectar, ao voltar ao primeiro plano, a cada 60 s com o app aberto, logo após registrar algo e pelo botão "Sincronizar agora". Após falha de rede ou de servidor aplica espera crescente (5 s, dobrando até 5 min, com variação aleatória); o botão manual ignora a espera. |
+| Motor de sincronização | Executa **uma sincronização por vez** (chamadas simultâneas compartilham a mesma execução): primeiro envia a fila (push), depois baixa as mudanças (pull) e por fim informa o estado do aparelho (heartbeat), exceto quando não há rede ou a sessão expirou. |
+| Banco local (SQLite) | Acesso serializado: toda leitura e escrita passa por uma fila única, e as transações nunca se intercalam. |
+
+**Modelo de dados local (SQLite)**
+
+| Tabela | Conteúdo |
+|---|---|
+| `outbox` | Fila de operações: `id` (UUID da operação), `type`, `author_user_id`, `payload`, `recorded_at`, `status` (`pending` ou `rejected`), `attempts`, `last_error`, `last_status`. Operação enviada com sucesso é removida. |
+| `cache_entities` | Espelho de leitura (gatos, salas, itens de estoque, medicações prescritas) alimentado pelo pull e pelas gravações locais. |
+| `sync_state` | Cursor do último pull, identificador do aparelho, horário da última sincronização completa e contador de ids locais. |
+| `id_map` | Correspondência entre o id local provisório e o id definitivo devolvido pelo servidor. |
+
+Registros criados offline recebem um **id local negativo**. Como o servidor só gera ids positivos, os dois nunca colidem, e as telas
+continuam tratando `id` como número. Depois que o servidor confirma o cadastro, a linha local é substituída pela definitiva e a
+correspondência fica em `id_map` — assim uma tela aberta com o id antigo continua encontrando o registro.
+
+**Envio (push) reaproveitando os endpoints existentes**
+
+A fila é enviada **em ordem** (FIFO), uma operação por vez, para os mesmos endpoints REST que a web usa (`POST /cats`,
+`PUT /cats/{id}/photo`, `POST /stock/entries`, `POST /cats/{id}/internal-medical-prescriptions`). Isso preserva todas as validações e
+permissões que já existem — por exemplo, só veterinário com CRMV prescreve. Cada requisição leva o cabeçalho `Idempotency-Key` com o
+UUID da operação.
+
+```mermaid
+sequenceDiagram
+    participant T as Tela
+    participant R as Repositório
+    participant DB as SQLite
+    participant M as Motor
+    participant A as Backend
+
+    T->>R: salvar gato
+    R->>DB: transação: linha local (id -1) + operação na fila
+    R-->>T: gato aparece na lista imediatamente
+    Note over M,A: sem sinal: a operação permanece na fila
+    M->>A: POST /cats (Idempotency-Key = id da operação)
+    A-->>M: 201 + gato com id definitivo
+    M->>DB: transação: troca a linha local pela definitiva, registra id_map, remove da fila
+    M->>A: GET /sync/pull?since=cursor
+    A-->>M: mudanças desde o cursor
+    M->>DB: transação: aplica mudanças e guarda o novo cursor
+    M->>A: POST /sync/heartbeat (pendências, recusadas, última sincronização)
+```
+
+O `Idempotency-Key` resolve o caso mais perigoso do sinal instável: o servidor grava o registro, mas a resposta se perde. Ao reenviar com
+a mesma chave, o backend devolve a resposta original em vez de criar um segundo registro. Operações que dependem de um registro criado
+offline (por exemplo, a foto de um gato recém-cadastrado) têm o id local trocado pelo definitivo no momento do envio.
+
+**Como o app trata cada resposta**
+
+| Resposta | Tratamento |
+|---|---|
+| Sem rede ou tempo esgotado | Para a fila, mantém a operação e registra a tentativa. Tenta de novo no próximo gatilho, com espera crescente. |
+| 502, 503, 504, 408, 425 ou 429 | Falha transitória (indisponibilidade): mesmo tratamento da ausência de rede, sem limite de tentativas. |
+| 500 | Tratado como transitório nas primeiras tentativas. Após **5 erros 500 consecutivos** a operação é marcada como `rejected`, para que um registro que o servidor nunca consegue processar não trave a fila inteira. A recusa é recuperável: o usuário pode reenviar pelo botão "Tentar de novo". Qualquer outra falha entre as tentativas zera a contagem. |
+| 401 | Para a fila **sem consumir** a operação; o app pede novo login. Nada é perdido. |
+| Demais 4xx (400, 403, 404, 409, 422) | A operação é marcada como `rejected` com o motivo, **não trava o resto da fila** e aparece na tela de sincronização, onde o usuário pode tentar de novo ou descartar. |
+| Operação que depende de um cadastro recusado | Também é recusada, com a mensagem "Depende de um registro que não foi sincronizado". |
+
+Cada item da fila guarda o `author_user_id`, e o servidor registra como autor o dono do token. Por isso a fila de um usuário só é enviada
+com a sessão dele: uma operação nunca é gravada em nome de outra pessoa.
+
+**Recebimento (pull)**
+
+`GET /sync/pull?since=<cursor>` devolve gatos, salas, itens de estoque e medicações prescritas alterados desde o cursor. O cursor sai do
+**relógio do servidor** (maior `updated_at` devolvido menos 1 minuto de sobreposição), nunca do relógio do celular, para que um aparelho
+com a hora errada não perca nem repita mudanças. A sobreposição é segura porque o app aplica as mudanças por substituição (*upsert*).
+O servidor só devolve o que o perfil pode ver: itens de estoque são enviados apenas a Administrador, Assistente e Veterinário.
+
+**Conflitos e escopo offline da primeira versão**
+
+Seguindo a regra de que nenhum registro clínico é alterado silenciosamente (RNF-004), o modo offline aceita apenas operações de
+**acréscimo**, que não geram conflito de edição:
+
+| Funciona offline | Online somente |
+|---|---|
+| Cadastrar gato (Administrador e Veterinário); anexar foto ao gato cadastrado (Administrador) | Editar os campos de um gato já existente |
+| Registrar prescrição interna\* (a data clínica enviada pelo aparelho, `recordedAt`, vale como data do registro) | Cancelar medicação |
+| Registrar entrada de estoque\* | Gestão de usuários e de salas |
+
+\* Operação já suportada pelo motor de sincronização; a tela correspondente no app ainda não existe (ver limitações abaixo).
+
+O servidor aceita `recordedAt` apenas entre 30 dias no passado e 5 minutos no futuro, para que uma dose registrada às 08h não vire 11h por
+causa do atraso do envio, sem permitir datas absurdas. A edição de um gato que ainda não foi sincronizado fica bloqueada até o envio.
+
+**Backend**
+
+| Elemento | Descrição |
+|---|---|
+| Filtro de idempotência | Para `POST`, `PUT`, `PATCH` e `DELETE` com `Idempotency-Key`, reserva a chave por usuário, executa a requisição e guarda a resposta de sucesso. Repetição devolve a resposta guardada com o cabeçalho `Idempotent-Replayed: true`; a mesma chave em outra requisição retorna 422; requisição ainda em andamento retorna 425; erro libera a chave para nova tentativa; uma reserva abandonada (servidor interrompido no meio da requisição) expira em 5 minutos. Chaves são removidas após 30 dias. |
+| `updated_at` | Coluna mantida por gatilho do banco (não depende do código) em gatos, salas, itens de estoque e medicações prescritas, com índice. |
+| `GET /sync/pull` | Mudanças desde o cursor, filtradas por perfil. |
+| `POST /sync/heartbeat` | O aparelho informa identificador, modelo, plataforma, versão, pendências, recusadas e última sincronização. |
+| `GET /sync/devices` | Lista de aparelhos para a administração. Somente Administrador. |
+
+**Fuso horário.** O back-end trabalha sempre em UTC: o relógio da aplicação, a sessão do banco e todo `LocalDateTime` trafegado pela API (por exemplo `recordedAt`, `lastSyncAt` e o cursor do pull) representam a hora UTC, sem sufixo de fuso. O mobile envia essas datas em UTC, e web e mobile convertem para o fuso do dispositivo apenas na exibição. Datas de calendário (`LocalDate`, como nascimento e resgate) não sofrem conversão.
+
+**Monitoramento na web**
+
+A tela **Sincronização** (somente Administrador) lista os aparelhos com usuário, perfil, última sincronização, pendências e situação
+(Sincronizado, Pendente ou Com recusas), com busca por aparelho ou usuário e atualização automática a cada 60 s. Ela atende ao protótipo
+`30-sincronizacao.png`; o app mobile tem a tela correspondente (`14-sincronizacao.png`) com status, fila de pendências e botão
+"Sincronizar agora".
+
+**Limitações conhecidas da primeira versão**
+
+- O pull devolve todas as mudanças de uma vez, sem paginação — adequado ao volume do abrigo (centenas de gatos), mas deve ganhar paginação se
+  o volume crescer.
+- A sincronização só acontece com o app aberto (primeiro plano); não há sincronização em segundo plano com o app fechado.
+- A foto aguardando envio permanece no arquivo temporário da câmera/galeria. Se o sistema operacional limpar esse arquivo antes do envio, a
+  operação é recusada com a mensagem de arquivo não encontrado e o usuário refaz a foto. O envio de foto é permitido apenas a
+  Administrador, regra herdada do endpoint atual.
+- As telas de prescrição e de estoque do mobile ainda não existem; as operações correspondentes já estão cadastradas no motor e cobertas por
+  testes, e passam a funcionar offline assim que as telas forem criadas.
+- O backend ainda não trata violações de unicidade e responde 500 (e não 409) para, por exemplo, microchip duplicado. O app contorna isso
+  com a regra dos 5 erros 500 acima, mas o ideal é o backend devolver 409 com mensagem, o que recusa o registro na primeira tentativa.
+- O backend limita as requisições a 60 por minuto por IP (`RATE_LIMIT_DEFAULT_CAPACITY`). Vários celulares sincronizando pelo mesmo
+  Wi-Fi do abrigo compartilham esse limite; o app trata o erro 429 como transitório e tenta de novo, mas o valor pode precisar de ajuste.
+- A coluna "Detalhes" do protótipo da tela web (visualizar a fila de um aparelho) não foi implementada.
+
 > 🚧 **Pendente de definição pela equipe:** linguagens, frameworks e provedores de nuvem. A escolha deve observar a restrição orçamentária da
 > organização, privilegiando camadas gratuitas e tecnologias de baixo custo de manutenção.
 

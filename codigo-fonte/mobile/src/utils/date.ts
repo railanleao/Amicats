@@ -7,6 +7,18 @@ export function formatLongDate(date: Date): string {
   return `${capitalizedWeekday}, ${day} de ${month}`;
 }
 
+export function maskBrazilianDate(value: string): string {
+  const digits = value.replace(/\D/g, '').slice(0, 8);
+
+  if (digits.length <= 2) {
+    return digits;
+  }
+  if (digits.length <= 4) {
+    return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+  }
+  return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
+}
+
 const BR_DATE = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
 
 // The "Data de resgate" field on "Novo gato" is free text ("Ex: 08/12/2025"), but the backend
@@ -47,8 +59,7 @@ export function calculateAgeYears(isoDate: string): number {
 
   let age = today.getFullYear() - birthDate.getFullYear();
   const hadBirthdayThisYear =
-    today.getMonth() > birthDate.getMonth() ||
-    (today.getMonth() === birthDate.getMonth() && today.getDate() >= birthDate.getDate());
+    today.getMonth() > birthDate.getMonth() || (today.getMonth() === birthDate.getMonth() && today.getDate() >= birthDate.getDate());
 
   if (!hadBirthdayThisYear) {
     age -= 1;

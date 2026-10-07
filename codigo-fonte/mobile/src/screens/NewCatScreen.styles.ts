@@ -20,6 +20,24 @@ export const styles = StyleSheet.create({
     fontWeight: '600',
     color: colors.ink,
   },
+  stepContent: {
+    padding: spacing.lg,
+    flexGrow: 1,
+  },
+  stepBody: {
+    gap: spacing.lg,
+  },
+  footer: {
+    flexDirection: 'row',
+    gap: spacing.sm + 2,
+    padding: spacing.lg,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    backgroundColor: colors.surface,
+  },
+  footerButton: {
+    flex: 1,
+  },
   photoSection: {
     gap: spacing.sm,
   },

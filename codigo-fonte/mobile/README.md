@@ -44,8 +44,16 @@ npm run web       # abre uma versão web, útil para depuração rápida
 ## Verificação de tipos
 
 ```bash
-npx tsc --noEmit
+npm run typecheck   # tsc do app + tsc dos testes
 ```
+
+## Testes
+
+```bash
+npm test
+```
+
+Os testes cobrem a camada de sincronização offline (fila, motor, agendador e repositórios) e rodam com o `node:test`, usando o SQLite embutido do Node (`node:sqlite`) no lugar do `expo-sqlite`. Não precisam de emulador nem de backend no ar. É preciso Node 22.13 ou superior.
 
 ## Lint e formatação
 
@@ -66,7 +74,14 @@ Dentro de `src`:
 | `screens`    | Telas do app                                                               |
 | `components` | Componentes de UI reutilizáveis                                            |
 | `navigation` | Configuração de navegação entre telas                                      |
-| `services`   | Cliente de acesso à API do [backend](../backend) e lógica de sincronização |
-| `storage`    | Acesso ao banco local (SQLite) usado no modo offline                       |
+| `services`   | Cliente de acesso à API do [backend](../backend)                           |
+| `storage`    | Armazenamento seguro da sessão (token e usuário)                           |
+| `db`         | Migrações e contrato de acesso ao banco local (SQLite)                     |
+| `sync`       | Fila de operações, motor, agendador e conexão do modo offline              |
+| `repositories` | Acesso das telas aos dados: leem do SQLite e gravam na fila de sincronização |
 | `hooks`      | Hooks React customizados                                                   |
 | `types`      | Tipos e interfaces TypeScript compartilhados                               |
+
+## Modo offline
+
+O app grava sempre no SQLite primeiro e sincroniza com o backend quando há conexão. A arquitetura completa (fila, idempotência, tratamento de erros, escopo offline e limitações) está na seção [Arquitetura da sincronização offline](../../documentos/02-Especificação%20do%20Projeto.md#arquitetura-da-sincronização-offline) da especificação.

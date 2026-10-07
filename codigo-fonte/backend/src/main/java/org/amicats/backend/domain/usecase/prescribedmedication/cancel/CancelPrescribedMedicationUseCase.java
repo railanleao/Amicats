@@ -17,7 +17,7 @@ public class CancelPrescribedMedicationUseCase {
 
   private PrescribedMedicationDataProvider prescribedMedicationDataProvider;
   private UserDataProvider userDataProvider;
-  @Builder.Default private Clock clock = Clock.systemDefaultZone();
+  @Builder.Default private Clock clock = Clock.systemUTC();
 
   @Transactional
   public ReadPrescribedMedicationOutput execute(

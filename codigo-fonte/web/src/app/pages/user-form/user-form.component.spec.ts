@@ -35,7 +35,7 @@ describe('UserFormComponent', () => {
       crmv: null,
       ufCrmv: null,
       active: true,
-      createdAt: '2026-01-01T00:00:00',
+      createdAt: '2026-01-01T12:00:00',
       lastLoginAt: null,
       ...overrides,
     };
@@ -450,7 +450,12 @@ describe('UserFormComponent', () => {
 
       const text: string =
         fixture.nativeElement.querySelector('.meta-card').textContent;
-      expect(text).toContain('19/09/2026 08:14');
+      const local = new Date('2026-09-19T08:14:00Z');
+      const pad = (value: number) => String(value).padStart(2, '0');
+      expect(text).toContain(
+        `${pad(local.getDate())}/${pad(local.getMonth() + 1)}/${local.getFullYear()} ` +
+          `${pad(local.getHours())}:${pad(local.getMinutes())}`,
+      );
     });
 
     it('shows the created notice when arriving from a registration', () => {
