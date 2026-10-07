@@ -101,7 +101,7 @@ export const routes: Routes = [
       {
         path: 'medical-records/:id/external-attendances/new',
         component: ExternalAttendanceFormComponent,
-        canActivate: [veterinarianGuard],
+        canActivate: [adminGuard],
       },
     ],
   },
