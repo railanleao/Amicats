@@ -5,6 +5,8 @@
 export type StockStatus = 'Normal' | 'Low' | 'OutOfStock';
 export type { PagedResult } from './paged-result.model';
 export type StockOrigin = 'DONATED' | 'PURCHASED';
+
+export const MEDICATION_CATEGORY = 'Medicamento';
 export const STOCK_STATUS_LABELS: Record<StockStatus, string> = {
   Normal: 'Normal',
   Low: 'Baixo',

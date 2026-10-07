@@ -1,8 +1,10 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 
 import { CatCoverComponent } from '../../components/cat-cover/cat-cover.component';
+import { formatAge } from '../../lib/cat-age';
+import { felvResult, fivResult, testTagLabel } from '../../lib/cat-health';
 import {
   Cat,
   GENERAL_STATUS_LABELS,
@@ -11,6 +13,7 @@ import {
   SEX_LABELS,
 } from '../../models/cat.model';
 import { CatService } from '../../services/resources/cat.service';
+import { parseServerDateTime } from '../../lib/server-date';
 
 type ExamTone = 'positive' | 'negative' | 'not-tested';
 
@@ -56,28 +59,7 @@ export class CatDetailComponent implements OnInit {
   }
 
   ageLabel(cat: Cat): string {
-    if (!cat.estimatedBirthDate) {
-      return '—';
-    }
-
-    // Built from the y/m/d parts rather than `new Date(isoDate)`: a date-only ISO string
-    // parses as UTC midnight, which rolls back to the previous local day west of UTC and
-    // silently throws the year-boundary comparison below off by one.
-    const [year, month, day] = cat.estimatedBirthDate.split('-').map(Number);
-    const birthDate = new Date(year, month - 1, day);
-    const today = new Date();
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const hadBirthdayThisYear =
-      today.getMonth() > birthDate.getMonth() ||
-      (today.getMonth() === birthDate.getMonth() &&
-        today.getDate() >= birthDate.getDate());
-
-    if (!hadBirthdayThisYear) {
-      age -= 1;
-    }
-
-    age = Math.max(age, 0);
-    return `${age} ${age === 1 ? 'ano' : 'anos'}`;
+    return formatAge(cat.estimatedBirthDate) ?? '—';
   }
 
   roomLabel(cat: Cat): string {
@@ -100,23 +82,19 @@ export class CatDetailComponent implements OnInit {
   // The backend tracks FIV and FeLV as one combined result (healthStatus), not two
   // independent exams — split it back out into the two rows the design shows.
   fivLabel(cat: Cat): string {
-    if (cat.healthStatus === 'NotTested') return 'Não testado';
-    return cat.healthStatus === 'Fiv' || cat.healthStatus === 'FivFelv' ? 'Positivo' : 'Negativo';
+    return testTagLabel(fivResult(cat.healthStatus));
   }
 
   fivTone(cat: Cat): ExamTone {
-    if (cat.healthStatus === 'NotTested') return 'not-tested';
-    return cat.healthStatus === 'Fiv' || cat.healthStatus === 'FivFelv' ? 'positive' : 'negative';
+    return fivResult(cat.healthStatus);
   }
 
   felvLabel(cat: Cat): string {
-    if (cat.healthStatus === 'NotTested') return 'Não testado';
-    return cat.healthStatus === 'Felv' || cat.healthStatus === 'FivFelv' ? 'Positivo' : 'Negativo';
+    return testTagLabel(felvResult(cat.healthStatus));
   }
 
   felvTone(cat: Cat): ExamTone {
-    if (cat.healthStatus === 'NotTested') return 'not-tested';
-    return cat.healthStatus === 'Felv' || cat.healthStatus === 'FivFelv' ? 'positive' : 'negative';
+    return felvResult(cat.healthStatus);
   }
 
   pifLabel(cat: Cat): string {
@@ -129,6 +107,8 @@ export class CatDetailComponent implements OnInit {
   }
 
   createdAtLabel(cat: Cat): string {
-    return new Intl.DateTimeFormat('pt-BR').format(new Date(cat.createdAt));
+    return new Intl.DateTimeFormat('pt-BR').format(
+      parseServerDateTime(cat.createdAt),
+    );
   }
 }

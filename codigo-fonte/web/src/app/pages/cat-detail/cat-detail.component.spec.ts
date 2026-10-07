@@ -129,40 +129,44 @@ describe('CatDetailComponent (unit)', () => {
     expect(component.felvLabel(notTested)).toBe('Não testado');
   });
 
-  it('computes the age in whole years from the estimated birth date', () => {
+  it('computes the age from the estimated birth date', () => {
     catServiceSpy.findById.and.returnValue(of(mockCat()));
     createComponent();
 
     jasmine.clock().install();
-    jasmine.clock().mockDate(new Date('2026-09-01T00:00:00'));
+    try {
+      jasmine.clock().mockDate(new Date(2026, 8, 1));
 
-    expect(component.ageLabel(mockCat({ estimatedBirthDate: '2022-09-01' }))).toBe(
-      '4 anos',
-    );
-    expect(component.ageLabel(mockCat({ estimatedBirthDate: '2025-09-02' }))).toBe(
-      '0 anos',
-    );
-    expect(component.ageLabel(mockCat({ estimatedBirthDate: null }))).toBe('—');
-
-    jasmine.clock().uninstall();
+      expect(
+        component.ageLabel(mockCat({ estimatedBirthDate: '2022-09-01' })),
+      ).toBe('4 anos');
+      expect(
+        component.ageLabel(mockCat({ estimatedBirthDate: '2025-09-02' })),
+      ).toBe('11 meses');
+      expect(component.ageLabel(mockCat({ estimatedBirthDate: null }))).toBe(
+        '—',
+      );
+    } finally {
+      jasmine.clock().uninstall();
+    }
   });
 
   it('formats createdAt as a pt-BR date', () => {
     catServiceSpy.findById.and.returnValue(of(mockCat()));
     createComponent();
 
-    expect(component.createdAtLabel(mockCat({ createdAt: '2025-12-08T10:00:00' }))).toBe(
-      '08/12/2025',
-    );
+    expect(
+      component.createdAtLabel(mockCat({ createdAt: '2025-12-08T10:00:00' })),
+    ).toBe('08/12/2025');
   });
 
   it('labels neutering status, defaulting to "Não informado" when absent', () => {
     catServiceSpy.findById.and.returnValue(of(mockCat()));
     createComponent();
 
-    expect(component.neuteringLabel(mockCat({ neuteringStatus: 'Neutered' }))).toBe(
-      'Sim',
-    );
+    expect(
+      component.neuteringLabel(mockCat({ neuteringStatus: 'Neutered' })),
+    ).toBe('Sim');
     expect(component.neuteringLabel(mockCat({ neuteringStatus: null }))).toBe(
       'Não informado',
     );

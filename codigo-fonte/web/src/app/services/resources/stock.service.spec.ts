@@ -1,3 +1,4 @@
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import {
   HttpTestingController,
   provideHttpClientTesting,
@@ -44,6 +45,7 @@ describe('StockService (integration)', () => {
     httpMock = TestBed.inject(HttpTestingController);
   });
 
+  afterEach(() => httpMock.verify());
   afterEach(() => {
     httpMock.verify();
   });
@@ -67,6 +69,7 @@ describe('StockService (integration)', () => {
       `${environment.apiUrl}/stock?page=0&size=20`,
     );
 
+  it('lists stock items filtered by category and search', () => {
     expect(request.request.method).toBe('GET');
     request.flush(mockPage);
 
@@ -75,6 +78,7 @@ describe('StockService (integration)', () => {
 
   it('includes optional filters when provided', () => {
     service
+      .list({ category: 'Medicamento', search: 'inter', page: 0, size: 10 })
       .list({
         search: 'amoxicilina',
         category: 'Antibiótico',
@@ -87,13 +91,19 @@ describe('StockService (integration)', () => {
       .subscribe();
 
     const request = httpMock.expectOne(
+      (req) => req.url === `${environment.apiUrl}/stock`,
       `${environment.apiUrl}/stock?page=1&size=10&search=amoxicilina&category=Antibi%C3%B3tico&status=Low&expirationFrom=2026-10-01&expirationTo=2027-10-01`,
     );
 
     expect(request.request.method).toBe('GET');
+    expect(request.request.params.get('category')).toBe('Medicamento');
+    expect(request.request.params.get('search')).toBe('inter');
+    expect(request.request.params.get('page')).toBe('0');
+    expect(request.request.params.get('size')).toBe('10');
 
     request.flush({
       content: [],
+      page: 0,
       page: 1,
       size: 10,
       totalElements: 0,
@@ -101,12 +111,16 @@ describe('StockService (integration)', () => {
     });
   });
 
+  it('omits the optional filters when they are not informed', () => {
   it('omits optional filters when they are not provided', () => {
     service.list({ page: 0, size: 20 }).subscribe();
 
     const request = httpMock.expectOne(
+      (req) => req.url === `${environment.apiUrl}/stock`,
       `${environment.apiUrl}/stock?page=0&size=20`,
     );
+    expect(request.request.params.has('category')).toBeFalse();
+    expect(request.request.params.has('search')).toBeFalse();
 
     expect(request.request.urlWithParams.includes('search')).toBeFalse();
     expect(request.request.urlWithParams.includes('category')).toBeFalse();

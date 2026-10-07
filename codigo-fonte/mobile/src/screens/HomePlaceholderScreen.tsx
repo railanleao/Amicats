@@ -1,28 +1,21 @@
-import { StyleSheet, Text, View } from "react-native";
-import { Button } from "../components";
-import { colors } from "../theme/colors";
-import { spacing } from "../theme/spacing";
-import type { User } from "../types/auth";
+import { StyleSheet, View } from 'react-native';
+import { Text } from '../components/Text';
+import { Button } from '../components';
+import { colors } from '../theme/colors';
+import { spacing } from '../theme/spacing';
+import type { User } from '../types/auth';
 
 interface HomePlaceholderScreenProps {
   user: User;
   onLogout: () => void;
 }
 
-export function HomePlaceholderScreen({
-  user,
-  onLogout,
-}: HomePlaceholderScreenProps) {
+export function HomePlaceholderScreen({ user, onLogout }: HomePlaceholderScreenProps) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Olá, {user.fullName}</Text>
       <Text style={styles.subtitle}>{user.accessType}</Text>
-      <Button
-        variant="outline"
-        title="Sair"
-        onPress={onLogout}
-        style={styles.logoutButton}
-      />
+      <Button variant="outline" title="Sair" onPress={onLogout} style={styles.logoutButton} />
     </View>
   );
 }
@@ -31,14 +24,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
     padding: spacing.xl,
     gap: spacing.sm,
   },
   title: {
     fontSize: 22,
-    fontWeight: "600",
+    fontWeight: '600',
     color: colors.ink,
   },
   subtitle: {
