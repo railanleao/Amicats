@@ -22,7 +22,8 @@ public class DoseAdministrationDataProviderImpl implements DoseAdministrationDat
 
   @Override
   public Optional<PrescribedMedication> findMedicationForUpdate(Integer id) {
-    return Optional.ofNullable(entityManager.find(PrescribedMedication.class, id, LockModeType.PESSIMISTIC_WRITE));
+    return Optional.ofNullable(
+        entityManager.find(PrescribedMedication.class, id, LockModeType.PESSIMISTIC_WRITE));
   }
 
   @Override
@@ -39,7 +40,10 @@ public class DoseAdministrationDataProviderImpl implements DoseAdministrationDat
   public InsertResult insertIfAbsent(DoseAdministration dose) {
     // Do not catch a unique-constraint exception inside the transaction: PostgreSQL would
     // abort it. ON CONFLICT waits for the competing insert without invalidating this one.
-    int inserted = entityManager.createNativeQuery("""
+    int inserted =
+        entityManager
+            .createNativeQuery(
+                """
         INSERT INTO dose_administrations
           (id_prescribed_medication, id_user_administered_by, client_operation_id,
            administered_at, recorded_at, notes, origin, dosage, route)
@@ -47,23 +51,27 @@ public class DoseAdministrationDataProviderImpl implements DoseAdministrationDat
                 :notes, :origin, :dosage, :route)
         ON CONFLICT (client_operation_id) DO NOTHING
         """)
-        .setParameter("medicationId", dose.getPrescribedMedication().getId())
-        .setParameter("userId", dose.getAdministeredBy().getId())
-        .setParameter("operationId", dose.getClientOperationId())
-        .setParameter("administeredAt", dose.getAdministeredAt())
-        .setParameter("recordedAt", dose.getRecordedAt())
-        .setParameter("notes", dose.getNotes())
-        .setParameter("origin", dose.getOrigin().name())
-        .setParameter("dosage", dose.getDosage())
-        .setParameter("route", dose.getRoute().name())
-        .executeUpdate();
-    DoseAdministration saved = repository.findByClientOperationId(dose.getClientOperationId())
-        .orElseThrow(() -> new IllegalStateException("Registro de dose não encontrado após inserção."));
+            .setParameter("medicationId", dose.getPrescribedMedication().getId())
+            .setParameter("userId", dose.getAdministeredBy().getId())
+            .setParameter("operationId", dose.getClientOperationId())
+            .setParameter("administeredAt", dose.getAdministeredAt())
+            .setParameter("recordedAt", dose.getRecordedAt())
+            .setParameter("notes", dose.getNotes())
+            .setParameter("origin", dose.getOrigin().name())
+            .setParameter("dosage", dose.getDosage())
+            .setParameter("route", dose.getRoute().name())
+            .executeUpdate();
+    DoseAdministration saved =
+        repository
+            .findByClientOperationId(dose.getClientOperationId())
+            .orElseThrow(
+                () -> new IllegalStateException("Registro de dose não encontrado após inserção."));
     return new InsertResult(saved, inserted == 1);
   }
 
   @Override
-  public PagedResult<DoseAdministration> findByMedication(Integer medicationId, int page, int size) {
+  public PagedResult<DoseAdministration> findByMedication(
+      Integer medicationId, int page, int size) {
     return map(repository.findByPrescribedMedication_Id(medicationId, pageable(page, size)));
   }
 
@@ -77,7 +85,11 @@ public class DoseAdministrationDataProviderImpl implements DoseAdministrationDat
   }
 
   private PagedResult<DoseAdministration> map(Page<DoseAdministration> result) {
-    return new PagedResult<>(result.getContent(), result.getNumber(), result.getSize(),
-        result.getTotalElements(), result.getTotalPages());
+    return new PagedResult<>(
+        result.getContent(),
+        result.getNumber(),
+        result.getSize(),
+        result.getTotalElements(),
+        result.getTotalPages());
   }
 }

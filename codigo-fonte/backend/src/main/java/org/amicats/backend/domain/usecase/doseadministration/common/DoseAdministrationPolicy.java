@@ -13,8 +13,10 @@ public final class DoseAdministrationPolicy {
   private DoseAdministrationPolicy() {}
 
   public static User requireActive(UserDataProvider users, Integer userId) {
-    User user = users.findById(userId).orElseThrow(
-        () -> new DoseAdministrationAccessException("Usuário não autorizado."));
+    User user =
+        users
+            .findById(userId)
+            .orElseThrow(() -> new DoseAdministrationAccessException("Usuário não autorizado."));
     if (!user.isActive()) {
       throw new DoseAdministrationAccessException("Usuário inativo.");
     }

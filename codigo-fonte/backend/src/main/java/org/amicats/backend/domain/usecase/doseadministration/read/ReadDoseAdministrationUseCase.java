@@ -21,24 +21,30 @@ public class ReadDoseAdministrationUseCase {
   @Transactional(readOnly = true)
   public ReadDoseAdministrationOutput findById(Integer id, Integer userId) {
     DoseAdministrationPolicy.requireActive(userDataProvider, userId);
-    return ReadDoseAdministrationOutput.from(doseAdministrationDataProvider.findById(id)
-        .orElseThrow(() -> new ResourceNotFoundException("Registro de dose não encontrado.")));
+    return ReadDoseAdministrationOutput.from(
+        doseAdministrationDataProvider
+            .findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Registro de dose não encontrado.")));
   }
 
   @Transactional(readOnly = true)
   public PagedResult<ReadDoseAdministrationOutput> findByMedication(
       Integer medicationId, Integer userId, int page, int size) {
     DoseAdministrationPolicy.requireActive(userDataProvider, userId);
-    prescribedMedicationDataProvider.findById(medicationId)
+    prescribedMedicationDataProvider
+        .findById(medicationId)
         .orElseThrow(() -> new ResourceNotFoundException("Medicação prescrita não encontrada."));
-    return map(doseAdministrationDataProvider.findByMedication(medicationId, Math.max(0, page), size(size)));
+    return map(
+        doseAdministrationDataProvider.findByMedication(
+            medicationId, Math.max(0, page), size(size)));
   }
 
   @Transactional(readOnly = true)
   public PagedResult<ReadDoseAdministrationOutput> findByCat(
       Integer catId, Integer userId, int page, int size) {
     DoseAdministrationPolicy.requireActive(userDataProvider, userId);
-    catDataProvider.findById(catId)
+    catDataProvider
+        .findById(catId)
         .orElseThrow(() -> new ResourceNotFoundException("Gato não encontrado."));
     return map(doseAdministrationDataProvider.findByCat(catId, Math.max(0, page), size(size)));
   }
@@ -48,7 +54,11 @@ public class ReadDoseAdministrationUseCase {
   }
 
   private PagedResult<ReadDoseAdministrationOutput> map(PagedResult<DoseAdministration> result) {
-    return new PagedResult<>(result.content().stream().map(ReadDoseAdministrationOutput::from).toList(),
-        result.page(), result.size(), result.totalElements(), result.totalPages());
+    return new PagedResult<>(
+        result.content().stream().map(ReadDoseAdministrationOutput::from).toList(),
+        result.page(),
+        result.size(),
+        result.totalElements(),
+        result.totalPages());
   }
 }

@@ -8,10 +8,15 @@ import org.amicats.backend.domain.usecase.common.PagedResult;
 
 public interface DoseAdministrationDataProvider {
   Optional<PrescribedMedication> findMedicationForUpdate(Integer id);
+
   Optional<DoseAdministration> findById(Integer id);
+
   Optional<DoseAdministration> findByClientOperationId(UUID operationId);
+
   InsertResult insertIfAbsent(DoseAdministration dose);
+
   PagedResult<DoseAdministration> findByMedication(Integer medicationId, int page, int size);
+
   PagedResult<DoseAdministration> findByCat(Integer catId, int page, int size);
 
   record InsertResult(DoseAdministration dose, boolean created) {}

@@ -15,17 +15,19 @@ import org.springframework.context.annotation.Scope;
 @RequiredArgsConstructor
 public class ReadDoseAdministrationFactory {
 
-    private final DoseAdministrationDataProvider doseAdministrationDataProvider;
-    private final PrescribedMedicationDataProvider prescribedMedicationDataProvider;
-    private final CatDataProvider catDataProvider;
-    private final UserDataProvider userDataProvider;
+  private final DoseAdministrationDataProvider doseAdministrationDataProvider;
+  private final PrescribedMedicationDataProvider prescribedMedicationDataProvider;
+  private final CatDataProvider catDataProvider;
+  private final UserDataProvider userDataProvider;
 
-    @Bean("ReadDoseAdministrationUseCase")
-    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-    public ReadDoseAdministrationUseCase create() {
-        return ReadDoseAdministrationUseCase.builder()
+  @Bean("ReadDoseAdministrationUseCase")
+  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+  public ReadDoseAdministrationUseCase create() {
+    return ReadDoseAdministrationUseCase.builder()
         .doseAdministrationDataProvider(doseAdministrationDataProvider)
         .prescribedMedicationDataProvider(prescribedMedicationDataProvider)
-        .catDataProvider(catDataProvider).userDataProvider(userDataProvider).build();
-    }
+        .catDataProvider(catDataProvider)
+        .userDataProvider(userDataProvider)
+        .build();
+  }
 }

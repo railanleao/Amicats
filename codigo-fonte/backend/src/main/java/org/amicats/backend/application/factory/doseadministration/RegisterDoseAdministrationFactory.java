@@ -20,6 +20,7 @@ public class RegisterDoseAdministrationFactory {
   public RegisterDoseAdministrationUseCase create() {
     return RegisterDoseAdministrationUseCase.builder()
         .doseAdministrationDataProvider(doseAdministrationDataProvider)
-        .userDataProvider(userDataProvider).build();
+        .userDataProvider(userDataProvider)
+        .build();
   }
 }

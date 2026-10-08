@@ -39,14 +39,14 @@ public class DoseAdministrationControllerImpl implements DoseAdministrationContr
   @Override
   @PreAuthorize("isAuthenticated()")
   public PagedResult<ReadDoseAdministrationOutput> findByMedication(
-    Integer id, int page, int size, Jwt jwt) {
+      Integer id, int page, int size, Jwt jwt) {
     return readFactory.create().findByMedication(id, Integer.valueOf(jwt.getSubject()), page, size);
   }
 
   @Override
   @PreAuthorize("isAuthenticated()")
   public PagedResult<ReadDoseAdministrationOutput> findByCat(
-    Integer catId, int page, int size, Jwt jwt) {
+      Integer catId, int page, int size, Jwt jwt) {
     return readFactory.create().findByCat(catId, Integer.valueOf(jwt.getSubject()), page, size);
   }
 }

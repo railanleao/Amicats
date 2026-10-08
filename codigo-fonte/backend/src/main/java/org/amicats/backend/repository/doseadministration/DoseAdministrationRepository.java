@@ -10,15 +10,35 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface DoseAdministrationRepository extends JpaRepository<DoseAdministration, Integer> {
   @Override
-  @EntityGraph(attributePaths = {"administeredBy", "prescribedMedication.cat", "prescribedMedication.medication"})
+  @EntityGraph(
+      attributePaths = {
+        "administeredBy",
+        "prescribedMedication.cat",
+        "prescribedMedication.medication"
+      })
   Optional<DoseAdministration> findById(Integer id);
 
-  @EntityGraph(attributePaths = {"administeredBy", "prescribedMedication.cat", "prescribedMedication.medication"})
+  @EntityGraph(
+      attributePaths = {
+        "administeredBy",
+        "prescribedMedication.cat",
+        "prescribedMedication.medication"
+      })
   Optional<DoseAdministration> findByClientOperationId(UUID clientOperationId);
 
-  @EntityGraph(attributePaths = {"administeredBy", "prescribedMedication.cat", "prescribedMedication.medication"})
+  @EntityGraph(
+      attributePaths = {
+        "administeredBy",
+        "prescribedMedication.cat",
+        "prescribedMedication.medication"
+      })
   Page<DoseAdministration> findByPrescribedMedication_Id(Integer medicationId, Pageable pageable);
 
-  @EntityGraph(attributePaths = {"administeredBy", "prescribedMedication.cat", "prescribedMedication.medication"})
+  @EntityGraph(
+      attributePaths = {
+        "administeredBy",
+        "prescribedMedication.cat",
+        "prescribedMedication.medication"
+      })
   Page<DoseAdministration> findByPrescribedMedication_Cat_Id(Integer catId, Pageable pageable);
 }

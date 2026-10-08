@@ -14,7 +14,7 @@ import org.springframework.data.repository.query.Param;
 
 public interface PrescribedMedicationRepository
     extends JpaRepository<PrescribedMedication, Integer> {
-  
+
   @Lock(LockModeType.PESSIMISTIC_WRITE)
   @Query("select pm from PrescribedMedication pm where pm.id = :id")
   Optional<PrescribedMedication> findByIdForUpdate(@Param("id") Integer id);
