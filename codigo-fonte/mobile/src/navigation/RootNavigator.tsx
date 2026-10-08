@@ -9,6 +9,7 @@ import { NewPasswordScreen } from '../screens/NewPasswordScreen';
 import { SyncScreen } from '../screens/SyncScreen';
 import { TermsAcceptanceScreen } from '../screens/TermsAcceptanceScreen';
 import { BottomTabNavigator } from './BottomTabNavigator';
+import { StockEntryScreen } from '../screens/StockEntryScreen';
 import type { ChangePasswordRequest, LoginCredentials, User } from '../types/auth';
 
 type RootStackParamList = {
@@ -20,6 +21,7 @@ type RootStackParamList = {
   NewCat: { catId?: number } | undefined;
   CatDetail: { catId: number };
   Sync: undefined;
+  StockEntry: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -59,6 +61,7 @@ export function RootNavigator({ user, onLogin, onLogout, onAcceptTerms, onChange
                   onNewCat={() => navigation.navigate('NewCat')}
                   onOpenCat={(catId) => navigation.navigate('CatDetail', { catId })}
                   onOpenSync={() => navigation.navigate('Sync')}
+                  onOpenStockEntry={() => navigation.navigate('StockEntry')}
                 />
               )}
             </Stack.Screen>
@@ -82,6 +85,16 @@ export function RootNavigator({ user, onLogin, onLogout, onAcceptTerms, onChange
               {({ navigation }) => (
                 <StatusBarInset>
                   <SyncScreen onBack={() => navigation.goBack()} />
+                </StatusBarInset>
+              )}
+            </Stack.Screen>
+            <Stack.Screen name="StockEntry" options={{ presentation: 'modal' }}>
+              {({ navigation }) => (
+                <StatusBarInset>
+                  <StockEntryScreen
+                    onBack={() => navigation.goBack()}
+                    onSaved={() => navigation.goBack()}
+                  />
                 </StatusBarInset>
               )}
             </Stack.Screen>

@@ -10,7 +10,7 @@ import { listActiveRooms } from '../services/roomService';
 import { findMostUrgentStockItem } from '../services/stockService';
 import { colors } from '../theme/colors';
 import { formatLongDate } from '../utils/date';
-import type { User } from '../types/auth';
+import { canViewStock, type User } from '../types/auth';
 import type { StockItem } from '../types/stock';
 import { styles } from './HomeScreen.styles';
 
@@ -18,6 +18,7 @@ interface HomeScreenProps {
   user: User;
   onNewCat: () => void;
   onOpenSync: () => void;
+  onOpenStock: () => void;
 }
 
 interface RoomOccupancy {
@@ -86,7 +87,7 @@ function syncSummary(online: boolean, pending: number, rejected: number): string
   return 'Tudo sincronizado';
 }
 
-export function HomeScreen({ user, onNewCat, onOpenSync }: HomeScreenProps) {
+export function HomeScreen({ user, onNewCat, onOpenSync, onOpenStock, }: HomeScreenProps) {
   const { online, pending, rejected } = useSync();
   const needsAttention = !online || pending > 0 || rejected > 0;
   const [urgentStockItem, setUrgentStockItem] = useState<StockItem | null>(null);
@@ -189,6 +190,18 @@ export function HomeScreen({ user, onNewCat, onOpenSync }: HomeScreenProps) {
           <TouchableOpacity style={styles.shortcutButton} onPress={onNewCat} accessibilityRole="button">
             <Text style={styles.shortcutText}>+ Novo gato</Text>
           </TouchableOpacity>
+
+          {canViewStock(user.accessType) && (
+            <TouchableOpacity
+              style={styles.shortcutButton}
+              onPress={onOpenStock}
+              accessibilityRole="button"
+              accessibilityLabel="Abrir estoque"
+            >
+              <Text style={styles.shortcutText}>Estoque</Text>
+            </TouchableOpacity>
+          )}
+
           <TouchableOpacity style={styles.shortcutButton} accessibilityRole="button">
             <Text style={styles.shortcutText}>+ Nova prescrição</Text>
           </TouchableOpacity>

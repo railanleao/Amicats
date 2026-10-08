@@ -13,6 +13,7 @@ import { OutboxService } from './outbox';
 import { SyncScheduler } from './scheduler';
 import { SyncStore } from './store';
 import type { DeviceInfo } from './types';
+import { createStockRepository } from '../repositories/stockRepository';
 
 async function openDatabase(): Promise<SqlExecutor> {
   const db = await SQLite.openDatabaseAsync('amicats.db');
@@ -81,4 +82,9 @@ export const catRepository = createCatRepository({
   outbox: outboxService,
   now: () => new Date(),
   fetchRemoteCat,
+});
+
+export const stockRepository = createStockRepository({
+  store: syncStore,
+  outbox: outboxService,
 });
