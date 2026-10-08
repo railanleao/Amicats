@@ -270,9 +270,19 @@ describe('MedicalRecordDetailComponent (unit)', () => {
     ]);
   });
 
-  it('keeps the external-visit button as a placeholder', () => {
+  it('opens the new external attendance page', () => {
     createComponent();
+    const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(
+      true,
+    );
 
-    expect(() => component.onRegisterExternalVisit()).not.toThrow();
+    component.onRegisterExternalVisit();
+
+    expect(navigate).toHaveBeenCalledWith([
+      '/medical-records',
+      9,
+      'external-attendances',
+      'new',
+    ]);
   });
 });
