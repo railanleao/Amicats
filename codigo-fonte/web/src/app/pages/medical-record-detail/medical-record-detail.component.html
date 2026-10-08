@@ -1,0 +1,182 @@
+<div class="page">
+  <header class="page-header">
+    <a
+      routerLink="/medical-records"
+      class="page-header__back"
+      aria-label="Voltar para prontuários"
+    >
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="m15 18-6-6 6-6" />
+      </svg>
+    </a>
+    <a routerLink="/medical-records" class="page-header__crumb">Prontuários</a>
+    <span class="page-header__separator">/</span>
+    <h1>Prontuário Clínico</h1>
+  </header>
+
+  @if (prescriptionCreated) {
+    <div class="notice notice--success" role="status">
+      Atendimento registrado.
+    </div>
+  }
+  @if (stockWarning) {
+    <div class="notice notice--warning" role="alert">{{ stockWarning }}</div>
+  }
+
+  @if (cat(); as cat) {
+    <div class="record-identity">
+      <app-cat-avatar
+        [name]="cat.name"
+        [catId]="cat.id"
+        [hasPhoto]="!!cat.photoUrl"
+        [size]="56"
+      />
+
+      <div class="record-identity__text">
+        <h2 class="record-name">{{ cat.name }}</h2>
+        <p class="record-subtitle">{{ identityDetails }}</p>
+      </div>
+
+      <div class="record-identity__actions">
+        @if (canPrescribe()) {
+          <button
+            type="button"
+            class="new-button"
+            (click)="onNewPrescription()"
+          >
+            <span>＋</span>
+            Nova prescrição
+          </button>
+        }
+        <button
+          type="button"
+          class="secondary-button"
+          (click)="onRegisterExternalVisit()"
+        >
+          Registrar atendimento em clínica externa
+        </button>
+      </div>
+    </div>
+
+    <div class="record-grid">
+      <section class="card">
+        <h2 class="card-title">Linha do tempo</h2>
+        @if (externalAttendancesError()) {
+          <div class="feedback feedback--error" role="alert">
+            {{ externalAttendancesError() }}
+          </div>
+        }
+        @for (attendance of externalAttendances(); track attendance.id) {
+          <article class="external-attendance-entry">
+            <h3>{{ attendance.partnerClinic }}</h3>
+            <p>
+              <strong>Data:</strong>
+              {{ attendance.attendanceDate | date: "dd/MM/yyyy" }}
+            </p>
+            <p>
+              <strong>Veterinário:</strong> {{ attendance.veterinarian }} ({{
+                attendance.crmv
+              }})
+            </p>
+            <p>
+              <strong>Diagnóstico / observações:</strong>
+              {{ attendance.diagnosis }}
+            </p>
+            <button
+              type="button"
+              class="secondary-button"
+              (click)="openExternalAttachment(attendance)"
+            >
+              Abrir anexo: {{ attendance.attachedFile }}
+            </button>
+          </article>
+        } @empty {
+          @if (!externalAttendancesError()) {
+            <div class="feedback">
+              Nenhum atendimento externo registrado ainda.
+            </div>
+          }
+        }
+      </section>
+
+      <div class="record-sidebar">
+        <section class="card">
+          <h2 class="card-title">Resumo clínico</h2>
+
+          <div class="summary-row">
+            <span class="summary-label">FIV</span>
+            <span
+              class="summary-tag"
+              [class.positive]="fivTag === 'positive'"
+              [class.negative]="fivTag === 'negative'"
+              [class.not-tested]="fivTag === 'not-tested'"
+            >
+              {{ tagLabel(fivTag) }}
+            </span>
+          </div>
+
+          <div class="summary-row">
+            <span class="summary-label">FeLV</span>
+            <span
+              class="summary-tag"
+              [class.positive]="felvTag === 'positive'"
+              [class.negative]="felvTag === 'negative'"
+              [class.not-tested]="felvTag === 'not-tested'"
+            >
+              {{ tagLabel(felvTag) }}
+            </span>
+          </div>
+
+          <div class="summary-row">
+            <span class="summary-label">Castrada</span>
+            <span class="summary-value">{{ neuteredLabel }}</span>
+          </div>
+
+          <div class="summary-row">
+            <span class="summary-label">Peso atual</span>
+            <span class="summary-value">{{ weightLabel }}</span>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2 class="card-title">Medicação ativa</h2>
+          @if (activeMedicationsError()) {
+            <div class="feedback">{{ activeMedicationsError() }}</div>
+          } @else {
+            @for (medication of activeMedications(); track medication.id) {
+              <div class="medication-row">
+                <span class="medication-row__name">{{
+                  medication.medicationName
+                }}</span>
+                <span class="medication-row__meta">
+                  {{ medication.dosage }} · a cada
+                  {{ medication.intervalHours }}h · até
+                  {{ medication.endDate | date: "dd/MM/yyyy" }}
+                </span>
+              </div>
+            } @empty {
+              <div class="feedback">Nenhuma medicação ativa registrada.</div>
+            }
+          }
+        </section>
+      </div>
+    </div>
+  } @else if (loading()) {
+    <p class="feedback">Carregando prontuário...</p>
+  } @else if (loadError()) {
+    <div class="feedback feedback--error" role="alert">
+      {{ loadError() }}
+      <a routerLink="/medical-records">Voltar para a lista</a>
+    </div>
+  }
+</div>
