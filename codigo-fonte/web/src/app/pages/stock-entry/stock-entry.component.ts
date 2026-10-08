@@ -1,4 +1,5 @@
 import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { StockEntryNewItemComponent } from './stock-entry-new-item/stock-entry-new-item.component';
 import { TextFieldComponent } from '../../components/text-field/text-field.component';
 import {
   AbstractControl,
@@ -78,6 +79,8 @@ const STOCK_SEARCH_DEBOUNCE_MS = 300;
     SubmitButtonComponent,
     StockStatusBadgeComponent,
     TextFieldComponent,
+    StockEntryNewItemComponent,
+
   ],
   templateUrl: './stock-entry.component.html',
   styleUrl: './stock-entry.component.css',
@@ -86,9 +89,16 @@ export class StockEntryComponent implements OnInit {
   private readonly stockService = inject(StockService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
+  private stockSearchRequestId = 0;
 
   readonly items = signal<StockItem[]>([]);
   readonly selectedStockItem = signal<StockItem | null>(null);
+  readonly creatingNewItem = signal(false);
+
+
+
+  readonly loadedSearchTerm = signal('');
+
 
   readonly loadingItems = signal(false);
   readonly saving = signal(false);
@@ -100,6 +110,8 @@ export class StockEntryComponent implements OnInit {
     nonNullable: true,
   });
 
+
+
   readonly expirationLabel = formatExpirationDate;
 
   readonly today = todayIsoDate();
@@ -110,6 +122,7 @@ export class StockEntryComponent implements OnInit {
       required: 'Informe o nome do doador.',
       maxlength: 'O nome do doador deve ter no máximo 150 caracteres.',
     },
+
   };
 
 
@@ -156,6 +169,9 @@ ngOnInit(): void {
       takeUntilDestroyed(this.destroyRef),
     )
     .subscribe((searchTerm) => {
+      this.creatingNewItem.set(false);
+      this.form.controls.stockItemId.setValue(null);
+
       this.loadStockItems(searchTerm);
     });
 
@@ -199,29 +215,90 @@ ngOnInit(): void {
   }
 
   loadStockItems(searchTerm = this.stockSearchControl.value): void {
+    const trimmedSearchTerm = searchTerm.trim();
+    const requestId = ++this.stockSearchRequestId;
+
     this.loadingItems.set(true);
     this.loadError.set(null);
 
     this.stockService
       .list({
-        search: searchTerm.trim() || undefined,
+        search: trimmedSearchTerm || undefined,
         page: 0,
         size: STOCK_SEARCH_SIZE,
       })
       .pipe(
-        finalize(() => this.loadingItems.set(false)),
+        finalize(() => {
+          if (requestId === this.stockSearchRequestId) {
+            this.loadingItems.set(false);
+          }
+        }),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: (result) => {
+          if (requestId !== this.stockSearchRequestId) {
+            return;
+          }
+
           this.items.set(result.content);
+          this.loadedSearchTerm.set(trimmedSearchTerm);
         },
         error: () => {
+          if (requestId !== this.stockSearchRequestId) {
+            return;
+          }
+
           this.loadError.set(
             'Não foi possível carregar os itens do estoque. Tente novamente.',
           );
         },
       });
+  }
+
+  canCreateNewItem(): boolean {
+    const name = this.stockSearchControl.value.trim();
+
+    if (
+      !name ||
+      this.loadingItems() ||
+      this.loadError() ||
+      name.toLocaleLowerCase('pt-BR') !==
+        this.loadedSearchTerm().toLocaleLowerCase('pt-BR')
+    ) {
+      return false;
+    }
+
+    return !this.items().some(
+      (item) =>
+        item.name.trim().toLocaleLowerCase('pt-BR') ===
+        name.toLocaleLowerCase('pt-BR'),
+    );
+  }
+
+  startCreatingNewItem(): void {
+    if (!this.canCreateNewItem()) {
+      return;
+    }
+
+    this.form.controls.stockItemId.setValue(null);
+
+    this.creatingNewItem.set(true);
+  }
+
+  onNewItemCreated(item: StockItem): void {
+    this.items.update((current) => [
+      item,
+      ...current.filter((currentItem) => currentItem.id !== item.id),
+    ]);
+
+    this.form.controls.stockItemId.setValue(item.id);
+    this.creatingNewItem.set(false);
+    this.loadedSearchTerm.set(item.name);
+  }
+
+  cancelCreatingNewItem(): void {
+    this.creatingNewItem.set(false);
   }
 
 

@@ -8,6 +8,8 @@ import { TestBed } from '@angular/core/testing';
 import { environment } from '../../../environments/environment';
 import {
   CreateStockEntryRequest,
+  CreateStockItemRequest,
+  MEDICATION_CATEGORY,
   PagedResult,
   StockItem,
   UpdateStockItemRequest,
@@ -177,6 +179,44 @@ describe('StockService (integration)', () => {
     request.flush(item);
 
     expect(received).toEqual(item);
+  });
+
+  it('posts the payload to create a stock item', () => {
+    const payload: CreateStockItemRequest = {
+      name: 'Dipirona 500mg',
+      category: MEDICATION_CATEGORY,
+      quantity: 0,
+      unit: 'frascos',
+      notes: null,
+    };
+
+    const createdItem: StockItem = {
+      id: 10,
+      name: 'Dipirona 500mg',
+      category: MEDICATION_CATEGORY,
+      quantity: 0,
+      status: 'OutOfStock',
+      expirationDate: null,
+      unit: 'frascos',
+      notes: null,
+    };
+
+    let received: StockItem | undefined;
+
+    service.create(payload).subscribe((result) => {
+      received = result;
+    });
+
+    const request = httpMock.expectOne(
+      `${environment.apiUrl}/stock`,
+    );
+
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual(payload);
+
+    request.flush(createdItem);
+
+    expect(received).toEqual(createdItem);
   });
 
   it('puts the payload to update a stock item', () => {

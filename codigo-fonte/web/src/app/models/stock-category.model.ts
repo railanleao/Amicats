@@ -1,12 +1,7 @@
-export const MEDICATION_CATEGORIES = [
-  'Antibiótico',
-  'Anti-inflamatório',
-  'Antiparasitário',
-  'Imunomodulador',
-] as const;
+import { MEDICATION_CATEGORY } from './stock.model';
 
 export const STOCK_CATEGORIES = [
-  ...MEDICATION_CATEGORIES,
+  MEDICATION_CATEGORY,
   'Nutrição',
   'Insumo',
 ] as const;

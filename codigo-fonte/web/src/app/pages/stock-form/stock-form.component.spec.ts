@@ -1,3 +1,4 @@
+import { STOCK_CATEGORIES } from '../../models/stock-category.model';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import {
   ActivatedRoute,
@@ -87,6 +88,17 @@ function createComponent(): void {
       unit: 'unidades',
       notes: 'Estoque atual',
     });
+  });
+
+
+  it('keeps the current category available when it is not in the default list', () => {
+    expect(component.stockCategories).toEqual([
+      item.category,
+      ...STOCK_CATEGORIES,
+    ]);
+
+    expect(component.stockCategories).toContain('Antibiótico');
+    expect(component.stockCategories).toContain('Medicamento');
   });
 
   it('updates the item while preserving its quantity', () => {

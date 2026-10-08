@@ -63,6 +63,25 @@
         [control]="stockSearchControl"
       />
 
+      @if (canCreateNewItem() && !creatingNewItem()) {
+      <button
+        type="button"
+        class="new-item-button"
+        (click)="startCreatingNewItem()"
+      >
+        + Cadastrar "{{ stockSearchControl.value.trim() }}" como novo medicamento
+      </button>
+      }
+
+      @if (creatingNewItem()) {
+      <app-stock-entry-new-item
+        [name]="stockSearchControl.value.trim()"
+        (created)="onNewItemCreated($event)"
+        (cancelled)="cancelCreatingNewItem()"
+      />
+      }
+
+
       <div class="field">
         <label for="stockItemId">Medicamento</label>
 

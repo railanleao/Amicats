@@ -6,9 +6,13 @@ import {
   tick,
 } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { EMPTY, of, throwError } from 'rxjs';
+import { EMPTY, of, Subject, throwError } from 'rxjs';
 
-import { PagedResult, StockItem } from '../../models/stock.model';
+import {
+  MEDICATION_CATEGORY,
+  PagedResult,
+  StockItem,
+} from '../../models/stock.model';
 import { StockService } from '../../services/resources/stock.service';
 import { StockEntryComponent } from './stock-entry.component';
 
@@ -20,6 +24,7 @@ describe('StockEntryComponent', () => {
   beforeEach(async () => {
     stockServiceSpy = jasmine.createSpyObj<StockService>('StockService', [
       'list',
+      'create',
       'registerEntry',
     ]);
 
@@ -75,6 +80,119 @@ it('searches stock items after the debounce time', fakeAsync(() => {
     size: 20,
   });
 }));
+
+
+  it('allows creating a new medication when there is no exact match', () => {
+    component.stockSearchControl.setValue('Dipirona 500mg', {
+      emitEvent: false,
+    });
+
+    component.loadedSearchTerm.set('Dipirona 500mg');
+    component.items.set([]);
+
+    expect(component.canCreateNewItem()).toBeTrue();
+  });
+
+  it('does not allow creating a duplicate medication ignoring case', () => {
+    component.stockSearchControl.setValue('AMOXICILINA 250MG', {
+      emitEvent: false,
+    });
+
+    component.loadedSearchTerm.set('AMOXICILINA 250MG');
+
+    component.items.set([
+      {
+        id: 1,
+        name: 'Amoxicilina 250mg',
+        category: MEDICATION_CATEGORY,
+        quantity: 42,
+        status: 'Normal',
+        expirationDate: '2027-03-01',
+        unit: 'unidades',
+        notes: null,
+      },
+    ]);
+
+    expect(component.canCreateNewItem()).toBeFalse();
+  });
+
+  it('adds and selects a newly created medication', () => {
+    const createdItem: StockItem = {
+      id: 10,
+      name: 'Dipirona 500mg',
+      category: MEDICATION_CATEGORY,
+      quantity: 0,
+      status: 'OutOfStock',
+      expirationDate: null,
+      unit: 'frascos',
+      notes: null,
+    };
+
+    component.creatingNewItem.set(true);
+
+    component.onNewItemCreated(createdItem);
+
+    expect(component.items()).toContain(createdItem);
+    expect(component.form.controls.stockItemId.value).toBe(10);
+    expect(component.selectedStockItem()).toEqual(createdItem);
+    expect(component.creatingNewItem()).toBeFalse();
+  });
+
+  it('ignores an older stock search response when a newer search finishes first', () => {
+    const olderSearch = new Subject<PagedResult<StockItem>>();
+    const newerSearch = new Subject<PagedResult<StockItem>>();
+
+    const olderItem: StockItem = {
+      id: 1,
+      name: 'Amoxicilina antiga',
+      category: MEDICATION_CATEGORY,
+      quantity: 10,
+      status: 'Normal',
+      expirationDate: null,
+      unit: 'unidades',
+      notes: null,
+    };
+
+    const newerItem: StockItem = {
+      id: 2,
+      name: 'Dipirona nova',
+      category: MEDICATION_CATEGORY,
+      quantity: 5,
+      status: 'Normal',
+      expirationDate: null,
+      unit: 'unidades',
+      notes: null,
+    };
+
+    stockServiceSpy.list.and.returnValues(
+      olderSearch.asObservable(),
+      newerSearch.asObservable(),
+    );
+
+    component.loadStockItems('amoxicilina');
+    component.loadStockItems('dipirona');
+
+    newerSearch.next({
+      content: [newerItem],
+      page: 0,
+      size: 20,
+      totalElements: 1,
+      totalPages: 1,
+    });
+    newerSearch.complete();
+
+    olderSearch.next({
+      content: [olderItem],
+      page: 0,
+      size: 20,
+      totalElements: 1,
+      totalPages: 1,
+    });
+    olderSearch.complete();
+
+    expect(component.items()).toEqual([newerItem]);
+    expect(component.loadedSearchTerm()).toBe('dipirona');
+  });
 
   it('stores the stock items returned by the service', () => {
     const items: StockItem[] = [

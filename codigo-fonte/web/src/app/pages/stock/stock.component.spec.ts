@@ -152,8 +152,10 @@ it('shows the shared stock categories in the category filter', () => {
     '',
     ...STOCK_CATEGORIES,
   ]);
-});
 
+    expect(options).toContain('Medicamento');
+
+});
 
   it('debounces search and resets the page', fakeAsync(() => {
     stockServiceSpy.list.calls.reset();

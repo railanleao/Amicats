@@ -36,7 +36,7 @@ export class StockFormComponent {
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
-  readonly stockCategories = STOCK_CATEGORIES;
+  stockCategories: readonly string[] = STOCK_CATEGORIES;
 
   readonly loading = signal(false);
   readonly saving = signal(false);
@@ -112,6 +112,13 @@ export class StockFormComponent {
       .subscribe({
         next: (item) => {
           this.item.set(item);
+
+          if (!STOCK_CATEGORIES.some((category) => category === item.category)) {
+            this.stockCategories = [
+              item.category,
+              ...STOCK_CATEGORIES,
+            ];
+          }
 
           this.form.setValue({
             name: item.name,
