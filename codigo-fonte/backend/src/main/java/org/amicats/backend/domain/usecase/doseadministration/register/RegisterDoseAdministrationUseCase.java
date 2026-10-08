@@ -1,13 +1,14 @@
 package org.amicats.backend.domain.usecase.doseadministration.register;
 
 import java.time.Clock;
-import java.time.LocalDateTime;
+import java.time.ZoneId;
 import lombok.Builder;
 import org.amicats.backend.domain.entity.DoseAdministration;
 import org.amicats.backend.domain.entity.PrescribedMedication;
 import org.amicats.backend.domain.entity.User;
 import org.amicats.backend.domain.interfaces.dataprovider.doseadministration.DoseAdministrationDataProvider;
 import org.amicats.backend.domain.interfaces.dataprovider.user.UserDataProvider;
+import org.amicats.backend.domain.policy.DoseAdministrationTimePolicy;
 import org.amicats.backend.domain.usecase.doseadministration.common.DoseAdministrationPolicy;
 import org.amicats.backend.domain.usecase.doseadministration.read.ReadDoseAdministrationOutput;
 import org.amicats.backend.exception.DoseAdministrationConflictException;
@@ -20,7 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class RegisterDoseAdministrationUseCase {
   private DoseAdministrationDataProvider doseAdministrationDataProvider;
   private UserDataProvider userDataProvider;
-  @Builder.Default private Clock clock = Clock.systemDefaultZone();
+  @Builder.Default private Clock clock = Clock.systemUTC();
+  @Builder.Default private ZoneId clinicalZone = DoseAdministrationTimePolicy.DEFAULT_CLINICAL_ZONE;
 
   @Transactional(isolation = Isolation.READ_COMMITTED)
   public RegisterDoseAdministrationResult execute(
@@ -62,9 +64,10 @@ public class RegisterDoseAdministrationUseCase {
             user,
             input.clientOperationId(),
             input.administeredAt(),
-            LocalDateTime.now(clock),
+            DoseAdministrationTimePolicy.nowUtc(clock),
             input.notes(),
-            input.origin());
+            input.origin(),
+            clinicalZone);
     var result = doseAdministrationDataProvider.insertIfAbsent(dose);
     // Also covers the same operation UUID racing against a different medication.
     verifyReplay(result.dose(), medicationId, userId, input);
