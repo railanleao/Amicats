@@ -1,0 +1,73 @@
+<div class="page">
+  <header class="page-header">
+    <h1>Sincronização</h1>
+
+    <span class="page-header__checked">
+      Última verificação: {{ checkedAtLabel() }}
+    </span>
+  </header>
+
+  <div class="info-banner" role="note">
+    A resolução de conflitos é feita por acréscimo, nunca por sobrescrita: um
+    ajuste posterior gera um novo lançamento em vez de substituir o registro
+    existente.
+  </div>
+
+  <section class="sync-container">
+    <div class="toolbar">
+      <div class="search-box">
+        <span class="search-icon">⌕</span>
+
+        <input
+          type="text"
+          placeholder="Buscar por dispositivo ou usuário..."
+          aria-label="Buscar por dispositivo ou usuário"
+          (input)="onSearch($event)"
+        />
+      </div>
+    </div>
+
+    @if (errorMessage()) {
+      <div class="feedback feedback--error" role="alert">
+        {{ errorMessage() }}
+        <button type="button" class="feedback__retry" (click)="loadDevices()">
+          Tentar novamente
+        </button>
+      </div>
+    }
+
+    @if (loading() && devices().length === 0) {
+      <div class="feedback">Carregando dispositivos...</div>
+    } @else {
+      <div class="table-header">
+        <span>DISPOSITIVO</span>
+        <span>PERFIL</span>
+        <span>ÚLTIMA SINCRONIZAÇÃO</span>
+        <span>PENDENTES</span>
+        <span>STATUS</span>
+      </div>
+
+      <div class="device-list">
+        @for (device of filteredDevices(); track device.deviceId) {
+          <div class="device-row">
+            <div class="device-name">
+              <strong>{{ deviceTitle(device) }}</strong>
+              <span>{{ device.userName }}</span>
+            </div>
+
+            <span>{{ profileLabel(device) }}</span>
+            <span>{{ lastSyncLabel(device) }}</span>
+            <span>{{ pendingLabel(device) }}</span>
+
+            <app-status-badge
+              [label]="statusView(device).label"
+              [tone]="statusView(device).tone"
+            />
+          </div>
+        } @empty {
+          <div class="feedback">Nenhum dispositivo encontrado.</div>
+        }
+      </div>
+    }
+  </section>
+</div>

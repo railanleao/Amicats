@@ -1,4 +1,5 @@
-import { StyleSheet, Text, TouchableOpacity, ViewStyle } from 'react-native';
+import { StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
+import { Text } from '../Text';
 import { colors } from '../../theme/colors';
 
 interface LinkButtonProps {

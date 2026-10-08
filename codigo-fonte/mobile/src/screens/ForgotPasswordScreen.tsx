@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
+import { Text } from '../components/Text';
 import { AuthScreenLayout, Button, InfoBanner, LinkButton, TextField } from '../components';
 import { isValidEmail } from '../utils/validation';
 import { styles } from './ForgotPasswordScreen.styles';

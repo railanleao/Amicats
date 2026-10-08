@@ -1,5 +1,7 @@
 package org.amicats.backend.repository.room;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import org.amicats.backend.domain.entity.Room;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,4 +19,7 @@ public interface RoomRepository extends JpaRepository<Room, Integer> {
       @Param("searchPattern") String searchPattern,
       @Param("active") Boolean active,
       Pageable pageable);
+
+  @Query("select r from Room r where r.updatedAt >= :since")
+  List<Room> findUpdatedSince(@Param("since") LocalDateTime since);
 }

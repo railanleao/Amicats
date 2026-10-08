@@ -1,8 +1,9 @@
-import { useState } from "react";
-import { FlatList, Modal, Text, TouchableOpacity, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { colors } from "../../theme/colors";
-import { styles } from "./SelectField.styles";
+import { useState } from 'react';
+import { FlatList, Modal, TouchableOpacity, View } from 'react-native';
+import { Text } from '../Text';
+import { Ionicons } from '@expo/vector-icons';
+import { colors } from '../../theme/colors';
+import { styles } from './SelectField.styles';
 
 export interface SelectOption {
   label: string;
@@ -18,43 +19,21 @@ interface SelectFieldProps {
   error?: string;
 }
 
-export function SelectField({
-  label,
-  value,
-  placeholder = "Selecionar",
-  options,
-  onChange,
-  error,
-}: SelectFieldProps) {
+export function SelectField({ label, value, placeholder = 'Selecionar', options, onChange, error }: SelectFieldProps) {
   const [open, setOpen] = useState(false);
   const selectedLabel = options.find((option) => option.value === value)?.label;
 
   return (
     <View style={styles.container}>
       <Text style={styles.label}>{label}</Text>
-      <TouchableOpacity
-        style={[styles.field, error ? styles.fieldError : null]}
-        onPress={() => setOpen(true)}
-        accessibilityRole="button"
-      >
-        <Text style={selectedLabel ? styles.value : styles.placeholder}>
-          {selectedLabel ?? placeholder}
-        </Text>
+      <TouchableOpacity style={[styles.field, error ? styles.fieldError : null]} onPress={() => setOpen(true)} accessibilityRole="button">
+        <Text style={selectedLabel ? styles.value : styles.placeholder}>{selectedLabel ?? placeholder}</Text>
         <Ionicons name="chevron-down" size={16} color={colors.inkSoft} />
       </TouchableOpacity>
       {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
-      <Modal
-        visible={open}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setOpen(false)}
-      >
-        <TouchableOpacity
-          style={styles.backdrop}
-          activeOpacity={1}
-          onPress={() => setOpen(false)}
-        >
+      <Modal visible={open} transparent animationType="fade" onRequestClose={() => setOpen(false)}>
+        <TouchableOpacity style={styles.backdrop} activeOpacity={1} onPress={() => setOpen(false)}>
           <View style={styles.sheet}>
             <Text style={styles.sheetTitle}>{label}</Text>
             <FlatList
@@ -69,13 +48,7 @@ export function SelectField({
                   }}
                 >
                   <Text style={styles.optionText}>{item.label}</Text>
-                  {item.value === value ? (
-                    <Ionicons
-                      name="checkmark"
-                      size={18}
-                      color={colors.primary}
-                    />
-                  ) : null}
+                  {item.value === value ? <Ionicons name="checkmark" size={18} color={colors.primary} /> : null}
                 </TouchableOpacity>
               )}
             />

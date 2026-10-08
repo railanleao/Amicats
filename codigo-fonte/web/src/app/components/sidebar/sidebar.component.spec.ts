@@ -55,6 +55,27 @@ describe('SidebarComponent (unit)', () => {
     expect(component.profileLabel()).toBe('');
   });
 
+  function syncLink(): HTMLElement | null {
+    return fixture.nativeElement.querySelector('a[href="/sync"]');
+  }
+
+  it('hides the synchronization link from non-administrators', () => {
+    expect(component.isAdministrator()).toBeFalse();
+    expect(syncLink()).toBeNull();
+  });
+
+  it('shows the synchronization link to administrators', () => {
+    currentUser.set({
+      id: 1,
+      name: 'Marina Alves',
+      accessType: 'Administrator',
+    });
+    fixture.detectChanges();
+
+    expect(component.isAdministrator()).toBeTrue();
+    expect(syncLink()).not.toBeNull();
+  });
+
   it('clears the session and navigates to /login on disconnect', () => {
     component.disconnect();
 

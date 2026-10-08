@@ -17,7 +17,7 @@ public class CancelPrescribedMedicationUseCase {
 
   private PrescribedMedicationDataProvider prescribedMedicationDataProvider;
   private UserDataProvider userDataProvider;
-  @Builder.Default private Clock clock = Clock.systemDefaultZone();
+  @Builder.Default private Clock clock = Clock.systemUTC();
 
   @Transactional
   public ReadPrescribedMedicationOutput execute(
@@ -26,7 +26,7 @@ public class CancelPrescribedMedicationUseCase {
 
     PrescribedMedication prescribedMedication =
         prescribedMedicationDataProvider
-            .findById(prescribedMedicationId)
+            .findByIdForUpdate(prescribedMedicationId)
             .orElseThrow(() -> new ResourceNotFoundException("Medicação não encontrada."));
 
     LocalDateTime now = LocalDateTime.now(clock);

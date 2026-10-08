@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, ScrollView, TouchableOpacity, View } from 'react-native';
+import { Text } from '../components/Text';
+import { TextInput } from '../components/TextInput';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBadge } from '../components';
@@ -83,36 +85,32 @@ export function SearchScreen({ onOpenCat }: SearchScreenProps) {
 
     let cancelled = false;
 
-    Promise.allSettled([listCats({ search: searchTerm }), searchRooms(searchTerm)]).then(
-      ([catsResult, roomsResult]) => {
-        if (cancelled) {
-          return;
-        }
+    Promise.allSettled([listCats({ search: searchTerm }), searchRooms(searchTerm)]).then(([catsResult, roomsResult]) => {
+      if (cancelled) {
+        return;
+      }
 
-        const catsList = catsResult.status === 'fulfilled' ? catsResult.value : [];
-        const roomsList = roomsResult.status === 'fulfilled' ? roomsResult.value : [];
+      const catsList = catsResult.status === 'fulfilled' ? catsResult.value : [];
+      const roomsList = roomsResult.status === 'fulfilled' ? roomsResult.value : [];
 
-        setCats(catsList);
-        setRooms(roomsList);
-        setRoomOccupancy({});
-        setLoading(false);
+      setCats(catsList);
+      setRooms(roomsList);
+      setRoomOccupancy({});
+      setLoading(false);
 
-        if (roomsList.length > 0) {
-          Promise.all(roomsList.map((room) => countCatsInRoom(room.id).catch(() => 0))).then(
-            (counts) => {
-              if (cancelled) {
-                return;
-              }
-              const occupancy: Record<number, number> = {};
-              roomsList.forEach((room, index) => {
-                occupancy[room.id] = counts[index];
-              });
-              setRoomOccupancy(occupancy);
-            },
-          );
-        }
-      },
-    );
+      if (roomsList.length > 0) {
+        Promise.all(roomsList.map((room) => countCatsInRoom(room.id).catch(() => 0))).then((counts) => {
+          if (cancelled) {
+            return;
+          }
+          const occupancy: Record<number, number> = {};
+          roomsList.forEach((room, index) => {
+            occupancy[room.id] = counts[index];
+          });
+          setRoomOccupancy(occupancy);
+        });
+      }
+    });
 
     return () => {
       cancelled = true;
@@ -134,8 +132,7 @@ export function SearchScreen({ onOpenCat }: SearchScreenProps) {
     subtitle: occupancyLabel(room, roomOccupancy[room.id]),
   }));
 
-  const results: SearchResult[] =
-    activeTab === 'cats' ? catResults : activeTab === 'rooms' ? roomResults : [...catResults, ...roomResults];
+  const results: SearchResult[] = activeTab === 'cats' ? catResults : activeTab === 'rooms' ? roomResults : [...catResults, ...roomResults];
 
   function onSearch(text: string): void {
     setSearchInput(text);
