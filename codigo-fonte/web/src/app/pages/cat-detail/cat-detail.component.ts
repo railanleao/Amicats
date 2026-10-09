@@ -12,6 +12,7 @@ import {
   PIF_RESULT_LABELS,
   SEX_LABELS,
 } from '../../models/cat.model';
+import { AuthService } from '../../services/resources/auth.service';
 import { CatService } from '../../services/resources/cat.service';
 import { parseServerDateTime } from '../../lib/server-date';
 
@@ -27,10 +28,18 @@ type ExamTone = 'positive' | 'negative' | 'not-tested';
 export class CatDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly catService = inject(CatService);
+  private readonly authService = inject(AuthService);
 
   readonly loading = signal(false);
   readonly errorMessage = signal<string | null>(null);
   readonly cat = signal<Cat | null>(null);
+
+  // Mirrors the backend's role check for room transfers (RF-005 / UC-06-style): Administrator
+  // and Médico-Veterinário only. Hiding the button avoids a surprise 403 for other profiles.
+  get canTransferRoom(): boolean {
+    const accessType = this.authService.currentUser()?.accessType;
+    return accessType === 'Administrator' || accessType === 'Veterinarian';
+  }
 
   ngOnInit(): void {
     this.loadCat();

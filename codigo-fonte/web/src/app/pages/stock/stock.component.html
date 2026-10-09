@@ -1,0 +1,209 @@
+<div class="page">
+  <header class="page-header">
+    <h1>Estoque</h1>
+
+    @if (canManageStock()) {
+    <button
+      type="button"
+      class="new-button"
+      (click)="registerEntry()"
+    >
+      <span>+</span>
+      Registrar entrada
+    </button>
+    }
+  </header>
+
+  <section class="stock-container">
+    <div class="toolbar">
+      <div class="search-box">
+        <span class="search-icon">⌕</span>
+
+        <input
+          type="text"
+          placeholder="Buscar item do estoque..."
+          aria-label="Buscar item do estoque"
+          (input)="onSearch($event)"
+        />
+      </div>
+
+      <button
+        type="button"
+        class="filter-button"
+        (click)="toggleFilters()"
+      >
+        <span>☷</span>
+        Filtros
+      </button>
+    </div>
+
+    @if (showFilters) {
+    <div class="filter-panel">
+      <div class="filter-field">
+        <label for="category">Categoria</label>
+        <select
+          id="category"
+          [value]="selectedCategory"
+          (change)="onCategoryChange($event)"
+        >
+          <option value="">Todas</option>
+
+          @for (category of stockCategories; track category) {
+          <option [value]="category">
+            {{ category }}
+          </option>
+          }
+        </select>
+      </div>
+
+      <div class="filter-field">
+        <label for="status">Situação</label>
+        <select
+          id="status"
+          [value]="selectedStatus"
+          (change)="onStatusChange($event)"
+        >
+          <option value="">Todas</option>
+          <option value="Normal">Normal</option>
+          <option value="Low">Baixo</option>
+          <option value="OutOfStock">Em falta</option>
+        </select>
+      </div>
+
+      <div class="filter-field">
+        <label for="expirationFrom">Validade a partir de</label>
+        <input
+          id="expirationFrom"
+          type="date"
+          [value]="expirationFrom"
+          (change)="onExpirationFromChange($event)"
+        />
+      </div>
+
+      <div class="filter-field">
+        <label for="expirationTo">Validade até</label>
+        <input
+          id="expirationTo"
+          type="date"
+          [value]="expirationTo"
+          (change)="onExpirationToChange($event)"
+        />
+      </div>
+
+      <button
+        type="button"
+        class="clear-filters-button"
+        (click)="clearFilters()"
+      >
+        Limpar filtros
+      </button>
+    </div>
+    }
+
+    @if (errorMessage()) {
+    <div class="feedback feedback--error" role="alert">
+      <span>{{ errorMessage() }}</span>
+
+      <button
+        type="button"
+        class="feedback__retry"
+        (click)="loadStock()"
+      >
+        Tentar novamente
+      </button>
+    </div>
+    } @else if (loading() && items().length === 0) {
+    <div class="feedback">
+      Carregando estoque...
+    </div>
+    } @else {
+
+    <div class="table-wrapper">
+      <table class="stock-table">
+        <thead>
+        <tr>
+          <th>Medicamento</th>
+          <th>Categoria</th>
+          <th>Quantidade</th>
+          <th>Validade</th>
+          <th>Situação</th>
+
+
+          @if (canManageStock()) {
+          <th class="action-column">
+            <span class="visually-hidden">Ações</span>
+          </th>
+          }
+
+        </tr>
+        </thead>
+
+        <tbody>
+        @for (item of items(); track item.id) {
+        <tr>
+          <td class="item-name">
+            {{ item.name }}
+          </td>
+
+          <td>
+            {{ item.category }}
+          </td>
+
+          <td>
+            {{ quantityLabel(item) }}
+          </td>
+
+          <td>
+            {{ expirationLabel(item.expirationDate) }}
+          </td>
+
+          <td>
+
+            <app-stock-status-badge
+              [status]="item.status"
+            />
+          </td>
+
+          @if (canManageStock()) {
+          <td class="action-column">
+            <button
+              type="button"
+              class="edit-button"
+              [attr.aria-label]="'Editar ' + item.name"
+              [title]="'Editar ' + item.name"
+              (click)="editItem(item.id)"
+            >
+              ✎
+            </button>
+          </td>
+          }
+
+        </tr>
+        } @empty {
+        <tr>
+
+          <td
+            [attr.colspan]="canManageStock() ? 6 : 5"
+            class="empty-state"
+          >
+            Nenhum item de estoque encontrado.
+          </td>
+
+        </tr>
+        }
+        </tbody>
+      </table>
+    </div>
+
+    <app-pagination
+      [page]="page()"
+      [size]="pageSize"
+      [totalPages]="totalPages()"
+      [totalElements]="totalElements()"
+      itemLabel="itens"
+      (pageChange)="onPageChange($event)"
+    />
+    }
+  </section>
+
+</div>
