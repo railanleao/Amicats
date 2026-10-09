@@ -15,3 +15,5 @@ export * from './StepIndicator';
 export * from './KeyboardAwareScrollView';
 export * from './Text';
 export * from './TextInput';
+export * from "./CatAvatar";
+export * from "./MedicationAutocomplete";

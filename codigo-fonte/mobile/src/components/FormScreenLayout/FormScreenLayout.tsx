@@ -8,6 +8,8 @@ interface FormScreenLayoutProps {
 
 export function FormScreenLayout({ children }: FormScreenLayoutProps) {
   return (
-    <ScrollView contentContainerStyle={styles.content}>{children}</ScrollView>
+    <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+      {children}
+    </ScrollView>
   );
 }
