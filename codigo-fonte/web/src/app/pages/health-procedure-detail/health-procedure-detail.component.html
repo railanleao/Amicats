@@ -1,0 +1,345 @@
+<div class="page">
+  <header class="page-header">
+    <a
+      routerLink="/health-procedures"
+      class="page-header__back"
+      aria-label="Voltar para a saúde"
+    >
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="m15 18-6-6 6-6" />
+      </svg>
+    </a>
+    <a routerLink="/health-procedures" class="page-header__crumb">Saúde</a>
+    <span class="page-header__separator">/</span>
+    <h1>
+      @if (procedure(); as current) {
+        {{ procedureName(current) }} — {{ current.catName }}
+      } @else {
+        Agendamento
+      }
+    </h1>
+  </header>
+
+  @if (loading()) {
+    <p class="feedback">Carregando agendamento...</p>
+  } @else if (loadError()) {
+    <div class="feedback feedback--error" role="alert">
+      {{ loadError() }}
+      <a routerLink="/health-procedures">Voltar para a saúde</a>
+    </div>
+  } @else {
+    @if (procedure(); as current) {
+      <div class="layout">
+        <div class="main">
+          @if (successMessage()) {
+            <div class="feedback feedback--success" role="status">
+              {{ successMessage() }}
+            </div>
+          }
+
+          <section class="card">
+            <div class="card__header">
+              <span
+                [class]="'status-badge status-badge--' + statusTone(current)"
+              >
+                {{ statusLabel(current) }}
+              </span>
+            </div>
+
+            <dl class="info">
+              <div class="info__row">
+                <dt>Gato</dt>
+                <dd>
+                  <a [routerLink]="['/cats', current.catId]">{{
+                    current.catName
+                  }}</a>
+                </dd>
+              </div>
+              <div class="info__row">
+                <dt>Tipo</dt>
+                <dd>{{ typeLabels[current.type] }}</dd>
+              </div>
+              @if (current.name) {
+                <div class="info__row">
+                  <dt>Procedimento</dt>
+                  <dd>{{ current.name }}</dd>
+                </div>
+              }
+              <div class="info__row">
+                <dt>Data agendada</dt>
+                <dd>{{ current.scheduledDate | date: "dd/MM/yyyy" }}</dd>
+              </div>
+              @if (current.completedDate) {
+                <div class="info__row">
+                  <dt>Data de realização</dt>
+                  <dd>{{ current.completedDate | date: "dd/MM/yyyy" }}</dd>
+                </div>
+              }
+              <div class="info__row">
+                <dt>Registrado por</dt>
+                <dd>{{ current.createdByName }}</dd>
+              </div>
+              @if (current.previousHealthProcedureId) {
+                <div class="info__row">
+                  <dt>Reforço de</dt>
+                  <dd>
+                    <a
+                      [routerLink]="[
+                        '/health-procedures',
+                        current.previousHealthProcedureId,
+                      ]"
+                      >Ver vacina anterior</a
+                    >
+                  </dd>
+                </div>
+              }
+              @if (current.notes) {
+                <div class="info__row info__row--block">
+                  <dt>Observações</dt>
+                  <dd>{{ current.notes }}</dd>
+                </div>
+              }
+              @if (current.cancelReason) {
+                <div class="info__row info__row--block">
+                  <dt>Motivo do cancelamento</dt>
+                  <dd>{{ current.cancelReason }}</dd>
+                </div>
+              }
+            </dl>
+
+            @if (canChange() && !openPanel()) {
+              <div class="card__footer">
+                <button
+                  type="button"
+                  class="action-button"
+                  (click)="editProcedure()"
+                >
+                  Editar
+                </button>
+                <button
+                  type="button"
+                  class="action-button action-button--danger"
+                  (click)="openCancelPanel()"
+                >
+                  Cancelar agendamento
+                </button>
+                <button
+                  type="button"
+                  class="action-button action-button--primary"
+                  (click)="openCompletePanel()"
+                >
+                  Marcar como realizado
+                </button>
+              </div>
+            }
+          </section>
+
+          @if (openPanel() === "complete") {
+            <form
+              class="card panel"
+              [formGroup]="completeForm"
+              (ngSubmit)="confirmComplete()"
+              novalidate
+            >
+              <h2 class="panel__title">Marcar como realizado</h2>
+
+              @if (actionError()) {
+                <div class="feedback feedback--error" role="alert">
+                  {{ actionError() }}
+                </div>
+              }
+
+              <div class="field">
+                <label for="completedDate">Data de realização</label>
+                <input
+                  id="completedDate"
+                  type="date"
+                  [max]="today"
+                  [class.field__input--invalid]="
+                    isInvalid(completeForm.controls.completedDate)
+                  "
+                  [formControl]="completeForm.controls.completedDate"
+                />
+                @if (isInvalid(completeForm.controls.completedDate)) {
+                  <span class="field-error">Informe a data de realização.</span>
+                }
+              </div>
+
+              <div class="field">
+                <label for="completeNotes">Observações</label>
+                <textarea
+                  id="completeNotes"
+                  rows="2"
+                  [formControl]="completeForm.controls.notes"
+                ></textarea>
+              </div>
+
+              @if (isVaccine) {
+                <label class="checkbox">
+                  <input
+                    type="checkbox"
+                    [formControl]="completeForm.controls.scheduleBooster"
+                  />
+                  Agendar reforço desta vacina
+                </label>
+
+                @if (completeForm.controls.scheduleBooster.value) {
+                  <div class="booster-options" role="radiogroup">
+                    @for (option of boosterOptions; track option.value) {
+                      <label class="radio">
+                        <input
+                          type="radio"
+                          [value]="option.value"
+                          [formControl]="completeForm.controls.boosterOption"
+                        />
+                        {{ option.label }}
+                      </label>
+                    }
+                  </div>
+
+                  @if (completeForm.controls.boosterOption.value === "custom") {
+                    <div class="field">
+                      <label for="boosterDate">Data do reforço</label>
+                      <input
+                        id="boosterDate"
+                        type="date"
+                        [class.field__input--invalid]="
+                          boosterMissing &&
+                          completeForm.controls.boosterDate.touched
+                        "
+                        [formControl]="completeForm.controls.boosterDate"
+                      />
+                      @if (
+                        boosterMissing &&
+                        completeForm.controls.boosterDate.touched
+                      ) {
+                        <span class="field-error"
+                          >Informe a data do reforço.</span
+                        >
+                      }
+                    </div>
+                  } @else if (boosterDate) {
+                    <p class="field-hint">
+                      O reforço será agendado para
+                      {{ boosterDate | date: "dd/MM/yyyy" }}.
+                    </p>
+                  }
+                }
+              }
+
+              <div class="card__footer">
+                <button
+                  type="button"
+                  class="action-button"
+                  (click)="closePanel()"
+                >
+                  Voltar
+                </button>
+                <div class="panel__submit">
+                  <app-submit-button
+                    label="Confirmar realização"
+                    loadingLabel="Salvando..."
+                    [loading]="saving()"
+                  />
+                </div>
+              </div>
+            </form>
+          }
+
+          @if (openPanel() === "cancel") {
+            <form
+              class="card panel"
+              [formGroup]="cancelForm"
+              (ngSubmit)="confirmCancel()"
+              novalidate
+            >
+              <h2 class="panel__title">Cancelar agendamento</h2>
+              <p class="panel__text">
+                O cancelamento não pode ser desfeito e fica registrado no
+                histórico.
+              </p>
+
+              @if (actionError()) {
+                <div class="feedback feedback--error" role="alert">
+                  {{ actionError() }}
+                </div>
+              }
+
+              <div class="field">
+                <label for="reason">Motivo do cancelamento</label>
+                <textarea
+                  id="reason"
+                  rows="3"
+                  placeholder="Ex.: Falta da vacina no estoque."
+                  [class.field__input--invalid]="
+                    isInvalid(cancelForm.controls.reason)
+                  "
+                  [formControl]="cancelForm.controls.reason"
+                ></textarea>
+                @if (isInvalid(cancelForm.controls.reason)) {
+                  <span class="field-error"
+                    >Informe o motivo do cancelamento.</span
+                  >
+                }
+              </div>
+
+              <div class="card__footer">
+                <button
+                  type="button"
+                  class="action-button"
+                  (click)="closePanel()"
+                >
+                  Voltar
+                </button>
+                <div class="panel__submit">
+                  <app-submit-button
+                    label="Confirmar cancelamento"
+                    loadingLabel="Cancelando..."
+                    [loading]="saving()"
+                  />
+                </div>
+              </div>
+            </form>
+          }
+        </div>
+
+        <aside class="card history">
+          <h2 class="history__title">Histórico de alterações</h2>
+
+          @if (changesError()) {
+            <p class="field-error">{{ changesError() }}</p>
+          } @else {
+            <ol class="timeline">
+              @for (change of changes(); track change.id) {
+                <li class="timeline__item">
+                  <p class="timeline__action">
+                    {{ actionLabels[change.action] }}
+                  </p>
+                  @if (changeDescription(change); as description) {
+                    <p class="timeline__detail">{{ description }}</p>
+                  }
+                  <p class="timeline__meta">
+                    {{ change.userName }} ·
+                    {{ changedAt(change) | date: "dd/MM/yyyy HH:mm" }}
+                  </p>
+                </li>
+              } @empty {
+                <li class="timeline__meta">Nenhuma alteração registrada.</li>
+              }
+            </ol>
+          }
+        </aside>
+      </div>
+    }
+  }
+</div>
