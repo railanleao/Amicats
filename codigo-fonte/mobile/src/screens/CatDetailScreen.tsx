@@ -20,6 +20,7 @@ interface CatDetailScreenProps {
   catId: number;
   onBack: () => void;
   onEdit: (catId: number) => void;
+  onOpenMedicalRecord: (catId: number) => void;
 }
 
 interface Tag {
@@ -83,7 +84,7 @@ function comingSoon() {
   Alert.alert('Em breve', 'Este recurso ainda não está disponível.');
 }
 
-export function CatDetailScreen({ catId, onBack, onEdit }: CatDetailScreenProps) {
+export function CatDetailScreen({ catId, onBack, onEdit, onOpenMedicalRecord }: CatDetailScreenProps) {
   const [cat, setCat] = useState<Cat | null>(null);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -269,8 +270,12 @@ export function CatDetailScreen({ catId, onBack, onEdit }: CatDetailScreenProps)
             </View>
           </View>
 
-          <TouchableOpacity style={styles.primaryAction} onPress={comingSoon} accessibilityRole="button">
-            <Text style={styles.primaryActionText}>+ Registrar prontuário</Text>
+          <TouchableOpacity
+            style={styles.primaryAction}
+            onPress={() => onOpenMedicalRecord(catId)}
+            accessibilityRole="button"
+          >
+            <Text style={styles.primaryActionText}>Ver prontuário</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.secondaryAction} onPress={comingSoon} accessibilityRole="button">
