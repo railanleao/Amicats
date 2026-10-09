@@ -12,3 +12,5 @@ export interface StockItem {
   unit: string;
   notes: string | null;
 }
+
+export const MEDICATION_CATEGORY = 'Medicamento';
