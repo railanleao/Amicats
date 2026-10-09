@@ -12,7 +12,8 @@ public interface RoomTransferController {
 
   @PostMapping("/cats/{catId}/room-transfers")
   @ResponseStatus(HttpStatus.CREATED)
-  ReadCatOutput create(@PathVariable Integer catId, @Valid @RequestBody CreateRoomTransferInput input);
+  ReadCatOutput create(
+      @PathVariable Integer catId, @Valid @RequestBody CreateRoomTransferInput input);
 
   @GetMapping("/cats/{catId}/room-transfers")
   List<ReadRoomTransferOutput> list(@PathVariable Integer catId);

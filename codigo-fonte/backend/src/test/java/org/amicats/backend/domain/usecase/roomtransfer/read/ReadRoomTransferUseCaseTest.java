@@ -48,7 +48,8 @@ class ReadRoomTransferUseCaseTest {
     Room quarantine = room(1, "Quarentena");
     Room observation = room(2, "Observação Intensiva");
     RoomTransfer latest =
-        new RoomTransfer(cat, quarantine, observation, "Alta clínica.", LocalDateTime.of(2025, 12, 12, 9, 0));
+        new RoomTransfer(
+            cat, quarantine, observation, "Alta clínica.", LocalDateTime.of(2025, 12, 12, 9, 0));
     when(roomTransferDataProvider.findByCatIdOrderByCreatedAtDesc(CAT_ID))
         .thenReturn(List.of(latest));
 
@@ -86,8 +87,21 @@ class ReadRoomTransferUseCaseTest {
   private static Cat cat() {
     Cat cat =
         new Cat(
-            "Nina", null, null, null, null, null, null, GeneralStatus.InTriage, null, null, null,
-            null, null, null, null);
+            "Nina",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            GeneralStatus.InTriage,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
     ReflectionTestUtils.setField(cat, "id", CAT_ID);
     return cat;
   }

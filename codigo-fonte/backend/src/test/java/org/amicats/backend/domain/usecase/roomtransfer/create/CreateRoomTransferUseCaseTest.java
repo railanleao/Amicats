@@ -59,8 +59,7 @@ class CreateRoomTransferUseCaseTest {
     when(catDataProvider.findById(CAT_ID)).thenReturn(Optional.of(cat));
     when(roomDataProvider.findById(2)).thenReturn(Optional.of(toRoom));
 
-    ReadCatOutput output =
-        useCase.execute(CAT_ID, new CreateRoomTransferInput(2, "Alta clínica."));
+    ReadCatOutput output = useCase.execute(CAT_ID, new CreateRoomTransferInput(2, "Alta clínica."));
 
     assertThat(output.roomId()).isEqualTo(2);
     assertThat(cat.getRoom()).isEqualTo(toRoom);
