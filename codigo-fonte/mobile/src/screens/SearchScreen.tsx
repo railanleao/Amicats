@@ -15,10 +15,10 @@ import { styles } from './SearchScreen.styles';
 
 const SEARCH_DEBOUNCE_MS = 300;
 
-type ResultTab = 'all' | 'cats' | 'rooms';
+type ResultTab = 'all' | 'cats' | 'records' | 'rooms';
 
 interface SearchResult {
-  type: 'cat' | 'room';
+  type: 'cat' | 'record' | 'room';
   id: number;
   title: string;
   subtitle: string;
@@ -28,6 +28,7 @@ interface SearchResult {
 const TABS: { value: ResultTab; label: string }[] = [
   { value: 'all', label: 'Tudo' },
   { value: 'cats', label: 'Gatos' },
+  { value: 'records', label: 'Prontuários' },
   { value: 'rooms', label: 'Salas' },
 ];
 
@@ -125,6 +126,17 @@ export function SearchScreen({ onOpenCat }: SearchScreenProps) {
     cat,
   }));
 
+  // "Prontuário" isn't a separate backend entity — every cat has one clinical record, so this
+  // reuses the same cats search and opens the same ficha (the closest thing mobile has to a
+  // dedicated record screen).
+  const recordResults: SearchResult[] = cats.map((cat) => ({
+    type: 'record',
+    id: cat.id,
+    title: `Prontuário — ${cat.name}`,
+    subtitle: roomLabel(cat),
+    cat,
+  }));
+
   const roomResults: SearchResult[] = rooms.map((room) => ({
     type: 'room',
     id: room.id,
@@ -132,14 +144,23 @@ export function SearchScreen({ onOpenCat }: SearchScreenProps) {
     subtitle: occupancyLabel(room, roomOccupancy[room.id]),
   }));
 
-  const results: SearchResult[] = activeTab === 'cats' ? catResults : activeTab === 'rooms' ? roomResults : [...catResults, ...roomResults];
+  // "Tudo" leaves out "Prontuário" entries on purpose — they mirror the cats one-for-one and
+  // open the same ficha, so including them there would just duplicate every cat.
+  const results: SearchResult[] =
+    activeTab === 'cats'
+      ? catResults
+      : activeTab === 'records'
+        ? recordResults
+        : activeTab === 'rooms'
+          ? roomResults
+          : [...catResults, ...roomResults];
 
   function onSearch(text: string): void {
     setSearchInput(text);
   }
 
   function openResult(result: SearchResult): void {
-    if (result.type === 'cat') {
+    if (result.type === 'cat' || result.type === 'record') {
       onOpenCat(result.id);
     }
     // Rooms have no dedicated mobile screen yet — not navigable.
@@ -212,7 +233,7 @@ export function SearchScreen({ onOpenCat }: SearchScreenProps) {
                     </>
                   );
 
-                  return result.type === 'cat' ? (
+                  return result.type === 'cat' || result.type === 'record' ? (
                     <TouchableOpacity
                       key={`${result.type}-${result.id}`}
                       style={styles.resultCard}
@@ -232,7 +253,7 @@ export function SearchScreen({ onOpenCat }: SearchScreenProps) {
           </>
         ) : (
           <View style={styles.feedback}>
-            <Text style={styles.feedbackText}>Digite algo para buscar gatos e salas.</Text>
+            <Text style={styles.feedbackText}>Digite algo para buscar gatos, prontuários e salas.</Text>
           </View>
         )}
       </ScrollView>

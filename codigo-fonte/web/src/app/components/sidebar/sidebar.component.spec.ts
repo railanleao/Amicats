@@ -44,6 +44,16 @@ describe('SidebarComponent (unit)', () => {
     fixture.detectChanges();
   });
 
+  function stockMenuItem(): HTMLElement | null {
+    const menuItems = Array.from(
+      fixture.nativeElement.querySelectorAll('.menu-item'),
+    ) as HTMLElement[];
+
+    return (
+      menuItems.find((item) => item.textContent?.includes('Estoque')) ?? null
+    );
+  }
+
   it('shows the translated label for the logged-in user access type', () => {
     expect(component.profileLabel()).toBe('Veterinário');
   });
@@ -74,6 +84,54 @@ describe('SidebarComponent (unit)', () => {
 
     expect(component.isAdministrator()).toBeTrue();
     expect(syncLink()).not.toBeNull();
+  });
+
+  it('shows the stock menu item for an administrator', () => {
+    currentUser.set({
+      id: 1,
+      name: 'Ana',
+      accessType: 'Administrator',
+    });
+
+    fixture.detectChanges();
+
+    expect(stockMenuItem()).not.toBeNull();
+  });
+
+  it('shows the stock menu item for an assistant', () => {
+    currentUser.set({
+      id: 2,
+      name: 'Rui',
+      accessType: 'Assistant',
+    });
+
+    fixture.detectChanges();
+
+    expect(stockMenuItem()).not.toBeNull();
+  });
+
+  it('shows the stock menu item for a veterinarian', () => {
+    currentUser.set({
+      id: 3,
+      name: 'Marina',
+      accessType: 'Veterinarian',
+    });
+
+    fixture.detectChanges();
+
+    expect(stockMenuItem()).not.toBeNull();
+  });
+
+  it('hides the stock menu item from a viewer', () => {
+    currentUser.set({
+      id: 4,
+      name: 'Paula',
+      accessType: 'Viewer',
+    });
+
+    fixture.detectChanges();
+
+    expect(stockMenuItem()).toBeNull();
   });
 
   it('clears the session and navigates to /login on disconnect', () => {

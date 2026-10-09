@@ -1,5 +1,6 @@
 import { apiRequest } from './api';
 import type { PagedResult } from '../types/common';
+import { MEDICATION_CATEGORY } from '../types/stock';
 import type {
   CreateStockItemRequest,
   StockItem,
@@ -49,4 +50,14 @@ export async function findMostUrgentStockItem(): Promise<StockItem | null> {
   });
 
   return low.content[0] ?? null;
+}
+
+export async function searchMedications(search: string): Promise<StockItem[]> {
+  const query = new URLSearchParams({ category: MEDICATION_CATEGORY, page: '0', size: '8' });
+  if (search) {
+    query.set('search', search);
+  }
+
+  const result = await apiRequest<PagedResult<StockItem>>(`/stock?${query.toString()}`);
+  return result.content;
 }

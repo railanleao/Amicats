@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import {
   ActivatedRoute,
@@ -6,7 +7,9 @@ import {
 } from '@angular/router';
 import { of, throwError } from 'rxjs';
 
+import { AccessType } from '../../models/auth.model';
 import { Cat } from '../../models/cat.model';
+import { AuthService } from '../../services/resources/auth.service';
 import { CatService } from '../../services/resources/cat.service';
 import { CatDetailComponent } from './cat-detail.component';
 
@@ -14,6 +17,11 @@ describe('CatDetailComponent (unit)', () => {
   let fixture: ComponentFixture<CatDetailComponent>;
   let component: CatDetailComponent;
   let catServiceSpy: jasmine.SpyObj<CatService>;
+  const currentUser = signal<{
+    id: number;
+    name: string;
+    accessType: AccessType;
+  } | null>({ id: 1, name: 'Camila', accessType: 'Administrator' });
 
   function mockCat(overrides: Partial<Cat> = {}): Cat {
     return {
@@ -53,6 +61,7 @@ describe('CatDetailComponent (unit)', () => {
       providers: [
         provideRouter([]),
         { provide: CatService, useValue: catServiceSpy },
+        { provide: AuthService, useValue: { currentUser } },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -72,6 +81,7 @@ describe('CatDetailComponent (unit)', () => {
       'findById',
       'photo',
     ]);
+    currentUser.set({ id: 1, name: 'Camila', accessType: 'Administrator' });
   });
 
   it('loads the cat by the id from the route on init', () => {
@@ -170,5 +180,25 @@ describe('CatDetailComponent (unit)', () => {
     expect(component.neuteringLabel(mockCat({ neuteringStatus: null }))).toBe(
       'Não informado',
     );
+  });
+
+  it('shows "Transferir de sala" only for Administrator and Veterinarian', () => {
+    catServiceSpy.findById.and.returnValue(of(mockCat()));
+
+    currentUser.set({ id: 1, name: 'Camila', accessType: 'Administrator' });
+    createComponent();
+    expect(component.canTransferRoom).toBeTrue();
+    expect(
+      fixture.nativeElement.querySelector('.action-button'),
+    ).not.toBeNull();
+
+    currentUser.set({ id: 2, name: 'Pedro', accessType: 'Veterinarian' });
+    fixture.detectChanges();
+    expect(component.canTransferRoom).toBeTrue();
+
+    currentUser.set({ id: 3, name: 'Rui', accessType: 'Assistant' });
+    fixture.detectChanges();
+    expect(component.canTransferRoom).toBeFalse();
+    expect(fixture.nativeElement.querySelector('.action-button')).toBeNull();
   });
 });

@@ -18,6 +18,7 @@ interface HomeScreenProps {
   user: User;
   onNewCat: () => void;
   onOpenSync: () => void;
+  onOpenMedicalRecords: () => void;
   onOpenStock: () => void;
 }
 
@@ -87,9 +88,15 @@ function syncSummary(online: boolean, pending: number, rejected: number): string
   return 'Tudo sincronizado';
 }
 
-export function HomeScreen({ user, onNewCat, onOpenSync, onOpenStock, }: HomeScreenProps) {
-  const { online, pending, rejected } = useSync();
+export function HomeScreen({
+  user,
+  onNewCat,
+  onOpenSync,
+  onOpenMedicalRecords,
+  onOpenStock,
+}: HomeScreenProps) {  const { online, pending, rejected } = useSync();
   const needsAttention = !online || pending > 0 || rejected > 0;
+  const canPrescribe = user.accessType === 'Veterinarian';
   const [urgentStockItem, setUrgentStockItem] = useState<StockItem | null>(null);
   const [roomOccupancy, setRoomOccupancy] = useState<RoomOccupancy[]>([]);
 
@@ -190,7 +197,6 @@ export function HomeScreen({ user, onNewCat, onOpenSync, onOpenStock, }: HomeScr
           <TouchableOpacity style={styles.shortcutButton} onPress={onNewCat} accessibilityRole="button">
             <Text style={styles.shortcutText}>+ Novo gato</Text>
           </TouchableOpacity>
-
           {canViewStock(user.accessType) && (
             <TouchableOpacity
               style={styles.shortcutButton}
@@ -202,9 +208,23 @@ export function HomeScreen({ user, onNewCat, onOpenSync, onOpenStock, }: HomeScr
             </TouchableOpacity>
           )}
 
-          <TouchableOpacity style={styles.shortcutButton} accessibilityRole="button">
-            <Text style={styles.shortcutText}>+ Nova prescrição</Text>
+          <TouchableOpacity
+            style={styles.shortcutButton}
+            onPress={onOpenMedicalRecords}
+            accessibilityRole="button"
+          >
+            <Text style={styles.shortcutText}>Prontuários</Text>
           </TouchableOpacity>
+
+          {canPrescribe && (
+            <TouchableOpacity
+              style={styles.shortcutButton}
+              onPress={onOpenMedicalRecords}
+              accessibilityRole="button"
+            >
+              <Text style={styles.shortcutText}>+ Nova prescrição</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         <View style={styles.section}>

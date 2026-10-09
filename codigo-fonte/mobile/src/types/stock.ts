@@ -28,6 +28,8 @@ export interface StockItem {
   notes: string | null;
 }
 
+export const MEDICATION_CATEGORY = 'Medicamento';
+
 export interface CreateStockItemRequest {
   name: string;
   category: string;
@@ -37,15 +39,10 @@ export interface CreateStockItemRequest {
 }
 
 export const STOCK_CATEGORIES = [
-  'Antibiótico',
-  'Anti-inflamatório',
-  'Antiparasitário',
-  'Imunomodulador',
-  'Vacina',
+  MEDICATION_CATEGORY,
   'Nutrição',
   'Insumo',
 ] as const;
-
 
 export type StockEntryOrigin = 'DONATED' | 'PURCHASED';
 
@@ -62,5 +59,3 @@ export interface CreateStockEntryRequest {
   entryDate: string;
   expirationDate: string | null;
 }
-
-

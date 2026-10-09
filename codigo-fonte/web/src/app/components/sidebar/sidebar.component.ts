@@ -27,6 +27,16 @@ export class SidebarComponent {
     return user ? ACCESS_TYPE_LABELS[user.accessType] : '';
   });
 
+  readonly canViewStock = computed(() => {
+    const accessType = this.currentUser()?.accessType;
+
+    return (
+      accessType === 'Administrator' ||
+      accessType === 'Assistant' ||
+      accessType === 'Veterinarian'
+    );
+  });
+
   disconnect(): void {
     this.authService.clearSession();
     this.router.navigate(['/login']);
