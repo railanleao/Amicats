@@ -281,10 +281,16 @@ describe('MedicalRecordDetailComponent (unit)', () => {
     const revokeObjectUrl = spyOn(URL, 'revokeObjectURL');
     const clickSpy = spyOn(HTMLAnchorElement.prototype, 'click');
 
-    const button: HTMLButtonElement = fixture.nativeElement.querySelector(
+    const buttons = fixture.nativeElement.querySelectorAll(
       'button.secondary-button',
+    ) as NodeListOf<HTMLButtonElement>;
+
+    const button = Array.from(buttons).find((candidate) =>
+      candidate.textContent?.includes('Abrir anexo: consulta.pdf'),
     );
-    button.click();
+
+    expect(button).toBeDefined();
+    button?.click();
 
     expect(externalAttendanceServiceSpy.attachment).toHaveBeenCalledWith(14);
     expect(createObjectUrl).toHaveBeenCalled();
