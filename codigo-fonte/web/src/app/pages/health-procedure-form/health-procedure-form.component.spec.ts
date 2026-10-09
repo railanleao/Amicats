@@ -1,21 +1,13 @@
-import { HttpErrorResponse } from '@angular/common/http';
-import { TestBed, fakeAsync, tick } from '@angular/core/testing';
-import {
-  ActivatedRoute,
-  Router,
-  convertToParamMap,
-  provideRouter,
-} from '@angular/router';
-import { of, throwError } from 'rxjs';
+import {HttpErrorResponse} from '@angular/common/http';
+import {fakeAsync, TestBed, tick} from '@angular/core/testing';
+import {ActivatedRoute, convertToParamMap, provideRouter, Router,} from '@angular/router';
+import {of, throwError} from 'rxjs';
 
-import { Cat, PagedResult } from '../../models/cat.model';
-import {
-  CatHealthSummary,
-  HealthProcedure,
-} from '../../models/health-procedure.model';
-import { CatService } from '../../services/resources/cat.service';
-import { HealthProcedureService } from '../../services/resources/health-procedure.service';
-import { HealthProcedureFormComponent } from './health-procedure-form.component';
+import {Cat, PagedResult} from '../../models/cat.model';
+import {CatHealthSummary, HealthProcedure,} from '../../models/health-procedure.model';
+import {CatService} from '../../services/resources/cat.service';
+import {HealthProcedureService} from '../../services/resources/health-procedure.service';
+import {HealthProcedureFormComponent} from './health-procedure-form.component';
 
 describe('HealthProcedureFormComponent', () => {
   let component: HealthProcedureFormComponent;
@@ -265,8 +257,8 @@ describe('HealthProcedureFormComponent', () => {
   it('updates the appointment when editing', () => {
     healthProcedureServiceSpy.findById.and.returnValue(of(mockProcedure()));
     healthProcedureServiceSpy.update.and.returnValue(of(mockProcedure()));
-    spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
     createComponent('edit', { id: '7' });
+    spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
     component.form.controls.scheduledDate.setValue('2026-10-25');
 
     component.onSubmit();
