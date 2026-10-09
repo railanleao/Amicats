@@ -66,6 +66,10 @@ export const styles = StyleSheet.create({
     fontSize: 13,
     color: colors.warning,
   },
+  searchFailedText: {
+    fontSize: 13,
+    color: colors.inkSoft,
+  },
   errorText: {
     fontSize: 13,
     color: colors.danger,

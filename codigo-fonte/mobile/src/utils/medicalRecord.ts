@@ -1,9 +1,9 @@
-import type {StatusBadgeTone} from '../components';
-import type {Cat, HealthStatus, PifResult} from '../types/cat';
-import {SEX_LABELS} from '../types/cat';
-import type {PrescribedMedication} from '../types/medicalPrescription';
-import {ADMINISTRATION_ROUTE_LABELS} from '../types/medicalPrescription';
-import {calculateAgeYears} from './date';
+import type { StatusBadgeTone } from '../components';
+import type { Cat, HealthStatus, PifResult } from '../types/cat';
+import { SEX_LABELS } from '../types/cat';
+import type { PrescribedMedication } from '../types/medicalPrescription';
+import { ADMINISTRATION_ROUTE_LABELS } from '../types/medicalPrescription';
+import { calculateAgeYears } from './date';
 
 export interface ClinicalBadge {
   label: string;
@@ -64,9 +64,7 @@ function retroviralBadge(status: HealthStatus, positiveFor: HealthStatus[]): Cli
   if (status === 'NotTested') {
     return { label: 'Não testado', tone: 'neutral' };
   }
-  return positiveFor.includes(status)
-    ? { label: 'Positivo', tone: 'danger' }
-    : { label: 'Negativo', tone: 'success' };
+  return positiveFor.includes(status) ? { label: 'Positivo', tone: 'danger' } : { label: 'Negativo', tone: 'success' };
 }
 
 export function fivBadge(status: HealthStatus): ClinicalBadge {

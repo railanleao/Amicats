@@ -1,18 +1,18 @@
-import {NavigationContainer} from '@react-navigation/native';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {StatusBarInset} from '../components/StatusBarInset';
-import {CatDetailScreen} from '../screens/CatDetailScreen';
-import {ForgotPasswordScreen} from '../screens/ForgotPasswordScreen';
-import {LoginScreen} from '../screens/LoginScreen';
-import {MedicalRecordScreen} from '../screens/MedicalRecordScreen';
-import {MedicalRecordsScreen} from '../screens/MedicalRecordsScreen';
-import {NewCatScreen} from '../screens/NewCatScreen';
-import {NewInternalPrescriptionScreen} from '../screens/NewInternalPrescriptionScreen';
-import {NewPasswordScreen} from '../screens/NewPasswordScreen';
-import {SyncScreen} from '../screens/SyncScreen';
-import {TermsAcceptanceScreen} from '../screens/TermsAcceptanceScreen';
-import {BottomTabNavigator} from './BottomTabNavigator';
-import type {ChangePasswordRequest, LoginCredentials, User} from '../types/auth';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { StatusBarInset } from '../components/StatusBarInset';
+import { CatDetailScreen } from '../screens/CatDetailScreen';
+import { ForgotPasswordScreen } from '../screens/ForgotPasswordScreen';
+import { LoginScreen } from '../screens/LoginScreen';
+import { MedicalRecordScreen } from '../screens/MedicalRecordScreen';
+import { MedicalRecordsScreen } from '../screens/MedicalRecordsScreen';
+import { NewCatScreen } from '../screens/NewCatScreen';
+import { NewInternalPrescriptionScreen } from '../screens/NewInternalPrescriptionScreen';
+import { NewPasswordScreen } from '../screens/NewPasswordScreen';
+import { SyncScreen } from '../screens/SyncScreen';
+import { TermsAcceptanceScreen } from '../screens/TermsAcceptanceScreen';
+import { BottomTabNavigator } from './BottomTabNavigator';
+import type { ChangePasswordRequest, LoginCredentials, User } from '../types/auth';
 
 type RootStackParamList = {
   Login: undefined;

@@ -270,11 +270,7 @@ export function CatDetailScreen({ catId, onBack, onEdit, onOpenMedicalRecord }: 
             </View>
           </View>
 
-          <TouchableOpacity
-            style={styles.primaryAction}
-            onPress={() => onOpenMedicalRecord(catId)}
-            accessibilityRole="button"
-          >
+          <TouchableOpacity style={styles.primaryAction} onPress={() => onOpenMedicalRecord(catId)} accessibilityRole="button">
             <Text style={styles.primaryActionText}>Ver prontuário</Text>
           </TouchableOpacity>
 

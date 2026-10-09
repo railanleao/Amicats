@@ -1,25 +1,18 @@
 import { useCallback, useState } from 'react';
 import type { ReactNode } from 'react';
-import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, ScrollView, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { Button, CatAvatar, StatusBadge } from '../components';
-import { ApiError } from '../services/api';
-import { getCat } from '../services/catService';
+import { Text } from '../components/Text';
 import { listActivePrescribedMedications } from '../services/medicalPrescriptionService';
+import { catRepository } from '../sync/runtime';
 import { colors } from '../theme/colors';
 import type { Cat } from '../types/cat';
 import type { PrescribedMedication } from '../types/medicalPrescription';
 import { formatBrazilianDate } from '../utils/date';
-import {
-  felvBadge,
-  fivBadge,
-  medicalRecordSubtitle,
-  medicationSchedule,
-  neuteredLabel,
-  weightLabel,
-} from '../utils/medicalRecord';
+import { felvBadge, fivBadge, medicalRecordSubtitle, medicationSchedule, neuteredLabel, weightLabel } from '../utils/medicalRecord';
 import { styles } from './MedicalRecordScreen.styles';
 
 interface MedicalRecordScreenProps {
@@ -45,9 +38,7 @@ function MedicationItem({ medication }: { medication: PrescribedMedication }) {
     <View style={styles.medicationItem}>
       <View style={styles.medicationHeader}>
         <Text style={styles.medicationName}>{medication.medicationName}</Text>
-        {medication.medicationStockStatus === 'OutOfStock' && (
-          <StatusBadge label="Sem estoque" tone="danger" />
-        )}
+        {medication.medicationStockStatus === 'OutOfStock' && <StatusBadge label="Sem estoque" tone="danger" />}
       </View>
       <Text style={styles.medicationDetail}>{medicationSchedule(medication)}</Text>
       <Text style={styles.medicationDetail}>
@@ -58,38 +49,45 @@ function MedicationItem({ medication }: { medication: PrescribedMedication }) {
   );
 }
 
-export function MedicalRecordScreen({
-                                      catId,
-                                      canPrescribe,
-                                      onBack,
-                                      onNewPrescription,
-                                    }: MedicalRecordScreenProps) {
+export function MedicalRecordScreen({ catId, canPrescribe, onBack, onNewPrescription }: MedicalRecordScreenProps) {
   const [cat, setCat] = useState<Cat | null>(null);
   const [medications, setMedications] = useState<PrescribedMedication[]>([]);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [medicationsError, setMedicationsError] = useState<string | null>(null);
 
   const loadRecord = useCallback(() => {
     let cancelled = false;
 
-    Promise.all([getCat(catId), listActivePrescribedMedications(catId)])
-      .then(([catResult, medicationsResult]) => {
+    catRepository
+      .getCat(catId)
+      .then((result) => {
         if (!cancelled) {
-          setCat(catResult);
-          setMedications(medicationsResult);
-          setErrorMessage(null);
+          setCat(result);
+          setErrorMessage(result ? null : 'Gato não encontrado.');
         }
       })
-      .catch((error) => {
+      .catch(() => {
         if (!cancelled) {
-          setErrorMessage(
-            error instanceof ApiError ? error.message : 'Não foi possível carregar o prontuário.',
-          );
+          setErrorMessage('Não foi possível carregar o prontuário.');
         }
       })
       .finally(() => {
         if (!cancelled) {
           setLoading(false);
+        }
+      });
+
+    listActivePrescribedMedications(catId)
+      .then((result) => {
+        if (!cancelled) {
+          setMedications(result);
+          setMedicationsError(null);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setMedicationsError('Não foi possível carregar a medicação ativa. Verifique a conexão.');
         }
       });
 
@@ -154,12 +152,12 @@ export function MedicalRecordScreen({
 
             <View style={styles.card}>
               <Text style={styles.cardTitle}>Medicação ativa</Text>
-              {medications.length === 0 ? (
+              {medicationsError ? (
+                <Text style={styles.emptyText}>{medicationsError}</Text>
+              ) : medications.length === 0 ? (
                 <Text style={styles.emptyText}>Nenhuma medicação ativa.</Text>
               ) : (
-                medications.map((medication) => (
-                  <MedicationItem key={medication.id} medication={medication} />
-                ))
+                medications.map((medication) => <MedicationItem key={medication.id} medication={medication} />)
               )}
             </View>
 

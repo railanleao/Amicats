@@ -1,13 +1,6 @@
-import type {StockStatus} from './stock';
+import type { StockStatus } from './stock';
 
-export type AdministrationRoute =
-  | 'Oral'
-  | 'Subcutaneous'
-  | 'Intramuscular'
-  | 'Intravenous'
-  | 'Topical'
-  | 'Ophthalmic'
-  | 'Otic';
+export type AdministrationRoute = 'Oral' | 'Subcutaneous' | 'Intramuscular' | 'Intravenous' | 'Topical' | 'Ophthalmic' | 'Otic';
 
 export type MedicalPrescriptionStatus = 'InTreatment' | 'Completed' | 'Cancelled';
 export type MedicalPrescriptionOrigin = 'Internal' | 'ExternalClinic';

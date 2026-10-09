@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Keyboard, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Keyboard, TouchableOpacity, View } from 'react-native';
 import { searchMedications } from '../../services/stockService';
 import { colors } from '../../theme/colors';
 import type { StockItem } from '../../types/stock';
+import { Text } from '../Text';
+import { TextInput } from '../TextInput';
 import { styles } from './MedicationAutocomplete.styles';
 
 const SEARCH_DEBOUNCE_MS = 300;
@@ -15,16 +17,11 @@ interface MedicationAutocompleteProps {
   error?: string;
 }
 
-export function MedicationAutocomplete({
-                                         value,
-                                         selected,
-                                         onChangeText,
-                                         onSelect,
-                                         error,
-                                       }: MedicationAutocompleteProps) {
+export function MedicationAutocomplete({ value, selected, onChangeText, onSelect, error }: MedicationAutocompleteProps) {
   const [focused, setFocused] = useState(false);
   const [suggestions, setSuggestions] = useState<StockItem[]>([]);
   const [loading, setLoading] = useState(false);
+  const [searchFailed, setSearchFailed] = useState(false);
 
   const term = value.trim();
   const hasSelection = selected !== null && selected.name === value;
@@ -41,11 +38,13 @@ export function MedicationAutocomplete({
         .then((items) => {
           if (!cancelled) {
             setSuggestions(items);
+            setSearchFailed(false);
           }
         })
         .catch(() => {
           if (!cancelled) {
             setSuggestions([]);
+            setSearchFailed(true);
           }
         })
         .finally(() => {
@@ -62,7 +61,7 @@ export function MedicationAutocomplete({
   }, [term, focused, hasSelection]);
 
   const showSuggestions = focused && !hasSelection && suggestions.length > 0;
-  const isNewMedication = term !== '' && !hasSelection && !showSuggestions && !loading;
+  const isNewMedication = term !== '' && !hasSelection && !showSuggestions && !loading && !searchFailed;
 
   function handleSelect(item: StockItem) {
     onSelect(item);
@@ -90,21 +89,11 @@ export function MedicationAutocomplete({
       {showSuggestions && (
         <View style={styles.suggestions}>
           {suggestions.map((item) => (
-            <TouchableOpacity
-              key={item.id}
-              style={styles.suggestion}
-              onPress={() => handleSelect(item)}
-              accessibilityRole="button"
-            >
+            <TouchableOpacity key={item.id} style={styles.suggestion} onPress={() => handleSelect(item)} accessibilityRole="button">
               <Text style={styles.suggestionName} numberOfLines={1}>
                 {item.name}
               </Text>
-              <Text
-                style={[
-                  styles.suggestionStock,
-                  item.status === 'OutOfStock' ? styles.suggestionStockEmpty : null,
-                ]}
-              >
+              <Text style={[styles.suggestionStock, item.status === 'OutOfStock' ? styles.suggestionStockEmpty : null]}>
                 {item.quantity} {item.unit}
               </Text>
             </TouchableOpacity>
@@ -114,6 +103,8 @@ export function MedicationAutocomplete({
 
       {error ? (
         <Text style={styles.errorText}>{error}</Text>
+      ) : searchFailed && term !== '' && !hasSelection ? (
+        <Text style={styles.searchFailedText}>Não foi possível consultar o estoque agora.</Text>
       ) : isNewMedication ? (
         <Text style={styles.hint}>Não encontrado no estoque: será cadastrado com estoque zerado.</Text>
       ) : null}

@@ -1,17 +1,17 @@
-import {useEffect, useState} from 'react';
-import {ActivityIndicator, ScrollView, TouchableOpacity, View} from 'react-native';
-import {SafeAreaView} from 'react-native-safe-area-context';
-import {Ionicons} from '@expo/vector-icons';
-import {Button, CatAvatar, StatusBadge} from '../components';
-import {Text} from '../components/Text';
-import {TextInput} from '../components/TextInput';
-import {catRepository} from '../sync/runtime';
-import {useSync} from '../sync/SyncContext';
-import {colors} from '../theme/colors';
-import type {Cat, GeneralStatus} from '../types/cat';
-import {GENERAL_STATUS_LABELS, GENERAL_STATUS_TONE} from '../types/cat';
-import {ageGroupLabel, roomLabel, testedExamBadges} from '../utils/medicalRecord';
-import {styles} from './MedicalRecordsScreen.styles';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, ScrollView, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
+import { Button, CatAvatar, StatusBadge } from '../components';
+import { Text } from '../components/Text';
+import { TextInput } from '../components/TextInput';
+import { catRepository } from '../sync/runtime';
+import { useSync } from '../sync/SyncContext';
+import { colors } from '../theme/colors';
+import type { Cat, GeneralStatus } from '../types/cat';
+import { GENERAL_STATUS_LABELS, GENERAL_STATUS_TONE } from '../types/cat';
+import { ageGroupLabel, roomLabel, testedExamBadges } from '../utils/medicalRecord';
+import { styles } from './MedicalRecordsScreen.styles';
 
 const SEARCH_DEBOUNCE_MS = 300;
 
@@ -40,10 +40,7 @@ function RecordRow({ cat, onPress }: { cat: Cat; onPress: () => void }) {
             {cat.name}
           </Text>
           {cat.generalStatus && (
-            <StatusBadge
-              label={GENERAL_STATUS_LABELS[cat.generalStatus]}
-              tone={GENERAL_STATUS_TONE[cat.generalStatus]}
-            />
+            <StatusBadge label={GENERAL_STATUS_LABELS[cat.generalStatus]} tone={GENERAL_STATUS_TONE[cat.generalStatus]} />
           )}
         </View>
         <Text style={styles.catSubtitle}>{recordSubtitle(cat)}</Text>
@@ -155,9 +152,7 @@ export function MedicalRecordsScreen({ onBack, onOpenRecord }: MedicalRecordsScr
                 onPress={() => selectFilter(filter.value)}
                 accessibilityRole="button"
               >
-                <Text style={[styles.chipText, isActive ? styles.chipTextActive : null]}>
-                  {filter.label}
-                </Text>
+                <Text style={[styles.chipText, isActive ? styles.chipTextActive : null]}>{filter.label}</Text>
               </TouchableOpacity>
             );
           })}
@@ -166,12 +161,7 @@ export function MedicalRecordsScreen({ onBack, onOpenRecord }: MedicalRecordsScr
         {errorMessage ? (
           <View style={styles.feedback}>
             <Text style={styles.feedbackText}>{errorMessage}</Text>
-            <Button
-              variant="outline"
-              title="Tentar novamente"
-              onPress={retry}
-              style={styles.retryButton}
-            />
+            <Button variant="outline" title="Tentar novamente" onPress={retry} style={styles.retryButton} />
           </View>
         ) : loading && cats.length === 0 ? (
           <View style={styles.feedback}>

@@ -1,6 +1,6 @@
-import { ReactNode } from "react";
-import { ScrollView } from "react-native";
-import { styles } from "./FormScreenLayout.styles";
+import { ReactNode } from 'react';
+import { ScrollView } from 'react-native';
+import { styles } from './FormScreenLayout.styles';
 
 interface FormScreenLayoutProps {
   children: ReactNode;

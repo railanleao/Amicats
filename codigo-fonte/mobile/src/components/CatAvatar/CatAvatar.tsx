@@ -11,9 +11,5 @@ interface CatAvatarProps {
 export function CatAvatar({ cat, size = 44 }: CatAvatarProps) {
   const shape = { width: size, height: size, borderRadius: size / 2 };
 
-  return (
-    <View style={[styles.avatar, shape]}>
-      {cat.photoUrl ? <Image source={catPhotoSource(cat.id)} style={styles.image} /> : null}
-    </View>
-  );
+  return <View style={[styles.avatar, shape]}>{cat.photoUrl ? <Image source={catPhotoSource(cat.id)} style={styles.image} /> : null}</View>;
 }

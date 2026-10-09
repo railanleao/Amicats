@@ -1,24 +1,15 @@
 import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { ActivityIndicator, Alert, Switch, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Switch, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import {
-  Button,
-  FormRow,
-  FormScreenLayout,
-  MedicationAutocomplete,
-  SelectField,
-  TextField,
-} from '../components';
+import { Button, FormRow, FormScreenLayout, MedicationAutocomplete, SelectField, TextField } from '../components';
+import { Text } from '../components/Text';
 import { ApiError } from '../services/api';
 import { getCat } from '../services/catService';
 import { createInternalMedicalPrescription } from '../services/medicalPrescriptionService';
 import { colors } from '../theme/colors';
 import type { Cat } from '../types/cat';
-import type {
-  AdministrationRoute,
-  CreateInternalMedicalPrescriptionRequest,
-} from '../types/medicalPrescription';
+import type { AdministrationRoute, CreateInternalMedicalPrescriptionRequest } from '../types/medicalPrescription';
 import { ADMINISTRATION_ROUTE_LABELS } from '../types/medicalPrescription';
 import type { StockItem } from '../types/stock';
 import { roomLabel } from '../utils/medicalRecord';
@@ -55,8 +46,7 @@ const DEFAULT_VALUES: PrescriptionFormValues = {
 };
 
 function requiredWhenPrescribing(message: string) {
-  return (value: string | null, values: PrescriptionFormValues) =>
-    !values.prescribeMedication || (value ?? '').trim() !== '' || message;
+  return (value: string | null, values: PrescriptionFormValues) => !values.prescribeMedication || (value ?? '').trim() !== '' || message;
 }
 
 function integerWhenPrescribing(max: number, message: string) {
@@ -75,7 +65,7 @@ function saveErrorMessage(error: unknown): string {
   }
   switch (error.status) {
     case 409:
-      return error.message;
+      return 'Este gatinho já tem esse medicamento em uso. Cancele a prescrição ativa antes de criar outra.';
     case 403:
       return 'Apenas veterinários com CRMV cadastrado podem registrar atendimentos internos.';
     case 404:
@@ -83,7 +73,7 @@ function saveErrorMessage(error: unknown): string {
     case 400:
       return 'Confira os dados informados e tente novamente.';
     default:
-      return error.message;
+      return 'Não foi possível salvar o atendimento. Tente novamente.';
   }
 }
 
@@ -114,11 +104,7 @@ export function NewInternalPrescriptionScreen({ catId, onBack, onSaved }: NewInt
     getCat(catId)
       .then(setCat)
       .catch((error) => {
-        setLoadError(
-          error instanceof ApiError && error.status === 404
-            ? 'Gato não encontrado.'
-            : 'Não foi possível carregar o gato.',
-        );
+        setLoadError(error instanceof ApiError && error.status === 404 ? 'Gato não encontrado.' : 'Não foi possível carregar o gato.');
       })
       .finally(() => setLoadingCat(false));
   }, [catId]);
@@ -132,14 +118,14 @@ export function NewInternalPrescriptionScreen({ catId, onBack, onSaved }: NewInt
       notes: values.notes.trim() || null,
       medication: values.prescribeMedication
         ? {
-          medicationId: selectedMedication?.id ?? null,
-          newMedicationName: selectedMedication ? null : values.medicationName.trim(),
-          newMedicationUnit: null,
-          dosage: values.dosage.trim(),
-          route: values.route as AdministrationRoute,
-          intervalHours: Number(values.intervalHours),
-          durationDays: Number(values.durationDays),
-        }
+            medicationId: selectedMedication?.id ?? null,
+            newMedicationName: selectedMedication ? null : values.medicationName.trim(),
+            newMedicationUnit: null,
+            dosage: values.dosage.trim(),
+            route: values.route as AdministrationRoute,
+            intervalHours: Number(values.intervalHours),
+            durationDays: Number(values.durationDays),
+          }
         : null,
     };
 
@@ -209,9 +195,7 @@ export function NewInternalPrescriptionScreen({ catId, onBack, onSaved }: NewInt
               <View style={styles.toggleRow}>
                 <View style={styles.toggleText}>
                   <Text style={styles.toggleTitle}>Prescrever medicação nesta consulta</Text>
-                  <Text style={styles.toggleHint}>
-                    Desative para registrar apenas uma consulta, sem alterar a medicação em uso.
-                  </Text>
+                  <Text style={styles.toggleHint}>Desative para registrar apenas uma consulta, sem alterar a medicação em uso.</Text>
                 </View>
                 <Switch
                   value={value}

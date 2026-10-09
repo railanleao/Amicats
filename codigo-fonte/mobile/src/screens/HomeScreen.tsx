@@ -1,18 +1,18 @@
-import {useEffect, useState} from 'react';
-import {ScrollView, TouchableOpacity, View} from 'react-native';
-import {Text} from '../components/Text';
-import {SafeAreaView} from 'react-native-safe-area-context';
-import {Ionicons} from '@expo/vector-icons';
-import {DoseCard, InfoBanner, SectionLabel} from '../components';
-import {useSync} from '../sync/SyncContext';
-import {countCatsInRoom} from '../services/catService';
-import {listActiveRooms} from '../services/roomService';
-import {findMostUrgentStockItem} from '../services/stockService';
-import {colors} from '../theme/colors';
-import {formatLongDate} from '../utils/date';
-import type {User} from '../types/auth';
-import type {StockItem} from '../types/stock';
-import {styles} from './HomeScreen.styles';
+import { useEffect, useState } from 'react';
+import { ScrollView, TouchableOpacity, View } from 'react-native';
+import { Text } from '../components/Text';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
+import { DoseCard, InfoBanner, SectionLabel } from '../components';
+import { useSync } from '../sync/SyncContext';
+import { countCatsInRoom } from '../services/catService';
+import { listActiveRooms } from '../services/roomService';
+import { findMostUrgentStockItem } from '../services/stockService';
+import { colors } from '../theme/colors';
+import { formatLongDate } from '../utils/date';
+import type { User } from '../types/auth';
+import type { StockItem } from '../types/stock';
+import { styles } from './HomeScreen.styles';
 
 interface HomeScreenProps {
   user: User;
@@ -88,6 +88,7 @@ function syncSummary(online: boolean, pending: number, rejected: number): string
 export function HomeScreen({ user, onNewCat, onOpenSync, onOpenMedicalRecords }: HomeScreenProps) {
   const { online, pending, rejected } = useSync();
   const needsAttention = !online || pending > 0 || rejected > 0;
+  const canPrescribe = user.accessType === 'Veterinarian';
   const [urgentStockItem, setUrgentStockItem] = useState<StockItem | null>(null);
   const [roomOccupancy, setRoomOccupancy] = useState<RoomOccupancy[]>([]);
 
@@ -191,9 +192,11 @@ export function HomeScreen({ user, onNewCat, onOpenSync, onOpenMedicalRecords }:
           <TouchableOpacity style={styles.shortcutButton} onPress={onOpenMedicalRecords} accessibilityRole="button">
             <Text style={styles.shortcutText}>Prontuários</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.shortcutButton} onPress={onOpenMedicalRecords} accessibilityRole="button">
-            <Text style={styles.shortcutText}>+ Nova prescrição</Text>
-          </TouchableOpacity>
+          {canPrescribe && (
+            <TouchableOpacity style={styles.shortcutButton} onPress={onOpenMedicalRecords} accessibilityRole="button">
+              <Text style={styles.shortcutText}>+ Nova prescrição</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         <View style={styles.section}>
