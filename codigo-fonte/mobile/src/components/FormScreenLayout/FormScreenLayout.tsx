@@ -1,6 +1,6 @@
-import { ReactNode } from "react";
-import { ScrollView } from "react-native";
-import { styles } from "./FormScreenLayout.styles";
+import { ReactNode } from 'react';
+import { ScrollView } from 'react-native';
+import { styles } from './FormScreenLayout.styles';
 
 interface FormScreenLayoutProps {
   children: ReactNode;
@@ -8,6 +8,8 @@ interface FormScreenLayoutProps {
 
 export function FormScreenLayout({ children }: FormScreenLayoutProps) {
   return (
-    <ScrollView contentContainerStyle={styles.content}>{children}</ScrollView>
+    <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+      {children}
+    </ScrollView>
   );
 }
