@@ -1,0 +1,207 @@
+<div class="page">
+  <header class="page-header">
+    <a
+      routerLink="/health-procedures"
+      class="page-header__back"
+      aria-label="Voltar para a saúde"
+    >
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="m15 18-6-6 6-6" />
+      </svg>
+    </a>
+    <a routerLink="/health-procedures" class="page-header__crumb">Saúde</a>
+    <span class="page-header__separator">/</span>
+    <h1>{{ isEdit ? "Editar agendamento" : "Novo agendamento" }}</h1>
+  </header>
+
+  @if (loading()) {
+    <p class="feedback">Carregando agendamento...</p>
+  } @else if (loadError()) {
+    <div class="feedback feedback--error" role="alert">
+      {{ loadError() }}
+      <a routerLink="/health-procedures">Voltar para a saúde</a>
+    </div>
+  } @else {
+    <div class="layout">
+      <form
+        class="form-card"
+        [formGroup]="form"
+        (ngSubmit)="onSubmit()"
+        novalidate
+      >
+        @if (saveError()) {
+          <div class="feedback feedback--error" role="alert">
+            {{ saveError() }}
+          </div>
+        }
+
+        <div class="field cat-field">
+          <label for="cat">Gato</label>
+          <input
+            id="cat"
+            type="text"
+            autocomplete="off"
+            role="combobox"
+            aria-controls="cat-suggestions"
+            placeholder="Busque pelo nome do gatinho"
+            [attr.aria-expanded]="catSuggestionsOpen()"
+            [class.field__input--invalid]="catNotSelected"
+            [formControl]="form.controls.cat"
+            (focus)="onCatFocus()"
+            (blur)="onCatBlur()"
+          />
+
+          @if (catSuggestionsOpen()) {
+            <ul id="cat-suggestions" class="suggestions" role="listbox">
+              @for (cat of catSuggestions(); track cat.id) {
+                <li
+                  role="option"
+                  [attr.aria-selected]="selectedCat()?.id === cat.id"
+                >
+                  <button
+                    type="button"
+                    class="suggestion"
+                    (mousedown)="$event.preventDefault()"
+                    (click)="onSelectCat(cat)"
+                  >
+                    <span>{{ cat.name }}</span>
+                    @if (cat.roomTitle) {
+                      <span class="suggestion__meta">{{ cat.roomTitle }}</span>
+                    }
+                  </button>
+                </li>
+              }
+            </ul>
+          }
+
+          @if (catNotSelected) {
+            <span class="field-error">Selecione um gatinho da lista.</span>
+          }
+        </div>
+
+        <div class="form-row">
+          <div class="select-field">
+            <label for="type">Tipo</label>
+            <select
+              id="type"
+              [class.field__input--invalid]="isInvalid(form.controls.type)"
+              [formControl]="form.controls.type"
+            >
+              <option value="">Selecione</option>
+              @for (option of typeOptions; track option.value) {
+                <option [value]="option.value">{{ option.label }}</option>
+              }
+            </select>
+            @if (isInvalid(form.controls.type)) {
+              <span class="field-error">Selecione o tipo.</span>
+            }
+          </div>
+
+          @if (requiresName) {
+            <app-text-field
+              inputId="name"
+              label="Procedimento"
+              placeholder="Ex.: Antirrábica, V4 felina"
+              [control]="form.controls.name"
+              [errorMessages]="errors.name"
+            />
+          }
+        </div>
+
+        <div class="field">
+          <label for="scheduledDate">Data agendada</label>
+          <input
+            id="scheduledDate"
+            type="date"
+            [min]="today"
+            [class.field__input--invalid]="
+              isInvalid(form.controls.scheduledDate)
+            "
+            [formControl]="form.controls.scheduledDate"
+          />
+          @if (isInvalid(form.controls.scheduledDate)) {
+            <span class="field-error">Informe a data agendada.</span>
+          }
+        </div>
+
+        <div class="field">
+          <label for="notes">Observações</label>
+          <textarea
+            id="notes"
+            rows="2"
+            placeholder="Ex.: Levar carteira de vacinação."
+            [formControl]="form.controls.notes"
+          ></textarea>
+        </div>
+
+        <div class="form-actions">
+          <a routerLink="/health-procedures" class="cancel-button">Cancelar</a>
+          <div class="form-actions__submit">
+            <app-submit-button
+              label="Salvar agendamento"
+              loadingLabel="Salvando..."
+              [loading]="saving()"
+            />
+          </div>
+        </div>
+      </form>
+
+      <aside class="side-card">
+        <h2 class="side-card__title">Histórico do gato</h2>
+        @if (summary(); as current) {
+          <div class="summary-row">
+            <span>Última vacina</span>
+            <strong>
+              @if (current.lastVaccine; as vaccine) {
+                {{ vaccine.name }} ·
+                {{ vaccine.completedDate | date: "dd/MM/yyyy" }}
+              } @else {
+                —
+              }
+            </strong>
+          </div>
+          <div class="summary-row">
+            <span>Último vermífugo</span>
+            <strong>
+              @if (current.lastDeworming; as deworming) {
+                {{ deworming.name }} ·
+                {{ deworming.completedDate | date: "dd/MM/yyyy" }}
+              } @else {
+                —
+              }
+            </strong>
+          </div>
+          <div class="summary-row">
+            <span>Castração</span>
+            <strong>{{ neuteringLabel }}</strong>
+          </div>
+          <div class="summary-row">
+            <span>Próximo agendado</span>
+            <strong>
+              @if (current.nextScheduled; as next) {
+                {{ next.name ?? "Castração" }} ·
+                {{ next.scheduledDate | date: "dd/MM/yyyy" }}
+              } @else {
+                —
+              }
+            </strong>
+          </div>
+        } @else {
+          <p class="side-card__meta">
+            Selecione um gatinho para ver o histórico de saúde dele.
+          </p>
+        }
+      </aside>
+    </div>
+  }
+</div>
