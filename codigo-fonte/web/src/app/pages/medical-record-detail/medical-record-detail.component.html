@@ -76,6 +76,11 @@
             {{ externalAttendancesError() }}
           </div>
         }
+        @if (externalAttendanceDownloadError()) {
+          <div class="feedback feedback--error" role="alert">
+            {{ externalAttendanceDownloadError() }}
+          </div>
+        }
         @for (attendance of externalAttendances(); track attendance.id) {
           <article class="external-attendance-entry">
             <h3>{{ attendance.partnerClinic }}</h3>

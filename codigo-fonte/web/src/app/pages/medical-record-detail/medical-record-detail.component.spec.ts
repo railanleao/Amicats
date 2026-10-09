@@ -213,6 +213,121 @@ describe('MedicalRecordDetailComponent (unit)', () => {
     expect(component.externalAttendances()).toEqual([attendance]);
   });
 
+  it('renders external attendance details and its attachment action', () => {
+    const attendance: ExternalAttendance = {
+      id: 14,
+      catId: 9,
+      partnerClinic: 'Clínica Parceira',
+      veterinarian: 'Dra. Ana',
+      crmv: 'CRMV-MG 12345',
+      attendanceDate: '2026-10-01',
+      diagnosis: 'Consulta de rotina',
+      attachedFile: 'consulta.pdf',
+      attachmentContentType: 'application/pdf',
+      createdAt: '2026-10-01T10:00:00',
+    };
+    createComponent({ listExternalAttendancesResult: of([attendance]) });
+
+    expect(fixture.nativeElement.textContent).toContain('Clínica Parceira');
+    expect(fixture.nativeElement.textContent).toContain('Consulta de rotina');
+    expect(fixture.nativeElement.textContent).toContain(
+      'Abrir anexo: consulta.pdf',
+    );
+  });
+
+  it('shows the empty state when no external attendances exist', () => {
+    createComponent({ listExternalAttendancesResult: of([]) });
+
+    expect(fixture.nativeElement.textContent).toContain(
+      'Nenhum atendimento externo registrado ainda.',
+    );
+  });
+
+  it('shows a load error when external attendances cannot be loaded', () => {
+    createComponent({
+      listExternalAttendancesResult: throwError(
+        () => new HttpErrorResponse({ status: 500 }),
+      ),
+    });
+
+    expect(component.externalAttendancesError()).toBe(
+      'Não foi possível carregar os atendimentos externos.',
+    );
+    expect(fixture.nativeElement.textContent).toContain(
+      'Não foi possível carregar os atendimentos externos.',
+    );
+  });
+
+  it('requests the selected external attendance attachment when clicked', () => {
+    const attendance: ExternalAttendance = {
+      id: 14,
+      catId: 9,
+      partnerClinic: 'Clínica Parceira',
+      veterinarian: 'Dra. Ana',
+      crmv: 'CRMV-MG 12345',
+      attendanceDate: '2026-10-01',
+      diagnosis: 'Consulta de rotina',
+      attachedFile: 'consulta.pdf',
+      attachmentContentType: 'application/pdf',
+      createdAt: '2026-10-01T10:00:00',
+    };
+    externalAttendanceServiceSpy =
+      jasmine.createSpyObj<ExternalAttendanceService>(
+        'ExternalAttendanceService',
+        ['listByCat', 'attachment'],
+      );
+    externalAttendanceServiceSpy.listByCat.and.returnValue(of([attendance]));
+    externalAttendanceServiceSpy.attachment.and.returnValue(
+      of(new Blob(['%PDF-1.7'])),
+    );
+    createComponent({ listExternalAttendancesResult: of([attendance]) });
+    // The spy injected by createComponent is the instance used by the component.
+    externalAttendanceServiceSpy.attachment.and.returnValue(
+      of(new Blob(['%PDF-1.7'])),
+    );
+    const createObjectUrl = spyOn(URL, 'createObjectURL').and.returnValue(
+      'blob:test',
+    );
+    const revokeObjectUrl = spyOn(URL, 'revokeObjectURL');
+    const clickSpy = spyOn(HTMLAnchorElement.prototype, 'click');
+
+    const button: HTMLButtonElement = fixture.nativeElement.querySelector(
+      'button.secondary-button',
+    );
+    button.click();
+
+    expect(externalAttendanceServiceSpy.attachment).toHaveBeenCalledWith(14);
+    expect(createObjectUrl).toHaveBeenCalled();
+    expect(clickSpy).toHaveBeenCalled();
+    expect(revokeObjectUrl).toHaveBeenCalledWith('blob:test');
+  });
+
+  it('keeps download failures separate from the attendance list error', () => {
+    const attendance: ExternalAttendance = {
+      id: 14,
+      catId: 9,
+      partnerClinic: 'Clínica Parceira',
+      veterinarian: 'Dra. Ana',
+      crmv: 'CRMV-MG 12345',
+      attendanceDate: '2026-10-01',
+      diagnosis: 'Consulta de rotina',
+      attachedFile: 'consulta.pdf',
+      attachmentContentType: 'application/pdf',
+      createdAt: '2026-10-01T10:00:00',
+    };
+    createComponent({ listExternalAttendancesResult: of([attendance]) });
+    externalAttendanceServiceSpy.attachment.and.returnValue(
+      throwError(() => new HttpErrorResponse({ status: 500 })),
+    );
+
+    component.openExternalAttachment(attendance);
+
+    expect(component.externalAttendanceDownloadError()).toBe(
+      'Não foi possível abrir o anexo do atendimento externo.',
+    );
+    expect(component.externalAttendancesError()).toBeNull();
+  });
+
   it('shows a message when the active medications cannot be loaded', () => {
     createComponent({
       listActiveResult: throwError(

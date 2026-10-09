@@ -67,6 +67,7 @@ export class MedicalRecordDetailComponent {
   readonly activeMedicationsError = signal<string | null>(null);
   readonly externalAttendances = signal<ExternalAttendance[]>([]);
   readonly externalAttendancesError = signal<string | null>(null);
+  readonly externalAttendanceDownloadError = signal<string | null>(null);
 
   readonly canPrescribe = computed(
     () => this.authService.currentUser()?.accessType === 'Veterinarian',
@@ -169,6 +170,7 @@ export class MedicalRecordDetailComponent {
   }
 
   openExternalAttachment(attendance: ExternalAttendance): void {
+    this.externalAttendanceDownloadError.set(null);
     this.externalAttendanceService
       .attachment(attendance.id)
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -189,6 +191,7 @@ export class MedicalRecordDetailComponent {
   }
 
   private loadExternalAttendances(): void {
+    this.externalAttendancesError.set(null);
     this.externalAttendanceService
       .listByCat(this.catId)
       .pipe(takeUntilDestroyed(this.destroyRef))
