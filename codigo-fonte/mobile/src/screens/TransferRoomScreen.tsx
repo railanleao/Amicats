@@ -33,6 +33,20 @@ function occupancySubtitle(option: RoomOption): string {
     : `${option.occupied} ${option.occupied === 1 ? 'gato' : 'gatos'}`;
 }
 
+// 400 here is always a specific business-rule violation (same room, sala lotada) with a message
+// worth showing as-is; 403 gets a fixed message since the backend doesn't send one for it.
+function transferErrorMessage(error: unknown): string {
+  if (error instanceof ApiError) {
+    if (error.status === 403) {
+      return 'Você não tem permissão para transferir gatinhos de sala.';
+    }
+    if (error.status === 400) {
+      return error.message;
+    }
+  }
+  return 'Não foi possível transferir o gato.';
+}
+
 export function TransferRoomScreen({ catId, onBack, onTransferred }: TransferRoomScreenProps) {
   const [cat, setCat] = useState<Cat | null>(null);
   const [rooms, setRooms] = useState<RoomOption[] | null>(null);
@@ -97,7 +111,7 @@ export function TransferRoomScreen({ catId, onBack, onTransferred }: TransferRoo
       await catRepository.cacheCat(updated);
       onTransferred();
     } catch (error) {
-      setSubmitError(error instanceof ApiError ? error.message : 'Não foi possível transferir o gato.');
+      setSubmitError(transferErrorMessage(error));
     } finally {
       setSubmitting(false);
     }

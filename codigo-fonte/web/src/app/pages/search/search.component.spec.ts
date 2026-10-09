@@ -138,11 +138,10 @@ describe('SearchComponent (unit)', () => {
     expect(component.cats()).toEqual([aCat()]);
     expect(component.users()).toEqual([aUser()]);
     expect(component.stockItems()).toEqual([aStockItem()]);
-    // 1 cat + 1 "Prontuário" (mirrors the cat) + 1 user + 1 stock item.
-    expect(component.totalCount).toBe(4);
+    expect(component.totalCount).toBe(3);
   }));
 
-  it('builds the combined "Todos" results list across all types, including the mirrored "Prontuário" entries', fakeAsync(() => {
+  it('builds the combined "Todos" results list across cats, users and stock, leaving out the mirrored "Prontuário" entries', fakeAsync(() => {
     catServiceSpy.list.and.returnValue(of(pagedCats([aCat()])));
     userServiceSpy.list.and.returnValue(of(pagedUsers([aUser()])));
     stockServiceSpy.list.and.returnValue(of(pagedStock([aStockItem()])));
@@ -150,7 +149,7 @@ describe('SearchComponent (unit)', () => {
     component.onSearch({ target: { value: 'a' } } as unknown as Event);
     tick(300);
 
-    expect(component.results.map((r) => r.type)).toEqual(['cat', 'record', 'user', 'stock']);
+    expect(component.results.map((r) => r.type)).toEqual(['cat', 'user', 'stock']);
   }));
 
   it('filters results by the selected tab', fakeAsync(() => {

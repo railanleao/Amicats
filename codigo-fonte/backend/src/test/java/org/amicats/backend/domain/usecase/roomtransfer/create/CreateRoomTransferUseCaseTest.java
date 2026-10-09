@@ -3,11 +3,13 @@ package org.amicats.backend.domain.usecase.roomtransfer.create;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
 
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.util.List;
 import java.util.Optional;
 import org.amicats.backend.domain.entity.Cat;
 import org.amicats.backend.domain.entity.Room;
@@ -17,6 +19,7 @@ import org.amicats.backend.domain.interfaces.dataprovider.cat.CatDataProvider;
 import org.amicats.backend.domain.interfaces.dataprovider.room.RoomDataProvider;
 import org.amicats.backend.domain.interfaces.dataprovider.roomtransfer.RoomTransferDataProvider;
 import org.amicats.backend.domain.usecase.cat.read.ReadCatOutput;
+import org.amicats.backend.domain.usecase.common.PagedResult;
 import org.amicats.backend.exception.InvalidRoomTransferException;
 import org.amicats.backend.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
@@ -56,8 +59,9 @@ class CreateRoomTransferUseCaseTest {
     Room fromRoom = room(1, "Quarentena");
     Room toRoom = room(2, "Observação Intensiva");
     Cat cat = cat(fromRoom);
-    when(catDataProvider.findById(CAT_ID)).thenReturn(Optional.of(cat));
+    when(catDataProvider.findByIdForUpdate(CAT_ID)).thenReturn(Optional.of(cat));
     when(roomDataProvider.findById(2)).thenReturn(Optional.of(toRoom));
+    givenOccupancy(2, 3);
 
     ReadCatOutput output = useCase.execute(CAT_ID, new CreateRoomTransferInput(2, "Alta clínica."));
 
@@ -77,8 +81,9 @@ class CreateRoomTransferUseCaseTest {
   void allowsTransferringACatThatHadNoRoom() {
     Room toRoom = room(2, "Observação Intensiva");
     Cat cat = cat(null);
-    when(catDataProvider.findById(CAT_ID)).thenReturn(Optional.of(cat));
+    when(catDataProvider.findByIdForUpdate(CAT_ID)).thenReturn(Optional.of(cat));
     when(roomDataProvider.findById(2)).thenReturn(Optional.of(toRoom));
+    givenOccupancy(2, 0);
 
     useCase.execute(CAT_ID, new CreateRoomTransferInput(2, "Resgatada sem sala definida."));
 
@@ -91,8 +96,9 @@ class CreateRoomTransferUseCaseTest {
   void trimsTheReason() {
     Room toRoom = room(2, "Observação Intensiva");
     Cat cat = cat(room(1, "Quarentena"));
-    when(catDataProvider.findById(CAT_ID)).thenReturn(Optional.of(cat));
+    when(catDataProvider.findByIdForUpdate(CAT_ID)).thenReturn(Optional.of(cat));
     when(roomDataProvider.findById(2)).thenReturn(Optional.of(toRoom));
+    givenOccupancy(2, 0);
 
     useCase.execute(CAT_ID, new CreateRoomTransferInput(2, "  Alta clínica.  "));
 
@@ -105,7 +111,7 @@ class CreateRoomTransferUseCaseTest {
   void rejectsTransferringToTheSameRoom() {
     Room room = room(1, "Quarentena");
     Cat cat = cat(room);
-    when(catDataProvider.findById(CAT_ID)).thenReturn(Optional.of(cat));
+    when(catDataProvider.findByIdForUpdate(CAT_ID)).thenReturn(Optional.of(cat));
     when(roomDataProvider.findById(1)).thenReturn(Optional.of(room));
 
     assertThatThrownBy(() -> useCase.execute(CAT_ID, new CreateRoomTransferInput(1, "Motivo")))
@@ -115,8 +121,39 @@ class CreateRoomTransferUseCaseTest {
   }
 
   @Test
+  void rejectsTransferringToAFullRoom() {
+    Room fromRoom = room(1, "Quarentena");
+    Room toRoom = room(2, "Observação Intensiva");
+    Cat cat = cat(fromRoom);
+    when(catDataProvider.findByIdForUpdate(CAT_ID)).thenReturn(Optional.of(cat));
+    when(roomDataProvider.findById(2)).thenReturn(Optional.of(toRoom));
+    givenOccupancy(2, 10);
+
+    assertThatThrownBy(() -> useCase.execute(CAT_ID, new CreateRoomTransferInput(2, "Motivo")))
+        .isInstanceOf(InvalidRoomTransferException.class)
+        .hasMessageContaining("lotada");
+    verify(roomTransferDataProvider, never()).save(any());
+    verify(catDataProvider, never()).saveCat(any());
+  }
+
+  @Test
+  void allowsTransferringToARoomWithNoMaxCapacity() {
+    Room fromRoom = room(1, "Quarentena");
+    Room toRoom = new Room("Convivência Livre", null, null, null);
+    ReflectionTestUtils.setField(toRoom, "id", 2);
+    Cat cat = cat(fromRoom);
+    when(catDataProvider.findByIdForUpdate(CAT_ID)).thenReturn(Optional.of(cat));
+    when(roomDataProvider.findById(2)).thenReturn(Optional.of(toRoom));
+
+    useCase.execute(CAT_ID, new CreateRoomTransferInput(2, "Motivo"));
+
+    verify(catDataProvider, never()).search(any());
+    verify(roomTransferDataProvider).save(any());
+  }
+
+  @Test
   void rejectsAnUnknownCat() {
-    when(catDataProvider.findById(CAT_ID)).thenReturn(Optional.empty());
+    when(catDataProvider.findByIdForUpdate(CAT_ID)).thenReturn(Optional.empty());
 
     assertThatThrownBy(() -> useCase.execute(CAT_ID, new CreateRoomTransferInput(2, "Motivo")))
         .isInstanceOf(ResourceNotFoundException.class);
@@ -126,12 +163,18 @@ class CreateRoomTransferUseCaseTest {
   @Test
   void rejectsAnUnknownRoom() {
     Cat cat = cat(room(1, "Quarentena"));
-    when(catDataProvider.findById(CAT_ID)).thenReturn(Optional.of(cat));
+    when(catDataProvider.findByIdForUpdate(CAT_ID)).thenReturn(Optional.of(cat));
     when(roomDataProvider.findById(99)).thenReturn(Optional.empty());
 
     assertThatThrownBy(() -> useCase.execute(CAT_ID, new CreateRoomTransferInput(99, "Motivo")))
         .isInstanceOf(ResourceNotFoundException.class);
     verifyNoInteractions(roomTransferDataProvider);
+  }
+
+  private void givenOccupancy(int roomId, long occupied) {
+    when(catDataProvider.search(
+            argThat(criteria -> criteria != null && roomId == criteria.roomId())))
+        .thenReturn(new PagedResult<>(List.of(), 0, 1, occupied, 1));
   }
 
   private static Room room(Integer id, String title) {

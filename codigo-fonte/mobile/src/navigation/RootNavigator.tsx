@@ -35,6 +35,10 @@ interface RootNavigatorProps {
 }
 
 export function RootNavigator({ user, onLogin, onLogout, onAcceptTerms, onChangePassword }: RootNavigatorProps) {
+  // Mirrors the backend's role check for room transfers (RF-005 / UC-06-style): Administrator
+  // and Médico-Veterinário only.
+  const canTransferRoom = user?.accessType === 'Administrator' || user?.accessType === 'Veterinarian';
+
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -78,6 +82,7 @@ export function RootNavigator({ user, onLogin, onLogout, onAcceptTerms, onChange
                   onBack={() => navigation.goBack()}
                   onEdit={(catId) => navigation.navigate('NewCat', { catId })}
                   onTransferRoom={(catId) => navigation.navigate('TransferRoom', { catId })}
+                  canTransferRoom={canTransferRoom}
                 />
               )}
             </Stack.Screen>

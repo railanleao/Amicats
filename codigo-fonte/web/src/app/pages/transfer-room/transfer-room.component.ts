@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -128,11 +129,24 @@ export class TransferRoomComponent implements OnInit {
 
     this.roomTransferService.create(cat.id, { roomId, reason }).subscribe({
       next: () => this.router.navigate(['/cats', cat.id]),
-      error: () => {
-        this.submitError.set('Não foi possível transferir o gato. Tente novamente.');
+      error: (error: HttpErrorResponse) => {
+        this.submitError.set(this.transferErrorMessage(error));
         this.submitting.set(false);
       },
     });
+  }
+
+  // 400 here is always a specific business-rule violation (same room, sala lotada) with a
+  // message worth showing as-is; everything else gets a fixed status-based message, matching
+  // the pattern already used by cat-form's handleSaveError.
+  private transferErrorMessage(error: HttpErrorResponse): string {
+    if (error.status === 400 && typeof error.error?.message === 'string') {
+      return error.error.message;
+    }
+    if (error.status === 403) {
+      return 'Você não tem permissão para transferir gatinhos de sala.';
+    }
+    return 'Não foi possível transferir o gato. Tente novamente.';
   }
 
   private loadRoomsData(cat: Cat): void {

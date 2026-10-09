@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import {
   ActivatedRoute,
@@ -234,9 +235,11 @@ describe('TransferRoomComponent', () => {
     expect(navigate).toHaveBeenCalledWith(['/cats', 1]);
   });
 
-  it('shows an error and stops submitting when the transfer fails', () => {
+  it('shows a generic error and stops submitting on an unexpected failure', () => {
     catServiceSpy.findById.and.returnValue(of(mockCat({ roomId: 2 })));
-    roomTransferServiceSpy.create.and.returnValue(throwError(() => new Error('network error')));
+    roomTransferServiceSpy.create.and.returnValue(
+      throwError(() => new HttpErrorResponse({ status: 500 })),
+    );
 
     createComponent('1');
     component.selectRoom(3);
@@ -245,5 +248,38 @@ describe('TransferRoomComponent', () => {
 
     expect(component.submitError()).toBe('Não foi possível transferir o gato. Tente novamente.');
     expect(component.submitting()).toBeFalse();
+  });
+
+  it('shows the backend message as-is for a 400 business-rule violation', () => {
+    catServiceSpy.findById.and.returnValue(of(mockCat({ roomId: 2 })));
+    roomTransferServiceSpy.create.and.returnValue(
+      throwError(
+        () =>
+          new HttpErrorResponse({ status: 400, error: { message: 'A sala "Sala 51" está lotada.' } }),
+      ),
+    );
+
+    createComponent('1');
+    component.selectRoom(3);
+    component.reason = 'Alta clínica.';
+    component.confirmTransfer();
+
+    expect(component.submitError()).toBe('A sala "Sala 51" está lotada.');
+  });
+
+  it('shows a fixed permission message for a 403', () => {
+    catServiceSpy.findById.and.returnValue(of(mockCat({ roomId: 2 })));
+    roomTransferServiceSpy.create.and.returnValue(
+      throwError(() => new HttpErrorResponse({ status: 403 })),
+    );
+
+    createComponent('1');
+    component.selectRoom(3);
+    component.reason = 'Alta clínica.';
+    component.confirmTransfer();
+
+    expect(component.submitError()).toBe(
+      'Você não tem permissão para transferir gatinhos de sala.',
+    );
   });
 });

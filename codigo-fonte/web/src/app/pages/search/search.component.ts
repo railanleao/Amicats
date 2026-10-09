@@ -97,12 +97,11 @@ export class SearchComponent implements OnDestroy {
     this.activeTab.set(tab);
   }
 
-  // "Prontuário" results mirror the cats search one-for-one (see `results` below), so the
-  // count is the same as `cats().length`.
+  // "Prontuário" results mirror the cats search one-for-one (see `results` below). They're
+  // deliberately left out of the total/"Todos" so each cat isn't counted or shown twice —
+  // Prontuários only appears as its own tab.
   get totalCount(): number {
-    return (
-      this.cats().length * 2 + this.users().length + this.stockItems().length
-    );
+    return this.cats().length + this.users().length + this.stockItems().length;
   }
 
   get results(): SearchResult[] {
@@ -149,7 +148,8 @@ export class SearchComponent implements OnDestroy {
       case 'stock':
         return stockResults;
       default:
-        return [...catResults, ...recordResults, ...userResults, ...stockResults];
+        // Prontuários are excluded here on purpose — see the totalCount comment above.
+        return [...catResults, ...userResults, ...stockResults];
     }
   }
 

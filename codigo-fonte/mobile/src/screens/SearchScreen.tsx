@@ -144,6 +144,8 @@ export function SearchScreen({ onOpenCat }: SearchScreenProps) {
     subtitle: occupancyLabel(room, roomOccupancy[room.id]),
   }));
 
+  // "Tudo" leaves out "Prontuário" entries on purpose — they mirror the cats one-for-one and
+  // open the same ficha, so including them there would just duplicate every cat.
   const results: SearchResult[] =
     activeTab === 'cats'
       ? catResults
@@ -151,7 +153,7 @@ export function SearchScreen({ onOpenCat }: SearchScreenProps) {
         ? recordResults
         : activeTab === 'rooms'
           ? roomResults
-          : [...catResults, ...recordResults, ...roomResults];
+          : [...catResults, ...roomResults];
 
   function onSearch(text: string): void {
     setSearchInput(text);
