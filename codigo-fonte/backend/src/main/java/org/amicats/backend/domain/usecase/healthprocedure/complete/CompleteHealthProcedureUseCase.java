@@ -30,7 +30,7 @@ public class CompleteHealthProcedureUseCase {
 
     HealthProcedure healthProcedure =
         healthProcedureDataProvider
-            .findById(id)
+            .findByIdForUpdate(id)
             .orElseThrow(() -> new ResourceNotFoundException("Agendamento não encontrado."));
 
     LocalDateTime now = LocalDateTime.now(clock);

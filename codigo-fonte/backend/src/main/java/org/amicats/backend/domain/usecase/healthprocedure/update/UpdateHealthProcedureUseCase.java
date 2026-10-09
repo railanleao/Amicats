@@ -30,7 +30,7 @@ public class UpdateHealthProcedureUseCase {
 
     HealthProcedure healthProcedure =
         healthProcedureDataProvider
-            .findById(id)
+            .findByIdForUpdate(id)
             .orElseThrow(() -> new ResourceNotFoundException("Agendamento não encontrado."));
 
     LocalDate today = BusinessCalendar.today(clock);
