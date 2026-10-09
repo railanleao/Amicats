@@ -24,6 +24,7 @@ import { SearchComponent } from './pages/search/search.component';
 import { veterinarianGuard } from './guards/veterinarian.guard';
 import { InternalPrescriptionFormComponent } from './pages/internal-prescription-form/internal-prescription-form.component';
 import { ExternalAttendanceFormComponent } from './pages/external-attendance/external-attendance-form.component';
+import { TransferRoomComponent } from './pages/transfer-room/transfer-room.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -60,6 +61,7 @@ export const routes: Routes = [
         component: CatFormComponent,
         data: { mode: 'edit' },
       },
+      { path: 'cats/:id/transfer-room', component: TransferRoomComponent },
       { path: 'users', component: UsersComponent },
       {
         path: 'users/new',

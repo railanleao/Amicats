@@ -8,6 +8,7 @@ import { NewCatScreen } from '../screens/NewCatScreen';
 import { NewPasswordScreen } from '../screens/NewPasswordScreen';
 import { SyncScreen } from '../screens/SyncScreen';
 import { TermsAcceptanceScreen } from '../screens/TermsAcceptanceScreen';
+import { TransferRoomScreen } from '../screens/TransferRoomScreen';
 import { BottomTabNavigator } from './BottomTabNavigator';
 import type { ChangePasswordRequest, LoginCredentials, User } from '../types/auth';
 
@@ -19,6 +20,7 @@ type RootStackParamList = {
   Main: undefined;
   NewCat: { catId?: number } | undefined;
   CatDetail: { catId: number };
+  TransferRoom: { catId: number };
   Sync: undefined;
 };
 
@@ -75,7 +77,19 @@ export function RootNavigator({ user, onLogin, onLogout, onAcceptTerms, onChange
                   catId={route.params.catId}
                   onBack={() => navigation.goBack()}
                   onEdit={(catId) => navigation.navigate('NewCat', { catId })}
+                  onTransferRoom={(catId) => navigation.navigate('TransferRoom', { catId })}
                 />
+              )}
+            </Stack.Screen>
+            <Stack.Screen name="TransferRoom">
+              {({ navigation, route }) => (
+                <StatusBarInset>
+                  <TransferRoomScreen
+                    catId={route.params.catId}
+                    onBack={() => navigation.goBack()}
+                    onTransferred={() => navigation.goBack()}
+                  />
+                </StatusBarInset>
               )}
             </Stack.Screen>
             <Stack.Screen name="Sync">

@@ -40,10 +40,10 @@ import { UserService } from '../../services/resources/user.service';
 const SEARCH_DEBOUNCE_MS = 300;
 const RESULTS_PAGE_SIZE = 50;
 
-type ResultTab = 'all' | 'cats' | 'users' | 'stock';
+type ResultTab = 'all' | 'cats' | 'records' | 'users' | 'stock';
 
 interface SearchResult {
-  type: 'cat' | 'user' | 'stock';
+  type: 'cat' | 'record' | 'user' | 'stock';
   id: number;
   title: string;
   subtitle: string;
@@ -97,8 +97,12 @@ export class SearchComponent implements OnDestroy {
     this.activeTab.set(tab);
   }
 
+  // "Prontuário" results mirror the cats search one-for-one (see `results` below), so the
+  // count is the same as `cats().length`.
   get totalCount(): number {
-    return this.cats().length + this.users().length + this.stockItems().length;
+    return (
+      this.cats().length * 2 + this.users().length + this.stockItems().length
+    );
   }
 
   get results(): SearchResult[] {
@@ -106,6 +110,16 @@ export class SearchComponent implements OnDestroy {
       type: 'cat',
       id: cat.id,
       title: cat.name,
+      subtitle: this.catSubtitle(cat),
+      cat,
+    }));
+
+    // "Prontuário" isn't a separate backend entity — every cat has one clinical record, so this
+    // reuses the same cats search and just points each result at /medical-records instead.
+    const recordResults: SearchResult[] = this.cats().map((cat) => ({
+      type: 'record',
+      id: cat.id,
+      title: `Prontuário — ${cat.name}`,
       subtitle: this.catSubtitle(cat),
       cat,
     }));
@@ -128,18 +142,22 @@ export class SearchComponent implements OnDestroy {
     switch (this.activeTab()) {
       case 'cats':
         return catResults;
+      case 'records':
+        return recordResults;
       case 'users':
         return userResults;
       case 'stock':
         return stockResults;
       default:
-        return [...catResults, ...userResults, ...stockResults];
+        return [...catResults, ...recordResults, ...userResults, ...stockResults];
     }
   }
 
   openResult(result: SearchResult): void {
     if (result.type === 'cat') {
       void this.router.navigate(['/cats', result.id]);
+    } else if (result.type === 'record') {
+      void this.router.navigate(['/medical-records', result.id]);
     } else if (result.type === 'user') {
       void this.router.navigate(['/users', result.id, 'edit']);
     }

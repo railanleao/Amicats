@@ -138,10 +138,11 @@ describe('SearchComponent (unit)', () => {
     expect(component.cats()).toEqual([aCat()]);
     expect(component.users()).toEqual([aUser()]);
     expect(component.stockItems()).toEqual([aStockItem()]);
-    expect(component.totalCount).toBe(3);
+    // 1 cat + 1 "Prontuário" (mirrors the cat) + 1 user + 1 stock item.
+    expect(component.totalCount).toBe(4);
   }));
 
-  it('builds the combined "Todos" results list across all three types', fakeAsync(() => {
+  it('builds the combined "Todos" results list across all types, including the mirrored "Prontuário" entries', fakeAsync(() => {
     catServiceSpy.list.and.returnValue(of(pagedCats([aCat()])));
     userServiceSpy.list.and.returnValue(of(pagedUsers([aUser()])));
     stockServiceSpy.list.and.returnValue(of(pagedStock([aStockItem()])));
@@ -149,7 +150,7 @@ describe('SearchComponent (unit)', () => {
     component.onSearch({ target: { value: 'a' } } as unknown as Event);
     tick(300);
 
-    expect(component.results.map((r) => r.type)).toEqual(['cat', 'user', 'stock']);
+    expect(component.results.map((r) => r.type)).toEqual(['cat', 'record', 'user', 'stock']);
   }));
 
   it('filters results by the selected tab', fakeAsync(() => {
@@ -162,6 +163,10 @@ describe('SearchComponent (unit)', () => {
 
     component.selectTab('cats');
     expect(component.results.map((r) => r.type)).toEqual(['cat']);
+
+    component.selectTab('records');
+    expect(component.results.map((r) => r.type)).toEqual(['record']);
+    expect(component.results[0].title).toBe('Prontuário — Nina');
 
     component.selectTab('stock');
     expect(component.results.map((r) => r.type)).toEqual(['stock']);
@@ -207,6 +212,21 @@ describe('SearchComponent (unit)', () => {
     component.openResult(component.results[0]);
 
     expect(navigate).toHaveBeenCalledWith(['/cats', 1]);
+  }));
+
+  it('navigates to the medical record when a "Prontuário" result is opened', fakeAsync(() => {
+    const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
+    catServiceSpy.list.and.returnValue(of(pagedCats([aCat()])));
+    userServiceSpy.list.and.returnValue(of(pagedUsers([])));
+    stockServiceSpy.list.and.returnValue(of(pagedStock([])));
+
+    component.onSearch({ target: { value: 'nina' } } as unknown as Event);
+    tick(300);
+
+    component.selectTab('records');
+    component.openResult(component.results[0]);
+
+    expect(navigate).toHaveBeenCalledWith(['/medical-records', 1]);
   }));
 
   it('navigates to the user edit form when a user result is opened', fakeAsync(() => {
