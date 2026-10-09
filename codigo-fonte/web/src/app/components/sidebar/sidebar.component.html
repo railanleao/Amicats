@@ -78,15 +78,19 @@
       </a>
 
       @if (canViewStock()) {
-      <a class="menu-item" routerLink="/stock" routerLinkActive="active">
-        <app-icon class="menu-icon" name="stock" />
-        <span>Estoque</span>
-      </a>
+        <a class="menu-item" routerLink="/stock" routerLinkActive="active">
+          <app-icon class="menu-icon" name="stock" />
+          <span>Estoque</span>
+        </a>
       }
 
-      <a class="menu-item">
+      <a
+        class="menu-item"
+        routerLink="/health-procedures"
+        routerLinkActive="active"
+      >
         <app-icon class="menu-icon" name="vaccine" />
-        <span>Vacinas</span>
+        <span>Saúde</span>
       </a>
     </div>
 
