@@ -5,46 +5,19 @@ import { TextInput } from '../components/TextInput';
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { Button } from '../components';
-import { ApiError } from '../services/api';
 import { countCatsInRoom } from '../services/catService';
 import { listActiveRooms } from '../services/roomService';
 import { createRoomTransfer } from '../services/roomTransferService';
 import { catRepository } from '../sync/runtime';
 import { colors } from '../theme/colors';
 import type { Cat } from '../types/cat';
+import { canSubmitTransfer, occupancySubtitle, transferErrorMessage, type RoomOption } from './TransferRoomScreen.logic';
 import { styles } from './TransferRoomScreen.styles';
 
 interface TransferRoomScreenProps {
   catId: number;
   onBack: () => void;
   onTransferred: () => void;
-}
-
-interface RoomOption {
-  id: number;
-  title: string;
-  occupied: number;
-  capacity: number | null;
-}
-
-function occupancySubtitle(option: RoomOption): string {
-  return option.capacity != null
-    ? `${option.occupied}/${option.capacity} ocupada`
-    : `${option.occupied} ${option.occupied === 1 ? 'gato' : 'gatos'}`;
-}
-
-// 400 here is always a specific business-rule violation (same room, sala lotada) with a message
-// worth showing as-is; 403 gets a fixed message since the backend doesn't send one for it.
-function transferErrorMessage(error: unknown): string {
-  if (error instanceof ApiError) {
-    if (error.status === 403) {
-      return 'Você não tem permissão para transferir gatinhos de sala.';
-    }
-    if (error.status === 400) {
-      return error.message;
-    }
-  }
-  return 'Não foi possível transferir o gato.';
 }
 
 export function TransferRoomScreen({ catId, onBack, onTransferred }: TransferRoomScreenProps) {
@@ -56,7 +29,7 @@ export function TransferRoomScreen({ catId, onBack, onTransferred }: TransferRoo
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const canSubmit = selectedRoomId !== null && reason.trim().length > 0;
+  const canSubmit = canSubmitTransfer(selectedRoomId, reason);
 
   useFocusEffect(
     useCallback(() => {
