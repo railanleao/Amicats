@@ -1,5 +1,6 @@
 package org.amicats.backend.repository.healthprocedure;
 
+import jakarta.persistence.LockModeType;
 import java.util.Optional;
 import org.amicats.backend.domain.entity.HealthProcedure;
 import org.amicats.backend.domain.enums.HealthProcedureStatus;
@@ -7,20 +8,25 @@ import org.amicats.backend.domain.enums.HealthProcedureType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface HealthProcedureRepository extends JpaRepository<HealthProcedure, Integer> {
 
   String SEARCH_FILTER =
-      "(:searchPattern is null or lower(c.name) like :searchPattern "
-          + "or lower(h.name) like :searchPattern) "
+      "(:searchPattern is null or lower(c.name) like :searchPattern escape '!' "
+          + "or lower(h.name) like :searchPattern escape '!') "
           + "and (:catId is null or c.id = :catId) "
           + "and h.type = coalesce(:type, h.type) "
           + "and h.status = coalesce(:status, h.status)";
 
   @Query("select h from HealthProcedure h join fetch h.cat join fetch h.createdBy where h.id = :id")
   Optional<HealthProcedure> findByIdFetchingDetails(@Param("id") Integer id);
+
+  @Lock(LockModeType.PESSIMISTIC_WRITE)
+  @Query("select h from HealthProcedure h join fetch h.cat join fetch h.createdBy where h.id = :id")
+  Optional<HealthProcedure> findByIdForUpdate(@Param("id") Integer id);
 
   @Query(
       value =

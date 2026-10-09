@@ -12,6 +12,8 @@ public interface HealthProcedureDataProvider {
 
   Optional<HealthProcedure> findById(Integer id);
 
+  Optional<HealthProcedure> findByIdForUpdate(Integer id);
+
   PagedResult<HealthProcedure> search(HealthProcedureSearchCriteria criteria);
 
   Optional<HealthProcedure> findLastCompleted(Integer catId, HealthProcedureType type);

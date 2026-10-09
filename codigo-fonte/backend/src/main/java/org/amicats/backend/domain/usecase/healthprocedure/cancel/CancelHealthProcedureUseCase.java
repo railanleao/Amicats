@@ -29,7 +29,7 @@ public class CancelHealthProcedureUseCase {
 
     HealthProcedure healthProcedure =
         healthProcedureDataProvider
-            .findById(id)
+            .findByIdForUpdate(id)
             .orElseThrow(() -> new ResourceNotFoundException("Agendamento não encontrado."));
 
     healthProcedure.cancel(input.reason(), user, LocalDateTime.now(clock));
