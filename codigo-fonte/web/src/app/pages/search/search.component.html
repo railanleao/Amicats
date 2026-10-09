@@ -40,6 +40,14 @@
         <button
           type="button"
           class="tab"
+          [class.tab--active]="activeTab() === 'records'"
+          (click)="selectTab('records')"
+        >
+          Prontuários ({{ cats().length }})
+        </button>
+        <button
+          type="button"
+          class="tab"
           [class.tab--active]="activeTab() === 'users'"
           (click)="selectTab('users')"
         >
@@ -70,9 +78,9 @@
               (click)="openResult(result)"
               (keydown.enter)="openResult(result)"
             >
-              @if (result.type === "cat") {
+              @if (result.type === "cat" || result.type === "record") {
                 <app-cat-avatar
-                  [name]="result.title"
+                  [name]="result.cat!.name"
                   [catId]="result.cat!.id"
                   [hasPhoto]="!!result.cat!.photoUrl"
                   [size]="36"
@@ -96,15 +104,18 @@
               <span
                 class="result-badge"
                 [class.result-badge--cat]="result.type === 'cat'"
+                [class.result-badge--record]="result.type === 'record'"
                 [class.result-badge--user]="result.type === 'user'"
                 [class.result-badge--stock]="result.type === 'stock'"
               >
                 {{
                   result.type === "cat"
                     ? "Gato"
-                    : result.type === "user"
-                      ? "Usuário"
-                      : "Medicamento"
+                    : result.type === "record"
+                      ? "Prontuário"
+                      : result.type === "user"
+                        ? "Usuário"
+                        : "Medicamento"
                 }}
               </span>
             </div>

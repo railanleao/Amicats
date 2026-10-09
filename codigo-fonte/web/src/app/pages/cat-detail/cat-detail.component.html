@@ -135,6 +135,15 @@
       </section>
 
       <aside class="sidebar">
+        @if (canTransferRoom) {
+          <div class="side-card">
+            <span class="section__title">Ações</span>
+            <a [routerLink]="['/cats', c.id, 'transfer-room']" class="action-button">
+              Transferir de sala
+            </a>
+          </div>
+        }
+
         <div class="side-card">
           <span class="section__title">Apadrinhamento</span>
 

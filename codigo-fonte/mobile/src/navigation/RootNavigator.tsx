@@ -11,6 +11,7 @@ import { NewInternalPrescriptionScreen } from '../screens/NewInternalPrescriptio
 import { NewPasswordScreen } from '../screens/NewPasswordScreen';
 import { SyncScreen } from '../screens/SyncScreen';
 import { TermsAcceptanceScreen } from '../screens/TermsAcceptanceScreen';
+import { TransferRoomScreen } from '../screens/TransferRoomScreen';
 import { BottomTabNavigator } from './BottomTabNavigator';
 import type { ChangePasswordRequest, LoginCredentials, User } from '../types/auth';
 
@@ -22,6 +23,7 @@ type RootStackParamList = {
   Main: undefined;
   NewCat: { catId?: number } | undefined;
   CatDetail: { catId: number };
+  TransferRoom: { catId: number };
   MedicalRecords: undefined;
   MedicalRecord: { catId: number };
   NewInternalPrescription: { catId: number };
@@ -39,6 +41,10 @@ interface RootNavigatorProps {
 }
 
 export function RootNavigator({ user, onLogin, onLogout, onAcceptTerms, onChangePassword }: RootNavigatorProps) {
+  // Mirrors the backend's role check for room transfers (RF-005 / UC-06-style): Administrator
+  // and Médico-Veterinário only.
+  const canTransferRoom = user?.accessType === 'Administrator' || user?.accessType === 'Veterinarian';
+
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -82,8 +88,21 @@ export function RootNavigator({ user, onLogin, onLogout, onAcceptTerms, onChange
                   catId={route.params.catId}
                   onBack={() => navigation.goBack()}
                   onEdit={(catId) => navigation.navigate('NewCat', { catId })}
+                  onTransferRoom={(catId) => navigation.navigate('TransferRoom', { catId })}
+                  canTransferRoom={canTransferRoom}
                   onOpenMedicalRecord={(catId) => navigation.navigate('MedicalRecord', { catId })}
                 />
+              )}
+            </Stack.Screen>
+            <Stack.Screen name="TransferRoom">
+              {({ navigation, route }) => (
+                <StatusBarInset>
+                  <TransferRoomScreen
+                    catId={route.params.catId}
+                    onBack={() => navigation.goBack()}
+                    onTransferred={() => navigation.goBack()}
+                  />
+                </StatusBarInset>
               )}
             </Stack.Screen>
             <Stack.Screen name="MedicalRecords">
