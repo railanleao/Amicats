@@ -4,7 +4,10 @@ import { StatusBarInset } from '../components/StatusBarInset';
 import { CatDetailScreen } from '../screens/CatDetailScreen';
 import { ForgotPasswordScreen } from '../screens/ForgotPasswordScreen';
 import { LoginScreen } from '../screens/LoginScreen';
+import { MedicalRecordScreen } from '../screens/MedicalRecordScreen';
+import { MedicalRecordsScreen } from '../screens/MedicalRecordsScreen';
 import { NewCatScreen } from '../screens/NewCatScreen';
+import { NewInternalPrescriptionScreen } from '../screens/NewInternalPrescriptionScreen';
 import { NewPasswordScreen } from '../screens/NewPasswordScreen';
 import { SyncScreen } from '../screens/SyncScreen';
 import { TermsAcceptanceScreen } from '../screens/TermsAcceptanceScreen';
@@ -19,6 +22,9 @@ type RootStackParamList = {
   Main: undefined;
   NewCat: { catId?: number } | undefined;
   CatDetail: { catId: number };
+  MedicalRecords: undefined;
+  MedicalRecord: { catId: number };
+  NewInternalPrescription: { catId: number };
   Sync: undefined;
 };
 
@@ -59,6 +65,7 @@ export function RootNavigator({ user, onLogin, onLogout, onAcceptTerms, onChange
                   onNewCat={() => navigation.navigate('NewCat')}
                   onOpenCat={(catId) => navigation.navigate('CatDetail', { catId })}
                   onOpenSync={() => navigation.navigate('Sync')}
+                  onOpenMedicalRecords={() => navigation.navigate('MedicalRecords')}
                 />
               )}
             </Stack.Screen>
@@ -75,7 +82,37 @@ export function RootNavigator({ user, onLogin, onLogout, onAcceptTerms, onChange
                   catId={route.params.catId}
                   onBack={() => navigation.goBack()}
                   onEdit={(catId) => navigation.navigate('NewCat', { catId })}
+                  onOpenMedicalRecord={(catId) => navigation.navigate('MedicalRecord', { catId })}
                 />
+              )}
+            </Stack.Screen>
+            <Stack.Screen name="MedicalRecords">
+              {({ navigation }) => (
+                <MedicalRecordsScreen
+                  onBack={() => navigation.goBack()}
+                  onOpenRecord={(catId) => navigation.navigate('MedicalRecord', { catId })}
+                />
+              )}
+            </Stack.Screen>
+            <Stack.Screen name="MedicalRecord">
+              {({ navigation, route }) => (
+                <MedicalRecordScreen
+                  catId={route.params.catId}
+                  canPrescribe={user.accessType === 'Veterinarian'}
+                  onBack={() => navigation.goBack()}
+                  onNewPrescription={(catId) => navigation.navigate('NewInternalPrescription', { catId })}
+                />
+              )}
+            </Stack.Screen>
+            <Stack.Screen name="NewInternalPrescription" options={{ presentation: 'modal' }}>
+              {({ navigation, route }) => (
+                <StatusBarInset>
+                  <NewInternalPrescriptionScreen
+                    catId={route.params.catId}
+                    onBack={() => navigation.goBack()}
+                    onSaved={() => navigation.goBack()}
+                  />
+                </StatusBarInset>
               )}
             </Stack.Screen>
             <Stack.Screen name="Sync">
