@@ -87,7 +87,7 @@ describe('MedicalRecordDetailComponent (unit)', () => {
   ): void {
     const {
       id = '9',
-      findByIdResult = new Subject<Cat>(),
+      findByIdResult = of(mockCat()),
       listActiveResult = of([]),
       listExternalAttendancesResult = of([]),
       accessType = 'Veterinarian',
@@ -271,17 +271,7 @@ describe('MedicalRecordDetailComponent (unit)', () => {
       attachmentContentType: 'application/pdf',
       createdAt: '2026-10-01T10:00:00',
     };
-    externalAttendanceServiceSpy =
-      jasmine.createSpyObj<ExternalAttendanceService>(
-        'ExternalAttendanceService',
-        ['listByCat', 'attachment'],
-      );
-    externalAttendanceServiceSpy.listByCat.and.returnValue(of([attendance]));
-    externalAttendanceServiceSpy.attachment.and.returnValue(
-      of(new Blob(['%PDF-1.7'])),
-    );
     createComponent({ listExternalAttendancesResult: of([attendance]) });
-    // The spy injected by createComponent is the instance used by the component.
     externalAttendanceServiceSpy.attachment.and.returnValue(
       of(new Blob(['%PDF-1.7'])),
     );

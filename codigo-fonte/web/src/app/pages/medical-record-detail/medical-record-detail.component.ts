@@ -184,7 +184,7 @@ export class MedicalRecordDetailComponent {
           URL.revokeObjectURL(url);
         },
         error: () =>
-          this.externalAttendancesError.set(
+          this.externalAttendanceDownloadError.set(
             'Não foi possível abrir o anexo do atendimento externo.',
           ),
       });

@@ -120,6 +120,19 @@ class ExternalAttendanceFlowIntegrationTest {
     assertThat(download.headers().firstValue("Content-Type").orElse(""))
         .startsWith("application/pdf");
     assertThat(new String(download.body(), StandardCharsets.US_ASCII)).startsWith("%PDF-");
+
+    // Reading the clinical record and its attachment is intentionally available to every
+    // authenticated profile, even though creating an external attendance is Administrator-only.
+    String assistantToken = loginAndGetToken(assistantEmail);
+    HttpResponse<String> assistantList =
+        get("/cats/" + catId + "/external-attendances", assistantToken);
+    assertThat(assistantList.statusCode()).isEqualTo(200);
+    assertThat(assistantList.body()).contains("Consulta de rotina");
+
+    HttpResponse<byte[]> assistantDownload =
+        getBytes("/external-attendances/" + attendanceId + "/attachment", assistantToken);
+    assertThat(assistantDownload.statusCode()).isEqualTo(200);
+    assertThat(new String(assistantDownload.body(), StandardCharsets.US_ASCII)).startsWith("%PDF-");
   }
 
   @Test
@@ -203,6 +216,14 @@ class ExternalAttendanceFlowIntegrationTest {
             "report.pdf",
             "application/pdf");
     assertThat(response.statusCode()).isEqualTo(400);
+  }
+
+  @Test
+  void listingUnknownCatReturnsNotFound() throws Exception {
+    HttpResponse<String> response =
+        get("/cats/999999999/external-attendances", loginAndGetToken(adminEmail));
+
+    assertThat(response.statusCode()).isEqualTo(404);
   }
 
   @Test
