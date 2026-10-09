@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import {
   ActivatedRoute,
@@ -6,14 +7,20 @@ import {
 } from '@angular/router';
 import { of, throwError } from 'rxjs';
 
+import { User } from '../../models/auth.model';
 import { Cat } from '../../models/cat.model';
+import { CatHealthSummary } from '../../models/health-procedure.model';
+import { AuthService } from '../../services/resources/auth.service';
 import { CatService } from '../../services/resources/cat.service';
+import { HealthProcedureService } from '../../services/resources/health-procedure.service';
 import { CatDetailComponent } from './cat-detail.component';
 
 describe('CatDetailComponent (unit)', () => {
   let fixture: ComponentFixture<CatDetailComponent>;
   let component: CatDetailComponent;
   let catServiceSpy: jasmine.SpyObj<CatService>;
+  let healthProcedureServiceSpy: jasmine.SpyObj<HealthProcedureService>;
+  let currentUser: ReturnType<typeof signal<User | null>>;
 
   function mockCat(overrides: Partial<Cat> = {}): Cat {
     return {
@@ -47,12 +54,33 @@ describe('CatDetailComponent (unit)', () => {
     };
   }
 
+  function mockSummary(): CatHealthSummary {
+    return {
+      catId: 1,
+      neuteringStatus: 'Neutered',
+      neuteringDate: '2025-01-15',
+      lastVaccine: null,
+      lastDeworming: null,
+      nextScheduled: null,
+    };
+  }
+
   function createComponent(id = '1'): void {
     TestBed.configureTestingModule({
       imports: [CatDetailComponent],
       providers: [
         provideRouter([]),
         { provide: CatService, useValue: catServiceSpy },
+        {
+          provide: HealthProcedureService,
+          useValue: healthProcedureServiceSpy,
+        },
+        {
+          provide: AuthService,
+          useValue: jasmine.createSpyObj<AuthService>('AuthService', [], {
+            currentUser,
+          }),
+        },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -72,6 +100,16 @@ describe('CatDetailComponent (unit)', () => {
       'findById',
       'photo',
     ]);
+    healthProcedureServiceSpy = jasmine.createSpyObj<HealthProcedureService>(
+      'HealthProcedureService',
+      ['summarize'],
+    );
+    healthProcedureServiceSpy.summarize.and.returnValue(of(mockSummary()));
+    currentUser = signal<User | null>({
+      id: 1,
+      name: 'Camila Prado',
+      accessType: 'Assistant',
+    });
   });
 
   it('loads the cat by the id from the route on init', () => {
@@ -170,5 +208,24 @@ describe('CatDetailComponent (unit)', () => {
     expect(component.neuteringLabel(mockCat({ neuteringStatus: null }))).toBe(
       'Não informado',
     );
+  });
+
+  it('loads the health summary of the cat after loading the cat', () => {
+    catServiceSpy.findById.and.returnValue(of(mockCat()));
+
+    createComponent('1');
+
+    expect(healthProcedureServiceSpy.summarize).toHaveBeenCalledWith(1);
+    expect(component.healthSummary()).toEqual(mockSummary());
+  });
+
+  it('only lets non-viewers schedule a health procedure', () => {
+    catServiceSpy.findById.and.returnValue(of(mockCat()));
+    createComponent();
+
+    expect(component.canManageHealth()).toBeTrue();
+
+    currentUser.set({ id: 4, name: 'Paula', accessType: 'Viewer' });
+    expect(component.canManageHealth()).toBeFalse();
   });
 });

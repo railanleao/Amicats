@@ -1,4 +1,5 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 
@@ -6,13 +7,20 @@ import { CatCoverComponent } from '../../components/cat-cover/cat-cover.componen
 import { formatAge } from '../../lib/cat-age';
 import { felvResult, fivResult, testTagLabel } from '../../lib/cat-health';
 import {
+  canManageHealthProcedures,
+  healthProcedureName,
+} from '../../lib/health-procedure';
+import {
   Cat,
   GENERAL_STATUS_LABELS,
   NEUTERING_STATUS_LABELS,
   PIF_RESULT_LABELS,
   SEX_LABELS,
 } from '../../models/cat.model';
+import { CatHealthSummary } from '../../models/health-procedure.model';
+import { AuthService } from '../../services/resources/auth.service';
 import { CatService } from '../../services/resources/cat.service';
+import { HealthProcedureService } from '../../services/resources/health-procedure.service';
 import { parseServerDateTime } from '../../lib/server-date';
 
 type ExamTone = 'positive' | 'negative' | 'not-tested';
@@ -20,17 +28,26 @@ type ExamTone = 'positive' | 'negative' | 'not-tested';
 @Component({
   selector: 'app-cat-detail',
   standalone: true,
-  imports: [CatCoverComponent, RouterLink],
+  imports: [CatCoverComponent, DatePipe, RouterLink],
   templateUrl: './cat-detail.component.html',
   styleUrl: './cat-detail.component.css',
 })
 export class CatDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly catService = inject(CatService);
+  private readonly healthProcedureService = inject(HealthProcedureService);
+  private readonly authService = inject(AuthService);
 
   readonly loading = signal(false);
   readonly errorMessage = signal<string | null>(null);
   readonly cat = signal<Cat | null>(null);
+  readonly healthSummary = signal<CatHealthSummary | null>(null);
+
+  readonly canManageHealth = computed(() =>
+    canManageHealthProcedures(this.authService.currentUser()?.accessType),
+  );
+
+  readonly procedureName = healthProcedureName;
 
   ngOnInit(): void {
     this.loadCat();
@@ -46,7 +63,10 @@ export class CatDetailComponent implements OnInit {
       .findById(id)
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
-        next: (cat) => this.cat.set(cat),
+        next: (cat) => {
+          this.cat.set(cat);
+          this.loadHealthSummary(cat.id);
+        },
         error: () =>
           this.errorMessage.set(
             'Não foi possível carregar a ficha do gato. Tente novamente.',
@@ -110,5 +130,12 @@ export class CatDetailComponent implements OnInit {
     return new Intl.DateTimeFormat('pt-BR').format(
       parseServerDateTime(cat.createdAt),
     );
+  }
+
+  private loadHealthSummary(catId: number): void {
+    this.healthProcedureService.summarize(catId).subscribe({
+      next: (summary) => this.healthSummary.set(summary),
+      error: () => this.healthSummary.set(null),
+    });
   }
 }
