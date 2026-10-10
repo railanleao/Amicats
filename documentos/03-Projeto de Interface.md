@@ -236,6 +236,14 @@ Sem conexão, a tela avisa que o envio depende de internet e mantém o botão de
 
 ![Estoque — Mobile](img/telas/mobile/12-estoque.png)
 
+### Registrar Entrada de Estoque — Mobile
+
+![Registrar Entrada de Estoque — Mobile](img/telas/mobile/29-registrar-entrada-estoque.png)
+
+### Registrar Entrada de Estoque (Novo Medicamento) — Mobile
+
+![Registrar Entrada de Estoque, Novo Medicamento — Mobile](img/telas/mobile/30-registrar-entrada-estoque-novo-medicamento.png)
+
 ### Vacinas — Mobile
 
 ![Vacinas — Mobile](img/telas/mobile/13-vacinas.png)
