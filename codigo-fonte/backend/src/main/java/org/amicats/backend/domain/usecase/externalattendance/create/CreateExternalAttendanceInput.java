@@ -1,4 +1,4 @@
-package org.amicats.backend.controller.externalattendance;
+package org.amicats.backend.domain.usecase.externalattendance.create;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

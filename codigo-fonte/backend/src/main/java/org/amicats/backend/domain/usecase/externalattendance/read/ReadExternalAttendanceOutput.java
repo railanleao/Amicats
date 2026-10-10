@@ -1,10 +1,10 @@
-package org.amicats.backend.controller.externalattendance;
+package org.amicats.backend.domain.usecase.externalattendance.read;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import org.amicats.backend.domain.entity.ExternalAttendance;
 
-public record ExternalAttendanceOutput(
+public record ReadExternalAttendanceOutput(
     Integer id,
     Integer catId,
     String partnerClinic,
@@ -16,8 +16,8 @@ public record ExternalAttendanceOutput(
     String attachmentContentType,
     LocalDateTime createdAt) {
 
-  public static ExternalAttendanceOutput from(ExternalAttendance attendance) {
-    return new ExternalAttendanceOutput(
+  public static ReadExternalAttendanceOutput from(ExternalAttendance attendance) {
+    return new ReadExternalAttendanceOutput(
         attendance.getId(),
         attendance.getCat().getId(),
         attendance.getPartnerClinic(),
