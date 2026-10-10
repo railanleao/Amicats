@@ -1,0 +1,158 @@
+<div class="page">
+  <header class="page-header">
+    <a
+      [routerLink]="['/cats', catId]"
+      class="page-header__back"
+      aria-label="Voltar para a ficha do gato"
+    >
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="m15 18-6-6 6-6" />
+      </svg>
+    </a>
+    <a [routerLink]="['/cats', catId]" class="page-header__crumb">
+      Ficha do gato
+      @if (cat(); as current) {
+        — {{ current.name }}
+      }
+    </a>
+    <span class="page-header__separator">/</span>
+    <h1>Transferir de sala</h1>
+  </header>
+
+  @if (loading()) {
+    <p class="feedback">Carregando ficha...</p>
+  } @else if (loadError()) {
+    <div class="feedback feedback--error" role="alert">
+      {{ loadError() }}
+      <a [routerLink]="['/cats', catId]">Voltar para a ficha</a>
+    </div>
+  } @else if (cat()) {
+    @let current = cat()!;
+
+    <div class="layout">
+      <form class="form-card" (ngSubmit)="confirmTransfer()" novalidate>
+        @if (submitError()) {
+          <div class="feedback feedback--error" role="alert">
+            {{ submitError() }}
+          </div>
+        }
+
+        <div class="current-room">
+          <span class="current-room__label">Sala atual</span>
+          @if (currentRoomInfo(); as room) {
+            <p class="current-room__title">{{ room.title }}</p>
+            <p class="current-room__meta">
+              @if (room.capacity) {
+                {{ room.occupied }}/{{ room.capacity }} ocupada
+              }
+              @if (room.description) {
+                · {{ room.description }}
+              }
+            </p>
+          } @else {
+            <p class="current-room__title">Sem sala atribuída</p>
+          }
+        </div>
+
+        <div class="room-list">
+          <span class="room-list__label">Selecionar nova sala</span>
+
+          @if (roomsLoading()) {
+            <p class="feedback">Carregando salas...</p>
+          } @else if (roomsError()) {
+            <p class="feedback feedback--error">{{ roomsError() }}</p>
+          } @else {
+            @for (room of otherRooms(); track room.id) {
+              <button
+                type="button"
+                class="room-option"
+                [class.room-option--selected]="selectedRoomId() === room.id"
+                (click)="selectRoom(room.id)"
+              >
+                <span class="room-option__info">
+                  <span class="room-option__title">{{ room.title }}</span>
+                  <span class="room-option__meta"
+                    >{{ room.occupied }}/{{ room.capacity }} ocupada</span
+                  >
+                </span>
+                <span
+                  class="radio"
+                  [class.radio--selected]="selectedRoomId() === room.id"
+                ></span>
+              </button>
+            } @empty {
+              <p class="feedback">Nenhuma outra sala ativa disponível.</p>
+            }
+          }
+        </div>
+
+        <div class="reason-field">
+          <label for="reason">Motivo da transferência</label>
+          <textarea
+            id="reason"
+            rows="2"
+            placeholder="Ex.: Alta clínica, apta para socialização."
+            [(ngModel)]="reason"
+            name="reason"
+          ></textarea>
+        </div>
+
+        <div class="form-actions">
+          <a [routerLink]="['/cats', catId]" class="cancel-button">Cancelar</a>
+          <div class="form-actions__submit">
+            <app-submit-button
+              label="Confirmar transferência"
+              loadingLabel="Transferindo..."
+              [loading]="submitting()"
+              [disabled]="!canSubmit"
+            />
+          </div>
+        </div>
+      </form>
+
+      <aside class="side">
+        <section class="side-card">
+          <h2 class="side-card__title">Sobre o gato</h2>
+          <p class="side-card__name">{{ current.name }}</p>
+          @if (catSummary) {
+            <p class="side-card__meta">{{ catSummary }}</p>
+          }
+          @if (healthTag || neuteredTag) {
+            <div class="tags">
+              @if (healthTag) {
+                <span class="tag tag--danger">{{ healthTag }}</span>
+              }
+              @if (neuteredTag) {
+                <span class="tag tag--success">{{ neuteredTag }}</span>
+              }
+            </div>
+          }
+        </section>
+
+        <section class="side-card">
+          <h2 class="side-card__title">Última transferência</h2>
+          @if (lastTransfer(); as transfer) {
+            <p class="last-transfer__rooms">
+              {{ transfer.fromRoomTitle ?? "Sem sala" }} → {{ transfer.toRoomTitle }}
+            </p>
+            <p class="side-card__meta">
+              {{ lastTransferDateLabel(transfer) }} · {{ transfer.reason }}
+            </p>
+          } @else {
+            <p class="side-card__meta">Nenhum registro disponível.</p>
+          }
+        </section>
+      </aside>
+    </div>
+  }
+</div>

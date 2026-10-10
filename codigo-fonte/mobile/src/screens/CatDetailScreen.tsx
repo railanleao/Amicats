@@ -20,6 +20,9 @@ interface CatDetailScreenProps {
   catId: number;
   onBack: () => void;
   onEdit: (catId: number) => void;
+  onTransferRoom: (catId: number) => void;
+  canTransferRoom: boolean;
+  onOpenMedicalRecord: (catId: number) => void;
 }
 
 interface Tag {
@@ -83,7 +86,14 @@ function comingSoon() {
   Alert.alert('Em breve', 'Este recurso ainda não está disponível.');
 }
 
-export function CatDetailScreen({ catId, onBack, onEdit }: CatDetailScreenProps) {
+export function CatDetailScreen({
+  catId,
+  onBack,
+  onEdit,
+  onTransferRoom,
+  canTransferRoom,
+  onOpenMedicalRecord,
+}: CatDetailScreenProps) {
   const [cat, setCat] = useState<Cat | null>(null);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -269,17 +279,23 @@ export function CatDetailScreen({ catId, onBack, onEdit }: CatDetailScreenProps)
             </View>
           </View>
 
-          <TouchableOpacity style={styles.primaryAction} onPress={comingSoon} accessibilityRole="button">
-            <Text style={styles.primaryActionText}>+ Registrar prontuário</Text>
+          <TouchableOpacity style={styles.primaryAction} onPress={() => onOpenMedicalRecord(catId)} accessibilityRole="button">
+            <Text style={styles.primaryActionText}>Ver prontuário</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.secondaryAction} onPress={comingSoon} accessibilityRole="button">
             <Text style={styles.secondaryActionText}>Aplicar medicação</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.secondaryAction} onPress={comingSoon} accessibilityRole="button">
-            <Text style={styles.secondaryActionText}>Transferir de sala</Text>
-          </TouchableOpacity>
+          {canTransferRoom && (
+            <TouchableOpacity
+              style={styles.secondaryAction}
+              onPress={() => onTransferRoom(catId)}
+              accessibilityRole="button"
+            >
+              <Text style={styles.secondaryActionText}>Transferir de sala</Text>
+            </TouchableOpacity>
+          )}
         </ScrollView>
       )}
     </SafeAreaView>

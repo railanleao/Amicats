@@ -18,6 +18,7 @@ interface HomeScreenProps {
   user: User;
   onNewCat: () => void;
   onOpenSync: () => void;
+  onOpenMedicalRecords: () => void;
 }
 
 interface RoomOccupancy {
@@ -31,8 +32,6 @@ const MAX_ROOMS_SHOWN = 3;
 // Matches the same threshold used on the web dashboard's occupancy card.
 const HIGH_OCCUPANCY_THRESHOLD = 0.85;
 
-// dados falsos até o registro de doses (RF-009) e os contatos (RF-003, RF-013) estarem
-// implementados. O aviso de estoque baixo abaixo já usa o /stock real (ver useEffect).
 const PENDING_DOSES = [
   {
     catName: 'Mia',
@@ -86,9 +85,10 @@ function syncSummary(online: boolean, pending: number, rejected: number): string
   return 'Tudo sincronizado';
 }
 
-export function HomeScreen({ user, onNewCat, onOpenSync }: HomeScreenProps) {
+export function HomeScreen({ user, onNewCat, onOpenSync, onOpenMedicalRecords }: HomeScreenProps) {
   const { online, pending, rejected } = useSync();
   const needsAttention = !online || pending > 0 || rejected > 0;
+  const canPrescribe = user.accessType === 'Veterinarian';
   const [urgentStockItem, setUrgentStockItem] = useState<StockItem | null>(null);
   const [roomOccupancy, setRoomOccupancy] = useState<RoomOccupancy[]>([]);
 
@@ -189,9 +189,14 @@ export function HomeScreen({ user, onNewCat, onOpenSync }: HomeScreenProps) {
           <TouchableOpacity style={styles.shortcutButton} onPress={onNewCat} accessibilityRole="button">
             <Text style={styles.shortcutText}>+ Novo gato</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.shortcutButton} accessibilityRole="button">
-            <Text style={styles.shortcutText}>+ Nova prescrição</Text>
+          <TouchableOpacity style={styles.shortcutButton} onPress={onOpenMedicalRecords} accessibilityRole="button">
+            <Text style={styles.shortcutText}>Prontuários</Text>
           </TouchableOpacity>
+          {canPrescribe && (
+            <TouchableOpacity style={styles.shortcutButton} onPress={onOpenMedicalRecords} accessibilityRole="button">
+              <Text style={styles.shortcutText}>+ Nova prescrição</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         <View style={styles.section}>
