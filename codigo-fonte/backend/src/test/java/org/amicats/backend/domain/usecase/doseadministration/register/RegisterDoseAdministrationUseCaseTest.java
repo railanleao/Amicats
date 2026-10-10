@@ -230,13 +230,6 @@ class RegisterDoseAdministrationUseCaseTest {
   }
 
   @Test
-  void normalizesBlankNotesAndTimestampPrecision() {
-    var input = input(NOW.withNano(123456789), "  ");
-    assertThat(input.notes()).isNull();
-    assertThat(input.administeredAt().getNano()).isEqualTo(123456000);
-  }
-
-  @Test
   void recordsUtcEvenIfTheInjectedClockHasAnotherZone() {
     useCase =
         RegisterDoseAdministrationUseCase.builder()

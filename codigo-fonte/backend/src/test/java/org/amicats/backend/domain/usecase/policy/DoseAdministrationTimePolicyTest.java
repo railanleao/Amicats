@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import org.amicats.backend.domain.policy.DoseAdministrationTimePolicy;
 import org.junit.jupiter.api.Test;
 
 class DoseAdministrationTimePolicyTest {

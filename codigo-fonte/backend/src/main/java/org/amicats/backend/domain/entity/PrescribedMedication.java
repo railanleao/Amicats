@@ -1,6 +1,7 @@
 package org.amicats.backend.domain.entity;
 
 import jakarta.persistence.*;
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -71,6 +72,9 @@ public class PrescribedMedication {
 
   @Column(name = "created_at", nullable = false)
   private LocalDateTime createdAt;
+
+  @Column(name = "updated_at", nullable = false)
+  private LocalDateTime updatedAt;
 
   private PrescribedMedication(
       Cat cat,
@@ -149,5 +153,11 @@ public class PrescribedMedication {
     this.cancelledBy = cancelledBy;
     this.cancelReason = reason;
     this.cancelledAt = now;
+  }
+
+  @PrePersist
+  @PreUpdate
+  private void refreshUpdatedAt() {
+    this.updatedAt = LocalDateTime.now(Clock.systemUTC());
   }
 }
