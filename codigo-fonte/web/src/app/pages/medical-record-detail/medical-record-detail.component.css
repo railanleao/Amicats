@@ -271,3 +271,28 @@
     flex-wrap: wrap;
   }
 }
+
+.external-attendance-entry {
+  padding: 1rem 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.external-attendance-entry:last-of-type {
+  border-bottom: 0;
+}
+
+.external-attendance-entry h3 {
+  margin: 0 0 0.65rem;
+}
+
+.external-attendance-entry p {
+  margin: 0.4rem 0;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.external-attendance-entry .secondary-button {
+  margin-top: 0.65rem;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
