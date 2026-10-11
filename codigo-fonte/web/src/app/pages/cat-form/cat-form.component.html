@@ -17,7 +17,7 @@
     </a>
     <a routerLink="/cats" class="page-header__crumb">Gatos</a>
     <span class="page-header__separator">/</span>
-    <h1>Novo gatinho</h1>
+    <h1>{{ isEditing ? 'Ficha do gato' : 'Novo gatinho' }}</h1>
   </header>
 
   @if (loading()) {
@@ -28,6 +28,7 @@
       <a routerLink="/cats">Voltar para a lista</a>
     </div>
   } @else {
+    <div class="layout">
     <form
       class="form-card"
       [formGroup]="form"
@@ -151,18 +152,33 @@
         />
       </div>
 
-      <div class="select-field">
-        <label for="roomId">Sala atual</label>
-        <select id="roomId" [formControl]="form.controls.roomId">
-          <option [ngValue]="null">Selecione a sala</option>
-          @for (room of rooms(); track room.id) {
-            <option [ngValue]="room.id">{{ room.title }}</option>
+      @if (isEditing) {
+        <div class="readonly-field">
+          <span class="readonly-field__label">Sala atual</span>
+          <div class="readonly-field__value">
+            {{ cat()?.roomTitle ?? 'Sem sala atribuída' }}
+          </div>
+          <a [routerLink]="['/cats', catId, 'transfer-room']" class="field-link">
+            Transferir de sala
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+              <path d="M2.5 6H9.5M9.5 6L6 2.5M9.5 6L6 9.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </a>
+        </div>
+      } @else {
+        <div class="select-field">
+          <label for="roomId">Sala atual</label>
+          <select id="roomId" [formControl]="form.controls.roomId">
+            <option [ngValue]="null">Selecione a sala</option>
+            @for (room of rooms(); track room.id) {
+              <option [ngValue]="room.id">{{ room.title }}</option>
+            }
+          </select>
+          @if (roomsError()) {
+            <span class="field-error">{{ roomsError() }}</span>
           }
-        </select>
-        @if (roomsError()) {
-          <span class="field-error">{{ roomsError() }}</span>
-        }
-      </div>
+        </div>
+      }
 
       <div class="textarea-field">
         <label for="characteristics">Características</label>
@@ -174,15 +190,54 @@
         ></textarea>
       </div>
 
-      <div class="select-field">
-        <label for="generalStatus">Situação clínica</label>
-        <select id="generalStatus" [formControl]="form.controls.generalStatus">
-          <option value="">Selecione (padrão: Em triagem)</option>
-          @for (option of generalStatusOptions; track option.value) {
-            <option [value]="option.value">{{ option.label }}</option>
-          }
-        </select>
-      </div>
+      @if (isEditing) {
+        <div class="section-title">Saúde</div>
+
+        <div class="form-row form-row--three">
+          <div class="readonly-field readonly-field--tight">
+            <span class="readonly-field__label">FIV</span>
+            <div class="readonly-field__value">{{ fivLabel }}</div>
+          </div>
+          <div class="readonly-field readonly-field--tight">
+            <span class="readonly-field__label">FeLV</span>
+            <div class="readonly-field__value">{{ felvLabel }}</div>
+          </div>
+          <div class="readonly-field readonly-field--tight">
+            <span class="readonly-field__label">PIF</span>
+            <div class="readonly-field__value">{{ pifLabel }}</div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="readonly-field readonly-field--tight">
+            <span class="readonly-field__label">Castrado(a)</span>
+            <div class="readonly-field__value">{{ neuteringLabel }}</div>
+          </div>
+          <div class="select-field">
+            <label for="generalStatus">Situação clínica</label>
+            <select id="generalStatus" [formControl]="form.controls.generalStatus">
+              <option value="">Selecione (padrão: Em triagem)</option>
+              @for (option of generalStatusOptions; track option.value) {
+                <option [value]="option.value">{{ option.label }}</option>
+              }
+            </select>
+          </div>
+        </div>
+        <p class="field-hint">
+          FIV, FeLV, PIF e castração ainda não têm uma tela de edição — fale com a
+          equipe clínica para registrar esses exames.
+        </p>
+      } @else {
+        <div class="select-field">
+          <label for="generalStatus">Situação clínica</label>
+          <select id="generalStatus" [formControl]="form.controls.generalStatus">
+            <option value="">Selecione (padrão: Em triagem)</option>
+            @for (option of generalStatusOptions; track option.value) {
+              <option [value]="option.value">{{ option.label }}</option>
+            }
+          </select>
+        </div>
+      }
 
       <div class="section-title">Resgate</div>
 
@@ -203,43 +258,83 @@
         />
       </div>
 
-      <div class="section-title">Apadrinhamento</div>
-
-      <div class="form-row">
-        <app-text-field
-          inputId="sponsorName"
-          label="Padrinho / madrinha"
-          placeholder="Nome"
-          [control]="form.controls.sponsorName"
-        />
-        <app-text-field
-          inputId="sponsorPhone"
-          label="Telefone"
-          placeholder="(00) 00000-0000"
-          [control]="form.controls.sponsorPhone"
-        />
-      </div>
-
-      <div class="textarea-field">
-        <label for="sponsorFunding">O que o padrinho custeia</label>
-        <textarea
-          id="sponsorFunding"
-          rows="2"
-          placeholder="Ex.: ração terapêutica e exames de acompanhamento."
-          [formControl]="form.controls.sponsorFunding"
-        ></textarea>
-      </div>
-
       <div class="form-actions">
         <a routerLink="/cats" class="cancel-button">Cancelar</a>
         <div class="form-actions__submit">
           <app-submit-button
-            label="Salvar gatinho"
+            [label]="submitLabel"
             loadingLabel="Salvando..."
             [loading]="saving()"
           />
         </div>
       </div>
     </form>
+
+    <aside class="side">
+      <section class="side-card">
+        <h2 class="side-card__title">Apadrinhamento</h2>
+        <div class="side-card__fields">
+          <app-text-field
+            inputId="sponsorName"
+            label="Nome do padrinho / madrinha"
+            placeholder="Nome"
+            [control]="form.controls.sponsorName"
+          />
+          <app-text-field
+            inputId="sponsorPhone"
+            label="Telefone"
+            placeholder="(00) 00000-0000"
+            [control]="form.controls.sponsorPhone"
+          />
+          <div class="textarea-field">
+            <label for="sponsorFunding">O que o padrinho custeia</label>
+            <textarea
+              id="sponsorFunding"
+              rows="2"
+              placeholder="Ex.: ração terapêutica e exames de acompanhamento."
+              [formControl]="form.controls.sponsorFunding"
+            ></textarea>
+          </div>
+        </div>
+      </section>
+
+      @if (isEditing) {
+        <section class="side-card">
+          <h2 class="side-card__title">Metadados</h2>
+          <div class="metadata-row">
+            <span>Cadastrada em</span>
+            <span>{{ createdAtLabel }}</span>
+          </div>
+        </section>
+
+        <section class="side-card">
+          <h2 class="side-card__title">Histórico de transferências</h2>
+          @if (transferHistory().length === 0) {
+            <p class="side-card__meta">Nenhum registro disponível.</p>
+          } @else {
+            <ol class="timeline">
+              @for (transfer of transferHistory(); track transfer.id; let first = $first; let last = $last) {
+                <li class="timeline__item">
+                  <span class="timeline__track">
+                    <span class="timeline__dot" [class.timeline__dot--current]="first"></span>
+                    @if (!last) {
+                      <span class="timeline__line"></span>
+                    }
+                  </span>
+                  <div class="timeline__content">
+                    <p class="timeline__rooms">
+                      {{ transferFromLabel(transfer) }} → {{ transfer.toRoomTitle }}
+                    </p>
+                    <p class="timeline__date">{{ transferDateTimeLabel(transfer) }}</p>
+                    <p class="timeline__reason">{{ transfer.reason }}</p>
+                  </div>
+                </li>
+              }
+            </ol>
+          }
+        </section>
+      }
+    </aside>
+    </div>
   }
 </div>

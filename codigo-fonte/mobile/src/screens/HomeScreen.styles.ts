@@ -68,30 +68,6 @@ export const styles = StyleSheet.create({
     fontWeight: '700',
     color: colors.ink,
   },
-  contactRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm + 4,
-    backgroundColor: colors.surface,
-    borderColor: colors.border,
-    borderWidth: 1.5,
-    borderRadius: radii.sm,
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.md + 1,
-  },
-  contactInfo: {
-    flex: 1,
-    gap: 2,
-  },
-  contactTitle: {
-    fontSize: fontSizes.md,
-    fontWeight: '700',
-    color: colors.ink,
-  },
-  contactSubtitle: {
-    fontSize: fontSizes.xs,
-    color: colors.inkFaint,
-  },
   occupancyCard: {
     gap: spacing.xs,
     backgroundColor: colors.surface,

@@ -4,6 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   FormControl,
   FormGroup,
+  FormsModule,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
@@ -13,17 +14,23 @@ import { catchError, finalize, of, switchMap } from 'rxjs';
 import { CatCoverComponent } from '../../components/cat-cover/cat-cover.component';
 import { SubmitButtonComponent } from '../../components/submit-button/submit-button.component';
 import { TextFieldComponent } from '../../components/text-field/text-field.component';
+import { formatAge, parseAgeText } from '../../lib/cat-age';
+import { felvResult, fivResult, neuteringLabel, testTagLabel } from '../../lib/cat-health';
+import { transferDateTimeLabel, transferFromLabel } from '../../lib/room-transfer-format';
 import {
   Cat,
   CreateCatRequest,
   GENERAL_STATUS_LABELS,
   GeneralStatus,
+  PIF_RESULT_LABELS,
   Sex,
   SEX_LABELS,
 } from '../../models/cat.model';
+import { RoomTransfer } from '../../models/room-transfer.model';
 import { Room } from '../../models/room.model';
 import { CatService } from '../../services/resources/cat.service';
 import { RoomService } from '../../services/resources/room.service';
+import { RoomTransferService } from '../../services/resources/room-transfer.service';
 
 export type CatFormMode = 'create' | 'edit';
 
@@ -35,6 +42,7 @@ const PHOTO_TYPES = ['image/jpeg', 'image/png'];
   standalone: true,
   imports: [
     CatCoverComponent,
+    FormsModule,
     ReactiveFormsModule,
     RouterLink,
     SubmitButtonComponent,
@@ -48,6 +56,7 @@ export class CatFormComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly catService = inject(CatService);
   private readonly roomService = inject(RoomService);
+  private readonly roomTransferService = inject(RoomTransferService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly mode: CatFormMode = this.route.snapshot.data['mode'] ?? 'create';
@@ -70,6 +79,15 @@ export class CatFormComponent implements OnInit {
 
   readonly rooms = signal<Room[]>([]);
   readonly roomsError = signal<string | null>(null);
+
+  readonly transferHistory = signal<RoomTransfer[]>([]);
+  readonly transferDateTimeLabel = transferDateTimeLabel;
+  readonly transferFromLabel = transferFromLabel;
+
+  // In edit mode, "Nascimento estimado" is edited as a free-text estimated age ("4 anos")
+  // instead of a calendar date — matching how staff actually estimate a stray cat's age — and
+  // converted back to an approximate estimatedBirthDate on save. See parseAgeText.
+  ageYearsText = '';
 
   readonly photoVersion = signal(0);
   readonly photoBusy = signal(false);
@@ -131,6 +149,32 @@ export class CatFormComponent implements OnInit {
               : 'Não foi possível carregar as salas.',
           ),
       });
+  }
+
+  // FIV/FeLV/PIF/castration have no update endpoint yet (see cat.model.ts) — shown read-only
+  // here until a clinical use case exists to edit them from this screen.
+  get fivLabel(): string {
+    return testTagLabel(fivResult(this.cat()?.healthStatus));
+  }
+
+  get felvLabel(): string {
+    return testTagLabel(felvResult(this.cat()?.healthStatus));
+  }
+
+  get pifLabel(): string {
+    const result = this.cat()?.pifResult;
+    return result ? PIF_RESULT_LABELS[result] : testTagLabel('not-tested');
+  }
+
+  get neuteringLabel(): string {
+    return neuteringLabel(this.cat()?.neuteringStatus ?? undefined);
+  }
+
+  get createdAtLabel(): string {
+    const createdAt = this.cat()?.createdAt;
+    return createdAt
+      ? new Intl.DateTimeFormat('pt-BR').format(new Date(createdAt))
+      : '—';
   }
 
   get hasPhoto(): boolean {
@@ -319,6 +363,14 @@ export class CatFormComponent implements OnInit {
               ? 'Gato não encontrado.'
               : 'Não foi possível carregar o gato. Tente novamente.',
           ),
+      });
+
+    this.roomTransferService
+      .list(this.catId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (transfers) => this.transferHistory.set(transfers),
+        error: () => this.transferHistory.set([]),
       });
   }
 

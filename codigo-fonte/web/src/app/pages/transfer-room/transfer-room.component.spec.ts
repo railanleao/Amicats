@@ -186,15 +186,24 @@ describe('TransferRoomComponent', () => {
     expect(component.otherRooms()).toEqual([]);
   });
 
-  it('shows the most recent transfer from the history, or a placeholder when there is none', () => {
+  it('keeps the full transfer history, already ordered most-recent-first by the backend', () => {
     catServiceSpy.findById.and.returnValue(of(mockCat({ roomId: 2 })));
-    roomTransferServiceSpy.list.and.returnValue(
-      of([aTransfer(), aTransfer({ id: 2, createdAt: '2025-01-01T00:00:00' })]),
-    );
+    const older = aTransfer({ id: 2, createdAt: '2025-01-01T00:00:00' });
+    roomTransferServiceSpy.list.and.returnValue(of([aTransfer(), older]));
 
     createComponent('1');
 
-    expect(component.lastTransfer()).toEqual(aTransfer());
+    expect(component.transferHistory()).toEqual([aTransfer(), older]);
+  });
+
+  it('shows "Cadastro inicial" when a history entry has no fromRoom', () => {
+    catServiceSpy.findById.and.returnValue(of(mockCat({ roomId: 2 })));
+    createComponent('1');
+
+    expect(component.transferFromLabel(aTransfer({ fromRoomId: null, fromRoomTitle: null }))).toBe(
+      'Cadastro inicial',
+    );
+    expect(component.transferFromLabel(aTransfer())).toBe('Quarentena');
   });
 
   it('requires both a selected room and a non-blank reason before submitting', () => {

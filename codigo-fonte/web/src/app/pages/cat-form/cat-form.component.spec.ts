@@ -9,8 +9,10 @@ import {
 import { of, Subject, throwError } from 'rxjs';
 
 import { Cat } from '../../models/cat.model';
+import { RoomTransfer } from '../../models/room-transfer.model';
 import { PagedResult, Room } from '../../models/room.model';
 import { CatService } from '../../services/resources/cat.service';
+import { RoomTransferService } from '../../services/resources/room-transfer.service';
 import { RoomService } from '../../services/resources/room.service';
 import { CatFormComponent } from './cat-form.component';
 
@@ -19,6 +21,7 @@ describe('CatFormComponent', () => {
   let component: CatFormComponent;
   let catServiceSpy: jasmine.SpyObj<CatService>;
   let roomServiceSpy: jasmine.SpyObj<RoomService>;
+  let roomTransferServiceSpy: jasmine.SpyObj<RoomTransferService>;
 
   function createdCat(overrides: Partial<Cat> = {}): Cat {
     return {
@@ -78,6 +81,20 @@ describe('CatFormComponent', () => {
     return { target: { files: [file], value: 'x' } } as unknown as Event;
   }
 
+  function aTransfer(overrides: Partial<RoomTransfer> = {}): RoomTransfer {
+    return {
+      id: 1,
+      catId: 42,
+      fromRoomId: 4,
+      fromRoomTitle: 'Quarentena',
+      toRoomId: 1,
+      toRoomTitle: 'Sala 1 - Filhotes',
+      reason: 'Alta clínica.',
+      createdAt: '2025-12-12T09:00:00',
+      ...overrides,
+    };
+  }
+
   function createComponent(mode: 'create' | 'edit', id?: string): void {
     TestBed.configureTestingModule({
       imports: [CatFormComponent],
@@ -85,6 +102,7 @@ describe('CatFormComponent', () => {
         provideRouter([]),
         { provide: CatService, useValue: catServiceSpy },
         { provide: RoomService, useValue: roomServiceSpy },
+        { provide: RoomTransferService, useValue: roomTransferServiceSpy },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -117,6 +135,12 @@ describe('CatFormComponent', () => {
     roomServiceSpy = jasmine.createSpyObj<RoomService>('RoomService', ['list']);
     roomServiceSpy.list.and.returnValue(of(aRoomPage([aRoom()])));
     catServiceSpy.photo.and.returnValue(of(new Blob()));
+
+    roomTransferServiceSpy = jasmine.createSpyObj<RoomTransferService>(
+      'RoomTransferService',
+      ['create', 'list'],
+    );
+    roomTransferServiceSpy.list.and.returnValue(of([]));
   });
 
   describe('create mode', () => {
@@ -402,6 +426,60 @@ describe('CatFormComponent', () => {
 
       expect(catServiceSpy.removePhoto).toHaveBeenCalledWith(42);
       expect(component.hasPhoto).toBeFalse();
+    });
+
+    it('shows the room as read-only with a link to the transfer screen instead of a select', () => {
+      catServiceSpy.findById.and.returnValue(
+        of(createdCat({ id: 42, roomId: 1, roomTitle: 'Sala 1 - Filhotes' })),
+      );
+
+      createComponent('edit', '42');
+
+      const element: HTMLElement = fixture.nativeElement;
+      expect(element.querySelector('select#roomId')).toBeNull();
+      expect(element.textContent).toContain('Sala 1 - Filhotes');
+      const link = element.querySelector('a.field-link');
+      expect(link?.getAttribute('href')).toBe('/cats/42/transfer-room');
+    });
+
+    it('shows FIV/FeLV/PIF/castration read-only, derived from the loaded cat', () => {
+      catServiceSpy.findById.and.returnValue(
+        of(
+          createdCat({
+            id: 42,
+            healthStatus: 'FivFelv',
+            pifResult: 'Positive',
+            neuteringStatus: 'Neutered',
+          }),
+        ),
+      );
+
+      createComponent('edit', '42');
+
+      expect(component.fivLabel).toBe('Positivo');
+      expect(component.felvLabel).toBe('Positivo');
+      expect(component.pifLabel).toBe('Positivo');
+      expect(component.neuteringLabel).toBe('Sim');
+    });
+
+    it('formats the registration date for the Metadados card', () => {
+      catServiceSpy.findById.and.returnValue(
+        of(createdCat({ id: 42, createdAt: '2025-12-08T00:00:00' })),
+      );
+
+      createComponent('edit', '42');
+
+      expect(component.createdAtLabel).toBe('08/12/2025');
+    });
+
+    it('loads and shows the full room-transfer history', () => {
+      catServiceSpy.findById.and.returnValue(of(createdCat({ id: 42 })));
+      roomTransferServiceSpy.list.and.returnValue(of([aTransfer()]));
+
+      createComponent('edit', '42');
+
+      expect(roomTransferServiceSpy.list).toHaveBeenCalledWith(42);
+      expect(component.transferHistory()).toEqual([aTransfer()]);
     });
   });
 });

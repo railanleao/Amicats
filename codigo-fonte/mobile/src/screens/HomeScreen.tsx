@@ -3,7 +3,7 @@ import { ScrollView, TouchableOpacity, View } from 'react-native';
 import { Text } from '../components/Text';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { DoseCard, InfoBanner, SectionLabel } from '../components';
+import { InfoBanner, SectionLabel } from '../components';
 import { useSync } from '../sync/SyncContext';
 import { countCatsInRoom } from '../services/catService';
 import { listActiveRooms } from '../services/roomService';
@@ -33,36 +33,6 @@ const MAX_ROOMS_SHOWN = 3;
 // Matches the same threshold used on the web dashboard's occupancy card.
 const HIGH_OCCUPANCY_THRESHOLD = 0.85;
 
-const PENDING_DOSES = [
-  {
-    catName: 'Mia',
-    medication: 'Amoxicilina 250mg',
-    time: '12:00',
-    dosage: '1 comprimido VO',
-    status: 'pending' as const,
-  },
-  {
-    catName: 'Zeca',
-    medication: 'Meloxicam',
-    time: '07:30',
-    dosage: '0,3 ml VO',
-    status: 'late' as const,
-  },
-];
-
-const CONTACT_BANKS = [
-  {
-    icon: 'people-outline' as const,
-    title: 'Banco de voluntários',
-    subtitle: '18 ativos · transporte, cuidados e eventos',
-  },
-  {
-    icon: 'business-outline' as const,
-    title: 'Instituições parceiras',
-    subtitle: '3 parceiras · clínicas, ONGs e transporte',
-  },
-];
-
 function firstName(fullName: string): string {
   return fullName.split(' ')[0];
 }
@@ -89,7 +59,6 @@ function syncSummary(online: boolean, pending: number, rejected: number): string
 export function HomeScreen({ user, onNewCat, onOpenSync, onOpenMedicalRecords, onOpenHealthProcedures }: HomeScreenProps) {
   const { online, pending, rejected } = useSync();
   const needsAttention = !online || pending > 0 || rejected > 0;
-  const canPrescribe = user.accessType === 'Veterinarian';
   const [urgentStockItem, setUrgentStockItem] = useState<StockItem | null>(null);
   const [roomOccupancy, setRoomOccupancy] = useState<RoomOccupancy[]>([]);
 
@@ -146,13 +115,6 @@ export function HomeScreen({ user, onNewCat, onOpenSync, onOpenMedicalRecords, o
           <Ionicons name="chevron-forward" size={16} color={colors.inkFaint} />
         </TouchableOpacity>
 
-        <View style={styles.section}>
-          <SectionLabel>Doses pendentes agora</SectionLabel>
-          {PENDING_DOSES.map((dose) => (
-            <DoseCard key={`${dose.catName}-${dose.medication}`} {...dose} />
-          ))}
-        </View>
-
         {urgentStockItem && (
           <InfoBanner
             icon="alert-circle-outline"
@@ -196,25 +158,6 @@ export function HomeScreen({ user, onNewCat, onOpenSync, onOpenMedicalRecords, o
           <TouchableOpacity style={styles.shortcutButton} onPress={onOpenHealthProcedures} accessibilityRole="button">
             <Text style={styles.shortcutText}>Vacinas, vermífugos e castrações</Text>
           </TouchableOpacity>
-          {canPrescribe && (
-            <TouchableOpacity style={styles.shortcutButton} onPress={onOpenMedicalRecords} accessibilityRole="button">
-              <Text style={styles.shortcutText}>+ Nova prescrição</Text>
-            </TouchableOpacity>
-          )}
-        </View>
-
-        <View style={styles.section}>
-          <SectionLabel>Bancos de contatos</SectionLabel>
-          {CONTACT_BANKS.map((bank) => (
-            <TouchableOpacity key={bank.title} style={styles.contactRow} accessibilityRole="button">
-              <Ionicons name={bank.icon} size={20} color={colors.primary} />
-              <View style={styles.contactInfo}>
-                <Text style={styles.contactTitle}>{bank.title}</Text>
-                <Text style={styles.contactSubtitle}>{bank.subtitle}</Text>
-              </View>
-              <Ionicons name="chevron-forward" size={16} color={colors.inkFaint} />
-            </TouchableOpacity>
-          ))}
         </View>
       </ScrollView>
     </SafeAreaView>

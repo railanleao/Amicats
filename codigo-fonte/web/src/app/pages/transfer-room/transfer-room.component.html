@@ -140,16 +140,29 @@
         </section>
 
         <section class="side-card">
-          <h2 class="side-card__title">Última transferência</h2>
-          @if (lastTransfer(); as transfer) {
-            <p class="last-transfer__rooms">
-              {{ transfer.fromRoomTitle ?? "Sem sala" }} → {{ transfer.toRoomTitle }}
-            </p>
-            <p class="side-card__meta">
-              {{ lastTransferDateLabel(transfer) }} · {{ transfer.reason }}
-            </p>
-          } @else {
+          <h2 class="side-card__title">Histórico de transferências</h2>
+          @if (transferHistory().length === 0) {
             <p class="side-card__meta">Nenhum registro disponível.</p>
+          } @else {
+            <ol class="timeline">
+              @for (transfer of transferHistory(); track transfer.id; let first = $first; let last = $last) {
+                <li class="timeline__item">
+                  <span class="timeline__track">
+                    <span class="timeline__dot" [class.timeline__dot--current]="first"></span>
+                    @if (!last) {
+                      <span class="timeline__line"></span>
+                    }
+                  </span>
+                  <div class="timeline__content">
+                    <p class="timeline__rooms">
+                      {{ transferFromLabel(transfer) }} → {{ transfer.toRoomTitle }}
+                    </p>
+                    <p class="timeline__date">{{ transferDateTimeLabel(transfer) }}</p>
+                    <p class="timeline__reason">{{ transfer.reason }}</p>
+                  </div>
+                </li>
+              }
+            </ol>
           }
         </section>
       </aside>

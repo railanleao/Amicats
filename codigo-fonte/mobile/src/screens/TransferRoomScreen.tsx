@@ -7,11 +7,21 @@ import { Ionicons } from '@expo/vector-icons';
 import { Button } from '../components';
 import { countCatsInRoom } from '../services/catService';
 import { listActiveRooms } from '../services/roomService';
-import { createRoomTransfer } from '../services/roomTransferService';
+import { createRoomTransfer, listRoomTransfers } from '../services/roomTransferService';
 import { catRepository } from '../sync/runtime';
 import { colors } from '../theme/colors';
 import type { Cat } from '../types/cat';
-import { canSubmitTransfer, occupancySubtitle, transferErrorMessage, type RoomOption } from './TransferRoomScreen.logic';
+import type { RoomTransfer } from '../types/roomTransfer';
+import {
+  canSubmitTransfer,
+  currentRoomSubtitle,
+  occupancySubtitle,
+  transferDateTimeLabel,
+  transferErrorMessage,
+  transferFromLabel,
+  type CurrentRoomInfo,
+  type RoomOption,
+} from './TransferRoomScreen.logic';
 import { styles } from './TransferRoomScreen.styles';
 
 interface TransferRoomScreenProps {
@@ -22,12 +32,14 @@ interface TransferRoomScreenProps {
 
 export function TransferRoomScreen({ catId, onBack, onTransferred }: TransferRoomScreenProps) {
   const [cat, setCat] = useState<Cat | null>(null);
+  const [currentRoomInfo, setCurrentRoomInfo] = useState<CurrentRoomInfo | null>(null);
   const [rooms, setRooms] = useState<RoomOption[] | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [selectedRoomId, setSelectedRoomId] = useState<number | null>(null);
   const [reason, setReason] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [history, setHistory] = useState<RoomTransfer[]>([]);
 
   const canSubmit = canSubmitTransfer(selectedRoomId, reason);
 
@@ -44,24 +56,52 @@ export function TransferRoomScreen({ catId, onBack, onTransferred }: TransferRoo
           setCat(result);
 
           return listActiveRooms().then((activeRooms) => {
+            const current = activeRooms.find((room) => room.id === result.roomId) ?? null;
             const others = activeRooms.filter((room) => room.id !== result.roomId);
-            return Promise.all(
-              others.map((room) =>
-                countCatsInRoom(room.id)
-                  .catch(() => 0)
-                  .then((occupied) => ({ id: room.id, title: room.title, occupied, capacity: room.maxCapacity })),
+
+            return Promise.all([
+              current
+                ? countCatsInRoom(current.id)
+                    .catch(() => 0)
+                    .then((occupied) => ({
+                      title: current.title,
+                      description: current.description,
+                      occupied,
+                      capacity: current.maxCapacity,
+                    }))
+                : null,
+              Promise.all(
+                others.map((room) =>
+                  countCatsInRoom(room.id)
+                    .catch(() => 0)
+                    .then((occupied) => ({ id: room.id, title: room.title, occupied, capacity: room.maxCapacity })),
+                ),
               ),
-            );
+            ]);
           });
         })
-        .then((options) => {
-          if (!cancelled && options) {
-            setRooms(options);
+        .then((result) => {
+          if (!cancelled && result) {
+            const [current, others] = result;
+            setCurrentRoomInfo(current);
+            setRooms(others);
           }
         })
         .catch(() => {
           if (!cancelled) {
             setLoadError('Não foi possível carregar as salas.');
+          }
+        });
+
+      listRoomTransfers(catId)
+        .then((transfers) => {
+          if (!cancelled) {
+            setHistory(transfers);
+          }
+        })
+        .catch(() => {
+          if (!cancelled) {
+            setHistory([]);
           }
         });
 
@@ -103,6 +143,9 @@ export function TransferRoomScreen({ catId, onBack, onTransferred }: TransferRoo
         <View style={styles.currentRoomCard}>
           <Text style={styles.cardLabel}>Sala atual</Text>
           <Text style={styles.currentRoomTitle}>{cat?.roomTitle ?? 'Sem sala'}</Text>
+          {currentRoomInfo && (
+            <Text style={styles.currentRoomSubtitle}>{currentRoomSubtitle(currentRoomInfo)}</Text>
+          )}
         </View>
 
         <View style={styles.section}>
@@ -167,6 +210,33 @@ export function TransferRoomScreen({ catId, onBack, onTransferred }: TransferRoo
           loading={submitting}
           disabled={!canSubmit}
         />
+
+        {history.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionLabel}>Histórico de transferências</Text>
+            <View style={styles.timelineCard}>
+              {history.map((transfer, index) => {
+                const isFirst = index === 0;
+                const isLast = index === history.length - 1;
+                return (
+                  <View key={transfer.id} style={styles.timelineItem}>
+                    <View style={styles.timelineTrack}>
+                      <View style={[styles.timelineDot, isFirst ? styles.timelineDotCurrent : null]} />
+                      {!isLast && <View style={styles.timelineLine} />}
+                    </View>
+                    <View style={[styles.timelineContent, isLast ? styles.timelineContentLast : null]}>
+                      <Text style={styles.timelineRooms}>
+                        {transferFromLabel(transfer)} → {transfer.toRoomTitle}
+                      </Text>
+                      <Text style={styles.timelineDate}>{transferDateTimeLabel(transfer)}</Text>
+                      <Text style={styles.timelineReason}>{transfer.reason}</Text>
+                    </View>
+                  </View>
+                );
+              })}
+            </View>
+          </View>
+        )}
       </ScrollView>
     </View>
   );
