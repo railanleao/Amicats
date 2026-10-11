@@ -135,6 +135,11 @@ export const styles = StyleSheet.create({
     fontWeight: '700',
     color: colors.primary,
   },
+  loadMoreError: {
+    fontSize: fontSizes.xs,
+    color: colors.danger,
+    textAlign: 'right',
+  },
   feedback: {
     paddingVertical: spacing.xl,
     alignItems: 'center',

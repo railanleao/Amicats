@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, ScrollView, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
@@ -78,6 +78,8 @@ export function HealthProceduresScreen({ catId, catName, canManage, onBack, onOp
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [loadMoreError, setLoadMoreError] = useState<string | null>(null);
+  const latestRequest = useRef(0);
 
   const showCat = catId === undefined;
 
@@ -100,46 +102,65 @@ export function HealthProceduresScreen({ catId, catName, canManage, onBack, onOp
   );
 
   const loadFirstPage = useCallback(() => {
-    let cancelled = false;
+    const request = ++latestRequest.current;
+    const isCurrent = () => request === latestRequest.current;
     setLoading(true);
+    setLoadingMore(false);
     setErrorMessage(null);
+    setLoadMoreError(null);
 
     fetchPage(0)
       .then((result) => {
-        if (!cancelled) {
+        if (isCurrent()) {
           setProcedures(result.content);
           setPage(0);
           setTotalElements(result.totalElements);
         }
       })
       .catch(() => {
-        if (!cancelled) {
+        if (isCurrent()) {
+          setProcedures([]);
+          setTotalElements(0);
           setErrorMessage('Não foi possível carregar os agendamentos. Verifique a conexão.');
         }
       })
       .finally(() => {
-        if (!cancelled) {
+        if (isCurrent()) {
           setLoading(false);
         }
       });
 
     return () => {
-      cancelled = true;
+      latestRequest.current += 1;
     };
   }, [fetchPage]);
 
   useFocusEffect(loadFirstPage);
 
   function loadMore() {
+    const request = latestRequest.current;
+    const isCurrent = () => request === latestRequest.current;
     setLoadingMore(true);
+    setLoadMoreError(null);
+
     fetchPage(page + 1)
       .then((result) => {
-        setProcedures((current) => [...current, ...result.content]);
-        setPage(result.page);
-        setTotalElements(result.totalElements);
+        if (isCurrent()) {
+          setProcedures((current) => [...current, ...result.content]);
+          setPage(result.page);
+          setTotalElements(result.totalElements);
+        }
       })
-      .catch(() => setErrorMessage('Não foi possível carregar mais agendamentos. Verifique a conexão.'))
-      .finally(() => setLoadingMore(false));
+      .catch(() => {
+        if (isCurrent()) {
+          setLoadMoreError('Não foi possível carregar mais agendamentos.');
+        }
+      })
+      .finally(() => {
+        if (isCurrent()) {
+          setLoadingMore(false);
+        }
+      });
   }
 
   return (
@@ -239,10 +260,11 @@ export function HealthProceduresScreen({ catId, catName, canManage, onBack, onOp
                   <ActivityIndicator color={colors.primary} />
                 ) : (
                   <TouchableOpacity onPress={loadMore} accessibilityRole="button">
-                    <Text style={styles.loadMore}>Carregar mais</Text>
+                    <Text style={styles.loadMore}>{loadMoreError ? 'Tentar novamente' : 'Carregar mais'}</Text>
                   </TouchableOpacity>
                 ))}
             </View>
+            {loadMoreError ? <Text style={styles.loadMoreError}>{loadMoreError}</Text> : null}
           </>
         )}
       </ScrollView>
