@@ -42,6 +42,7 @@ export class CatDetailComponent implements OnInit {
   readonly errorMessage = signal<string | null>(null);
   readonly cat = signal<Cat | null>(null);
   readonly healthSummary = signal<CatHealthSummary | null>(null);
+  readonly healthSummaryLoading = signal(false);
 
   readonly canManageHealth = computed(() =>
     canManageHealthProcedures(this.authService.currentUser()?.accessType),
@@ -140,9 +141,14 @@ export class CatDetailComponent implements OnInit {
   }
 
   private loadHealthSummary(catId: number): void {
-    this.healthProcedureService.summarize(catId).subscribe({
-      next: (summary) => this.healthSummary.set(summary),
-      error: () => this.healthSummary.set(null),
-    });
+    this.healthSummaryLoading.set(true);
+
+    this.healthProcedureService
+      .summarize(catId)
+      .pipe(finalize(() => this.healthSummaryLoading.set(false)))
+      .subscribe({
+        next: (summary) => this.healthSummary.set(summary),
+        error: () => this.healthSummary.set(null),
+      });
   }
 }

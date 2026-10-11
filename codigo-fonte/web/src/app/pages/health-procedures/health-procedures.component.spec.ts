@@ -237,7 +237,7 @@ describe('HealthProceduresComponent (unit)', () => {
     const overdue = mockProcedure({ overdue: true });
 
     expect(component.statusLabel(overdue)).toBe('Atrasado');
-    expect(component.statusTone(overdue)).toBe('overdue');
+    expect(component.statusTone(overdue)).toBe('danger');
   });
 
   it('uses the type label as the name of a neutering', async () => {

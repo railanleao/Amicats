@@ -1,13 +1,22 @@
-import {HttpErrorResponse} from '@angular/common/http';
-import {fakeAsync, TestBed, tick} from '@angular/core/testing';
-import {ActivatedRoute, convertToParamMap, provideRouter, Router,} from '@angular/router';
-import {of, throwError} from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
+import { fakeAsync, TestBed, tick } from '@angular/core/testing';
+import {
+  ActivatedRoute,
+  convertToParamMap,
+  provideRouter,
+  Router,
+} from '@angular/router';
+import { Subject, of, throwError } from 'rxjs';
 
-import {Cat, PagedResult} from '../../models/cat.model';
-import {CatHealthSummary, HealthProcedure,} from '../../models/health-procedure.model';
-import {CatService} from '../../services/resources/cat.service';
-import {HealthProcedureService} from '../../services/resources/health-procedure.service';
-import {HealthProcedureFormComponent} from './health-procedure-form.component';
+import { Cat } from '../../models/cat.model';
+import { PagedResult } from '../../models/paged-result.model';
+import {
+  CatHealthSummary,
+  HealthProcedure,
+} from '../../models/health-procedure.model';
+import { CatService } from '../../services/resources/cat.service';
+import { HealthProcedureService } from '../../services/resources/health-procedure.service';
+import { HealthProcedureFormComponent } from './health-procedure-form.component';
 
 describe('HealthProcedureFormComponent', () => {
   let component: HealthProcedureFormComponent;
@@ -141,7 +150,12 @@ describe('HealthProcedureFormComponent', () => {
     catServiceSpy.list.and.returnValue(of(catPage([mockCat()])));
     catServiceSpy.findById.and.returnValue(of(mockCat()));
     healthProcedureServiceSpy.summarize.and.returnValue(of(mockSummary()));
+
+    jasmine.clock().install();
+    jasmine.clock().mockDate(new Date('2026-10-10T15:00:00Z'));
   });
+
+  afterEach(() => jasmine.clock().uninstall());
 
   it('searches the cats after the user stops typing', fakeAsync(() => {
     createComponent('create');
@@ -167,6 +181,35 @@ describe('HealthProcedureFormComponent', () => {
 
     expect(healthProcedureServiceSpy.summarize).toHaveBeenCalledWith(2);
     expect(component.summary()).toEqual(mockSummary());
+  });
+
+  it('ignores the summary of a cat that is no longer selected', () => {
+    const tobias$ = new Subject<CatHealthSummary>();
+    const mel$ = new Subject<CatHealthSummary>();
+    healthProcedureServiceSpy.summarize.and.callFake((catId) =>
+      catId === 2 ? tobias$ : mel$,
+    );
+    createComponent('create');
+
+    component.onSelectCat(mockCat());
+    component.onSelectCat(mockCat({ id: 5, name: 'Mel' }));
+    tobias$.next(mockSummary());
+    expect(component.summary()).toBeNull();
+
+    mel$.next({ ...mockSummary(), catId: 5 });
+    expect(component.summary()?.catId).toBe(5);
+  });
+
+  it('drops a late summary after the cat is cleared', () => {
+    const summary$ = new Subject<CatHealthSummary>();
+    healthProcedureServiceSpy.summarize.and.returnValue(summary$);
+    createComponent('create');
+    component.onSelectCat(mockCat());
+
+    component.form.controls.cat.setValue('Me');
+    summary$.next(mockSummary());
+
+    expect(component.summary()).toBeNull();
   });
 
   it('preselects the cat given in the query string', () => {
@@ -278,6 +321,77 @@ describe('HealthProcedureFormComponent', () => {
     createComponent('edit', { id: '7' });
 
     expect(component.loadError()).toContain('Só é possível editar');
+  });
+
+  it('does not accept a scheduled date in the past', () => {
+    createComponent('create');
+
+    component.form.controls.scheduledDate.setValue('2026-10-09');
+
+    expect(
+      component.form.controls.scheduledDate.hasError('pastDate'),
+    ).toBeTrue();
+  });
+
+  it('uses the Campo Grande date as today near midnight', () => {
+    jasmine.clock().mockDate(new Date('2026-10-11T03:30:00Z'));
+    createComponent('create');
+
+    expect(component.today).toBe('2026-10-10');
+    component.form.controls.scheduledDate.setValue('2026-10-10');
+    expect(component.form.controls.scheduledDate.valid).toBeTrue();
+  });
+
+  it('keeps a past date that was not changed while editing', () => {
+    healthProcedureServiceSpy.findById.and.returnValue(
+      of(mockProcedure({ scheduledDate: '2026-10-01', overdue: true })),
+    );
+
+    createComponent('edit', { id: '7' });
+
+    expect(component.form.controls.scheduledDate.valid).toBeTrue();
+    component.form.controls.scheduledDate.setValue('2026-10-02');
+    expect(
+      component.form.controls.scheduledDate.hasError('pastDate'),
+    ).toBeTrue();
+  });
+
+  it('shows the reason sent by the server', () => {
+    createComponent('create');
+    healthProcedureServiceSpy.create.and.returnValue(
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            status: 400,
+            error: { message: 'A data agendada não pode ser no passado.' },
+          }),
+      ),
+    );
+    fillValidForm();
+
+    component.onSubmit();
+
+    expect(component.saveError()).toBe(
+      'A data agendada não pode ser no passado.',
+    );
+  });
+
+  it('shows the conflict message sent by the server', () => {
+    createComponent('create');
+    healthProcedureServiceSpy.create.and.returnValue(
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            status: 409,
+            error: { message: 'Tobias já tem uma castração agendada.' },
+          }),
+      ),
+    );
+    fillValidForm();
+
+    component.onSubmit();
+
+    expect(component.saveError()).toBe('Tobias já tem uma castração agendada.');
   });
 
   it('explains a conflicting neutering', () => {

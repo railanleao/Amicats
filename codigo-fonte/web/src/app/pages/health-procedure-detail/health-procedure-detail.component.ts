@@ -10,19 +10,30 @@ import {
   Validators,
 } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { Observable, finalize } from 'rxjs';
+import {
+  EMPTY,
+  Observable,
+  catchError,
+  finalize,
+  map,
+  merge,
+  switchMap,
+  tap,
+} from 'rxjs';
 
+import { StatusBadgeComponent } from '../../components/status-badge/status-badge.component';
 import { SubmitButtonComponent } from '../../components/submit-button/submit-button.component';
 import {
   addMonthsToIsoDate,
-  asUtc,
   canManageHealthProcedures,
   formatIsoDate,
   healthProcedureName,
   healthProcedureStatusLabel,
   healthProcedureTone,
-  toIsoDate,
+  serverErrorMessage,
+  todayIsoDate,
 } from '../../lib/health-procedure';
+import { parseServerDateTime } from '../../lib/server-date';
 import {
   HEALTH_PROCEDURE_ACTION_LABELS,
   HEALTH_PROCEDURE_FIELD_LABELS,
@@ -50,7 +61,13 @@ const DATE_FIELDS = new Set<HealthProcedureField>([
 @Component({
   selector: 'app-health-procedure-detail',
   standalone: true,
-  imports: [DatePipe, ReactiveFormsModule, RouterLink, SubmitButtonComponent],
+  imports: [
+    DatePipe,
+    ReactiveFormsModule,
+    RouterLink,
+    StatusBadgeComponent,
+    SubmitButtonComponent,
+  ],
   templateUrl: './health-procedure-detail.component.html',
   styleUrl: './health-procedure-detail.component.css',
 })
@@ -61,8 +78,7 @@ export class HealthProcedureDetailComponent {
   private readonly authService = inject(AuthService);
   private readonly destroyRef = inject(DestroyRef);
 
-  readonly procedureId = Number(this.route.snapshot.paramMap.get('id'));
-  readonly today = toIsoDate(new Date());
+  procedureId = Number.NaN;
   readonly typeLabels = HEALTH_PROCEDURE_TYPE_LABELS;
   readonly actionLabels = HEALTH_PROCEDURE_ACTION_LABELS;
   readonly procedureName = healthProcedureName;
@@ -115,13 +131,17 @@ export class HealthProcedureDetailComponent {
   });
 
   constructor() {
-    if (!Number.isInteger(this.procedureId)) {
-      this.loadError.set('Agendamento não encontrado.');
-      return;
-    }
+    this.route.paramMap
+      .pipe(
+        map((params) => Number(params.get('id'))),
+        switchMap((id) => this.loadProcedure(id)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
+  }
 
-    this.loadProcedure();
-    this.loadChanges();
+  get today(): string {
+    return todayIsoDate();
   }
 
   get isVaccine(): boolean {
@@ -140,6 +160,11 @@ export class HealthProcedureDetailComponent {
       values.completedDate,
       BOOSTER_MONTHS[values.boosterOption],
     );
+  }
+
+  get boosterInPast(): boolean {
+    const boosterDate = this.boosterDate;
+    return !!boosterDate && boosterDate < this.today;
   }
 
   get boosterMissing(): boolean {
@@ -189,7 +214,11 @@ export class HealthProcedureDetailComponent {
     if (this.saving()) {
       return;
     }
-    if (this.completeForm.invalid || this.boosterMissing) {
+    if (
+      this.completeForm.invalid ||
+      this.boosterMissing ||
+      this.boosterInPast
+    ) {
       this.completeForm.markAllAsTouched();
       return;
     }
@@ -243,8 +272,8 @@ export class HealthProcedureDetailComponent {
     return `${label}: ${oldValue} → ${newValue}`;
   }
 
-  changedAt(change: HealthProcedureChange): string {
-    return asUtc(change.changedAt);
+  changedAt(change: HealthProcedureChange): Date {
+    return parseServerDateTime(change.changedAt);
   }
 
   private runAction(
@@ -265,7 +294,7 @@ export class HealthProcedureDetailComponent {
           this.procedure.set(updated);
           this.openPanel.set(null);
           this.successMessage.set(successMessage);
-          this.loadChanges();
+          this.refreshChanges();
         },
         error: (error: HttpErrorResponse) =>
           this.actionError.set(
@@ -284,37 +313,54 @@ export class HealthProcedureDetailComponent {
     return DATE_FIELDS.has(field) ? formatIsoDate(value) : value;
   }
 
-  private loadProcedure(): void {
+  private loadProcedure(id: number): Observable<unknown> {
+    this.procedureId = id;
+    this.procedure.set(null);
+    this.changes.set([]);
+    this.openPanel.set(null);
+    this.actionError.set(null);
+    this.successMessage.set(null);
+    this.loadError.set(null);
+
+    if (!Number.isInteger(id)) {
+      this.loadError.set('Agendamento não encontrado.');
+      return EMPTY;
+    }
+
     this.loading.set(true);
 
-    this.healthProcedureService
-      .findById(this.procedureId)
-      .pipe(
-        finalize(() => this.loading.set(false)),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe({
-        next: (procedure) => this.procedure.set(procedure),
-        error: (error: HttpErrorResponse) =>
-          this.loadError.set(
-            error.status === 404
-              ? 'Agendamento não encontrado.'
-              : 'Não foi possível carregar o agendamento. Tente novamente.',
-          ),
-      });
+    const procedure$ = this.healthProcedureService.findById(id).pipe(
+      tap((procedure) => this.procedure.set(procedure)),
+      catchError((error: HttpErrorResponse) => {
+        this.loadError.set(
+          error.status === 404
+            ? 'Agendamento não encontrado.'
+            : 'Não foi possível carregar o agendamento. Tente novamente.',
+        );
+        return EMPTY;
+      }),
+      finalize(() => this.loading.set(false)),
+    );
+
+    return merge(procedure$, this.loadChanges(id));
   }
 
-  private loadChanges(): void {
+  private refreshChanges(): void {
+    this.loadChanges(this.procedureId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe();
+  }
+
+  private loadChanges(id: number): Observable<HealthProcedureChange[]> {
     this.changesError.set(null);
 
-    this.healthProcedureService
-      .listChanges(this.procedureId)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (changes) => this.changes.set(changes),
-        error: () =>
-          this.changesError.set('Não foi possível carregar o histórico.'),
-      });
+    return this.healthProcedureService.listChanges(id).pipe(
+      tap((changes) => this.changes.set(changes)),
+      catchError(() => {
+        this.changesError.set('Não foi possível carregar o histórico.');
+        return EMPTY;
+      }),
+    );
   }
 
   private actionErrorMessage(
@@ -323,7 +369,8 @@ export class HealthProcedureDetailComponent {
   ): string {
     switch (error.status) {
       case 400:
-        return badRequestMessage;
+      case 409:
+        return serverErrorMessage(error, badRequestMessage);
       case 403:
         return 'Seu perfil não tem permissão para alterar agendamentos de saúde.';
       case 404:

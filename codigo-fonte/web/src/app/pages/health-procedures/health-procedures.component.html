@@ -119,13 +119,10 @@
                 }}
               </td>
               <td>
-                <span
-                  [class]="
-                    'status-badge status-badge--' + statusTone(procedure)
-                  "
-                >
-                  {{ statusLabel(procedure) }}
-                </span>
+                <app-status-badge
+                  [label]="statusLabel(procedure)"
+                  [tone]="statusTone(procedure)"
+                />
               </td>
               <td class="table__muted">{{ procedure.createdByName }}</td>
               <td>

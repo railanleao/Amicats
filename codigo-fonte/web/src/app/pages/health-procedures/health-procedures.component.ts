@@ -13,6 +13,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, debounceTime, distinctUntilChanged, finalize } from 'rxjs';
 
 import { PaginationComponent } from '../../components/pagination/pagination.component';
+import { StatusBadgeComponent } from '../../components/status-badge/status-badge.component';
 import {
   canManageHealthProcedures,
   healthProcedureName,
@@ -40,7 +41,7 @@ function parseCatId(value: string | null): number | null {
 @Component({
   selector: 'app-health-procedures',
   standalone: true,
-  imports: [DatePipe, PaginationComponent],
+  imports: [DatePipe, PaginationComponent, StatusBadgeComponent],
   templateUrl: './health-procedures.component.html',
   styleUrl: './health-procedures.component.css',
 })

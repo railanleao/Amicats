@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { PagedResult } from '../../models/cat.model';
+import { PagedResult } from '../../models/paged-result.model';
 import {
   CancelHealthProcedureRequest,
   CatHealthSummary,

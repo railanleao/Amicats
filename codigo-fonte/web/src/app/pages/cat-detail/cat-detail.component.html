@@ -205,6 +205,8 @@
                 }
               </span>
             </div>
+          } @else if (healthSummaryLoading()) {
+            <span class="metadata-row__label">Carregando...</span>
           } @else {
             <span class="metadata-row__label">
               Não foi possível carregar as informações de saúde.

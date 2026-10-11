@@ -49,11 +49,10 @@
 
           <section class="card">
             <div class="card__header">
-              <span
-                [class]="'status-badge status-badge--' + statusTone(current)"
-              >
-                {{ statusLabel(current) }}
-              </span>
+              <app-status-badge
+                [label]="statusLabel(current)"
+                [tone]="statusTone(current)"
+              />
             </div>
 
             <dl class="info">
@@ -213,6 +212,7 @@
                       <input
                         id="boosterDate"
                         type="date"
+                        [min]="today"
                         [class.field__input--invalid]="
                           boosterMissing &&
                           completeForm.controls.boosterDate.touched
@@ -226,8 +226,17 @@
                         <span class="field-error"
                           >Informe a data do reforço.</span
                         >
+                      } @else if (boosterInPast) {
+                        <span class="field-error"
+                          >A data do reforço não pode estar no passado.</span
+                        >
                       }
                     </div>
+                  } @else if (boosterInPast) {
+                    <p class="field-error" role="alert">
+                      Essa data ({{ boosterDate | date: "dd/MM/yyyy" }}) já
+                      passou. Escolha "Outra data" para agendar o reforço.
+                    </p>
                   } @else if (boosterDate) {
                     <p class="field-hint">
                       O reforço será agendado para

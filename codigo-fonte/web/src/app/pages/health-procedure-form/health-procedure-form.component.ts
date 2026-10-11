@@ -11,11 +11,19 @@ import {
   Validators,
 } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { catchError, debounceTime, finalize, map, of, switchMap } from 'rxjs';
+import {
+  Subject,
+  catchError,
+  debounceTime,
+  finalize,
+  map,
+  of,
+  switchMap,
+} from 'rxjs';
 
 import { SubmitButtonComponent } from '../../components/submit-button/submit-button.component';
 import { TextFieldComponent } from '../../components/text-field/text-field.component';
-import { toIsoDate } from '../../lib/health-procedure';
+import { serverErrorMessage, todayIsoDate } from '../../lib/health-procedure';
 import { Cat } from '../../models/cat.model';
 import {
   CatHealthSummary,
@@ -63,7 +71,6 @@ export class HealthProcedureFormComponent {
 
   readonly isEdit = this.route.snapshot.data['mode'] === 'edit';
   readonly procedureId = Number(this.route.snapshot.paramMap.get('id'));
-  readonly today = toIsoDate(new Date());
 
   readonly typeOptions = (
     Object.entries(HEALTH_PROCEDURE_TYPE_LABELS) as [
@@ -82,6 +89,16 @@ export class HealthProcedureFormComponent {
   readonly catSuggestionsOpen = signal(false);
   readonly summary = signal<CatHealthSummary | null>(null);
   private readonly catFocused = signal(false);
+  private readonly summaryCatId = new Subject<number | null>();
+  private originalScheduledDate: string | null = null;
+
+  private readonly notInPast: ValidatorFn = (control) => {
+    const value = control.value as string;
+    if (!value || value === this.originalScheduledDate || value >= this.today) {
+      return null;
+    }
+    return { pastDate: true };
+  };
 
   readonly form = new FormGroup({
     cat: new FormControl('', {
@@ -98,7 +115,7 @@ export class HealthProcedureFormComponent {
     }),
     scheduledDate: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required],
+      validators: [Validators.required, this.notInPast],
     }),
     notes: new FormControl('', {
       nonNullable: true,
@@ -115,6 +132,7 @@ export class HealthProcedureFormComponent {
 
   constructor() {
     this.listenToTypeChanges();
+    this.listenToSummary();
 
     if (this.isEdit) {
       this.loadProcedure();
@@ -123,6 +141,10 @@ export class HealthProcedureFormComponent {
 
     this.listenToCatSearch();
     this.preselectCatFromQuery();
+  }
+
+  get today(): string {
+    return todayIsoDate();
   }
 
   get requiresName(): boolean {
@@ -235,7 +257,7 @@ export class HealthProcedureFormComponent {
       .subscribe((value) => {
         if (this.selectedCat()?.name !== value) {
           this.selectedCat.set(null);
-          this.summary.set(null);
+          this.summaryCatId.next(null);
         }
       });
 
@@ -309,6 +331,7 @@ export class HealthProcedureFormComponent {
       return;
     }
 
+    this.originalScheduledDate = procedure.scheduledDate;
     this.form.patchValue({
       cat: procedure.catName,
       type: procedure.type,
@@ -323,32 +346,55 @@ export class HealthProcedureFormComponent {
   }
 
   private loadSummary(catId: number): void {
-    this.healthProcedureService
-      .summarize(catId)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (summary) => this.summary.set(summary),
-        error: () => this.summary.set(null),
-      });
+    this.summaryCatId.next(catId);
+  }
+
+  private listenToSummary(): void {
+    this.summaryCatId
+      .pipe(
+        switchMap((catId) => {
+          this.summary.set(null);
+          return catId === null
+            ? of(null)
+            : this.healthProcedureService
+                .summarize(catId)
+                .pipe(catchError(() => of(null)));
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((summary) => this.summary.set(summary));
   }
 
   private handleSaveError(error: HttpErrorResponse): void {
-    if (error.status === 409) {
-      this.saveError.set(
-        'Esse gatinho já está castrado ou já tem uma castração agendada.',
-      );
-    } else if (error.status === 403) {
-      this.saveError.set(
-        'Seu perfil não tem permissão para agendar procedimentos de saúde.',
-      );
-    } else if (error.status === 404) {
-      this.saveError.set('O gatinho ou o agendamento não foi encontrado.');
-    } else if (error.status === 400) {
-      this.saveError.set('Confira os dados informados e tente novamente.');
-    } else {
-      this.saveError.set(
-        'Não foi possível salvar o agendamento. Tente novamente.',
-      );
+    switch (error.status) {
+      case 400:
+        this.saveError.set(
+          serverErrorMessage(
+            error,
+            'Confira os dados informados e tente novamente.',
+          ),
+        );
+        break;
+      case 409:
+        this.saveError.set(
+          serverErrorMessage(
+            error,
+            'Esse gatinho já está castrado ou já tem uma castração agendada.',
+          ),
+        );
+        break;
+      case 403:
+        this.saveError.set(
+          'Seu perfil não tem permissão para agendar procedimentos de saúde.',
+        );
+        break;
+      case 404:
+        this.saveError.set('O gatinho ou o agendamento não foi encontrado.');
+        break;
+      default:
+        this.saveError.set(
+          'Não foi possível salvar o agendamento. Tente novamente.',
+        );
     }
   }
 }

@@ -1,13 +1,12 @@
-import { signal } from '@angular/core';
+import { WritableSignal, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import {
   ActivatedRoute,
   convertToParamMap,
   provideRouter,
 } from '@angular/router';
-import { of, throwError } from 'rxjs';
+import { Subject, of, throwError } from 'rxjs';
 
-import { AccessType } from '../../models/auth.model';
 import { User } from '../../models/auth.model';
 import { Cat } from '../../models/cat.model';
 import { AuthService } from '../../services/resources/auth.service';
@@ -21,11 +20,7 @@ describe('CatDetailComponent (unit)', () => {
   let component: CatDetailComponent;
   let catServiceSpy: jasmine.SpyObj<CatService>;
   let healthProcedureServiceSpy: jasmine.SpyObj<HealthProcedureService>;
-  const currentUser = signal<{
-    id: number;
-    name: string;
-    accessType: AccessType;
-  } | null>({ id: 1, name: 'Camila', accessType: 'Administrator' });
+  let currentUser: WritableSignal<User | null>;
 
   function mockCat(overrides: Partial<Cat> = {}): Cat {
     return {
@@ -76,7 +71,6 @@ describe('CatDetailComponent (unit)', () => {
       providers: [
         provideRouter([]),
         { provide: CatService, useValue: catServiceSpy },
-        { provide: AuthService, useValue: { currentUser } },
         {
           provide: HealthProcedureService,
           useValue: healthProcedureServiceSpy,
@@ -243,6 +237,41 @@ describe('CatDetailComponent (unit)', () => {
 
     expect(healthProcedureServiceSpy.summarize).toHaveBeenCalledWith(1);
     expect(component.healthSummary()).toEqual(mockSummary());
+  });
+
+  it('shows a loading message while the health summary is on its way', () => {
+    const summary$ = new Subject<CatHealthSummary>();
+    healthProcedureServiceSpy.summarize.and.returnValue(summary$);
+    catServiceSpy.findById.and.returnValue(of(mockCat()));
+
+    createComponent();
+
+    const text = () => fixture.nativeElement.textContent as string;
+    expect(component.healthSummaryLoading()).toBeTrue();
+    expect(text()).toContain('Carregando...');
+    expect(text()).not.toContain(
+      'Não foi possível carregar as informações de saúde.',
+    );
+
+    summary$.next(mockSummary());
+    summary$.complete();
+    fixture.detectChanges();
+
+    expect(component.healthSummaryLoading()).toBeFalse();
+    expect(text()).not.toContain('Carregando...');
+  });
+
+  it('shows an error when the health summary cannot be loaded', () => {
+    healthProcedureServiceSpy.summarize.and.returnValue(
+      throwError(() => new Error('network error')),
+    );
+    catServiceSpy.findById.and.returnValue(of(mockCat()));
+
+    createComponent();
+
+    expect(fixture.nativeElement.textContent).toContain(
+      'Não foi possível carregar as informações de saúde.',
+    );
   });
 
   it('only lets non-viewers schedule a health procedure', () => {

@@ -129,8 +129,14 @@
             "
             [formControl]="form.controls.scheduledDate"
           />
-          @if (isInvalid(form.controls.scheduledDate)) {
-            <span class="field-error">Informe a data agendada.</span>
+          @if (form.controls.scheduledDate.touched) {
+            @if (form.controls.scheduledDate.hasError("required")) {
+              <span class="field-error">Informe a data agendada.</span>
+            } @else if (form.controls.scheduledDate.hasError("pastDate")) {
+              <span class="field-error"
+                >A data agendada não pode estar no passado.</span
+              >
+            }
           }
         </div>
 

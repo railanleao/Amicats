@@ -1,11 +1,20 @@
+import { HttpErrorResponse } from '@angular/common/http';
+
+import { StatusBadgeTone } from '../components/status-badge/status-badge.component';
 import {
   HEALTH_PROCEDURE_STATUS_LABELS,
   HEALTH_PROCEDURE_TYPE_LABELS,
   HealthProcedure,
 } from '../models/health-procedure.model';
 
-export type HealthProcedureTone =
-  'scheduled' | 'completed' | 'cancelled' | 'overdue';
+const BUSINESS_TIME_ZONE = 'America/Campo_Grande';
+
+const BUSINESS_DATE_FORMAT = new Intl.DateTimeFormat('en-CA', {
+  timeZone: BUSINESS_TIME_ZONE,
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+});
 
 const MANAGER_ACCESS_TYPES = new Set([
   'Administrator',
@@ -31,18 +40,22 @@ export function healthProcedureStatusLabel(procedure: HealthProcedure): string {
 
 export function healthProcedureTone(
   procedure: HealthProcedure,
-): HealthProcedureTone {
+): StatusBadgeTone {
   if (procedure.overdue) {
-    return 'overdue';
+    return 'danger';
   }
   switch (procedure.status) {
     case 'Completed':
-      return 'completed';
+      return 'success';
     case 'Cancelled':
-      return 'cancelled';
+      return 'neutral';
     default:
-      return 'scheduled';
+      return 'warning';
   }
+}
+
+export function todayIsoDate(now: Date = new Date()): string {
+  return BUSINESS_DATE_FORMAT.format(now);
 }
 
 export function toIsoDate(date: Date): string {
@@ -69,6 +82,10 @@ export function formatIsoDate(isoDate: string): string {
   return `${day}/${month}/${year}`;
 }
 
-export function asUtc(dateTime: string): string {
-  return /(Z|[+-]\d{2}:\d{2})$/.test(dateTime) ? dateTime : `${dateTime}Z`;
+export function serverErrorMessage(
+  error: HttpErrorResponse,
+  fallback: string,
+): string {
+  const message = error.error?.message;
+  return typeof message === 'string' && message.trim() ? message : fallback;
 }
