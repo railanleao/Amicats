@@ -181,6 +181,33 @@ describe('HealthProceduresComponent (unit)', () => {
     );
   });
 
+  it('clears the previous list when a new filter fails', async () => {
+    await createComponent();
+    latestListSubject().next(paged([mockProcedure()]));
+    healthProcedureServiceSpy.list.and.returnValue(
+      throwError(() => new Error('network error')),
+    );
+
+    component.selectType('Neutering');
+
+    expect(component.procedures()).toEqual([]);
+    expect(component.totalElements()).toBe(0);
+    expect(component.totalPages()).toBe(0);
+  });
+
+  it('ignores a slow response from a previous filter', async () => {
+    await createComponent();
+    const allTypes = latestListSubject();
+    component.selectType('Neutering');
+    const neutering = latestListSubject();
+    const castration = mockProcedure({ id: 2, type: 'Neutering', name: null });
+
+    neutering.next(paged([castration]));
+    allTypes.next(paged([mockProcedure()]));
+
+    expect(component.procedures()).toEqual([castration]);
+  });
+
   it('debounces search input and requests page zero with the typed term', fakeAsync(() => {
     void createComponent();
     tick();

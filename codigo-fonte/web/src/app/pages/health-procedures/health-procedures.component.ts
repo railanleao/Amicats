@@ -10,7 +10,15 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subject, debounceTime, distinctUntilChanged, finalize } from 'rxjs';
+import {
+  EMPTY,
+  Subject,
+  catchError,
+  debounceTime,
+  distinctUntilChanged,
+  finalize,
+  switchMap,
+} from 'rxjs';
 
 import { PaginationComponent } from '../../components/pagination/pagination.component';
 import { StatusBadgeComponent } from '../../components/status-badge/status-badge.component';
@@ -52,6 +60,7 @@ export class HealthProceduresComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly searchInput$ = new Subject<string>();
+  private readonly loadProcedures$ = new Subject<void>();
 
   readonly loading = signal(false);
   readonly errorMessage = signal<string | null>(null);
@@ -100,6 +109,42 @@ export class HealthProceduresComponent implements OnInit, OnDestroy {
   private searchTerm = '';
 
   ngOnInit(): void {
+    this.loadProcedures$
+      .pipe(
+        switchMap(() => {
+          this.loading.set(true);
+          this.errorMessage.set(null);
+
+          return this.healthProcedureService
+            .list({
+              search: this.searchTerm || undefined,
+              catId: this.catFilterId() ?? undefined,
+              type: this.selectedType() ?? undefined,
+              status: this.selectedStatus(),
+              page: this.page(),
+              size: this.pageSize,
+            })
+            .pipe(
+              catchError(() => {
+                this.procedures.set([]);
+                this.totalElements.set(0);
+                this.totalPages.set(0);
+                this.errorMessage.set(
+                  'Não foi possível carregar os agendamentos. Tente novamente.',
+                );
+                return EMPTY;
+              }),
+              finalize(() => this.loading.set(false)),
+            );
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((result) => {
+        this.procedures.set(result.content);
+        this.totalElements.set(result.totalElements);
+        this.totalPages.set(result.totalPages);
+      });
+
     this.searchInput$
       .pipe(
         debounceTime(SEARCH_DEBOUNCE_MS),
@@ -117,36 +162,11 @@ export class HealthProceduresComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.searchInput$.complete();
+    this.loadProcedures$.complete();
   }
 
   loadProcedures(): void {
-    this.loading.set(true);
-    this.errorMessage.set(null);
-
-    this.healthProcedureService
-      .list({
-        search: this.searchTerm || undefined,
-        catId: this.catFilterId() ?? undefined,
-        type: this.selectedType() ?? undefined,
-        status: this.selectedStatus(),
-        page: this.page(),
-        size: this.pageSize,
-      })
-      .pipe(
-        finalize(() => this.loading.set(false)),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe({
-        next: (result) => {
-          this.procedures.set(result.content);
-          this.totalElements.set(result.totalElements);
-          this.totalPages.set(result.totalPages);
-        },
-        error: () =>
-          this.errorMessage.set(
-            'Não foi possível carregar os agendamentos. Tente novamente.',
-          ),
-      });
+    this.loadProcedures$.next();
   }
 
   onSearch(event: Event): void {
