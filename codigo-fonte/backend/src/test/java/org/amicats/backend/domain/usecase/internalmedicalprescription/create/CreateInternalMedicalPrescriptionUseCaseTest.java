@@ -9,16 +9,20 @@ import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import org.amicats.backend.domain.entity.Cat;
+import org.amicats.backend.domain.entity.DoseAdministration;
 import org.amicats.backend.domain.entity.InternalMedicalPrescription;
 import org.amicats.backend.domain.entity.PrescribedMedication;
 import org.amicats.backend.domain.entity.StockItem;
 import org.amicats.backend.domain.entity.User;
 import org.amicats.backend.domain.enums.AccessType;
 import org.amicats.backend.domain.enums.AdministrationRoute;
+import org.amicats.backend.domain.enums.DoseRegistrationOrigin;
 import org.amicats.backend.domain.enums.MedicalPrescriptionOrigin;
 import org.amicats.backend.domain.enums.MedicalPrescriptionStatus;
 import org.amicats.backend.domain.enums.PrescribedMedicationStatus;
@@ -268,6 +272,87 @@ class CreateInternalMedicalPrescriptionUseCaseTest {
 
     verify(prescribedMedicationDataProvider)
         .findActiveByCatAndMedication(CAT_ID, 5, expectedClinicalDate);
+  }
+
+  @Test
+  void preservesOfflinePrescriptionAndAcceptsDoseBeforeSynchronization() {
+    givenVeterinarian("12345");
+    givenCat();
+    // 01:00 UTC is still the preceding clinical day in America/Sao_Paulo.
+    LocalDateTime recordedAt = LocalDateTime.of(2026, 9, 30, 1, 0);
+    LocalDate clinicalDate = LocalDate.of(2026, 9, 29);
+    when(stockItemDataProvider.findById(5))
+        .thenReturn(Optional.of(medication(5, "Interferon felino")));
+    when(prescribedMedicationDataProvider.findActiveByCatAndMedication(CAT_ID, 5, clinicalDate))
+        .thenReturn(Optional.empty());
+
+    var output =
+        useCase.execute(
+            CAT_ID,
+            VET_ID,
+            new CreateInternalMedicalPrescriptionInput(
+                "Consulta offline", null, medicationWithId(5), recordedAt));
+
+    assertThat(output.createdAt()).isEqualTo(recordedAt);
+    assertThat(output.medication().startDate()).isEqualTo(clinicalDate);
+    var captor = ArgumentCaptor.forClass(PrescribedMedication.class);
+    verify(prescribedMedicationDataProvider).save(captor.capture());
+    var medication = captor.getValue();
+    assertThat(medication.getCreatedAt()).isEqualTo(recordedAt);
+    var dose =
+        DoseAdministration.register(
+            medication,
+            mock(User.class),
+            UUID.randomUUID(),
+            recordedAt.plusMinutes(10),
+            LocalDateTime.of(2026, 9, 30, 15, 0),
+            null,
+            DoseRegistrationOrigin.OfflineSynced);
+    assertThat(dose.getAdministeredAt()).isEqualTo(recordedAt.plusMinutes(10));
+    assertThatThrownBy(
+            () ->
+                DoseAdministration.register(
+                    medication,
+                    mock(User.class),
+                    UUID.randomUUID(),
+                    recordedAt.minusSeconds(1),
+                    LocalDateTime.of(2026, 9, 30, 15, 0),
+                    null,
+                    DoseRegistrationOrigin.OfflineSynced))
+        .isInstanceOf(org.amicats.backend.exception.InvalidDoseAdministrationException.class);
+  }
+
+  @Test
+  void rejectsRecordedAtOutsideOriginalOfflineWindowBeforeSaving() {
+    givenVeterinarian("12345");
+    givenCat();
+    LocalDateTime now = LocalDateTime.of(2026, 9, 30, 15, 0);
+    for (LocalDateTime invalid :
+        List.of(now.plusMinutes(5).plusNanos(1), now.minusDays(30).minusNanos(1))) {
+      assertThatThrownBy(
+              () ->
+                  useCase.execute(
+                      CAT_ID,
+                      VET_ID,
+                      new CreateInternalMedicalPrescriptionInput("Consulta", null, null, invalid)))
+          .isInstanceOf(InvalidPrescribedMedicationException.class);
+    }
+    verifyNoInteractions(internalMedicalPrescriptionDataProvider, prescribedMedicationDataProvider);
+  }
+
+  @Test
+  void acceptsInclusiveOfflineWindowBoundaries() {
+    givenVeterinarian("12345");
+    givenCat();
+    LocalDateTime now = LocalDateTime.of(2026, 9, 30, 15, 0);
+    for (LocalDateTime valid : List.of(now.plusMinutes(5), now.minusDays(30))) {
+      var output =
+          useCase.execute(
+              CAT_ID,
+              VET_ID,
+              new CreateInternalMedicalPrescriptionInput("Consulta", null, null, valid));
+      assertThat(output.createdAt()).isEqualTo(valid);
+    }
   }
 
   private void givenVeterinarian(String crmv) {

@@ -106,6 +106,7 @@ public class DoseAdministration {
       throw new InvalidDoseAdministrationException(
           "A aplicação não pode estar mais de 5 minutos no futuro.");
     }
+    // createdAt preserves the validated clinical timestamp, including offline prescriptions.
     if (applied.isBefore(medication.getCreatedAt())
         || !DoseAdministrationTimePolicy.isWithinTreatmentPeriod(
             applied, medication.getStartDate(), medication.getEndDate(), clinicalZone)) {
