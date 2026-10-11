@@ -3,10 +3,18 @@ import { Text } from '../Text';
 import { colors } from '../../theme/colors';
 import { styles } from './Button.styles';
 
+type ButtonVariant = 'primary' | 'outline' | 'danger';
+
+const VARIANT_STYLES: Record<ButtonVariant, ViewStyle> = {
+  primary: styles.buttonPrimary,
+  outline: styles.buttonOutline,
+  danger: styles.buttonDanger,
+};
+
 interface ButtonProps {
   title: string;
   onPress: () => void;
-  variant?: 'primary' | 'outline';
+  variant?: ButtonVariant;
   loading?: boolean;
   disabled?: boolean;
   style?: ViewStyle;
@@ -14,20 +22,20 @@ interface ButtonProps {
 
 export function Button({ title, onPress, variant = 'primary', loading, disabled, style }: ButtonProps) {
   const isDisabled = disabled || loading;
-  const isPrimary = variant === 'primary';
+  const isFilled = variant !== 'outline';
 
   return (
     <TouchableOpacity
-      style={[styles.button, isPrimary ? styles.buttonPrimary : styles.buttonOutline, isDisabled ? styles.buttonDisabled : null, style]}
+      style={[styles.button, VARIANT_STYLES[variant], isDisabled ? styles.buttonDisabled : null, style]}
       onPress={onPress}
       disabled={isDisabled}
       activeOpacity={0.85}
       accessibilityRole="button"
     >
       {loading ? (
-        <ActivityIndicator color={isPrimary ? colors.onPrimary : colors.ink} />
+        <ActivityIndicator color={isFilled ? colors.onPrimary : colors.ink} />
       ) : (
-        <Text style={isPrimary ? styles.textPrimary : styles.textOutline}>{title}</Text>
+        <Text style={isFilled ? styles.textPrimary : styles.textOutline}>{title}</Text>
       )}
     </TouchableOpacity>
   );

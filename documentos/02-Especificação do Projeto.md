@@ -83,37 +83,37 @@ caminho "online" e outro "offline" que quase nunca seria exercitado.
 ```mermaid
 flowchart LR
     TELA["Telas do app"] --> REPO["Repositórios"]
-    REPO -->|"lê e grava"| DB[("SQLite<br/>dados + outbox")]
+    REPO -->|" lê e grava "| DB[("SQLite<br/>dados + outbox")]
     NET["NetInfo + ping no servidor"] --> SCH["Agendador"]
     APPST["App volta ao primeiro plano"] --> SCH
     BTN["Botão Sincronizar agora"] --> SCH
     SCH --> ENG["Motor de sincronização<br/>(uma execução por vez)"]
-    ENG <-->|"lê a fila e aplica o resultado"| DB
-    ENG -->|"push: endpoints REST existentes<br/>+ Idempotency-Key"| API["Backend"]
-    ENG -->|"pull: GET /sync/pull?since="| API
-    ENG -->|"POST /sync/heartbeat"| API
+    ENG <-->|" lê a fila e aplica o resultado "| DB
+    ENG -->|" push: endpoints REST existentes<br/>+ Idempotency-Key "| API["Backend"]
+    ENG -->|" pull: GET /sync/pull?since= "| API
+    ENG -->|" POST /sync/heartbeat "| API
     API --> PG[("PostgreSQL")]
-    WEB["Web — tela Sincronização"] -->|"GET /sync/devices"| API
+    WEB["Web — tela Sincronização"] -->|" GET /sync/devices "| API
 ```
 
 **Camadas do app mobile**
 
-| Camada | Responsabilidade |
-|---|---|
-| Repositórios | Único acesso a dados das telas. Leem do SQLite. Ao escrever, gravam a linha local **e** a operação na fila (`outbox`) na mesma transação, e a interface atualiza na hora. |
-| Detector de conexão | O `NetInfo` informa se há rede, mas não se o servidor responde. Por isso, antes de sincronizar, o app faz uma chamada leve ao backend (`GET /error`, rota pública). Estados exibidos ao usuário: sem conexão, sincronizando, aguardando envio, com registros recusados e sincronizado. |
-| Agendador | Decide *quando* sincronizar: ao reconectar, ao voltar ao primeiro plano, a cada 60 s com o app aberto, logo após registrar algo e pelo botão "Sincronizar agora". Após falha de rede ou de servidor aplica espera crescente (5 s, dobrando até 5 min, com variação aleatória); o botão manual ignora a espera. |
-| Motor de sincronização | Executa **uma sincronização por vez** (chamadas simultâneas compartilham a mesma execução): primeiro envia a fila (push), depois baixa as mudanças (pull) e por fim informa o estado do aparelho (heartbeat), exceto quando não há rede ou a sessão expirou. |
-| Banco local (SQLite) | Acesso serializado: toda leitura e escrita passa por uma fila única, e as transações nunca se intercalam. |
+| Camada                 | Responsabilidade                                                                                                                                                                                                                                                                                               |
+|------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Repositórios           | Único acesso a dados das telas. Leem do SQLite. Ao escrever, gravam a linha local **e** a operação na fila (`outbox`) na mesma transação, e a interface atualiza na hora.                                                                                                                                      |
+| Detector de conexão    | O `NetInfo` informa se há rede, mas não se o servidor responde. Por isso, antes de sincronizar, o app faz uma chamada leve ao backend (`GET /error`, rota pública). Estados exibidos ao usuário: sem conexão, sincronizando, aguardando envio, com registros recusados e sincronizado.                         |
+| Agendador              | Decide *quando* sincronizar: ao reconectar, ao voltar ao primeiro plano, a cada 60 s com o app aberto, logo após registrar algo e pelo botão "Sincronizar agora". Após falha de rede ou de servidor aplica espera crescente (5 s, dobrando até 5 min, com variação aleatória); o botão manual ignora a espera. |
+| Motor de sincronização | Executa **uma sincronização por vez** (chamadas simultâneas compartilham a mesma execução): primeiro envia a fila (push), depois baixa as mudanças (pull) e por fim informa o estado do aparelho (heartbeat), exceto quando não há rede ou a sessão expirou.                                                   |
+| Banco local (SQLite)   | Acesso serializado: toda leitura e escrita passa por uma fila única, e as transações nunca se intercalam.                                                                                                                                                                                                      |
 
 **Modelo de dados local (SQLite)**
 
-| Tabela | Conteúdo |
-|---|---|
-| `outbox` | Fila de operações: `id` (UUID da operação), `type`, `author_user_id`, `payload`, `recorded_at`, `status` (`pending` ou `rejected`), `attempts`, `last_error`, `last_status`. Operação enviada com sucesso é removida. |
-| `cache_entities` | Espelho de leitura (gatos, salas, itens de estoque, medicações prescritas) alimentado pelo pull e pelas gravações locais. |
-| `sync_state` | Cursor do último pull, identificador do aparelho, horário da última sincronização completa e contador de ids locais. |
-| `id_map` | Correspondência entre o id local provisório e o id definitivo devolvido pelo servidor. |
+| Tabela           | Conteúdo                                                                                                                                                                                                              |
+|------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `outbox`         | Fila de operações: `id` (UUID da operação), `type`, `author_user_id`, `payload`, `recorded_at`, `status` (`pending` ou `rejected`), `attempts`, `last_error`, `last_status`. Operação enviada com sucesso é removida. |
+| `cache_entities` | Espelho de leitura (gatos, salas, itens de estoque, medicações prescritas) alimentado pelo pull e pelas gravações locais.                                                                                             |
+| `sync_state`     | Cursor do último pull, identificador do aparelho, horário da última sincronização completa e contador de ids locais.                                                                                                  |
+| `id_map`         | Correspondência entre o id local provisório e o id definitivo devolvido pelo servidor.                                                                                                                                |
 
 Registros criados offline recebem um **id local negativo**. Como o servidor só gera ids positivos, os dois nunca colidem, e as telas
 continuam tratando `id` como número. Depois que o servidor confirma o cadastro, a linha local é substituída pela definitiva e a
@@ -133,18 +133,17 @@ sequenceDiagram
     participant DB as SQLite
     participant M as Motor
     participant A as Backend
-
-    T->>R: salvar gato
-    R->>DB: transação: linha local (id -1) + operação na fila
-    R-->>T: gato aparece na lista imediatamente
-    Note over M,A: sem sinal: a operação permanece na fila
-    M->>A: POST /cats (Idempotency-Key = id da operação)
-    A-->>M: 201 + gato com id definitivo
-    M->>DB: transação: troca a linha local pela definitiva, registra id_map, remove da fila
-    M->>A: GET /sync/pull?since=cursor
-    A-->>M: mudanças desde o cursor
-    M->>DB: transação: aplica mudanças e guarda o novo cursor
-    M->>A: POST /sync/heartbeat (pendências, recusadas, última sincronização)
+    T ->> R: salvar gato
+    R ->> DB: transação: linha local (id -1) + operação na fila
+    R -->> T: gato aparece na lista imediatamente
+    Note over M, A: sem sinal: a operação permanece na fila
+    M ->> A: POST /cats (Idempotency-Key = id da operação)
+    A -->> M: 201 + gato com id definitivo
+    M ->> DB: transação: troca a linha local pela definitiva, registra id_map, remove da fila
+    M ->> A: GET /sync/pull?since=cursor
+    A -->> M: mudanças desde o cursor
+    M ->> DB: transação: aplica mudanças e guarda o novo cursor
+    M ->> A: POST /sync/heartbeat (pendências, recusadas, última sincronização)
 ```
 
 O `Idempotency-Key` resolve o caso mais perigoso do sinal instável: o servidor grava o registro, mas a resposta se perde. Ao reenviar com
@@ -153,14 +152,14 @@ offline (por exemplo, a foto de um gato recém-cadastrado) têm o id local troca
 
 **Como o app trata cada resposta**
 
-| Resposta | Tratamento |
-|---|---|
-| Sem rede ou tempo esgotado | Para a fila, mantém a operação e registra a tentativa. Tenta de novo no próximo gatilho, com espera crescente. |
-| 502, 503, 504, 408, 425 ou 429 | Falha transitória (indisponibilidade): mesmo tratamento da ausência de rede, sem limite de tentativas. |
-| 500 | Tratado como transitório nas primeiras tentativas. Após **5 erros 500 consecutivos** a operação é marcada como `rejected`, para que um registro que o servidor nunca consegue processar não trave a fila inteira. A recusa é recuperável: o usuário pode reenviar pelo botão "Tentar de novo". Qualquer outra falha entre as tentativas zera a contagem. |
-| 401 | Para a fila **sem consumir** a operação; o app pede novo login. Nada é perdido. |
-| Demais 4xx (400, 403, 404, 409, 422) | A operação é marcada como `rejected` com o motivo, **não trava o resto da fila** e aparece na tela de sincronização, onde o usuário pode tentar de novo ou descartar. |
-| Operação que depende de um cadastro recusado | Também é recusada, com a mensagem "Depende de um registro que não foi sincronizado". |
+| Resposta                                     | Tratamento                                                                                                                                                                                                                                                                                                                                               |
+|----------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Sem rede ou tempo esgotado                   | Para a fila, mantém a operação e registra a tentativa. Tenta de novo no próximo gatilho, com espera crescente.                                                                                                                                                                                                                                           |
+| 502, 503, 504, 408, 425 ou 429               | Falha transitória (indisponibilidade): mesmo tratamento da ausência de rede, sem limite de tentativas.                                                                                                                                                                                                                                                   |
+| 500                                          | Tratado como transitório nas primeiras tentativas. Após **5 erros 500 consecutivos** a operação é marcada como `rejected`, para que um registro que o servidor nunca consegue processar não trave a fila inteira. A recusa é recuperável: o usuário pode reenviar pelo botão "Tentar de novo". Qualquer outra falha entre as tentativas zera a contagem. |
+| 401                                          | Para a fila **sem consumir** a operação; o app pede novo login. Nada é perdido.                                                                                                                                                                                                                                                                          |
+| Demais 4xx (400, 403, 404, 409, 422)         | A operação é marcada como `rejected` com o motivo, **não trava o resto da fila** e aparece na tela de sincronização, onde o usuário pode tentar de novo ou descartar.                                                                                                                                                                                    |
+| Operação que depende de um cadastro recusado | Também é recusada, com a mensagem "Depende de um registro que não foi sincronizado".                                                                                                                                                                                                                                                                     |
 
 Cada item da fila guarda o `author_user_id`, e o servidor registra como autor o dono do token. Por isso a fila de um usuário só é enviada
 com a sessão dele: uma operação nunca é gravada em nome de outra pessoa.
@@ -177,11 +176,11 @@ O servidor só devolve o que o perfil pode ver: itens de estoque são enviados a
 Seguindo a regra de que nenhum registro clínico é alterado silenciosamente (RNF-004), o modo offline aceita apenas operações de
 **acréscimo**, que não geram conflito de edição:
 
-| Funciona offline | Online somente |
-|---|---|
-| Cadastrar gato (Administrador e Veterinário); anexar foto ao gato cadastrado (Administrador) | Editar os campos de um gato já existente |
-| Registrar prescrição interna\* (a data clínica enviada pelo aparelho, `recordedAt`, vale como data do registro) | Cancelar medicação |
-| Registrar entrada de estoque\* | Gestão de usuários e de salas |
+| Funciona offline                                                                                                | Online somente                           |
+|-----------------------------------------------------------------------------------------------------------------|------------------------------------------|
+| Cadastrar gato (Administrador e Veterinário); anexar foto ao gato cadastrado (Administrador)                    | Editar os campos de um gato já existente |
+| Registrar prescrição interna\* (a data clínica enviada pelo aparelho, `recordedAt`, vale como data do registro) | Cancelar medicação                       |
+| Registrar entrada de estoque\*                                                                                  | Gestão de usuários e de salas            |
 
 \* Operação já suportada pelo motor de sincronização; a tela correspondente no app ainda não existe (ver limitações abaixo).
 
@@ -190,15 +189,18 @@ causa do atraso do envio, sem permitir datas absurdas. A edição de um gato que
 
 **Backend**
 
-| Elemento | Descrição |
-|---|---|
+| Elemento               | Descrição                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+|------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Filtro de idempotência | Para `POST`, `PUT`, `PATCH` e `DELETE` com `Idempotency-Key`, reserva a chave por usuário, executa a requisição e guarda a resposta de sucesso. Repetição devolve a resposta guardada com o cabeçalho `Idempotent-Replayed: true`; a mesma chave em outra requisição retorna 422; requisição ainda em andamento retorna 425; erro libera a chave para nova tentativa; uma reserva abandonada (servidor interrompido no meio da requisição) expira em 5 minutos. Chaves são removidas após 30 dias. |
-| `updated_at` | Coluna mantida por gatilho do banco (não depende do código) em gatos, salas, itens de estoque e medicações prescritas, com índice. |
-| `GET /sync/pull` | Mudanças desde o cursor, filtradas por perfil. |
-| `POST /sync/heartbeat` | O aparelho informa identificador, modelo, plataforma, versão, pendências, recusadas e última sincronização. |
-| `GET /sync/devices` | Lista de aparelhos para a administração. Somente Administrador. |
+| `updated_at`           | Coluna mantida por gatilho do banco (não depende do código) em gatos, salas, itens de estoque e medicações prescritas, com índice.                                                                                                                                                                                                                                                                                                                                                                 |
+| `GET /sync/pull`       | Mudanças desde o cursor, filtradas por perfil.                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| `POST /sync/heartbeat` | O aparelho informa identificador, modelo, plataforma, versão, pendências, recusadas e última sincronização.                                                                                                                                                                                                                                                                                                                                                                                        |
+| `GET /sync/devices`    | Lista de aparelhos para a administração. Somente Administrador.                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 
-**Fuso horário.** O back-end trabalha sempre em UTC: o relógio da aplicação, a sessão do banco e todo `LocalDateTime` trafegado pela API (por exemplo `recordedAt`, `lastSyncAt` e o cursor do pull) representam a hora UTC, sem sufixo de fuso. O mobile envia essas datas em UTC, e web e mobile convertem para o fuso do dispositivo apenas na exibição. Datas de calendário (`LocalDate`, como nascimento e resgate) não sofrem conversão.
+**Fuso horário.** O back-end trabalha sempre em UTC: o relógio da aplicação, a sessão do banco e todo `LocalDateTime` trafegado pela API
+(por exemplo `recordedAt`, `lastSyncAt` e o cursor do pull) representam a hora UTC, sem sufixo de fuso. O mobile envia essas datas em UTC, e
+web e mobile convertem para o fuso do dispositivo apenas na exibição. Datas de calendário (`LocalDate`, como nascimento e resgate) não
+sofrem conversão.
 
 **Monitoramento na web**
 
@@ -209,7 +211,8 @@ A tela **Sincronização** (somente Administrador) lista os aparelhos com usuár
 
 **Limitações conhecidas da primeira versão**
 
-- O pull devolve todas as mudanças de uma vez, sem paginação — adequado ao volume do abrigo (centenas de gatos), mas deve ganhar paginação se
+- O pull devolve todas as mudanças de uma vez, sem paginação — adequado ao volume do abrigo (centenas de gatos), mas deve ganhar paginação
+  se
   o volume crescer.
 - A sincronização só acontece com o app aberto (primeiro plano); não há sincronização em segundo plano com o app fechado.
 - A foto aguardando envio permanece no arquivo temporário da câmera/galeria. Se o sistema operacional limpar esse arquivo antes do envio, a
@@ -276,24 +279,27 @@ infraestrutura externa.
 
 ### Requisitos Funcionais
 
-| ID     | Descrição do Requisito                                                                                                                                                                       | Prioridade |  Etapa  |   Responsável   | Complexidade |
-|--------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:----------:|:-------:|:---------------:|:------------:|
-| RF-001 | Permitir autenticação de usuários por login e senha, gestão completa de usuários, gestão dos seus aceites de termos e recuperação de senha por e-mail ou redefinição pelo Administrador      |    ALTA    | Etapa 2 |    **Todos**    |    Média     |
-| RF-002 | Cadastramento de perfis de acesso distintos (Administrador, Médico-Veterinário, Auxiliar e Visualizador) com permissões próprias                                                             |    ALTA    | Etapa 3 | Railan e Aliane |     Alta     |
-| RF-003 | Permitir o cadastro do banco de contatos voluntários                                                                                                                                         |   MÉDIA    | Etapa 4 |     Nelson      |    Baixa     |
-| RF-004 | Permitir o cadastro e a edição de salas                                                                                                                                                      |    ALTA    | Etapa 3 |     Nelson      |    Baixa     |
-| RF-005 | Permitir cadastro completo do gato, com a captura de foto pela câmera do dispositivo, o upload de múltiplas imagens por gato e a transferência do gato entre salas com registro de histórico |    ALTA    | Etapa 3 |     Murilo      |    Média     |
-| RF-006 | Permitir o cadastro de prescrição médica no prontuário                                                                                                                                       |    ALTA    | Etapa 3 |     Aliane      |     Alta     |
-| RF-007 | Exibir o histórico clínico completo do gato em ordem cronológica                                                                                                                             |    ALTA    | Etapa 3 |     Aliane      |    Média     |
-| RF-008 | Permitir o registro de atendimento realizado em clínica externa                                                                                                                              |   MÉDIA    | Etapa 3 |     Wesley      |    Média     |
-| RF-009 | Permitir a marcação da medicamentos e doses administradas                                                                                                                                    |    ALTA    | Etapa 3 |     Railan      |     Alta     |
-| RF-010 | Permitir o controle de estoque e disponibilidade de medicamentos                                                                                                                             |   MÉDIA    | Etapa 3 |     Débora      |    Média     |
-| RF-011 | Permitir o agendamento e o registro de vacinas, vermífugos e castrações                                                                                                                      |   MÉDIA    | Etapa 4 |     Débora      |    Baixa     |
-| RF-012 | Permitir o registro e gestão do fluxo de adoção                                                                                                                                              |   MÉDIA    | Etapa 4 |     Aliane      |    Média     |
-| RF-013 | Permitir o registro de instituições parceiras                                                                                                                                                |   MÉDIA    | Etapa 4 |     Railan      |    Baixa     |
-| RF-014 | Exibir dashboard na página inicial com atalhos estratégicos                                                                                                                                  |   MÉDIA    | Etapa 4 |     Murilo      |    Média     |
-| RF-015 | Permitir a exportação de relatórios                                                                                                                                                          |   BAIXA    | Etapa 4 |    **Todos**    |    Média     |
-| RF-016 | Permitir o registro de dados no dispositivo mesmo sem conexão, sincronizando-os com o servidor automaticamente ou por acionamento manual do usuário                                          |    ALTA    | Etapa 3 |     Nelson      |     Alta     |
+Na coluna **Concluído em**, *No prazo* indica entrega na etapa programada, *Antecipado* indica entrega antes da etapa programada e *Para
+fazer* indica requisito ainda não entregue.
+
+| ID     | Descrição do Requisito                                                                                                                                                                       | Prioridade | Etapa Programada |   Responsável    | Complexidade |     Concluído em     |
+|--------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:----------:|:----------------:|:----------------:|:------------:|:--------------------:|
+| RF-001 | Permitir autenticação de usuários por login e senha, gestão completa de usuários, gestão dos seus aceites de termos e recuperação de senha por e-mail ou redefinição pelo Administrador      |    ALTA    |     Etapa 2      |    **Todos**     |    Média     |  Etapa 2 (No prazo)  |
+| RF-002 | Cadastramento de perfis de acesso distintos (Administrador, Médico-Veterinário, Auxiliar e Visualizador) com permissões próprias                                                             |    ALTA    |     Etapa 3      | Railan e Aliane  |     Alta     | Etapa 2 (Antecipado) |
+| RF-003 | Permitir o cadastro do banco de contatos voluntários                                                                                                                                         |   MÉDIA    |     Etapa 4      |      Nelson      |    Baixa     |     (Para fazer)     |
+| RF-004 | Permitir o cadastro e a edição de salas                                                                                                                                                      |    ALTA    |     Etapa 3      |      Nelson      |    Baixa     |  Etapa 3 (No prazo)  |
+| RF-005 | Permitir cadastro completo do gato, com a captura de foto pela câmera do dispositivo, o upload de múltiplas imagens por gato e a transferência do gato entre salas com registro de histórico |    ALTA    |     Etapa 3      |      Murilo      |    Média     |  Etapa 3 (No prazo)  |
+| RF-006 | Permitir o cadastro de prescrição médica interna no prontuário                                                                                                                               |    ALTA    |     Etapa 3      |      Aliane      |     Alta     |  Etapa 3 (No prazo)  |
+| RF-007 | Exibir o prontuário / histórico clínico completo do gato em ordem cronológica                                                                                                                |    ALTA    |     Etapa 3      |      Aliane      |    Média     |  Etapa 3 (No prazo)  |
+| RF-008 | Permitir o registro de atendimento realizado em clínica externa                                                                                                                              |   MÉDIA    |     Etapa 3      |      Wesley      |    Média     |  Etapa 3 (No prazo)  |
+| RF-009 | Permitir a marcação da medicamentos e doses administradas                                                                                                                                    |    ALTA    |     Etapa 3      |      Railan      |     Alta     |  Etapa 3 (No prazo)  |
+| RF-010 | Permitir o controle de estoque e disponibilidade de medicamentos                                                                                                                             |   MÉDIA    |     Etapa 3      |     Deborah      |    Média     |  Etapa 3 (No prazo)  |
+| RF-011 | Permitir o agendamento e o registro de vacinas, vermífugos e castrações                                                                                                                      |   MÉDIA    |     Etapa 4      |      Aliane      |    Baixa     | Etapa 3 (Antecipado) |
+| RF-012 | Permitir o registro e gestão do fluxo de adoção                                                                                                                                              |   MÉDIA    |     Etapa 4      |      Railan      |    Média     |     (Para fazer)     |
+| RF-013 | Permitir o registro de instituições parceiras                                                                                                                                                |   MÉDIA    |     Etapa 4      |     Deborah      |    Baixa     |     (Para fazer)     |
+| RF-014 | Exibir dashboard na página inicial com atalhos estratégicos e histórico de últimas alterações dos usuários                                                                                   |   MÉDIA    |     Etapa 4      | Murilo e Aliane  |    Média     |     (Para fazer)     |
+| RF-015 | Permitir a exportação de relatórios                                                                                                                                                          |   BAIXA    |     Etapa 4      | Wesley e Deborah |    Média     |     (Para fazer)     |
+| RF-016 | Permitir o registro de dados no dispositivo mesmo sem conexão, sincronizando-os com o servidor automaticamente ou por acionamento manual do usuário                                          |    ALTA    |     Etapa 3      |      Nelson      |     Alta     |  Etapa 3 (No prazo)  |
 
 ### Requisitos Não Funcionais
 
@@ -365,7 +371,7 @@ O projeto está restrito pelos itens apresentados na tabela a seguir.
 | UC-16 | Registrar adoção                           | Administrador                               | Cadastra a adoção com dados do adotante e anexo do termo de responsabilidade. *«include» UC-06*    | RF-012         |
 | UC-17 | Registrar devolução                        | Administrador                               | Cadastra a devolução com motivo e anexos, retornando o animal ao registro ativo. *«extends» UC-16* | RF-012         |
 | UC-18 | Gerenciar instituições parceiras           | Administrador, Auxiliar                     | Mantém a lista de contatos de instituições parceiras por área de atuação e informações importantes | RF-013         |
-| UC-19 | Consultar dashboard                        | Todos                                       | Visualiza lembretes da semana, totais por sala e novos cadastros.                                  | RF-014         |
+| UC-19 | Consultar dashboard                        | Todos                                       | Visualiza lembretes da semana, totais por sala, novos cadastros e últimas alterações dos usuários. | RF-014         |
 | UC-20 | Exportar relatório                         | Administrador                               | Gera em tela, PDF ou Excel os relatórios de ficha, prescrições, vacinas, vermífugos e castrações.  | RF-015         |
 | UC-21 | Sincronizar dados offline                  | Serviço de Sincronização                    | Envia à API a fila de operações registradas sem conexão e confirma a gravação.                     | RF-016         |
 

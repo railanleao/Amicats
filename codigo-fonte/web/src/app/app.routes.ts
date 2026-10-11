@@ -30,6 +30,9 @@ import { InternalPrescriptionFormComponent } from './pages/internal-prescription
 import { ExternalAttendanceFormComponent } from './pages/external-attendance/external-attendance-form.component';
 import { TransferRoomComponent } from './pages/transfer-room/transfer-room.component';
 import { administratorOrVeterinarianGuard } from './guards/administrator-or-veterinarian.guard';
+import { HealthProceduresComponent } from './pages/health-procedures/health-procedures.component';
+import { HealthProcedureFormComponent } from './pages/health-procedure-form/health-procedure-form.component';
+import { HealthProcedureDetailComponent } from './pages/health-procedure-detail/health-procedure-detail.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -105,6 +108,27 @@ export const routes: Routes = [
       },
       { path: 'medical-records', component: MedicalRecordsComponent },
       { path: 'medical-records/:id', component: MedicalRecordDetailComponent },
+      { path: 'health-procedures', component: HealthProceduresComponent },
+      {
+        path: 'health-procedures/new',
+        component: HealthProcedureFormComponent,
+        canActivate: [
+          roleGuard(['Administrator', 'Veterinarian', 'Assistant']),
+        ],
+        data: { mode: 'create' },
+      },
+      {
+        path: 'health-procedures/:id',
+        component: HealthProcedureDetailComponent,
+      },
+      {
+        path: 'health-procedures/:id/edit',
+        component: HealthProcedureFormComponent,
+        canActivate: [
+          roleGuard(['Administrator', 'Veterinarian', 'Assistant']),
+        ],
+        data: { mode: 'edit' },
+      },
       {
         path: 'stock',
         component: StockComponent,
@@ -115,17 +139,13 @@ export const routes: Routes = [
       {
         path: 'stock/:id/edit',
         component: StockFormComponent,
-        canActivate: [
-          roleGuard(['Administrator', 'Assistant']),
-        ],
+        canActivate: [roleGuard(['Administrator', 'Assistant'])],
         data: { mode: 'edit' },
       },
       {
         path: 'stock/entries/new',
         component: StockEntryComponent,
-        canActivate: [
-          roleGuard(['Administrator', 'Assistant']),
-        ],
+        canActivate: [roleGuard(['Administrator', 'Assistant'])],
       },
       {
         path: 'medical-records/:id/internal-prescriptions/new',

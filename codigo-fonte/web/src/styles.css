@@ -36,6 +36,13 @@
   --color-warning: #8a6c19;
   --color-warning-bg: #f8ecc8;
 
+  --color-info: #3f6a7e;
+  --color-info-bg: color-mix(
+    in srgb,
+    var(--color-sky) 18%,
+    var(--color-surface)
+  );
+
   --color-coral-dark: #c76a44;
   --color-danger: #c2564a;
   --color-danger-bg: #f5e4e1;
@@ -72,7 +79,6 @@ body {
 a {
   color: inherit;
 }
-
 
 .form-actions {
   display: flex;

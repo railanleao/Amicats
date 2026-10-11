@@ -1,3 +1,4 @@
+import type { CreateStockEntryRequest } from '../types/stock';
 import type { Cat, CreateCatRequest } from '../types/cat';
 import type { StoreOps } from './store';
 import type { HttpRequest, OperationType } from './types';
@@ -29,18 +30,10 @@ export interface UploadCatPhotoPayload {
   fileUri: string;
 }
 
-export interface StockEntryRequest {
-  stockItemId: number;
-  origin: 'DONATED' | 'PURCHASED';
-  donorName: string | null;
-  quantity: number;
-  entryDate: string;
-  expirationDate: string | null;
-}
 
 export interface CreateStockEntryPayload {
   itemName: string;
-  request: StockEntryRequest;
+  request: CreateStockEntryRequest;
 }
 
 export interface PrescriptionMedicationRequest {
