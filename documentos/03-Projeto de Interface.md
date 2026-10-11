@@ -144,6 +144,10 @@ Painel administrativo usado pela equipe da ONG (administradores, médicos-veteri
 
 ![Transferência de Sala](img/telas/web/31-transferencia-de-sala.png)
 
+### Histórico de Alterações
+
+![Histórico de Alterações](img/telas/web/33-historico-de-alteracoes.png)
+
 ### Prontuários
 
 ![Prontuários](img/telas/web/32-prontuarios.png)
