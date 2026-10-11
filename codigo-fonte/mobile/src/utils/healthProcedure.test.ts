@@ -11,8 +11,14 @@ import {
   healthProcedureName,
   healthProcedureStatusLabel,
   healthProcedureTone,
+  isBoosterInPast,
   parseDateInput,
+  resolveBoosterDate,
   todayIsoDate,
+  validateBoosterDate,
+  validateCompletedDate,
+  validateProcedureName,
+  validateScheduledDate,
 } from './healthProcedure';
 
 class FakeApiError extends Error {
@@ -157,5 +163,45 @@ describe('healthProcedureErrorMessage', () => {
   it('falls back for anything else', () => {
     assert.equal(healthProcedureErrorMessage(new FakeApiError('erro', 500), 'Fallback'), 'Fallback');
     assert.equal(healthProcedureErrorMessage(new Error('network'), 'Fallback'), 'Fallback');
+  });
+});
+
+describe('form validation', () => {
+  const today = '2026-10-10';
+
+  it('requires the procedure name', () => {
+    assert.equal(validateProcedureName('  '), 'Informe o nome da vacina ou do vermífugo.');
+    assert.equal(validateProcedureName('Antirrábica'), true);
+  });
+
+  it('rejects an invalid or past scheduled date', () => {
+    assert.equal(validateScheduledDate('31/02/2026', today, null), 'Informe uma data válida (dd/mm/aaaa).');
+    assert.equal(validateScheduledDate('09/10/2026', today, null), 'A data agendada não pode estar no passado.');
+    assert.equal(validateScheduledDate('10/10/2026', today, null), true);
+  });
+
+  it('keeps a past scheduled date that was not changed while editing', () => {
+    assert.equal(validateScheduledDate('01/10/2026', today, '2026-10-01'), true);
+    assert.equal(validateScheduledDate('02/10/2026', today, '2026-10-01'), 'A data agendada não pode estar no passado.');
+  });
+
+  it('rejects an invalid or future completed date', () => {
+    assert.equal(validateCompletedDate('', today), 'Informe uma data válida (dd/mm/aaaa).');
+    assert.equal(validateCompletedDate('11/10/2026', today), 'A data de realização não pode estar no futuro.');
+    assert.equal(validateCompletedDate('10/10/2026', today), true);
+  });
+
+  it('rejects an invalid or past custom booster date', () => {
+    assert.equal(validateBoosterDate('10/2026', today), 'Informe a data do reforço (dd/mm/aaaa).');
+    assert.equal(validateBoosterDate('09/10/2026', today), 'A data do reforço não pode estar no passado.');
+    assert.equal(validateBoosterDate('10/10/2026', today), true);
+  });
+
+  it('flags a computed booster that falls in the past', () => {
+    const booster = resolveBoosterDate('01/06/2026', 'threeMonths', '');
+    assert.equal(booster, '2026-09-01');
+    assert.equal(isBoosterInPast('threeMonths', booster, today), true);
+    assert.equal(isBoosterInPast('oneYear', resolveBoosterDate('01/06/2026', 'oneYear', ''), today), false);
+    assert.equal(isBoosterInPast('custom', '2026-09-01', today), false);
   });
 });

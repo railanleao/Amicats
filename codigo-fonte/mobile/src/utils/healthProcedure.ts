@@ -93,6 +93,42 @@ export function boosterDate(completedDate: string | null, option: BoosterOption,
   return completedDate ? addMonthsToIsoDate(completedDate, BOOSTER_MONTHS[option]) : null;
 }
 
+export function resolveBoosterDate(completedDateInput: string, option: BoosterOption, customDateInput: string): string | null {
+  return boosterDate(parseDateInput(completedDateInput), option, parseDateInput(customDateInput));
+}
+
+export function isBoosterInPast(option: BoosterOption, date: string | null, today: string): boolean {
+  return option !== 'custom' && date !== null && date < today;
+}
+
+export function validateProcedureName(value: string): true | string {
+  return value.trim() !== '' || 'Informe o nome da vacina ou do vermífugo.';
+}
+
+export function validateScheduledDate(value: string, today: string, originalDate: string | null): true | string {
+  const isoDate = parseDateInput(value);
+  if (!isoDate) {
+    return 'Informe uma data válida (dd/mm/aaaa).';
+  }
+  return isoDate === originalDate || isoDate >= today || 'A data agendada não pode estar no passado.';
+}
+
+export function validateCompletedDate(value: string, today: string): true | string {
+  const isoDate = parseDateInput(value);
+  if (!isoDate) {
+    return 'Informe uma data válida (dd/mm/aaaa).';
+  }
+  return isoDate <= today || 'A data de realização não pode estar no futuro.';
+}
+
+export function validateBoosterDate(value: string, today: string): true | string {
+  const isoDate = parseDateInput(value);
+  if (!isoDate) {
+    return 'Informe a data do reforço (dd/mm/aaaa).';
+  }
+  return isoDate >= today || 'A data do reforço não pode estar no passado.';
+}
+
 export function changeDescription(change: HealthProcedureChange): string | null {
   if (!change.field) {
     return null;
