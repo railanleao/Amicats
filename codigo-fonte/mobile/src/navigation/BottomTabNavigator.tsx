@@ -5,15 +5,17 @@ import { CatsScreen } from '../screens/CatsScreen';
 import { ComingSoonScreen } from '../screens/ComingSoonScreen';
 import { HomeScreen } from '../screens/HomeScreen';
 import { SearchScreen } from '../screens/SearchScreen';
+import { StockScreen } from '../screens/StockScreen';
 import { colors } from '../theme/colors';
 import { resolveFontFamily } from '../theme/fonts';
-import type { User } from '../types/auth';
+import { canManageStock, canViewStock, type User } from '../types/auth';
 
 export type BottomTabParamList = {
   Home: undefined;
   Cats: undefined;
   Doses: undefined;
   Search: undefined;
+  Stock: undefined;
 };
 
 const Tab = createBottomTabNavigator<BottomTabParamList>();
@@ -23,6 +25,7 @@ const TAB_ICONS: Record<keyof BottomTabParamList, keyof typeof Ionicons.glyphMap
   Cats: 'paw',
   Doses: 'medkit',
   Search: 'search',
+  Stock: 'archive',
 };
 
 const TAB_ICONS_OUTLINE: Record<keyof BottomTabParamList, keyof typeof Ionicons.glyphMap> = {
@@ -30,6 +33,7 @@ const TAB_ICONS_OUTLINE: Record<keyof BottomTabParamList, keyof typeof Ionicons.
   Cats: 'paw-outline',
   Doses: 'medkit-outline',
   Search: 'search-outline',
+  Stock: 'archive-outline',
 };
 
 interface BottomTabNavigatorProps {
@@ -40,17 +44,19 @@ interface BottomTabNavigatorProps {
   onOpenSync: () => void;
   onOpenMedicalRecords: () => void;
   onOpenHealthProcedures: () => void;
+  onOpenStockEntry: () => void;
 }
 
 export function BottomTabNavigator({
-  user,
-  onLogout,
-  onNewCat,
-  onOpenCat,
-  onOpenSync,
-  onOpenMedicalRecords,
-  onOpenHealthProcedures,
-}: BottomTabNavigatorProps) {
+                                     user,
+                                     onLogout,
+                                     onNewCat,
+                                     onOpenCat,
+                                     onOpenSync,
+                                     onOpenMedicalRecords,
+                                     onOpenHealthProcedures,
+                                     onOpenStockEntry,
+                                   }: BottomTabNavigatorProps) {
   return (
     <Tab.Navigator
       screenOptions={({ route }: { route: RouteProp<BottomTabParamList, keyof BottomTabParamList> }) => ({
@@ -71,11 +77,12 @@ export function BottomTabNavigator({
       })}
     >
       <Tab.Screen name="Home" options={{ title: 'Início' }}>
-        {() => (
+        {({ navigation }) => (
           <HomeScreen
             user={user}
             onNewCat={onNewCat}
             onOpenSync={onOpenSync}
+            onOpenStock={() => navigation.navigate('Stock')}
             onOpenMedicalRecords={onOpenMedicalRecords}
             onOpenHealthProcedures={onOpenHealthProcedures}
           />
@@ -88,6 +95,17 @@ export function BottomTabNavigator({
       <Tab.Screen name="Search" options={{ title: 'Busca' }}>
         {() => <SearchScreen onOpenCat={onOpenCat} />}
       </Tab.Screen>
+      {canViewStock(user.accessType) && (
+        <Tab.Screen name="Stock" options={{ tabBarButton: () => null }}>
+          {({ navigation }) => (
+            <StockScreen
+              canManageStock={canManageStock(user.accessType)}
+              onBack={() => navigation.navigate('Home')}
+              onRegisterEntry={onOpenStockEntry}
+            />
+          )}
+        </Tab.Screen>
+      )}
     </Tab.Navigator>
   );
 }

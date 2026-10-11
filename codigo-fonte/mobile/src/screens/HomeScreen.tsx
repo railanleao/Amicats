@@ -10,7 +10,7 @@ import { listActiveRooms } from '../services/roomService';
 import { findMostUrgentStockItem } from '../services/stockService';
 import { colors } from '../theme/colors';
 import { formatLongDate } from '../utils/date';
-import type { User } from '../types/auth';
+import { canViewStock, type User } from '../types/auth';
 import type { StockItem } from '../types/stock';
 import { styles } from './HomeScreen.styles';
 
@@ -18,6 +18,7 @@ interface HomeScreenProps {
   user: User;
   onNewCat: () => void;
   onOpenSync: () => void;
+  onOpenStock: () => void;
   onOpenMedicalRecords: () => void;
   onOpenHealthProcedures: () => void;
 }
@@ -33,6 +34,8 @@ const MAX_ROOMS_SHOWN = 3;
 // Matches the same threshold used on the web dashboard's occupancy card.
 const HIGH_OCCUPANCY_THRESHOLD = 0.85;
 
+// dados falsos até o registro de doses (RF-009) e os contatos (RF-003, RF-013) estarem
+// implementados. O aviso de estoque baixo abaixo já usa o /stock real (ver useEffect).
 const PENDING_DOSES = [
   {
     catName: 'Mia',
@@ -86,7 +89,14 @@ function syncSummary(online: boolean, pending: number, rejected: number): string
   return 'Tudo sincronizado';
 }
 
-export function HomeScreen({ user, onNewCat, onOpenSync, onOpenMedicalRecords, onOpenHealthProcedures }: HomeScreenProps) {
+export function HomeScreen({
+                             user,
+                             onNewCat,
+                             onOpenSync,
+                             onOpenStock,
+                             onOpenMedicalRecords,
+                             onOpenHealthProcedures,
+                           }: HomeScreenProps) {
   const { online, pending, rejected } = useSync();
   const needsAttention = !online || pending > 0 || rejected > 0;
   const canPrescribe = user.accessType === 'Veterinarian';
@@ -190,6 +200,16 @@ export function HomeScreen({ user, onNewCat, onOpenSync, onOpenMedicalRecords, o
           <TouchableOpacity style={styles.shortcutButton} onPress={onNewCat} accessibilityRole="button">
             <Text style={styles.shortcutText}>+ Novo gato</Text>
           </TouchableOpacity>
+          {canViewStock(user.accessType) && (
+            <TouchableOpacity
+              style={styles.shortcutButton}
+              onPress={onOpenStock}
+              accessibilityRole="button"
+              accessibilityLabel="Abrir estoque"
+            >
+              <Text style={styles.shortcutText}>Estoque</Text>
+            </TouchableOpacity>
+          )}
           <TouchableOpacity style={styles.shortcutButton} onPress={onOpenMedicalRecords} accessibilityRole="button">
             <Text style={styles.shortcutText}>Prontuários</Text>
           </TouchableOpacity>
