@@ -15,6 +15,7 @@ import { NewCatScreen } from '../screens/NewCatScreen';
 import { NewInternalPrescriptionScreen } from '../screens/NewInternalPrescriptionScreen';
 import { NewPasswordScreen } from '../screens/NewPasswordScreen';
 import { SelectCatScreen } from '../screens/SelectCatScreen';
+import { StockEntryScreen } from '../screens/StockEntryScreen';
 import { SyncScreen } from '../screens/SyncScreen';
 import { TermsAcceptanceScreen } from '../screens/TermsAcceptanceScreen';
 import { TransferRoomScreen } from '../screens/TransferRoomScreen';
@@ -41,6 +42,7 @@ type RootStackParamList = {
   CompleteHealthProcedure: { procedureId: number };
   CancelHealthProcedure: { procedureId: number };
   Sync: undefined;
+  StockEntry: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -88,6 +90,7 @@ export function RootNavigator({ user, onLogin, onLogout, onAcceptTerms, onChange
                   onOpenSync={() => navigation.navigate('Sync')}
                   onOpenMedicalRecords={() => navigation.navigate('MedicalRecords')}
                   onOpenHealthProcedures={() => navigation.navigate('HealthProcedures')}
+                  onOpenStockEntry={() => navigation.navigate('StockEntry')}
                   onNewPrescription={() => navigation.navigate('SelectCat', { purpose: 'prescription' })}
                   onTransferRoom={() => navigation.navigate('SelectCat', { purpose: 'transfer' })}
                   canPrescribe={canPrescribe}
@@ -242,6 +245,13 @@ export function RootNavigator({ user, onLogin, onLogout, onAcceptTerms, onChange
               {({ navigation }) => (
                 <StatusBarInset>
                   <SyncScreen onBack={() => navigation.goBack()} />
+                </StatusBarInset>
+              )}
+            </Stack.Screen>
+            <Stack.Screen name="StockEntry" options={{ presentation: 'modal' }}>
+              {({ navigation }) => (
+                <StatusBarInset>
+                  <StockEntryScreen onBack={() => navigation.goBack()} onSaved={() => navigation.goBack()} />
                 </StatusBarInset>
               )}
             </Stack.Screen>

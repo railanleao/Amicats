@@ -10,7 +10,7 @@ import { listActiveRooms } from '../services/roomService';
 import { findMostUrgentStockItem } from '../services/stockService';
 import { colors } from '../theme/colors';
 import { formatLongDate } from '../utils/date';
-import type { User } from '../types/auth';
+import { canViewStock, type User } from '../types/auth';
 import type { StockItem } from '../types/stock';
 import { styles } from './HomeScreen.styles';
 
@@ -18,6 +18,7 @@ interface HomeScreenProps {
   user: User;
   onNewCat: () => void;
   onOpenSync: () => void;
+  onOpenStock: () => void;
   onOpenMedicalRecords: () => void;
   onOpenHealthProcedures: () => void;
   onNewPrescription: () => void;
@@ -64,6 +65,7 @@ export function HomeScreen({
   user,
   onNewCat,
   onOpenSync,
+  onOpenStock,
   onOpenMedicalRecords,
   onOpenHealthProcedures,
   onNewPrescription,
@@ -166,6 +168,16 @@ export function HomeScreen({
           <TouchableOpacity style={styles.shortcutButton} onPress={onNewCat} accessibilityRole="button">
             <Text style={styles.shortcutText}>+ Novo gato</Text>
           </TouchableOpacity>
+          {canViewStock(user.accessType) && (
+            <TouchableOpacity
+              style={styles.shortcutButton}
+              onPress={onOpenStock}
+              accessibilityRole="button"
+              accessibilityLabel="Abrir estoque"
+            >
+              <Text style={styles.shortcutText}>Estoque</Text>
+            </TouchableOpacity>
+          )}
           <TouchableOpacity style={styles.shortcutButton} onPress={onOpenMedicalRecords} accessibilityRole="button">
             <Text style={styles.shortcutText}>Prontuários</Text>
           </TouchableOpacity>
