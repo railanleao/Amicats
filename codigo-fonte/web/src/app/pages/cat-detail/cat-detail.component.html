@@ -1,7 +1,16 @@
 <div class="page">
   <header class="breadcrumb">
-    <a routerLink="/cats" class="breadcrumb__back" aria-label="Voltar para Gatos">
-      <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <a
+      routerLink="/cats"
+      class="breadcrumb__back"
+      aria-label="Voltar para Gatos"
+    >
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 18 18"
+        xmlns="http://www.w3.org/2000/svg"
+      >
         <path
           d="M11 3.5L5 9l6 5.5"
           fill="none"
@@ -138,11 +147,91 @@
         @if (canTransferRoom) {
           <div class="side-card">
             <span class="section__title">Ações</span>
-            <a [routerLink]="['/cats', c.id, 'transfer-room']" class="action-button">
+            <a
+              [routerLink]="['/cats', c.id, 'transfer-room']"
+              class="action-button"
+            >
               Transferir de sala
             </a>
           </div>
         }
+
+        <div class="side-card">
+          <span class="section__title">Vacinas, vermífugos e castração</span>
+
+          @if (healthSummary(); as health) {
+            <div class="metadata-row">
+              <span class="metadata-row__label">Última vacina</span>
+              <span class="metadata-row__value">
+                @if (health.lastVaccine; as vaccine) {
+                  {{ vaccine.name }} ·
+                  {{ vaccine.completedDate | date: "dd/MM/yyyy" }}
+                } @else {
+                  —
+                }
+              </span>
+            </div>
+
+            <div class="metadata-row">
+              <span class="metadata-row__label">Último vermífugo</span>
+              <span class="metadata-row__value">
+                @if (health.lastDeworming; as deworming) {
+                  {{ deworming.name }} ·
+                  {{ deworming.completedDate | date: "dd/MM/yyyy" }}
+                } @else {
+                  —
+                }
+              </span>
+            </div>
+
+            <div class="metadata-row">
+              <span class="metadata-row__label">Castração</span>
+              <span class="metadata-row__value">
+                {{ neuteringLabel(c) }}
+                @if (health.neuteringDate) {
+                  · {{ health.neuteringDate | date: "dd/MM/yyyy" }}
+                }
+              </span>
+            </div>
+
+            <div class="metadata-row">
+              <span class="metadata-row__label">Próximo agendado</span>
+              <span class="metadata-row__value">
+                @if (health.nextScheduled; as next) {
+                  {{ procedureName(next) }} ·
+                  {{ next.scheduledDate | date: "dd/MM/yyyy" }}
+                } @else {
+                  —
+                }
+              </span>
+            </div>
+          } @else if (healthSummaryLoading()) {
+            <span class="metadata-row__label">Carregando...</span>
+          } @else {
+            <span class="metadata-row__label">
+              Não foi possível carregar as informações de saúde.
+            </span>
+          }
+
+          <div class="health-actions">
+            <a
+              class="health-link"
+              routerLink="/health-procedures"
+              [queryParams]="{ catId: c.id }"
+            >
+              Ver agendamentos
+            </a>
+            @if (canManageHealth()) {
+              <a
+                class="health-button"
+                routerLink="/health-procedures/new"
+                [queryParams]="{ catId: c.id }"
+              >
+                + Novo agendamento
+              </a>
+            }
+          </div>
+        </div>
 
         <div class="side-card">
           <span class="section__title">Apadrinhamento</span>
