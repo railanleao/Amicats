@@ -5,11 +5,10 @@ import { CatsScreen } from '../screens/CatsScreen';
 import { ComingSoonScreen } from '../screens/ComingSoonScreen';
 import { HomeScreen } from '../screens/HomeScreen';
 import { SearchScreen } from '../screens/SearchScreen';
+import { StockScreen } from '../screens/StockScreen';
 import { colors } from '../theme/colors';
 import { resolveFontFamily } from '../theme/fonts';
-import type { User } from '../types/auth';
-import { StockScreen } from '../screens/StockScreen';
-import { canManageStock, canViewStock } from '../types/auth';
+import { canManageStock, canViewStock, type User } from '../types/auth';
 
 export type BottomTabParamList = {
   Home: undefined;
@@ -44,18 +43,21 @@ interface BottomTabNavigatorProps {
   onOpenCat: (catId: number) => void;
   onOpenSync: () => void;
   onOpenMedicalRecords: () => void;
+  onOpenHealthProcedures: () => void;
   onOpenStockEntry: () => void;
 }
 
 export function BottomTabNavigator({
-  user,
-  onLogout,
-  onNewCat,
-  onOpenCat,
-  onOpenSync,
-  onOpenMedicalRecords,
-  onOpenStockEntry,
-}: BottomTabNavigatorProps) {  return (
+                                     user,
+                                     onLogout,
+                                     onNewCat,
+                                     onOpenCat,
+                                     onOpenSync,
+                                     onOpenMedicalRecords,
+                                     onOpenHealthProcedures,
+                                     onOpenStockEntry,
+                                   }: BottomTabNavigatorProps) {
+  return (
     <Tab.Navigator
       screenOptions={({ route }: { route: RouteProp<BottomTabParamList, keyof BottomTabParamList> }) => ({
         headerShown: false,
@@ -80,8 +82,9 @@ export function BottomTabNavigator({
             user={user}
             onNewCat={onNewCat}
             onOpenSync={onOpenSync}
-            onOpenMedicalRecords={onOpenMedicalRecords}
             onOpenStock={() => navigation.navigate('Stock')}
+            onOpenMedicalRecords={onOpenMedicalRecords}
+            onOpenHealthProcedures={onOpenHealthProcedures}
           />
         )}
       </Tab.Screen>
@@ -92,24 +95,17 @@ export function BottomTabNavigator({
       <Tab.Screen name="Search" options={{ title: 'Busca' }}>
         {() => <SearchScreen onOpenCat={onOpenCat} />}
       </Tab.Screen>
-
-    {canViewStock(user.accessType) && (
-      <Tab.Screen
-        name="Stock"
-        options={{
-          tabBarButton: () => null,
-        }}
-      >
-        {({ navigation }) => (
-          <StockScreen
-            canManageStock={canManageStock(user.accessType)}
-            onBack={() => navigation.navigate('Home')}
+      {canViewStock(user.accessType) && (
+        <Tab.Screen name="Stock" options={{ tabBarButton: () => null }}>
+          {({ navigation }) => (
+            <StockScreen
+              canManageStock={canManageStock(user.accessType)}
+              onBack={() => navigation.navigate('Home')}
               onRegisterEntry={onOpenStockEntry}
-          />
-        )}
-      </Tab.Screen>
-    )}
-
+            />
+          )}
+        </Tab.Screen>
+      )}
     </Tab.Navigator>
   );
 }

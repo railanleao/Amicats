@@ -13,6 +13,10 @@ export const styles = StyleSheet.create({
     backgroundColor: colors.primary,
     paddingVertical: spacing.md,
   },
+  buttonDanger: {
+    backgroundColor: colors.danger,
+    paddingVertical: spacing.md,
+  },
   buttonOutline: {
     backgroundColor: colors.surface,
     borderColor: colors.border,
