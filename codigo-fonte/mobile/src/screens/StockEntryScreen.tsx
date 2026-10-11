@@ -17,7 +17,10 @@ import {
   KeyboardAwareScrollView,
 } from '../components';
 import { Text } from '../components/Text';
-import { createStockItem } from '../services/stockService';
+import {
+  createStockItem,
+  listStock,
+} from '../services/stockService';
 import { stockRepository } from '../sync/runtime';
 import { useSync } from '../sync/SyncContext';
 import { colors } from '../theme/colors';
@@ -50,7 +53,7 @@ export function StockEntryScreen({
     changeSearchInput,
     addStockItem,
   } = useStockItemSearch();
-  const { userId } = useSync();
+  const { userId, online, syncNow } = useSync();
   const [creatingNewItem, setCreatingNewItem] = useState(false);
   const [generalError, setGeneralError] = useState<string>();
   const [submitting, setSubmitting] = useState(false);
@@ -109,24 +112,68 @@ const selectedStockItem = selectedStockItemId
       );
 
       if (creatingNewItem) {
-        if (!trimmedItemName || !values.newItemCategory) {
+        if (
+          !trimmedItemName ||
+          !values.newItemCategory ||
+          !values.newItemUnit.trim()
+        ) {
           setGeneralError(
-            'Informe o nome e a categoria do novo medicamento.',
+            'Informe o nome, a categoria e a unidade do novo medicamento.',
           );
           return;
         }
 
-        stockItem = await createStockItem(
-          buildNewStockItemRequest(
-            trimmedItemName,
-            values.newItemCategory,
-          ),
-        );
+        if (!online) {
+          setGeneralError(
+            'É necessário estar online para cadastrar um novo medicamento.',
+          );
+          return;
+        }
+
+        let exactExistingItem;
+
+        try {
+          const result = await listStock({
+            search: trimmedItemName,
+            page: 0,
+            size: 20,
+          });
+
+          exactExistingItem = result.content.find(
+            (item) =>
+              item.name.trim().toLocaleLowerCase('pt-BR') ===
+              trimmedItemName.toLocaleLowerCase('pt-BR'),
+          );
+        } catch {
+          setGeneralError(
+            'Não foi possível verificar se o medicamento já existe. Tente novamente.',
+          );
+          return;
+        }
+
+        if (exactExistingItem) {
+          stockItem = exactExistingItem;
+        } else {
+          try {
+            stockItem = await createStockItem(
+              buildNewStockItemRequest(
+                trimmedItemName,
+                values.newItemCategory,
+                values.newItemUnit,
+              ),
+            );
+          } catch {
+            setGeneralError(
+              'Não foi possível cadastrar o novo medicamento. Verifique sua conexão e tente novamente.',
+            );
+            return;
+          }
+        }
 
         addStockItem(stockItem);
         setValue('stockItemId', String(stockItem.id));
         setCreatingNewItem(false);
-      }
+        }
 
       if (!stockItem) {
         setGeneralError('Selecione um item do estoque.');
@@ -145,16 +192,21 @@ const selectedStockItem = selectedStockItemId
         expirationDate: parsedExpirationDate,
       };
 
-      await stockRepository.createStockEntry(
-        userId,
-        stockItem.name,
-        request,
-      );
+     await stockRepository.createStockEntry(
+       userId,
+       stockItem.name,
+       request,
+     );
 
-      onSaved();
+     if (online) {
+       await syncNow();
+     }
+
+     onSaved();
+
     } catch {
       setGeneralError(
-        'Não foi possível criar o item ou registrar a entrada de estoque.',
+        'Não foi possível registrar a entrada de estoque. Tente novamente.',
       );
     } finally {
       setSubmitting(false);
@@ -166,6 +218,7 @@ function handleItemSearchChange(text: string): void {
   setCreatingNewItem(false);
   setValue('stockItemId', null);
   setValue('newItemCategory', null);
+  setValue('newItemUnit', '');
 }
 
 const trimmedItemName = itemSearchInput.trim();

@@ -13,6 +13,7 @@ import {
 export interface StockEntryFormValues {
   stockItemId: string | null;
   newItemCategory: string | null;
+  newItemUnit: string;
   origin: StockEntryOrigin | null;
   donorName: string;
   quantity: string;
@@ -34,6 +35,7 @@ export const TODAY_ISO = localIsoDate();
 export const STOCK_ENTRY_DEFAULT_VALUES: StockEntryFormValues = {
   stockItemId: null,
   newItemCategory: null,
+  newItemUnit: '',
   origin: null,
   donorName: '',
   quantity: '',

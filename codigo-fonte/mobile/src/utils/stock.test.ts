@@ -4,17 +4,18 @@ import { describe, it } from 'node:test';
 import { buildNewStockItemRequest } from './stock';
 
 describe('buildNewStockItemRequest', () => {
-  it('builds a new stock item with the mobile defaults', () => {
+  it('builds a new stock item with the informed unit', () => {
     const request = buildNewStockItemRequest(
       '  Dipirona 500mg  ',
-      'Anti-inflamatório',
+      'Medicamento',
+      '  comprimidos  ',
     );
 
     assert.deepEqual(request, {
       name: 'Dipirona 500mg',
-      category: 'Anti-inflamatório',
+      category: 'Medicamento',
       quantity: 0,
-      unit: 'unidades',
+      unit: 'comprimidos',
       notes: null,
     });
   });

@@ -5,6 +5,7 @@ import { CatDetailScreen } from '../screens/CatDetailScreen';
 import { ForgotPasswordScreen } from '../screens/ForgotPasswordScreen';
 import { LoginScreen } from '../screens/LoginScreen';
 import { NewCatScreen } from '../screens/NewCatScreen';
+import { MedicalRecordsScreen } from '../screens/MedicalRecordsScreen';
 import { MedicalRecordScreen } from '../screens/MedicalRecordScreen';
 import { NewInternalPrescriptionScreen } from '../screens/NewInternalPrescriptionScreen';
 import { NewPasswordScreen } from '../screens/NewPasswordScreen';

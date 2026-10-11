@@ -104,27 +104,60 @@ export function StockEntryItemSection({
           </Text>
 
           <Controller
-            control={control}
-            name="newItemCategory"
-            rules={{
-              validate: (value) =>
-                !creatingNewItem ||
-                Boolean(value) ||
-                'Selecione a categoria.',
-            }}
-            render={({ field: { value, onChange } }) => (
-              <SelectField
-                label="Categoria"
-                value={value}
-                placeholder="Selecione"
-                options={STOCK_CATEGORY_OPTIONS}
-                onChange={onChange}
-                error={errors.newItemCategory?.message}
+                control={control}
+                name="newItemCategory"
+                rules={{
+                  validate: (value) =>
+                    !creatingNewItem ||
+                    Boolean(value) ||
+                    'Selecione a categoria.',
+                }}
+                render={({ field: { value, onChange } }) => (
+                  <SelectField
+                    label="Categoria"
+                    value={value}
+                    placeholder="Selecione"
+                    options={STOCK_CATEGORY_OPTIONS}
+                    onChange={onChange}
+                    error={errors.newItemCategory?.message}
+                  />
+                )}
               />
-            )}
-          />
-        </>
-      ) : null}
+
+              <Controller
+                control={control}
+                name="newItemUnit"
+                rules={{
+                  validate: (value) => {
+                    if (!creatingNewItem) {
+                      return true;
+                    }
+
+                    const unit = value.trim();
+
+                    if (!unit) {
+                      return 'Informe a unidade.';
+                    }
+
+                    if (unit.length > 30) {
+                      return 'A unidade deve ter no máximo 30 caracteres.';
+                    }
+
+                    return true;
+                  },
+                }}
+                render={({ field: { value, onChange } }) => (
+                  <TextField
+                    label="Unidade"
+                    placeholder="Ex.: ml, comprimidos, frascos"
+                    value={value}
+                    onChangeText={onChange}
+                    error={errors.newItemUnit?.message}
+                  />
+                )}
+              />
+            </>
+          ) : null}
     </>
   );
 }
