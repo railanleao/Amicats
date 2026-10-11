@@ -23,6 +23,7 @@ interface CatDetailScreenProps {
   onTransferRoom: (catId: number) => void;
   canTransferRoom: boolean;
   onOpenMedicalRecord: (catId: number) => void;
+  onOpenHealthProcedures: (catId: number, catName: string) => void;
 }
 
 interface Tag {
@@ -93,6 +94,7 @@ export function CatDetailScreen({
   onTransferRoom,
   canTransferRoom,
   onOpenMedicalRecord,
+  onOpenHealthProcedures,
 }: CatDetailScreenProps) {
   const [cat, setCat] = useState<Cat | null>(null);
   const [loading, setLoading] = useState(true);
@@ -281,6 +283,14 @@ export function CatDetailScreen({
 
           <TouchableOpacity style={styles.primaryAction} onPress={() => onOpenMedicalRecord(catId)} accessibilityRole="button">
             <Text style={styles.primaryActionText}>Ver prontuário</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.secondaryAction}
+            onPress={() => onOpenHealthProcedures(catId, cat.name)}
+            accessibilityRole="button"
+          >
+            <Text style={styles.secondaryActionText}>Vacinas, vermífugos e castração</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.secondaryAction} onPress={comingSoon} accessibilityRole="button">
