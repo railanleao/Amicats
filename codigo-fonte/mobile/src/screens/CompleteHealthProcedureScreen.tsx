@@ -238,7 +238,7 @@ export function CompleteHealthProcedureScreen({ procedureId, onBack, onDone }: C
 
               {previewInPast ? (
                 <Text style={styles.warningText}>
-                  Essa data ({formatBrazilianDate(previewDate)}) já passou. Escolha "Outra data" para agendar o reforço.
+                  Essa data ({formatBrazilianDate(previewDate)}) já passou. Escolha “Outra data” para agendar o reforço.
                 </Text>
               ) : previewDate && previewDate >= todayIsoDate() ? (
                 <Text style={styles.hintText}>O reforço será agendado para {formatBrazilianDate(previewDate)}.</Text>
