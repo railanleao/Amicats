@@ -39,9 +39,18 @@ interface BottomTabNavigatorProps {
   onOpenCat: (catId: number) => void;
   onOpenSync: () => void;
   onOpenMedicalRecords: () => void;
+  onOpenHealthProcedures: () => void;
 }
 
-export function BottomTabNavigator({ user, onLogout, onNewCat, onOpenCat, onOpenSync, onOpenMedicalRecords }: BottomTabNavigatorProps) {
+export function BottomTabNavigator({
+  user,
+  onLogout,
+  onNewCat,
+  onOpenCat,
+  onOpenSync,
+  onOpenMedicalRecords,
+  onOpenHealthProcedures,
+}: BottomTabNavigatorProps) {
   return (
     <Tab.Navigator
       screenOptions={({ route }: { route: RouteProp<BottomTabParamList, keyof BottomTabParamList> }) => ({
@@ -62,7 +71,15 @@ export function BottomTabNavigator({ user, onLogout, onNewCat, onOpenCat, onOpen
       })}
     >
       <Tab.Screen name="Home" options={{ title: 'Início' }}>
-        {() => <HomeScreen user={user} onNewCat={onNewCat} onOpenSync={onOpenSync} onOpenMedicalRecords={onOpenMedicalRecords} />}
+        {() => (
+          <HomeScreen
+            user={user}
+            onNewCat={onNewCat}
+            onOpenSync={onOpenSync}
+            onOpenMedicalRecords={onOpenMedicalRecords}
+            onOpenHealthProcedures={onOpenHealthProcedures}
+          />
+        )}
       </Tab.Screen>
       <Tab.Screen name="Cats" options={{ title: 'Gatos' }}>
         {() => <CatsScreen onOpenCat={onOpenCat} />}
