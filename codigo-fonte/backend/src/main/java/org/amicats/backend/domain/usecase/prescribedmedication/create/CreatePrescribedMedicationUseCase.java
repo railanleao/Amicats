@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.text.Normalizer;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import lombok.Builder;
@@ -13,6 +14,7 @@ import org.amicats.backend.domain.entity.PrescribedMedication;
 import org.amicats.backend.domain.entity.StockItem;
 import org.amicats.backend.domain.interfaces.dataprovider.prescribedmedication.PrescribedMedicationDataProvider;
 import org.amicats.backend.domain.interfaces.dataprovider.stock.StockItemDataProvider;
+import org.amicats.backend.domain.policy.DoseAdministrationTimePolicy;
 import org.amicats.backend.domain.usecase.prescribedmedication.read.ReadPrescribedMedicationOutput;
 import org.amicats.backend.exception.ActivePrescribedMedicationConflictException;
 import org.amicats.backend.exception.InvalidPrescribedMedicationException;
@@ -29,6 +31,7 @@ public class CreatePrescribedMedicationUseCase {
       "%s não existia no estoque e foi cadastrado agora, com estoque zerado. Registre a compra ou"
           + " doação na tela de Estoque quando o medicamento chegar.";
 
+  @Builder.Default private ZoneId clinicalZone = DoseAdministrationTimePolicy.DEFAULT_CLINICAL_ZONE;
   private StockItemDataProvider stockItemDataProvider;
   private PrescribedMedicationDataProvider prescribedMedicationDataProvider;
 
@@ -38,7 +41,7 @@ public class CreatePrescribedMedicationUseCase {
       CreatePrescribedMedicationInput input) {
     Cat cat = internalMedicalPrescription.getCat();
     LocalDateTime now = internalMedicalPrescription.getCreatedAt();
-    LocalDate today = now.toLocalDate();
+    LocalDate today = DoseAdministrationTimePolicy.clinicalDate(now, clinicalZone);
 
     StockItem medication = findMedication(input);
     boolean createdInStock = medication == null;

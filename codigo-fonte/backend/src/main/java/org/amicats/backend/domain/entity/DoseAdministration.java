@@ -2,6 +2,7 @@ package org.amicats.backend.domain.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 import java.util.UUID;
@@ -11,6 +12,7 @@ import lombok.NoArgsConstructor;
 import org.amicats.backend.domain.enums.AdministrationRoute;
 import org.amicats.backend.domain.enums.DoseRegistrationOrigin;
 import org.amicats.backend.domain.enums.PrescribedMedicationStatus;
+import org.amicats.backend.domain.policy.DoseAdministrationTimePolicy;
 import org.amicats.backend.exception.DoseAdministrationConflictException;
 import org.amicats.backend.exception.InvalidDoseAdministrationException;
 
@@ -64,12 +66,34 @@ public class DoseAdministration {
       LocalDateTime recordedAt,
       String notes,
       DoseRegistrationOrigin origin) {
+    return register(
+        medication,
+        user,
+        operationId,
+        administeredAt,
+        recordedAt,
+        notes,
+        origin,
+        DoseAdministrationTimePolicy.DEFAULT_CLINICAL_ZONE);
+  }
+
+  /** Times are UTC; the prescription dates belong to the clinical calendar. */
+  public static DoseAdministration register(
+      PrescribedMedication medication,
+      User user,
+      UUID operationId,
+      LocalDateTime administeredAt,
+      LocalDateTime recordedAt,
+      String notes,
+      DoseRegistrationOrigin origin,
+      ZoneId clinicalZone) {
     if (medication == null
         || user == null
         || operationId == null
         || administeredAt == null
         || recordedAt == null
-        || origin == null) {
+        || origin == null
+        || clinicalZone == null) {
       throw new InvalidDoseAdministrationException("Informe todos os dados obrigatórios da dose.");
     }
     LocalDateTime applied = administeredAt.truncatedTo(ChronoUnit.MICROS);
@@ -78,12 +102,13 @@ public class DoseAdministration {
     if (normalizedNotes != null && normalizedNotes.length() > 2000) {
       throw new InvalidDoseAdministrationException("Observações devem ter até 2000 caracteres.");
     }
-    if (applied.isAfter(recorded)) {
-      throw new InvalidDoseAdministrationException("A aplicação não pode estar no futuro.");
+    if (DoseAdministrationTimePolicy.exceedsFutureSkew(applied, recorded)) {
+      throw new InvalidDoseAdministrationException(
+          "A aplicação não pode estar mais de 5 minutos no futuro.");
     }
     if (applied.isBefore(medication.getCreatedAt())
-        || applied.toLocalDate().isBefore(medication.getStartDate())
-        || applied.toLocalDate().isAfter(medication.getEndDate())) {
+        || !DoseAdministrationTimePolicy.isWithinTreatmentPeriod(
+            applied, medication.getStartDate(), medication.getEndDate(), clinicalZone)) {
       throw new InvalidDoseAdministrationException("Aplicação fora do período prescrito.");
     }
     if ((medication.getCancelledAt() != null && !applied.isBefore(medication.getCancelledAt()))

@@ -4,6 +4,7 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -12,6 +13,7 @@ import org.amicats.backend.domain.entity.StockItem;
 import org.amicats.backend.domain.enums.AccessType;
 import org.amicats.backend.domain.interfaces.dataprovider.stock.StockEntryDataProvider;
 import org.amicats.backend.domain.interfaces.dataprovider.sync.SyncChangesDataProvider;
+import org.amicats.backend.domain.policy.DoseAdministrationTimePolicy;
 import org.amicats.backend.domain.usecase.cat.read.ReadCatOutput;
 import org.amicats.backend.domain.usecase.prescribedmedication.read.ReadPrescribedMedicationOutput;
 import org.amicats.backend.domain.usecase.room.read.ReadRoomOutput;
@@ -29,11 +31,14 @@ public class ReadSyncChangesUseCase {
   private SyncChangesDataProvider syncChangesDataProvider;
   private StockEntryDataProvider stockEntryDataProvider;
   @Builder.Default private Clock clock = Clock.systemUTC();
+  @Builder.Default private ZoneId clinicalZone = DoseAdministrationTimePolicy.DEFAULT_CLINICAL_ZONE;
 
   @Transactional(readOnly = true)
   public SyncChangesOutput execute(LocalDateTime since, AccessType role) {
     LocalDateTime effectiveSince = since == null ? EPOCH : since;
-    LocalDate today = LocalDate.now(clock);
+    LocalDate today =
+        DoseAdministrationTimePolicy.clinicalDate(
+            DoseAdministrationTimePolicy.nowUtc(clock), clinicalZone);
 
     var cats = syncChangesDataProvider.findCatsUpdatedSince(effectiveSince);
     var rooms = syncChangesDataProvider.findRoomsUpdatedSince(effectiveSince);

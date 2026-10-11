@@ -1,0 +1,59 @@
+<div class="new-item-card">
+  <div class="new-item-card__header">
+    <div>
+      <span class="new-item-card__eyebrow">
+        Novo medicamento
+      </span>
+
+      <strong>{{ name() }}</strong>
+    </div>
+
+    <button
+      type="button"
+      class="new-item-card__cancel"
+      (click)="cancel()"
+    >
+      Cancelar
+    </button>
+  </div>
+
+  <div class="new-item-card__details">
+    <div class="field">
+      <label for="newItemCategory">Categoria</label>
+
+      <input
+        id="newItemCategory"
+        type="text"
+        [value]="medicationCategory"
+        disabled
+      />
+    </div>
+
+    <app-text-field
+      inputId="newItemUnit"
+      label="Unidade"
+      placeholder="Ex.: unidades, ml, frascos"
+      [control]="unitControl"
+      [errorMessages]="unitErrors"
+    />
+  </div>
+
+  @if (error()) {
+  <div class="feedback feedback--error" role="alert">
+    {{ error() }}
+  </div>
+  }
+
+  <button
+    type="button"
+    class="new-item-card__submit"
+    [disabled]="creating()"
+    (click)="create()"
+  >
+    @if (creating()) {
+    Cadastrando...
+    } @else {
+    Cadastrar medicamento
+    }
+  </button>
+</div>
