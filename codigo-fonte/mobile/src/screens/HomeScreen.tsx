@@ -19,6 +19,7 @@ interface HomeScreenProps {
   onNewCat: () => void;
   onOpenSync: () => void;
   onOpenMedicalRecords: () => void;
+  onOpenHealthProcedures: () => void;
 }
 
 interface RoomOccupancy {
@@ -85,7 +86,7 @@ function syncSummary(online: boolean, pending: number, rejected: number): string
   return 'Tudo sincronizado';
 }
 
-export function HomeScreen({ user, onNewCat, onOpenSync, onOpenMedicalRecords }: HomeScreenProps) {
+export function HomeScreen({ user, onNewCat, onOpenSync, onOpenMedicalRecords, onOpenHealthProcedures }: HomeScreenProps) {
   const { online, pending, rejected } = useSync();
   const needsAttention = !online || pending > 0 || rejected > 0;
   const canPrescribe = user.accessType === 'Veterinarian';
@@ -191,6 +192,9 @@ export function HomeScreen({ user, onNewCat, onOpenSync, onOpenMedicalRecords }:
           </TouchableOpacity>
           <TouchableOpacity style={styles.shortcutButton} onPress={onOpenMedicalRecords} accessibilityRole="button">
             <Text style={styles.shortcutText}>Prontuários</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.shortcutButton} onPress={onOpenHealthProcedures} accessibilityRole="button">
+            <Text style={styles.shortcutText}>Vacinas, vermífugos e castrações</Text>
           </TouchableOpacity>
           {canPrescribe && (
             <TouchableOpacity style={styles.shortcutButton} onPress={onOpenMedicalRecords} accessibilityRole="button">
