@@ -1,0 +1,180 @@
+<div class="page">
+  <header class="page-header">
+    <h1>Vacinas, vermífugos e castrações</h1>
+    @if (canManage()) {
+      <button type="button" class="new-button" (click)="createProcedure()">
+        <span>＋</span>
+        Novo agendamento
+      </button>
+    }
+  </header>
+
+  <section class="container">
+    <div class="toolbar">
+      <div class="search-box">
+        <span class="search-icon">⌕</span>
+        <input
+          type="text"
+          placeholder="Buscar por gato ou procedimento..."
+          (input)="onSearch($event)"
+        />
+      </div>
+
+      <div class="chips" role="group" aria-label="Tipo de procedimento">
+        @for (option of typeOptions; track option.label) {
+          <button
+            type="button"
+            class="chip"
+            [class.chip--active]="selectedType() === option.value"
+            (click)="selectType(option.value)"
+          >
+            {{ option.label }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <div class="tabs" role="tablist">
+      @for (option of statusOptions; track option.value) {
+        <button
+          type="button"
+          role="tab"
+          class="tab"
+          [class.tab--active]="selectedStatus() === option.value"
+          [attr.aria-selected]="selectedStatus() === option.value"
+          (click)="selectStatus(option.value)"
+        >
+          {{ option.label }}
+        </button>
+      }
+    </div>
+
+    @if (catFilterId()) {
+      <div class="cat-filter">
+        <span>
+          Mostrando apenas os agendamentos de
+          {{ catFilterName() ?? "um gatinho" }}.
+        </span>
+        <button
+          type="button"
+          class="cat-filter__clear"
+          (click)="clearCatFilter()"
+        >
+          Ver todos
+        </button>
+      </div>
+    }
+
+    @if (errorMessage()) {
+      <div class="feedback feedback--error" role="alert">
+        {{ errorMessage() }}
+        <button
+          type="button"
+          class="feedback__retry"
+          (click)="loadProcedures()"
+        >
+          Tentar novamente
+        </button>
+      </div>
+    }
+
+    @if (loading() && procedures().length === 0) {
+      <div class="feedback">Carregando agendamentos...</div>
+    } @else {
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Gato</th>
+            <th>Procedimento</th>
+            <th>Tipo</th>
+            <th>Data agendada</th>
+            <th>Data realizada</th>
+            <th>Status</th>
+            <th>Registrado por</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (procedure of procedures(); track procedure.id) {
+            <tr
+              class="table__row"
+              tabindex="0"
+              [attr.aria-label]="'Abrir agendamento de ' + procedure.catName"
+              (click)="openProcedure(procedure)"
+              (keydown.enter)="openProcedure(procedure)"
+            >
+              <td class="table__cat">{{ procedure.catName }}</td>
+              <td>{{ procedureName(procedure) }}</td>
+              <td>
+                <span [class]="'type-tag type-tag--' + procedure.type">
+                  {{ typeLabels[procedure.type] }}
+                </span>
+              </td>
+              <td>{{ procedure.scheduledDate | date: "dd/MM/yyyy" }}</td>
+              <td>
+                {{
+                  procedure.completedDate
+                    ? (procedure.completedDate | date: "dd/MM/yyyy")
+                    : "—"
+                }}
+              </td>
+              <td>
+                <app-status-badge
+                  [label]="statusLabel(procedure)"
+                  [tone]="statusTone(procedure)"
+                />
+              </td>
+              <td class="table__muted">{{ procedure.createdByName }}</td>
+              <td>
+                @if (canEdit(procedure)) {
+                  <button
+                    type="button"
+                    class="icon-button"
+                    title="Editar agendamento"
+                    [attr.aria-label]="
+                      'Editar agendamento de ' + procedure.catName
+                    "
+                    (click)="editProcedure(procedure); $event.stopPropagation()"
+                    (keydown.enter)="$event.stopPropagation()"
+                  >
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path
+                        d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"
+                      />
+                      <path d="m15 5 4 4" />
+                    </svg>
+                  </button>
+                }
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="8" class="feedback">
+                Nenhum agendamento encontrado.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      <app-pagination
+        [page]="page()"
+        [size]="pageSize"
+        [totalPages]="totalPages()"
+        [totalElements]="totalElements()"
+        itemLabel="agendamentos"
+        (pageChange)="onPageChange($event)"
+      />
+    }
+  </section>
+</div>

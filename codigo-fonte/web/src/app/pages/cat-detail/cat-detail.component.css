@@ -207,6 +207,41 @@
 .metadata-row__value {
   color: #263229;
   font-size: 12.5px;
+  text-align: right;
+}
+
+.health-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #edf1ec;
+}
+
+.health-link {
+  color: #557b52;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.health-link:hover {
+  text-decoration: underline;
+}
+
+.health-button {
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: #557b52;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.health-button:hover {
+  background: #476b45;
 }
 
 .feedback {
