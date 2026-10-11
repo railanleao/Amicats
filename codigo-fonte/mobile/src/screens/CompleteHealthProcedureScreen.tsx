@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import { ActivityIndicator, Switch, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Button, FormScreenLayout, ReadOnlyField, TextField } from '../components';
@@ -11,11 +11,14 @@ import { formatBrazilianDate, maskBrazilianDate } from '../utils/date';
 import type { BoosterOption } from '../utils/healthProcedure';
 import {
   BOOSTER_OPTIONS,
-  boosterDate,
   healthProcedureErrorMessage,
   healthProcedureName,
+  isBoosterInPast,
   parseDateInput,
+  resolveBoosterDate,
   todayIsoDate,
+  validateBoosterDate,
+  validateCompletedDate,
 } from '../utils/healthProcedure';
 import { styles } from './CompleteHealthProcedureScreen.styles';
 
@@ -27,10 +30,6 @@ interface CompleteFormValues {
   scheduleBooster: boolean;
   boosterOption: BoosterOption;
   boosterDate: string;
-}
-
-function resolveBoosterDate(values: CompleteFormValues): string | null {
-  return boosterDate(parseDateInput(values.completedDate), values.boosterOption, parseDateInput(values.boosterDate));
 }
 
 interface CompleteHealthProcedureScreenProps {
@@ -49,7 +48,6 @@ export function CompleteHealthProcedureScreen({ procedureId, onBack, onDone }: C
     control,
     handleSubmit,
     setValue,
-    watch,
     formState: { errors },
   } = useForm<CompleteFormValues>({
     defaultValues: {
@@ -61,37 +59,32 @@ export function CompleteHealthProcedureScreen({ procedureId, onBack, onDone }: C
     },
   });
 
-  const values = watch();
+  const [completedDateInput, scheduleBooster, boosterOption, boosterDateInput] = useWatch({
+    control,
+    name: ['completedDate', 'scheduleBooster', 'boosterOption', 'boosterDate'],
+  });
   const isVaccine = procedure?.type === 'Vaccine';
-  const previewDate = isVaccine && values.scheduleBooster ? resolveBoosterDate(values) : null;
-  const previewInPast = values.boosterOption !== 'custom' && previewDate !== null && previewDate < todayIsoDate();
+  const previewDate = isVaccine && scheduleBooster ? resolveBoosterDate(completedDateInput, boosterOption, boosterDateInput) : null;
+  const previewInPast = isBoosterInPast(boosterOption, previewDate, todayIsoDate());
 
   useEffect(() => {
     getHealthProcedure(procedureId)
       .then((result) => {
+        if (result.status !== 'Scheduled') {
+          setLoadError('Este agendamento já foi realizado ou cancelado.');
+          return;
+        }
         setProcedure(result);
         setValue('notes', result.notes ?? '');
       })
       .catch((error) => setLoadError(healthProcedureErrorMessage(error, 'Não foi possível carregar o agendamento.')));
   }, [procedureId, setValue]);
 
-  function validateCompletedDate(value: string): true | string {
-    const isoDate = parseDateInput(value);
-    if (!isoDate) {
-      return 'Informe uma data válida (dd/mm/aaaa).';
-    }
-    return isoDate <= todayIsoDate() || 'A data de realização não pode estar no futuro.';
-  }
-
   function validateCustomBoosterDate(value: string, formValues: CompleteFormValues): true | string {
     if (!isVaccine || !formValues.scheduleBooster || formValues.boosterOption !== 'custom') {
       return true;
     }
-    const isoDate = parseDateInput(value);
-    if (!isoDate) {
-      return 'Informe a data do reforço (dd/mm/aaaa).';
-    }
-    return isoDate >= todayIsoDate() || 'A data do reforço não pode estar no passado.';
+    return validateBoosterDate(value, todayIsoDate());
   }
 
   async function submit(formValues: CompleteFormValues) {
@@ -107,7 +100,10 @@ export function CompleteHealthProcedureScreen({ procedureId, onBack, onDone }: C
       await completeHealthProcedure(procedureId, {
         completedDate,
         notes: formValues.notes.trim() || null,
-        boosterDate: isVaccine && formValues.scheduleBooster ? resolveBoosterDate(formValues) : null,
+        boosterDate:
+          isVaccine && formValues.scheduleBooster
+            ? resolveBoosterDate(formValues.completedDate, formValues.boosterOption, formValues.boosterDate)
+            : null,
       });
       onDone();
     } catch (error) {
@@ -141,7 +137,7 @@ export function CompleteHealthProcedureScreen({ procedureId, onBack, onDone }: C
           <Controller
             control={control}
             name="completedDate"
-            rules={{ validate: validateCompletedDate }}
+            rules={{ validate: (value) => validateCompletedDate(value, todayIsoDate()) }}
             render={({ field: { value, onChange } }) => (
               <TextField
                 label="Data de realização"
@@ -193,7 +189,7 @@ export function CompleteHealthProcedureScreen({ procedureId, onBack, onDone }: C
             />
           )}
 
-          {isVaccine && values.scheduleBooster && (
+          {isVaccine && scheduleBooster && (
             <>
               <Controller
                 control={control}
@@ -218,7 +214,7 @@ export function CompleteHealthProcedureScreen({ procedureId, onBack, onDone }: C
                 )}
               />
 
-              {values.boosterOption === 'custom' && (
+              {boosterOption === 'custom' && (
                 <Controller
                   control={control}
                   name="boosterDate"
@@ -248,7 +244,12 @@ export function CompleteHealthProcedureScreen({ procedureId, onBack, onDone }: C
 
           {generalError ? <Text style={styles.generalError}>{generalError}</Text> : null}
 
-          <Button title="Confirmar realização" onPress={handleSubmit(submit)} loading={submitting} />
+          <Button
+            title="Confirmar realização"
+            onPress={handleSubmit(submit)}
+            loading={submitting}
+            disabled={previewInPast}
+          />
         </FormScreenLayout>
       )}
     </View>

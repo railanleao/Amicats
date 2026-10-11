@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import { ActivityIndicator, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Button, CatAutocomplete, FormScreenLayout, ReadOnlyField, TextField } from '../components';
@@ -15,7 +15,13 @@ import type { Cat } from '../types/cat';
 import type { HealthProcedure, HealthProcedureType } from '../types/healthProcedure';
 import { HEALTH_PROCEDURE_TYPE_LABELS } from '../types/healthProcedure';
 import { formatBrazilianDate, maskBrazilianDate } from '../utils/date';
-import { healthProcedureErrorMessage, parseDateInput, todayIsoDate } from '../utils/healthProcedure';
+import {
+  healthProcedureErrorMessage,
+  parseDateInput,
+  todayIsoDate,
+  validateProcedureName,
+  validateScheduledDate,
+} from '../utils/healthProcedure';
 import { styles } from './HealthProcedureFormScreen.styles';
 
 const NAME_MAX_LENGTH = 150;
@@ -65,11 +71,10 @@ export function HealthProcedureFormScreen({ procedureId, catId, onBack, onSaved 
     control,
     handleSubmit,
     reset,
-    watch,
     formState: { errors },
   } = useForm<HealthProcedureFormValues>({ defaultValues: DEFAULT_VALUES });
 
-  const type = watch('type');
+  const type = useWatch({ control, name: 'type' });
   const requiresName = type !== 'Neutering';
 
   useEffect(() => {
@@ -109,17 +114,6 @@ export function HealthProcedureFormScreen({ procedureId, catId, onBack, onSaved 
         .finally(() => setLoading(false));
     }
   }, [procedureId, catId, reset]);
-
-  function validateScheduledDate(value: string): true | string {
-    const isoDate = parseDateInput(value);
-    if (!isoDate) {
-      return 'Informe uma data válida (dd/mm/aaaa).';
-    }
-    if (isoDate !== originalScheduledDate && isoDate < todayIsoDate()) {
-      return 'A data agendada não pode estar no passado.';
-    }
-    return true;
-  }
 
   async function submit(values: HealthProcedureFormValues) {
     const cat = fixedCat ?? selectedCat;
@@ -233,7 +227,7 @@ export function HealthProcedureFormScreen({ procedureId, catId, onBack, onSaved 
             <Controller
               control={control}
               name="name"
-              rules={{ validate: (value) => value.trim() !== '' || 'Informe o nome da vacina ou do vermífugo.' }}
+              rules={{ validate: validateProcedureName }}
               render={({ field: { value, onChange } }) => (
                 <TextField
                   label={type === 'Deworming' ? 'Vermífugo' : 'Vacina'}
@@ -250,7 +244,7 @@ export function HealthProcedureFormScreen({ procedureId, catId, onBack, onSaved 
           <Controller
             control={control}
             name="scheduledDate"
-            rules={{ validate: validateScheduledDate }}
+            rules={{ validate: (value) => validateScheduledDate(value, todayIsoDate(), originalScheduledDate) }}
             render={({ field: { value, onChange } }) => (
               <TextField
                 label="Data agendada"
