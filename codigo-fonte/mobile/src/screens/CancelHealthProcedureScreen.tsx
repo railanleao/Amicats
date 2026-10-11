@@ -36,7 +36,13 @@ export function CancelHealthProcedureScreen({ procedureId, onBack, onDone }: Can
 
   useEffect(() => {
     getHealthProcedure(procedureId)
-      .then(setProcedure)
+      .then((result) => {
+        if (result.status !== 'Scheduled') {
+          setLoadError('Este agendamento já foi realizado ou cancelado.');
+          return;
+        }
+        setProcedure(result);
+      })
       .catch((error) => setLoadError(healthProcedureErrorMessage(error, 'Não foi possível carregar o agendamento.')));
   }, [procedureId]);
 
