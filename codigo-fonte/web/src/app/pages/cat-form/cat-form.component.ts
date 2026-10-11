@@ -284,11 +284,16 @@ export class CatFormComponent implements OnInit {
     }
 
     const values = this.form.getRawValue();
+    // In edit mode the date input is replaced by the free-text "Idade estimada" field; fall
+    // back to the form's own value (unchanged since fillForm) when that text doesn't parse.
+    const estimatedBirthDate = this.isEditing
+      ? (parseAgeText(this.ageYearsText) ?? (values.estimatedBirthDate || null))
+      : values.estimatedBirthDate || null;
     const request: CreateCatRequest = {
       name: values.name.trim(),
       roomId: values.roomId,
       sex: values.sex || null,
-      estimatedBirthDate: values.estimatedBirthDate || null,
+      estimatedBirthDate,
       coat: values.coat.trim() || null,
       weightKg: values.weightKg
         ? Number(values.weightKg.replace(',', '.'))
@@ -376,6 +381,7 @@ export class CatFormComponent implements OnInit {
 
   private fillForm(cat: Cat): void {
     this.cat.set(cat);
+    this.ageYearsText = formatAge(cat.estimatedBirthDate) ?? '';
     this.form.patchValue({
       name: cat.name,
       sex: cat.sex ?? '',

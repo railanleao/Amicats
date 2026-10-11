@@ -8,6 +8,7 @@ import {
 } from '@angular/router';
 import { of, Subject, throwError } from 'rxjs';
 
+import { formatAge } from '../../lib/cat-age';
 import { Cat } from '../../models/cat.model';
 import { RoomTransfer } from '../../models/room-transfer.model';
 import { PagedResult, Room } from '../../models/room.model';
@@ -480,6 +481,74 @@ describe('CatFormComponent', () => {
 
       expect(roomTransferServiceSpy.list).toHaveBeenCalledWith(42);
       expect(component.transferHistory()).toEqual([aTransfer()]);
+    });
+
+    it('prefills "Idade estimada" as free text computed from the birth date', () => {
+      catServiceSpy.findById.and.returnValue(
+        of(createdCat({ id: 42, estimatedBirthDate: '2022-01-01' })),
+      );
+
+      createComponent('edit', '42');
+
+      expect(component.ageYearsText).toBe(formatAge('2022-01-01') ?? '');
+    });
+
+    it('converts the edited age text into an estimated birth date on submit', () => {
+      catServiceSpy.findById.and.returnValue(
+        of(createdCat({ id: 42, estimatedBirthDate: '2020-01-01' })),
+      );
+      createComponent('edit', '42');
+      catServiceSpy.update.and.returnValue(of(createdCat({ id: 42 })));
+      spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
+
+      component.ageYearsText = '2 anos';
+      component.onSubmit();
+
+      // Local-date parts (not toISOString, which is UTC) to match parseAgeText's own
+      // local-time computation regardless of the machine's timezone.
+      const today = new Date();
+      const year = today.getFullYear() - 2;
+      const month = String(today.getMonth() + 1).padStart(2, '0');
+      const day = String(today.getDate()).padStart(2, '0');
+      expect(catServiceSpy.update).toHaveBeenCalledWith(
+        42,
+        jasmine.objectContaining({ estimatedBirthDate: `${year}-${month}-${day}` }),
+      );
+    });
+
+    it('keeps the original birth date when the edited age text cannot be parsed', () => {
+      catServiceSpy.findById.and.returnValue(
+        of(createdCat({ id: 42, estimatedBirthDate: '2020-01-01' })),
+      );
+      createComponent('edit', '42');
+      catServiceSpy.update.and.returnValue(of(createdCat({ id: 42 })));
+      spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
+
+      component.ageYearsText = 'filhote recém-chegado';
+      component.onSubmit();
+
+      expect(catServiceSpy.update).toHaveBeenCalledWith(
+        42,
+        jasmine.objectContaining({ estimatedBirthDate: '2020-01-01' }),
+      );
+    });
+
+    it('does not show Peso or Características — the design drops them from the edit screen', () => {
+      catServiceSpy.findById.and.returnValue(of(createdCat({ id: 42 })));
+
+      createComponent('edit', '42');
+
+      const element: HTMLElement = fixture.nativeElement;
+      expect(element.querySelector('#weightKg')).toBeNull();
+      expect(element.querySelector('#characteristics')).toBeNull();
+    });
+
+    it('labels the rescue-conditions field as "Local de resgate"', () => {
+      catServiceSpy.findById.and.returnValue(of(createdCat({ id: 42 })));
+
+      createComponent('edit', '42');
+
+      expect(fixture.nativeElement.textContent).toContain('Local de resgate');
     });
   });
 });

@@ -40,6 +40,10 @@ interface BottomTabNavigatorProps {
   onOpenSync: () => void;
   onOpenMedicalRecords: () => void;
   onOpenHealthProcedures: () => void;
+  onNewPrescription: () => void;
+  onTransferRoom: () => void;
+  canPrescribe: boolean;
+  canTransferRoom: boolean;
 }
 
 export function BottomTabNavigator({
@@ -50,6 +54,10 @@ export function BottomTabNavigator({
   onOpenSync,
   onOpenMedicalRecords,
   onOpenHealthProcedures,
+  onNewPrescription,
+  onTransferRoom,
+  canPrescribe,
+  canTransferRoom,
 }: BottomTabNavigatorProps) {
   return (
     <Tab.Navigator
@@ -78,6 +86,10 @@ export function BottomTabNavigator({
             onOpenSync={onOpenSync}
             onOpenMedicalRecords={onOpenMedicalRecords}
             onOpenHealthProcedures={onOpenHealthProcedures}
+            onNewPrescription={onNewPrescription}
+            onTransferRoom={onTransferRoom}
+            canPrescribe={canPrescribe}
+            canTransferRoom={canTransferRoom}
           />
         )}
       </Tab.Screen>

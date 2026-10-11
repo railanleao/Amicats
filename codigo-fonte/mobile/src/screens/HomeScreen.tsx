@@ -20,6 +20,10 @@ interface HomeScreenProps {
   onOpenSync: () => void;
   onOpenMedicalRecords: () => void;
   onOpenHealthProcedures: () => void;
+  onNewPrescription: () => void;
+  onTransferRoom: () => void;
+  canPrescribe: boolean;
+  canTransferRoom: boolean;
 }
 
 interface RoomOccupancy {
@@ -56,7 +60,17 @@ function syncSummary(online: boolean, pending: number, rejected: number): string
   return 'Tudo sincronizado';
 }
 
-export function HomeScreen({ user, onNewCat, onOpenSync, onOpenMedicalRecords, onOpenHealthProcedures }: HomeScreenProps) {
+export function HomeScreen({
+  user,
+  onNewCat,
+  onOpenSync,
+  onOpenMedicalRecords,
+  onOpenHealthProcedures,
+  onNewPrescription,
+  onTransferRoom,
+  canPrescribe,
+  canTransferRoom,
+}: HomeScreenProps) {
   const { online, pending, rejected } = useSync();
   const needsAttention = !online || pending > 0 || rejected > 0;
   const [urgentStockItem, setUrgentStockItem] = useState<StockItem | null>(null);
@@ -158,6 +172,16 @@ export function HomeScreen({ user, onNewCat, onOpenSync, onOpenMedicalRecords, o
           <TouchableOpacity style={styles.shortcutButton} onPress={onOpenHealthProcedures} accessibilityRole="button">
             <Text style={styles.shortcutText}>Vacinas, vermífugos e castrações</Text>
           </TouchableOpacity>
+          {canTransferRoom && (
+            <TouchableOpacity style={styles.shortcutButton} onPress={onTransferRoom} accessibilityRole="button">
+              <Text style={styles.shortcutText}>Transferir de sala</Text>
+            </TouchableOpacity>
+          )}
+          {canPrescribe && (
+            <TouchableOpacity style={styles.shortcutButton} onPress={onNewPrescription} accessibilityRole="button">
+              <Text style={styles.shortcutText}>+ Nova prescrição</Text>
+            </TouchableOpacity>
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>

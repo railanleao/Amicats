@@ -221,6 +221,18 @@
   font-weight: 600;
 }
 
+.readonly-field__value--chevron {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.readonly-field__value--chevron svg {
+  flex-shrink: 0;
+  color: var(--color-ink-faint);
+}
+
 .field-link {
   display: inline-flex;
   align-items: center;

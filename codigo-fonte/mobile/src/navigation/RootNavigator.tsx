@@ -14,6 +14,7 @@ import { MedicalRecordsScreen } from '../screens/MedicalRecordsScreen';
 import { NewCatScreen } from '../screens/NewCatScreen';
 import { NewInternalPrescriptionScreen } from '../screens/NewInternalPrescriptionScreen';
 import { NewPasswordScreen } from '../screens/NewPasswordScreen';
+import { SelectCatScreen } from '../screens/SelectCatScreen';
 import { SyncScreen } from '../screens/SyncScreen';
 import { TermsAcceptanceScreen } from '../screens/TermsAcceptanceScreen';
 import { TransferRoomScreen } from '../screens/TransferRoomScreen';
@@ -30,6 +31,7 @@ type RootStackParamList = {
   NewCat: { catId?: number } | undefined;
   CatDetail: { catId: number };
   TransferRoom: { catId: number };
+  SelectCat: { purpose: 'prescription' | 'transfer' };
   MedicalRecords: undefined;
   MedicalRecord: { catId: number };
   NewInternalPrescription: { catId: number };
@@ -55,6 +57,7 @@ export function RootNavigator({ user, onLogin, onLogout, onAcceptTerms, onChange
   // Mirrors the backend's role check for room transfers (RF-005 / UC-06-style): Administrator
   // and Médico-Veterinário only.
   const canTransferRoom = user?.accessType === 'Administrator' || user?.accessType === 'Veterinarian';
+  const canPrescribe = user?.accessType === 'Veterinarian';
   const canManageHealth = canManageHealthProcedures(user?.accessType);
 
   return (
@@ -85,6 +88,10 @@ export function RootNavigator({ user, onLogin, onLogout, onAcceptTerms, onChange
                   onOpenSync={() => navigation.navigate('Sync')}
                   onOpenMedicalRecords={() => navigation.navigate('MedicalRecords')}
                   onOpenHealthProcedures={() => navigation.navigate('HealthProcedures')}
+                  onNewPrescription={() => navigation.navigate('SelectCat', { purpose: 'prescription' })}
+                  onTransferRoom={() => navigation.navigate('SelectCat', { purpose: 'transfer' })}
+                  canPrescribe={canPrescribe}
+                  canTransferRoom={canTransferRoom}
                 />
               )}
             </Stack.Screen>
@@ -115,6 +122,26 @@ export function RootNavigator({ user, onLogin, onLogout, onAcceptTerms, onChange
                     catId={route.params.catId}
                     onBack={() => navigation.goBack()}
                     onTransferred={() => navigation.goBack()}
+                  />
+                </StatusBarInset>
+              )}
+            </Stack.Screen>
+            <Stack.Screen name="SelectCat">
+              {({ navigation, route }) => (
+                <StatusBarInset>
+                  <SelectCatScreen
+                    title={route.params.purpose === 'prescription' ? 'Nova prescrição' : 'Transferir de sala'}
+                    hint={
+                      route.params.purpose === 'prescription'
+                        ? 'Selecione o gato para registrar uma nova prescrição.'
+                        : 'Selecione o gato que vai mudar de sala.'
+                    }
+                    onBack={() => navigation.goBack()}
+                    onSelectCat={(catId) =>
+                      route.params.purpose === 'prescription'
+                        ? navigation.navigate('NewInternalPrescription', { catId })
+                        : navigation.navigate('TransferRoom', { catId })
+                    }
                   />
                 </StatusBarInset>
               )}

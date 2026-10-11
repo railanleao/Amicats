@@ -120,14 +120,28 @@
       </div>
 
       <div class="form-row">
-        <div class="select-field">
-          <label for="estimatedBirthDate">Nascimento estimado</label>
-          <input
-            id="estimatedBirthDate"
-            type="date"
-            [formControl]="form.controls.estimatedBirthDate"
-          />
-        </div>
+        @if (isEditing) {
+          <div class="select-field">
+            <label for="ageYears">Idade estimada</label>
+            <input
+              id="ageYears"
+              type="text"
+              placeholder="Ex.: 4 anos"
+              name="ageYears"
+              [(ngModel)]="ageYearsText"
+              [ngModelOptions]="{ standalone: true }"
+            />
+          </div>
+        } @else {
+          <div class="select-field">
+            <label for="estimatedBirthDate">Nascimento estimado</label>
+            <input
+              id="estimatedBirthDate"
+              type="date"
+              [formControl]="form.controls.estimatedBirthDate"
+            />
+          </div>
+        }
         <app-text-field
           inputId="coat"
           label="Cor / Pelagem"
@@ -136,36 +150,45 @@
         />
       </div>
 
-      <div class="form-row">
-        <app-text-field
-          inputId="weightKg"
-          label="Peso (kg)"
-          placeholder="Ex.: 3,5"
-          [control]="form.controls.weightKg"
-        />
-        <app-text-field
-          inputId="microchip"
-          label="Microchip"
-          placeholder="Opcional — 15 dígitos"
-          [control]="form.controls.microchip"
-          [errorMessages]="errors.microchip"
-        />
-      </div>
-
       @if (isEditing) {
-        <div class="readonly-field">
-          <span class="readonly-field__label">Sala atual</span>
-          <div class="readonly-field__value">
-            {{ cat()?.roomTitle ?? 'Sem sala atribuída' }}
+        <div class="form-row">
+          <app-text-field
+            inputId="microchip"
+            label="Microchip"
+            placeholder="Opcional — 15 dígitos"
+            [control]="form.controls.microchip"
+            [errorMessages]="errors.microchip"
+          />
+          <div class="readonly-field">
+            <span class="readonly-field__label">Sala atual</span>
+            <div class="readonly-field__value">
+              {{ cat()?.roomTitle ?? 'Sem sala atribuída' }}
+            </div>
+            <a [routerLink]="['/cats', catId, 'transfer-room']" class="field-link">
+              Transferir de sala
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                <path d="M2.5 6H9.5M9.5 6L6 2.5M9.5 6L6 9.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </a>
           </div>
-          <a [routerLink]="['/cats', catId, 'transfer-room']" class="field-link">
-            Transferir de sala
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-              <path d="M2.5 6H9.5M9.5 6L6 2.5M9.5 6L6 9.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-          </a>
         </div>
       } @else {
+        <div class="form-row">
+          <app-text-field
+            inputId="weightKg"
+            label="Peso (kg)"
+            placeholder="Ex.: 3,5"
+            [control]="form.controls.weightKg"
+          />
+          <app-text-field
+            inputId="microchip"
+            label="Microchip"
+            placeholder="Opcional — 15 dígitos"
+            [control]="form.controls.microchip"
+            [errorMessages]="errors.microchip"
+          />
+        </div>
+
         <div class="select-field">
           <label for="roomId">Sala atual</label>
           <select id="roomId" [formControl]="form.controls.roomId">
@@ -178,17 +201,17 @@
             <span class="field-error">{{ roomsError() }}</span>
           }
         </div>
-      }
 
-      <div class="textarea-field">
-        <label for="characteristics">Características</label>
-        <textarea
-          id="characteristics"
-          rows="3"
-          placeholder="Temperamento, marcas, particularidades."
-          [formControl]="form.controls.characteristics"
-        ></textarea>
-      </div>
+        <div class="textarea-field">
+          <label for="characteristics">Características</label>
+          <textarea
+            id="characteristics"
+            rows="3"
+            placeholder="Temperamento, marcas, particularidades."
+            [formControl]="form.controls.characteristics"
+          ></textarea>
+        </div>
+      }
 
       @if (isEditing) {
         <div class="section-title">Saúde</div>
@@ -196,22 +219,42 @@
         <div class="form-row form-row--three">
           <div class="readonly-field readonly-field--tight">
             <span class="readonly-field__label">FIV</span>
-            <div class="readonly-field__value">{{ fivLabel }}</div>
+            <div class="readonly-field__value readonly-field__value--chevron">
+              {{ fivLabel }}
+              <svg width="14" height="14" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                <path d="M4 7l5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </div>
           </div>
           <div class="readonly-field readonly-field--tight">
             <span class="readonly-field__label">FeLV</span>
-            <div class="readonly-field__value">{{ felvLabel }}</div>
+            <div class="readonly-field__value readonly-field__value--chevron">
+              {{ felvLabel }}
+              <svg width="14" height="14" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                <path d="M4 7l5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </div>
           </div>
           <div class="readonly-field readonly-field--tight">
             <span class="readonly-field__label">PIF</span>
-            <div class="readonly-field__value">{{ pifLabel }}</div>
+            <div class="readonly-field__value readonly-field__value--chevron">
+              {{ pifLabel }}
+              <svg width="14" height="14" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                <path d="M4 7l5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </div>
           </div>
         </div>
 
         <div class="form-row">
           <div class="readonly-field readonly-field--tight">
             <span class="readonly-field__label">Castrado(a)</span>
-            <div class="readonly-field__value">{{ neuteringLabel }}</div>
+            <div class="readonly-field__value readonly-field__value--chevron">
+              {{ neuteringLabel }}
+              <svg width="14" height="14" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                <path d="M4 7l5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </div>
           </div>
           <div class="select-field">
             <label for="generalStatus">Situação clínica</label>
@@ -252,8 +295,8 @@
         </div>
         <app-text-field
           inputId="foundConditions"
-          label="Condições encontradas"
-          placeholder="Ex.: saudável, desnutrido, ferido"
+          label="Local de resgate"
+          placeholder="Ex.: Rua Antônio Bandeira, Vila Ré"
           [control]="form.controls.foundConditions"
         />
       </div>
