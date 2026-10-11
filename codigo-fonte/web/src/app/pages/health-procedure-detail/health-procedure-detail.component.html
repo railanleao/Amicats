@@ -179,6 +179,7 @@
                 <textarea
                   id="completeNotes"
                   rows="2"
+                  maxlength="1000"
                   [formControl]="completeForm.controls.notes"
                 ></textarea>
               </div>
@@ -290,14 +291,22 @@
                   id="reason"
                   rows="3"
                   placeholder="Ex.: Falta da vacina no estoque."
+                  maxlength="500"
                   [class.field__input--invalid]="
                     isInvalid(cancelForm.controls.reason)
                   "
                   [formControl]="cancelForm.controls.reason"
                 ></textarea>
-                @if (isInvalid(cancelForm.controls.reason)) {
+                @if (
+                  cancelForm.controls.reason.touched &&
+                  cancelForm.controls.reason.hasError("required")
+                ) {
                   <span class="field-error"
                     >Informe o motivo do cancelamento.</span
+                  >
+                } @else if (cancelForm.controls.reason.hasError("maxlength")) {
+                  <span class="field-error"
+                    >O motivo deve ter no máximo 500 caracteres.</span
                   >
                 }
               </div>
