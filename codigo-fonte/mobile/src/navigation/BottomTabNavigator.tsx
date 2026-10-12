@@ -45,18 +45,26 @@ interface BottomTabNavigatorProps {
   onOpenMedicalRecords: () => void;
   onOpenHealthProcedures: () => void;
   onOpenStockEntry: () => void;
+  onNewPrescription: () => void;
+  onTransferRoom: () => void;
+  canPrescribe: boolean;
+  canTransferRoom: boolean;
 }
 
 export function BottomTabNavigator({
-                                     user,
-                                     onLogout,
-                                     onNewCat,
-                                     onOpenCat,
-                                     onOpenSync,
-                                     onOpenMedicalRecords,
-                                     onOpenHealthProcedures,
-                                     onOpenStockEntry,
-                                   }: BottomTabNavigatorProps) {
+  user,
+  onLogout,
+  onNewCat,
+  onOpenCat,
+  onOpenSync,
+  onOpenMedicalRecords,
+  onOpenHealthProcedures,
+  onOpenStockEntry,
+  onNewPrescription,
+  onTransferRoom,
+  canPrescribe,
+  canTransferRoom,
+}: BottomTabNavigatorProps) {
   return (
     <Tab.Navigator
       screenOptions={({ route }: { route: RouteProp<BottomTabParamList, keyof BottomTabParamList> }) => ({
@@ -85,6 +93,10 @@ export function BottomTabNavigator({
             onOpenStock={() => navigation.navigate('Stock')}
             onOpenMedicalRecords={onOpenMedicalRecords}
             onOpenHealthProcedures={onOpenHealthProcedures}
+            onNewPrescription={onNewPrescription}
+            onTransferRoom={onTransferRoom}
+            canPrescribe={canPrescribe}
+            canTransferRoom={canTransferRoom}
           />
         )}
       </Tab.Screen>

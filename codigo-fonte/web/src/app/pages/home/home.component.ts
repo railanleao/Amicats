@@ -186,7 +186,10 @@ export class HomeComponent implements OnInit {
       available: this.countCats({ generalStatus: 'AvailableForAdoption' }),
       adopted: this.countCats({ generalStatus: 'Adopted' }),
       deceased: this.countCats({ generalStatus: 'Deceased' }),
-      activeRooms: this.roomService.list({ active: true, page: 0, size: 20 }).pipe(
+      // size: 100 matches the "fetch every active room" convention used elsewhere (cat-form,
+      // transfer-room) rather than true pagination — fine while a shelter realistically stays
+      // under 100 active rooms, but occupancy would silently undercount past that.
+      activeRooms: this.roomService.list({ active: true, page: 0, size: 100 }).pipe(
         map((page) => page.content),
         catchError(() => of<Room[]>([])),
       ),
