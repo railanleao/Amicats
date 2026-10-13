@@ -1,7 +1,7 @@
 
 ## ETAPA 3
 
-### Pré-requisitos gerais (RF-005 — Gatos) 
+### Pré-requisitos gerais 
 
 - Backend, banco de dados e (para o mobile) o app apontando para a API, conforme os READMEs de cada plataforma.
 - Usuários de teste com os quatro perfis de acesso (Administrador, Médico-Veterinário, Auxiliar, Visualizador), com termos aceitos e sem troca de senha pendente.
@@ -343,6 +343,3 @@
     <td>O aplicativo exibe "Informe o nome do gato." abaixo do campo e não envia a requisição.</td>
   </tr>
 </table>
-
-### ETAPA 4
-Criar casos de teste da etapa 4
