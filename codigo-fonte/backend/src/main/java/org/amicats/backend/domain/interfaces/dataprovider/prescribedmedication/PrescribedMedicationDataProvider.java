@@ -11,6 +11,8 @@ public interface PrescribedMedicationDataProvider {
 
   Optional<PrescribedMedication> findById(Integer id);
 
+  Optional<PrescribedMedication> findByIdForUpdate(Integer id);
+
   Optional<PrescribedMedication> findActiveByCatAndMedication(
       Integer catId, Integer medicationId, LocalDate today);
 

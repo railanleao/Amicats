@@ -1,16 +1,23 @@
 package org.amicats.backend.repository.prescribedmedication;
 
+import jakarta.persistence.LockModeType;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import org.amicats.backend.domain.entity.PrescribedMedication;
 import org.amicats.backend.domain.enums.PrescribedMedicationStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface PrescribedMedicationRepository
     extends JpaRepository<PrescribedMedication, Integer> {
+
+  @Lock(LockModeType.PESSIMISTIC_WRITE)
+  @Query("select pm from PrescribedMedication pm where pm.id = :id")
+  Optional<PrescribedMedication> findByIdForUpdate(@Param("id") Integer id);
 
   @Query(
       """

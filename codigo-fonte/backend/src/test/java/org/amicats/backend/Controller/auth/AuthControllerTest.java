@@ -1,4 +1,4 @@
-package org.amicats.backend.Controller.auth;
+package org.amicats.backend.controller.auth;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -26,6 +26,11 @@ public class PrescribedMedicationDataProviderImpl implements PrescribedMedicatio
   }
 
   @Override
+  public Optional<PrescribedMedication> findByIdForUpdate(Integer id) {
+    return prescribedMedicationRepository.findByIdForUpdate(id);
+  }
+
+  @Override
   public Optional<PrescribedMedication> findActiveByCatAndMedication(
       Integer catId, Integer medicationId, LocalDate today) {
     return prescribedMedicationRepository
