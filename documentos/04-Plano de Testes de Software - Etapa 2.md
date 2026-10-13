@@ -1,6 +1,6 @@
 # 🧪 Planos de Testes de Software
 
-## 📱 MOBILE - Plano de Testes - ETAPA 2 (RF-001)
+## 📱 MOBILE - Plano de Testes - ETAPA 2 (RF-001, RF-002)
 
 Este plano apresenta os casos de testes utilizados na verificação e validação da aplicação **mobile** (React Native / Expo). Os cenários demonstram os requisitos sendo satisfeitos e o tratamento de erros (robustez da aplicação).
 
@@ -1051,7 +1051,7 @@ Nenhum usuário é excluído fisicamente (RNF-005). Para repetir os testes, cria
   </tr>
 </table>
 
-## 💻 WEB - Plano de Testes - ETAPA 2 (RF-001)
+## 💻 WEB - Plano de Testes - ETAPA 2 (RF-001, RF-002)
 
 <table>
   <tr>
