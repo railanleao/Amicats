@@ -1,5 +1,6 @@
+# 🧪 Planos de Testes de Software
 
-## ETAPA 3
+## 📱 MOBILE - Plano de Testes - ETAPA 3 (RF-004, RF-005, RF-006, RF-007, RF-008, RF-009, RF-010, RF-016)
 
 ### Pré-requisitos gerais 
 
@@ -7,8 +8,6 @@
 - Usuários de teste com os quatro perfis de acesso (Administrador, Médico-Veterinário, Auxiliar, Visualizador), com termos aceitos e sem troca de senha pendente.
 - Ao menos uma sala ativa e um gato previamente cadastrados, para os casos que dependem de dados existentes (ficha, edição, filtros).
 - UC-06 (Gerenciar cadastro do gato) restringe a criação e a edição à Administrador e Médico-Veterinário; a listagem e a ficha são acessíveis a qualquer usuário autenticado.
-
-## 📱 MOBILE - Plano de Testes - ETAPA 3 (RF-004, RF-005, RF-006, RF-007, RF-008, RF-009, RF-010, RF-016)
 
 #### Resumo dos casos de teste
 
@@ -343,3 +342,5 @@
     <td>O aplicativo exibe "Informe o nome do gato." abaixo do campo e não envia a requisição.</td>
   </tr>
 </table>
+
+## 💻 WEB - Plano de Testes - ETAPA 3 (RF-004, RF-005, RF-006, RF-007, RF-008, RF-009, RF-010, RF-016)
