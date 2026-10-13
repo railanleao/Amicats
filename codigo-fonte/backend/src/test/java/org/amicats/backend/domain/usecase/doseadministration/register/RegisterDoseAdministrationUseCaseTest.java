@@ -11,6 +11,8 @@ import java.util.UUID;
 import org.amicats.backend.domain.entity.*;
 import org.amicats.backend.domain.enums.*;
 import org.amicats.backend.domain.interfaces.dataprovider.doseadministration.DoseAdministrationDataProvider;
+import org.amicats.backend.domain.interfaces.dataprovider.stock.StockConsumptionDataProvider;
+import org.amicats.backend.domain.interfaces.dataprovider.stock.StockItemDataProvider;
 import org.amicats.backend.domain.interfaces.dataprovider.user.UserDataProvider;
 import org.amicats.backend.exception.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,6 +20,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -29,6 +33,8 @@ class RegisterDoseAdministrationUseCaseTest {
 
   @Mock private DoseAdministrationDataProvider doses;
   @Mock private UserDataProvider users;
+  @Mock private StockItemDataProvider stocks;
+  @Mock private StockConsumptionDataProvider consumptions;
   private RegisterDoseAdministrationUseCase useCase;
   private User user;
   private PrescribedMedication medication;
@@ -42,6 +48,8 @@ class RegisterDoseAdministrationUseCaseTest {
         RegisterDoseAdministrationUseCase.builder()
             .doseAdministrationDataProvider(doses)
             .userDataProvider(users)
+            .stockItemDataProvider(stocks)
+            .stockConsumptionDataProvider(consumptions)
             .clock(Clock.fixed(NOW.toInstant(ZoneOffset.UTC), ZoneOffset.UTC))
             .build();
   }
@@ -54,6 +62,7 @@ class RegisterDoseAdministrationUseCaseTest {
     user = user(role);
     when(users.findById(7)).thenReturn(Optional.of(user));
     givenMedication();
+    givenStock();
     when(doses.insertIfAbsent(any()))
         .thenAnswer(
             invocation -> {
@@ -72,6 +81,9 @@ class RegisterDoseAdministrationUseCaseTest {
     assertThat(result.dose().dosage()).isEqualTo("dose de teste");
     assertThat(result.dose().route()).isEqualTo(AdministrationRoute.Oral);
     assertThat(result.dose().notes()).isEqualTo("Aplicada.");
+    assertThat(medication.getMedication().getQuantity()).isEqualByComparingTo("9");
+    assertThat(result.dose().stockBalanceAfter()).isEqualByComparingTo("9");
+    verify(consumptions).save(any(StockConsumption.class));
   }
 
   @Test
@@ -112,10 +124,9 @@ class RegisterDoseAdministrationUseCaseTest {
   }
 
   @Test
-  void rejectsApplicationBeyondFutureTolerance() {
+  void rejectsFutureApplication() {
     givenMedication();
-    assertThatThrownBy(
-            () -> useCase.execute(10, 7, input(NOW.plusMinutes(5).plusNanos(1000), null)))
+    assertThatThrownBy(() -> useCase.execute(10, 7, input(NOW.plusMinutes(5).plusSeconds(1), null)))
         .isInstanceOf(InvalidDoseAdministrationException.class);
     verify(doses, never()).insertIfAbsent(any());
   }
@@ -206,6 +217,7 @@ class RegisterDoseAdministrationUseCaseTest {
   @Test
   void handlesTheDatabaseReturningAnAlreadyInsertedOperation() {
     givenMedication();
+    givenStock();
     when(doses.insertIfAbsent(any()))
         .thenReturn(new DoseAdministrationDataProvider.InsertResult(dose(), false));
     assertThat(useCase.execute(10, 7, input(NOW.minusHours(2), null)).created()).isFalse();
@@ -214,6 +226,7 @@ class RegisterDoseAdministrationUseCaseTest {
   @Test
   void rejectsARacingOperationForAnotherMedication() {
     givenMedication();
+    givenStock();
     DoseAdministration another =
         DoseAdministration.register(
             medication(11),
@@ -230,16 +243,141 @@ class RegisterDoseAdministrationUseCaseTest {
   }
 
   @Test
-  void recordsUtcEvenIfTheInjectedClockHasAnotherZone() {
+  void consumesFractionalQuantity() {
+    givenSuccessfulInsert();
+    var input =
+        new RegisterDoseAdministrationInput(
+            OPERATION, NOW, null, DoseRegistrationOrigin.Online, new BigDecimal("0.5"), "unidade");
+    var result = useCase.execute(10, 7, input);
+    assertThat(result.dose().stockBalanceAfter()).isEqualByComparingTo("9.5");
+    assertThat(medication.getMedication().getQuantity()).isEqualByComparingTo("9.5");
+  }
+
+  @Test
+  void preservesTheApplicationAndFlagsNegativeStock() {
+    givenSuccessfulInsert();
+    var input =
+        new RegisterDoseAdministrationInput(
+            OPERATION,
+            NOW,
+            null,
+            DoseRegistrationOrigin.OfflineSynced,
+            new BigDecimal("12"),
+            "unidade");
+    var result = useCase.execute(10, 7, input);
+    assertThat(result.dose().stockBalanceAfter()).isEqualByComparingTo("-2");
+    assertThat(result.dose().stockDivergenceAtRegistration()).isTrue();
+  }
+
+  @Test
+  void rejectsIncompatibleUnitsBeforeAnyInsertOrDebit() {
+    givenMedication();
+    givenStock();
+    var input =
+        new RegisterDoseAdministrationInput(
+            OPERATION, NOW, null, DoseRegistrationOrigin.Online, BigDecimal.ONE, "ml");
+    assertThatThrownBy(() -> useCase.execute(10, 7, input))
+        .isInstanceOf(InvalidStockConsumptionException.class);
+    verify(doses, never()).insertIfAbsent(any());
+    verifyNoInteractions(consumptions);
+  }
+
+  @Test
+  void replayDoesNotDebitStockAgain() {
+    when(doses.findByClientOperationId(OPERATION)).thenReturn(Optional.of(dose()));
+    useCase.execute(10, 7, input(NOW.minusHours(2), null));
+    assertThat(medication.getMedication().getQuantity()).isEqualByComparingTo("10");
+    verify(stocks, never()).save(any());
+    verifyNoInteractions(consumptions);
+  }
+
+  @Test
+  void reusedOperationWithChangedConsumptionReturnsConflict() {
+    when(doses.findByClientOperationId(OPERATION)).thenReturn(Optional.of(dose()));
+    var changed =
+        new RegisterDoseAdministrationInput(
+            OPERATION,
+            NOW.minusHours(2),
+            null,
+            DoseRegistrationOrigin.OfflineSynced,
+            new BigDecimal("2"),
+            "unidade");
+    assertThatThrownBy(() -> useCase.execute(10, 7, changed))
+        .isInstanceOf(DoseAdministrationConflictException.class);
+    verifyNoInteractions(consumptions);
+  }
+
+  @Test
+  void acceptsFiveMinuteSkewAndUsesUtcEvenWithAnotherClockZone() {
     useCase =
         RegisterDoseAdministrationUseCase.builder()
             .doseAdministrationDataProvider(doses)
             .userDataProvider(users)
-            .clock(Clock.fixed(NOW.toInstant(ZoneOffset.UTC), ZoneId.of("Pacific/Honolulu")))
+            .stockItemDataProvider(stocks)
+            .stockConsumptionDataProvider(consumptions)
+            .clock(Clock.fixed(NOW.toInstant(ZoneOffset.UTC), ZoneId.of("America/Sao_Paulo")))
             .build();
     givenSuccessfulInsert();
-    var result = useCase.execute(10, 7, input(NOW.minusMinutes(1), null));
+    var result = useCase.execute(10, 7, input(NOW.plusMinutes(5), null));
     assertThat(result.dose().recordedAt()).isEqualTo(NOW);
+    assertThat(medication.getMedication().getQuantity()).isEqualByComparingTo("9");
+  }
+
+  @Test
+  void legacyReplayDoesNotCreateRetrospectiveStockConsumption() {
+    var historical =
+        DoseAdministration.register(
+            medication,
+            user,
+            OPERATION,
+            NOW.minusHours(2),
+            NOW,
+            null,
+            DoseRegistrationOrigin.OfflineSynced);
+    when(doses.findByClientOperationId(OPERATION)).thenReturn(Optional.of(historical));
+    var result =
+        useCase.execute(
+            10,
+            7,
+            new RegisterDoseAdministrationInput(
+                OPERATION,
+                NOW.minusHours(2),
+                null,
+                DoseRegistrationOrigin.OfflineSynced,
+                null,
+                null));
+    assertThat(result.created()).isFalse();
+    assertThat(result.dose().consumedQuantity()).isNull();
+    verifyNoInteractions(stocks, consumptions);
+  }
+
+  @ParameterizedTest
+  @NullSource
+  @ValueSource(strings = {"0", "-1", "0.0001", "1000000000"})
+  void rejectsInvalidConsumptionWithoutWriting(String value) {
+    givenMedication();
+    givenStock();
+    var quantity = value == null ? null : new BigDecimal(value);
+    assertThatThrownBy(
+            () ->
+                useCase.execute(
+                    10,
+                    7,
+                    new RegisterDoseAdministrationInput(
+                        OPERATION,
+                        NOW,
+                        null,
+                        DoseRegistrationOrigin.OfflineSynced,
+                        quantity,
+                        "unidade")))
+        .isInstanceOf(InvalidStockConsumptionException.class);
+    verify(doses, never()).insertIfAbsent(any());
+    verify(stocks, never()).save(any());
+    verifyNoInteractions(consumptions);
+  }
+
+  private void givenStock() {
+    when(stocks.findByIdForUpdate(5)).thenReturn(Optional.of(medication.getMedication()));
   }
 
   private void givenMedication() {
@@ -248,6 +386,7 @@ class RegisterDoseAdministrationUseCaseTest {
 
   private void givenSuccessfulInsert() {
     givenMedication();
+    givenStock();
     when(doses.insertIfAbsent(any()))
         .thenAnswer(
             invocation ->
@@ -255,19 +394,22 @@ class RegisterDoseAdministrationUseCaseTest {
   }
 
   private DoseAdministration dose() {
-    return DoseAdministration.register(
-        medication,
-        user,
-        OPERATION,
-        NOW.minusHours(2),
-        NOW,
-        null,
-        DoseRegistrationOrigin.OfflineSynced);
+    var dose =
+        DoseAdministration.register(
+            medication,
+            user,
+            OPERATION,
+            NOW.minusHours(2),
+            NOW,
+            null,
+            DoseRegistrationOrigin.OfflineSynced);
+    dose.prepareConsumption(medication.getMedication(), BigDecimal.ONE, "unidade");
+    return dose;
   }
 
   private RegisterDoseAdministrationInput input(LocalDateTime applied, String notes) {
     return new RegisterDoseAdministrationInput(
-        OPERATION, applied, notes, DoseRegistrationOrigin.OfflineSynced);
+        OPERATION, applied, notes, DoseRegistrationOrigin.OfflineSynced, BigDecimal.ONE, "unidade");
   }
 
   private User user(AccessType role) {

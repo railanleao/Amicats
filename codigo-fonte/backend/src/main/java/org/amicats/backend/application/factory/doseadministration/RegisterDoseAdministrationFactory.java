@@ -4,6 +4,8 @@ import java.time.Clock;
 import java.time.ZoneId;
 import lombok.RequiredArgsConstructor;
 import org.amicats.backend.domain.interfaces.dataprovider.doseadministration.DoseAdministrationDataProvider;
+import org.amicats.backend.domain.interfaces.dataprovider.stock.StockConsumptionDataProvider;
+import org.amicats.backend.domain.interfaces.dataprovider.stock.StockItemDataProvider;
 import org.amicats.backend.domain.interfaces.dataprovider.user.UserDataProvider;
 import org.amicats.backend.domain.usecase.doseadministration.register.RegisterDoseAdministrationUseCase;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,6 +19,8 @@ import org.springframework.context.annotation.Scope;
 public class RegisterDoseAdministrationFactory {
   private final DoseAdministrationDataProvider doseAdministrationDataProvider;
   private final UserDataProvider userDataProvider;
+  private final StockItemDataProvider stockItemDataProvider;
+  private final StockConsumptionDataProvider stockConsumptionDataProvider;
 
   @Value("${app.clinical-time-zone:America/Sao_Paulo}")
   private String clinicalTimeZone;
@@ -27,6 +31,8 @@ public class RegisterDoseAdministrationFactory {
     return RegisterDoseAdministrationUseCase.builder()
         .doseAdministrationDataProvider(doseAdministrationDataProvider)
         .userDataProvider(userDataProvider)
+        .stockItemDataProvider(stockItemDataProvider)
+        .stockConsumptionDataProvider(stockConsumptionDataProvider)
         .clock(Clock.systemUTC())
         .clinicalZone(ZoneId.of(clinicalTimeZone))
         .build();

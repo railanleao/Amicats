@@ -15,4 +15,8 @@ public interface StockItemDataProvider {
   PagedResult<StockItem> search(StockItemSearchCriteria criteria);
 
   List<StockItem> findAllByCategory(String category);
+
+  Optional<StockItem> findByIdForUpdate(Integer id);
+
+  PagedResult<StockItem> findMedicationAlerts(int page, int size);
 }

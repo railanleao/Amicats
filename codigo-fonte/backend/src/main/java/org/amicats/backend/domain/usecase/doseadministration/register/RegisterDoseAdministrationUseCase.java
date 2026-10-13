@@ -5,8 +5,11 @@ import java.time.ZoneId;
 import lombok.Builder;
 import org.amicats.backend.domain.entity.DoseAdministration;
 import org.amicats.backend.domain.entity.PrescribedMedication;
+import org.amicats.backend.domain.entity.StockConsumption;
 import org.amicats.backend.domain.entity.User;
 import org.amicats.backend.domain.interfaces.dataprovider.doseadministration.DoseAdministrationDataProvider;
+import org.amicats.backend.domain.interfaces.dataprovider.stock.StockConsumptionDataProvider;
+import org.amicats.backend.domain.interfaces.dataprovider.stock.StockItemDataProvider;
 import org.amicats.backend.domain.interfaces.dataprovider.user.UserDataProvider;
 import org.amicats.backend.domain.policy.DoseAdministrationTimePolicy;
 import org.amicats.backend.domain.usecase.doseadministration.common.DoseAdministrationPolicy;
@@ -21,7 +24,10 @@ import org.springframework.transaction.annotation.Transactional;
 public class RegisterDoseAdministrationUseCase {
   private DoseAdministrationDataProvider doseAdministrationDataProvider;
   private UserDataProvider userDataProvider;
+  private StockItemDataProvider stockItemDataProvider;
+  private StockConsumptionDataProvider stockConsumptionDataProvider;
   @Builder.Default private Clock clock = Clock.systemUTC();
+
   @Builder.Default private ZoneId clinicalZone = DoseAdministrationTimePolicy.DEFAULT_CLINICAL_ZONE;
 
   @Transactional(isolation = Isolation.READ_COMMITTED)
@@ -68,9 +74,22 @@ public class RegisterDoseAdministrationUseCase {
             input.notes(),
             input.origin(),
             clinicalZone);
+    var stock =
+        stockItemDataProvider
+            .findByIdForUpdate(medication.getMedication().getId())
+            .orElseThrow(
+                () -> new ResourceNotFoundException("Medicamento não encontrado no estoque."));
+    dose.prepareConsumption(stock, input.consumedQuantity(), input.consumedUnit());
     var result = doseAdministrationDataProvider.insertIfAbsent(dose);
     // Also covers the same operation UUID racing against a different medication.
     verifyReplay(result.dose(), medicationId, userId, input);
+    if (result.created()) {
+      var balanceBefore = stock.getQuantity();
+      stock.consume(input.consumedQuantity());
+      stockItemDataProvider.save(stock);
+      stockConsumptionDataProvider.save(
+          new StockConsumption(result.dose(), stock, balanceBefore, stock.getQuantity()));
+    }
     return new RegisterDoseAdministrationResult(
         ReadDoseAdministrationOutput.from(result.dose()), result.created());
   }
@@ -80,8 +99,8 @@ public class RegisterDoseAdministrationUseCase {
       Integer medicationId,
       Integer userId,
       RegisterDoseAdministrationInput input) {
-    if (!dose.matches(
-        medicationId, userId, input.administeredAt(), input.notes(), input.origin())) {
+    if (!dose.matches(medicationId, userId, input.administeredAt(), input.notes(), input.origin())
+        || !dose.matchesConsumption(input.consumedQuantity(), input.consumedUnit())) {
       throw new DoseAdministrationConflictException(
           "clientOperationId já utilizado em outro lançamento. Reenvie os dados originais.");
     }

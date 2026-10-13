@@ -5,6 +5,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import jakarta.servlet.Filter;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import org.amicats.backend.application.factory.doseadministration.ReadDoseAdministrationFactory;
@@ -50,7 +51,9 @@ class DoseAdministrationHttpTest {
         "clientOperationId": "cc79e99a-81dd-45e2-80e0-514b1a5a21cb",
         "administeredAt": "2026-10-08T14:00:00",
         "notes": null,
-        "origin": "Online"
+        "origin": "Online",
+        "consumedQuantity": 1,
+        "consumedUnit": "ml"
       }
       """;
 
@@ -78,7 +81,7 @@ class DoseAdministrationHttpTest {
     when(registerFactory.create()).thenReturn(register);
     var input =
         new RegisterDoseAdministrationInput(
-            OPERATION_ID, APPLIED, null, DoseRegistrationOrigin.Online);
+            OPERATION_ID, APPLIED, null, DoseRegistrationOrigin.Online, BigDecimal.ONE, "ml");
     when(register.execute(12, 7, input))
         .thenReturn(
             new RegisterDoseAdministrationResult(output(), true),
@@ -166,7 +169,11 @@ class DoseAdministrationHttpTest {
         APPLIED,
         null,
         DoseRegistrationOrigin.Online,
-        OPERATION_ID);
+        OPERATION_ID,
+        BigDecimal.ONE,
+        "ml",
+        BigDecimal.TEN,
+        false);
   }
 
   @Configuration

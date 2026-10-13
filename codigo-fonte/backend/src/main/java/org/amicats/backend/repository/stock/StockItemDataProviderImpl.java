@@ -1,5 +1,7 @@
 package org.amicats.backend.repository.stock;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.LockModeType;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -18,6 +20,26 @@ import org.springframework.stereotype.Component;
 public class StockItemDataProviderImpl implements StockItemDataProvider {
 
   private final StockItemRepository stockItemRepository;
+  private final EntityManager entityManager;
+
+  @Override
+  public Optional<StockItem> findByIdForUpdate(Integer id) {
+    var found = stockItemRepository.findByIdForUpdate(id);
+    // Refresh if another association already loaded the item before the row lock.
+    found.ifPresent(item -> entityManager.refresh(item, LockModeType.PESSIMISTIC_WRITE));
+    return found;
+  }
+
+  @Override
+  public PagedResult<StockItem> findMedicationAlerts(int page, int size) {
+    var result = stockItemRepository.findMedicationAlerts(PageRequest.of(page, size));
+    return new PagedResult<>(
+        result.getContent(),
+        result.getNumber(),
+        result.getSize(),
+        result.getTotalElements(),
+        result.getTotalPages());
+  }
 
   @Override
   public StockItem save(StockItem stockItem) {

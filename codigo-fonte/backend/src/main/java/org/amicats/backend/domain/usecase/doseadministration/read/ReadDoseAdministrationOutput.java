@@ -1,5 +1,6 @@
 package org.amicats.backend.domain.usecase.doseadministration.read;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import org.amicats.backend.domain.entity.DoseAdministration;
@@ -20,7 +21,11 @@ public record ReadDoseAdministrationOutput(
     LocalDateTime recordedAt,
     String notes,
     DoseRegistrationOrigin origin,
-    UUID clientOperationId) {
+    UUID clientOperationId,
+    BigDecimal consumedQuantity,
+    String consumedUnit,
+    BigDecimal stockBalanceAfter,
+    boolean stockDivergenceAtRegistration) {
 
   public static ReadDoseAdministrationOutput from(DoseAdministration dose) {
     var medication = dose.getPrescribedMedication();
@@ -38,6 +43,10 @@ public record ReadDoseAdministrationOutput(
         dose.getRecordedAt(),
         dose.getNotes(),
         dose.getOrigin(),
-        dose.getClientOperationId());
+        dose.getClientOperationId(),
+        dose.getConsumedQuantity(),
+        dose.getConsumedUnit(),
+        dose.getStockBalanceAfter(),
+        dose.getStockBalanceAfter() != null && dose.getStockBalanceAfter().signum() < 0);
   }
 }

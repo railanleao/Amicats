@@ -7,6 +7,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.amicats.backend.domain.enums.StockStatus;
+import org.amicats.backend.exception.InvalidStockConsumptionException;
 
 @Entity
 @Table(name = "stock_items")
@@ -30,6 +31,9 @@ public class StockItem {
 
   @Column(nullable = false, precision = 12, scale = 3)
   private BigDecimal quantity;
+
+  @Column(name = "minimum_quantity", nullable = false, precision = 12, scale = 3)
+  private BigDecimal minimumQuantity = BigDecimal.TEN;
 
   @Column(nullable = false, length = 30)
   private String unit;
@@ -56,12 +60,29 @@ public class StockItem {
     this.quantity = quantity;
   }
 
+  public void changeMinimumQuantity(BigDecimal minimumQuantity) {
+    if (minimumQuantity == null
+        || minimumQuantity.signum() < 0
+        || minimumQuantity.stripTrailingZeros().scale() > 3
+        || minimumQuantity.compareTo(new BigDecimal("999999999.999")) > 0) {
+      throw new InvalidStockConsumptionException("Limite mínimo inválido.");
+    }
+    this.minimumQuantity = minimumQuantity;
+  }
+
+  public void consume(BigDecimal consumedQuantity) {
+    if (consumedQuantity == null || consumedQuantity.signum() <= 0) {
+      throw new InvalidStockConsumptionException("Consumo deve ser positivo.");
+    }
+    this.quantity = quantity.subtract(consumedQuantity);
+  }
+
   public StockStatus getStatus() {
     if (quantity == null || quantity.compareTo(BigDecimal.ZERO) <= 0) {
       return StockStatus.OutOfStock;
     }
 
-    if (quantity.compareTo(BigDecimal.TEN) <= 0) {
+    if (quantity.compareTo(minimumQuantity) <= 0) {
       return StockStatus.Low;
     }
 
