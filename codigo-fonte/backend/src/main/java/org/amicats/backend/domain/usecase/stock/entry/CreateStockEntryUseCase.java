@@ -18,7 +18,7 @@ public class CreateStockEntryUseCase {
   public void execute(CreateStockEntryInput input) {
     StockItem stockItem =
         stockItemDataProvider
-            .findById(input.stockItemId())
+            .findByIdForUpdate(input.stockItemId())
             .orElseThrow(
                 () ->
                     new ResourceNotFoundException(

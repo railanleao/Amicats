@@ -8,9 +8,12 @@ import {
 } from '@angular/router';
 import { of, Subject, throwError } from 'rxjs';
 
+import { formatAge } from '../../lib/cat-age';
 import { Cat } from '../../models/cat.model';
+import { RoomTransfer } from '../../models/room-transfer.model';
 import { PagedResult, Room } from '../../models/room.model';
 import { CatService } from '../../services/resources/cat.service';
+import { RoomTransferService } from '../../services/resources/room-transfer.service';
 import { RoomService } from '../../services/resources/room.service';
 import { CatFormComponent } from './cat-form.component';
 
@@ -19,6 +22,7 @@ describe('CatFormComponent', () => {
   let component: CatFormComponent;
   let catServiceSpy: jasmine.SpyObj<CatService>;
   let roomServiceSpy: jasmine.SpyObj<RoomService>;
+  let roomTransferServiceSpy: jasmine.SpyObj<RoomTransferService>;
 
   function createdCat(overrides: Partial<Cat> = {}): Cat {
     return {
@@ -78,6 +82,20 @@ describe('CatFormComponent', () => {
     return { target: { files: [file], value: 'x' } } as unknown as Event;
   }
 
+  function aTransfer(overrides: Partial<RoomTransfer> = {}): RoomTransfer {
+    return {
+      id: 1,
+      catId: 42,
+      fromRoomId: 4,
+      fromRoomTitle: 'Quarentena',
+      toRoomId: 1,
+      toRoomTitle: 'Sala 1 - Filhotes',
+      reason: 'Alta clínica.',
+      createdAt: '2025-12-12T09:00:00',
+      ...overrides,
+    };
+  }
+
   function createComponent(mode: 'create' | 'edit', id?: string): void {
     TestBed.configureTestingModule({
       imports: [CatFormComponent],
@@ -85,6 +103,7 @@ describe('CatFormComponent', () => {
         provideRouter([]),
         { provide: CatService, useValue: catServiceSpy },
         { provide: RoomService, useValue: roomServiceSpy },
+        { provide: RoomTransferService, useValue: roomTransferServiceSpy },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -117,6 +136,12 @@ describe('CatFormComponent', () => {
     roomServiceSpy = jasmine.createSpyObj<RoomService>('RoomService', ['list']);
     roomServiceSpy.list.and.returnValue(of(aRoomPage([aRoom()])));
     catServiceSpy.photo.and.returnValue(of(new Blob()));
+
+    roomTransferServiceSpy = jasmine.createSpyObj<RoomTransferService>(
+      'RoomTransferService',
+      ['create', 'list'],
+    );
+    roomTransferServiceSpy.list.and.returnValue(of([]));
   });
 
   describe('create mode', () => {
@@ -402,6 +427,128 @@ describe('CatFormComponent', () => {
 
       expect(catServiceSpy.removePhoto).toHaveBeenCalledWith(42);
       expect(component.hasPhoto).toBeFalse();
+    });
+
+    it('shows the room as read-only with a link to the transfer screen instead of a select', () => {
+      catServiceSpy.findById.and.returnValue(
+        of(createdCat({ id: 42, roomId: 1, roomTitle: 'Sala 1 - Filhotes' })),
+      );
+
+      createComponent('edit', '42');
+
+      const element: HTMLElement = fixture.nativeElement;
+      expect(element.querySelector('select#roomId')).toBeNull();
+      expect(element.textContent).toContain('Sala 1 - Filhotes');
+      const link = element.querySelector('a.field-link');
+      expect(link?.getAttribute('href')).toBe('/cats/42/transfer-room');
+    });
+
+    it('shows FIV/FeLV/PIF/castration read-only, derived from the loaded cat', () => {
+      catServiceSpy.findById.and.returnValue(
+        of(
+          createdCat({
+            id: 42,
+            healthStatus: 'FivFelv',
+            pifResult: 'Positive',
+            neuteringStatus: 'Neutered',
+          }),
+        ),
+      );
+
+      createComponent('edit', '42');
+
+      expect(component.fivLabel).toBe('Positivo');
+      expect(component.felvLabel).toBe('Positivo');
+      expect(component.pifLabel).toBe('Positivo');
+      expect(component.neuteringLabel).toBe('Sim');
+    });
+
+    it('formats the registration date for the Metadados card', () => {
+      catServiceSpy.findById.and.returnValue(
+        of(createdCat({ id: 42, createdAt: '2025-12-08T00:00:00' })),
+      );
+
+      createComponent('edit', '42');
+
+      expect(component.createdAtLabel).toBe('08/12/2025');
+    });
+
+    it('loads and shows the full room-transfer history', () => {
+      catServiceSpy.findById.and.returnValue(of(createdCat({ id: 42 })));
+      roomTransferServiceSpy.list.and.returnValue(of([aTransfer()]));
+
+      createComponent('edit', '42');
+
+      expect(roomTransferServiceSpy.list).toHaveBeenCalledWith(42);
+      expect(component.transferHistory()).toEqual([aTransfer()]);
+    });
+
+    it('prefills "Idade estimada" as free text computed from the birth date', () => {
+      catServiceSpy.findById.and.returnValue(
+        of(createdCat({ id: 42, estimatedBirthDate: '2022-01-01' })),
+      );
+
+      createComponent('edit', '42');
+
+      expect(component.ageYearsText).toBe(formatAge('2022-01-01') ?? '');
+    });
+
+    it('converts the edited age text into an estimated birth date on submit', () => {
+      catServiceSpy.findById.and.returnValue(
+        of(createdCat({ id: 42, estimatedBirthDate: '2020-01-01' })),
+      );
+      createComponent('edit', '42');
+      catServiceSpy.update.and.returnValue(of(createdCat({ id: 42 })));
+      spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
+
+      component.ageYearsText = '2 anos';
+      component.onSubmit();
+
+      // Local-date parts (not toISOString, which is UTC) to match parseAgeText's own
+      // local-time computation regardless of the machine's timezone.
+      const today = new Date();
+      const year = today.getFullYear() - 2;
+      const month = String(today.getMonth() + 1).padStart(2, '0');
+      const day = String(today.getDate()).padStart(2, '0');
+      expect(catServiceSpy.update).toHaveBeenCalledWith(
+        42,
+        jasmine.objectContaining({ estimatedBirthDate: `${year}-${month}-${day}` }),
+      );
+    });
+
+    it('keeps the original birth date when the edited age text cannot be parsed', () => {
+      catServiceSpy.findById.and.returnValue(
+        of(createdCat({ id: 42, estimatedBirthDate: '2020-01-01' })),
+      );
+      createComponent('edit', '42');
+      catServiceSpy.update.and.returnValue(of(createdCat({ id: 42 })));
+      spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
+
+      component.ageYearsText = 'filhote recém-chegado';
+      component.onSubmit();
+
+      expect(catServiceSpy.update).toHaveBeenCalledWith(
+        42,
+        jasmine.objectContaining({ estimatedBirthDate: '2020-01-01' }),
+      );
+    });
+
+    it('does not show Peso or Características — the design drops them from the edit screen', () => {
+      catServiceSpy.findById.and.returnValue(of(createdCat({ id: 42 })));
+
+      createComponent('edit', '42');
+
+      const element: HTMLElement = fixture.nativeElement;
+      expect(element.querySelector('#weightKg')).toBeNull();
+      expect(element.querySelector('#characteristics')).toBeNull();
+    });
+
+    it('labels the rescue-conditions field as "Local de resgate"', () => {
+      catServiceSpy.findById.and.returnValue(of(createdCat({ id: 42 })));
+
+      createComponent('edit', '42');
+
+      expect(fixture.nativeElement.textContent).toContain('Local de resgate');
     });
   });
 });

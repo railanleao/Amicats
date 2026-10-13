@@ -27,3 +27,15 @@ export interface ChangePasswordRequest {
   newPassword: string;
   confirmNewPassword: string;
 }
+
+export function canViewStock(accessType: AccessType): boolean {
+  return (
+    accessType === 'Administrator' ||
+    accessType === 'Assistant' ||
+    accessType === 'Veterinarian'
+  );
+}
+
+export function canManageStock(accessType: AccessType): boolean {
+  return accessType === 'Administrator' || accessType === 'Assistant';
+}

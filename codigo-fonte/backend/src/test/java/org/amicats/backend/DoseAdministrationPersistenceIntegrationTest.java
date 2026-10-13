@@ -3,7 +3,9 @@ package org.amicats.backend;
 import static org.assertj.core.api.Assertions.*;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -11,11 +13,14 @@ import java.util.concurrent.*;
 import org.amicats.backend.application.factory.doseadministration.RegisterDoseAdministrationFactory;
 import org.amicats.backend.domain.entity.*;
 import org.amicats.backend.domain.enums.*;
+import org.amicats.backend.domain.interfaces.dataprovider.stock.StockConsumptionDataProvider;
+import org.amicats.backend.domain.policy.DoseAdministrationTimePolicy;
 import org.amicats.backend.domain.usecase.doseadministration.register.*;
 import org.amicats.backend.repository.cat.CatRepository;
 import org.amicats.backend.repository.doseadministration.DoseAdministrationRepository;
 import org.amicats.backend.repository.internalmedicalprescription.InternalMedicalPrescriptionRepository;
 import org.amicats.backend.repository.prescribedmedication.PrescribedMedicationRepository;
+import org.amicats.backend.repository.stock.StockConsumptionRepository;
 import org.amicats.backend.repository.stock.StockItemRepository;
 import org.amicats.backend.repository.user.UserRepository;
 import org.amicats.backend.service.storage.MinioPhotoStorage;
@@ -23,9 +28,15 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -42,10 +53,12 @@ class DoseAdministrationPersistenceIntegrationTest {
   @Autowired private UserRepository users;
   @Autowired private CatRepository cats;
   @Autowired private StockItemRepository stocks;
+  @Autowired private StockConsumptionRepository consumptions;
+  @MockitoSpyBean private StockConsumptionDataProvider consumptionProvider;
   @Autowired private InternalMedicalPrescriptionRepository prescriptions;
   @Autowired private PrescribedMedicationRepository medications;
   @Autowired private PlatformTransactionManager transactionManager;
-  @Autowired private org.springframework.jdbc.core.JdbcTemplate jdbc;
+  @Autowired private JdbcTemplate jdbc;
   @MockitoBean private MinioPhotoStorage photoStorage;
 
   private Integer userId;
@@ -53,6 +66,8 @@ class DoseAdministrationPersistenceIntegrationTest {
   private Integer stockId;
   private Integer prescriptionId;
   private Integer medicationId;
+  private Integer secondMedicationId;
+  private final UUID secondOperation = UUID.randomUUID();
   private final UUID operation = UUID.randomUUID();
   private LocalDateTime applied;
 
@@ -61,7 +76,7 @@ class DoseAdministrationPersistenceIntegrationTest {
     new TransactionTemplate(transactionManager)
         .executeWithoutResult(
             status -> {
-              LocalDateTime created = LocalDateTime.now(java.time.Clock.systemUTC()).minusDays(1);
+              LocalDateTime created = LocalDateTime.now(Clock.systemUTC()).minusDays(1);
               User user =
                   users.save(
                       new User(
@@ -109,13 +124,11 @@ class DoseAdministrationPersistenceIntegrationTest {
                           AdministrationRoute.Oral,
                           12,
                           7,
-                          created
-                              .atOffset(java.time.ZoneOffset.UTC)
-                              .atZoneSameInstant(java.time.ZoneId.of("America/Sao_Paulo"))
-                              .toLocalDate(),
+                          DoseAdministrationTimePolicy.clinicalDate(
+                              created, ZoneId.of("America/Sao_Paulo")),
                           created));
               medicationId = medication.getId();
-              applied = LocalDateTime.now(java.time.Clock.systemUTC()).minusMinutes(1);
+              applied = LocalDateTime.now(Clock.systemUTC()).minusMinutes(1);
             });
   }
 
@@ -124,7 +137,17 @@ class DoseAdministrationPersistenceIntegrationTest {
     new TransactionTemplate(transactionManager)
         .executeWithoutResult(
             status -> {
-              doses.findByClientOperationId(operation).ifPresent(doses::delete);
+              for (UUID key : List.of(operation, secondOperation)) {
+                doses
+                    .findByClientOperationId(key)
+                    .ifPresent(
+                        dose -> {
+                          consumptions.deleteByDose_Id(dose.getId());
+                          consumptions.flush();
+                          doses.delete(dose);
+                        });
+              }
+              if (secondMedicationId != null) medications.deleteById(secondMedicationId);
               if (medicationId != null) medications.deleteById(medicationId);
               if (prescriptionId != null) prescriptions.deleteById(prescriptionId);
               if (stockId != null) stocks.deleteById(stockId);
@@ -135,7 +158,7 @@ class DoseAdministrationPersistenceIntegrationTest {
 
   @Test
   void databaseAllowsSmallClockDriftButRejectsMoreThanFiveMinutes() {
-    LocalDateTime slightlyAhead = LocalDateTime.now(java.time.Clock.systemUTC()).plusMinutes(2);
+    LocalDateTime slightlyAhead = LocalDateTime.now(Clock.systemUTC()).plusMinutes(2);
     var result =
         factory
             .create()
@@ -143,7 +166,12 @@ class DoseAdministrationPersistenceIntegrationTest {
                 medicationId,
                 userId,
                 new RegisterDoseAdministrationInput(
-                    operation, slightlyAhead, null, DoseRegistrationOrigin.OfflineSynced));
+                    operation,
+                    slightlyAhead,
+                    null,
+                    DoseRegistrationOrigin.OfflineSynced,
+                    BigDecimal.ONE,
+                    "unidade"));
     assertThat(result.created()).isTrue();
     assertThat(result.dose().administeredAt()).isAfter(result.dose().recordedAt());
     assertThat(doses.findByClientOperationId(operation)).isPresent();
@@ -153,7 +181,105 @@ class DoseAdministrationPersistenceIntegrationTest {
                     "UPDATE dose_administrations SET administered_at = recorded_at + INTERVAL '5 minutes 0.000001 seconds' "
                         + "WHERE id_dose_administration = ?",
                     result.dose().id()))
-        .isInstanceOf(org.springframework.dao.DataIntegrityViolationException.class);
+        .isInstanceOf(DataIntegrityViolationException.class);
+  }
+
+  @Test
+  void movementFailureRollsBackTheDoseAndTheStockBalance() {
+    Mockito.doThrow(new IllegalStateException("Movement failure"))
+        .when(consumptionProvider)
+        .save(ArgumentMatchers.any());
+    try {
+      assertThatThrownBy(
+              () ->
+                  factory
+                      .create()
+                      .execute(
+                          medicationId,
+                          userId,
+                          new RegisterDoseAdministrationInput(
+                              operation,
+                              applied,
+                              null,
+                              DoseRegistrationOrigin.Online,
+                              BigDecimal.ONE,
+                              "unidade")))
+          .isInstanceOf(IllegalStateException.class);
+      assertThat(doses.findByClientOperationId(operation)).isEmpty();
+      assertThat(stocks.findById(stockId).orElseThrow().getQuantity()).isEqualByComparingTo("1");
+    } finally {
+      Mockito.reset(consumptionProvider);
+    }
+  }
+
+  @Test
+  void differentPrescriptionsSharingStockDoNotLoseConcurrentDebits() throws Exception {
+    new TransactionTemplate(transactionManager)
+        .executeWithoutResult(
+            status -> {
+              var original = medications.findById(medicationId).orElseThrow();
+              secondMedicationId =
+                  medications
+                      .save(
+                          PrescribedMedication.fromInternal(
+                              prescriptions.findById(prescriptionId).orElseThrow(),
+                              stocks.findById(stockId).orElseThrow(),
+                              "Outra dose",
+                              AdministrationRoute.Oral,
+                              12,
+                              7,
+                              original.getStartDate(),
+                              original.getCreatedAt()))
+                      .getId();
+            });
+    // Read a database timestamp before the debits to verify the incremental sync query.
+    jdbc.update("update stock_items set name = name where id_stock_item = ?", stockId);
+    var before = stocks.findById(stockId).orElseThrow().getUpdatedAt();
+    var pool = Executors.newFixedThreadPool(2);
+    var ready = new CountDownLatch(2);
+    var start = new CountDownLatch(1);
+    try {
+      List<Future<RegisterDoseAdministrationResult>> futures = new ArrayList<>();
+      for (int i = 0; i < 2; i++) {
+        final int index = i;
+        futures.add(
+            pool.submit(
+                () -> {
+                  ready.countDown();
+                  if (!start.await(10, TimeUnit.SECONDS))
+                    throw new IllegalStateException("Start timed out");
+                  return factory
+                      .create()
+                      .execute(
+                          index == 0 ? medicationId : secondMedicationId,
+                          userId,
+                          new RegisterDoseAdministrationInput(
+                              index == 0 ? operation : secondOperation,
+                              applied,
+                              null,
+                              DoseRegistrationOrigin.OfflineSynced,
+                              new BigDecimal("0.75"),
+                              "unidade"));
+                }));
+      }
+      assertThat(ready.await(10, TimeUnit.SECONDS)).isTrue();
+      start.countDown();
+      for (var future : futures) {
+        var result = future.get(30, TimeUnit.SECONDS);
+        assertThat(result.created()).isTrue();
+        assertThat(consumptions.countByDose_Id(result.dose().id())).isEqualTo(1);
+      }
+      var stock = stocks.findById(stockId).orElseThrow();
+      assertThat(stock.getQuantity()).isEqualByComparingTo("-0.5");
+      assertThat(stock.getUpdatedAt()).isAfterOrEqualTo(before);
+      assertThat(stocks.findUpdatedSince(before)).extracting(StockItem::getId).contains(stockId);
+      var alerts = stocks.findMedicationAlerts(PageRequest.of(0, 100));
+      assertThat(alerts.getContent()).extracting(StockItem::getId).contains(stockId);
+    } finally {
+      start.countDown();
+      pool.shutdownNow();
+      pool.awaitTermination(35, TimeUnit.SECONDS);
+    }
   }
 
   @Test
@@ -176,7 +302,12 @@ class DoseAdministrationPersistenceIntegrationTest {
                           medicationId,
                           userId,
                           new RegisterDoseAdministrationInput(
-                              operation, applied, null, DoseRegistrationOrigin.OfflineSynced));
+                              operation,
+                              applied,
+                              null,
+                              DoseRegistrationOrigin.OfflineSynced,
+                              BigDecimal.ONE,
+                              "unidade"));
                 }));
       }
       assertThat(ready.await(10, TimeUnit.SECONDS)).isTrue();
@@ -187,7 +318,9 @@ class DoseAdministrationPersistenceIntegrationTest {
           .isEqualTo(1);
       assertThat(results.stream().map(result -> result.dose().id()).distinct().count())
           .isEqualTo(1);
-      assertThat(doses.findByClientOperationId(operation)).isPresent();
+      var saved = doses.findByClientOperationId(operation).orElseThrow();
+      assertThat(consumptions.countByDose_Id(saved.getId())).isEqualTo(1);
+      assertThat(stocks.findById(stockId).orElseThrow().getQuantity()).isEqualByComparingTo("0");
     } finally {
       start.countDown();
       pool.shutdownNow();
