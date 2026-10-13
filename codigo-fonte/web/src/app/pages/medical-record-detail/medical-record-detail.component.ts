@@ -20,9 +20,11 @@ import {
   SEX_LABELS,
 } from '../../models/cat.model';
 import { PrescribedMedication } from '../../models/medical-prescription.model';
+import { ExternalAttendance } from '../../models/external-attendance.model';
 import { AuthService } from '../../services/resources/auth.service';
 import { CatService } from '../../services/resources/cat.service';
 import { PrescribedMedicationService } from '../../services/resources/prescribed-medication.service';
+import { ExternalAttendanceService } from '../../services/resources/external-attendance.service';
 
 interface PrescriptionNavigationState {
   prescriptionCreated?: boolean;
@@ -44,6 +46,9 @@ export class MedicalRecordDetailComponent {
   private readonly prescribedMedicationService = inject(
     PrescribedMedicationService,
   );
+  private readonly externalAttendanceService = inject(
+    ExternalAttendanceService,
+  );
   private readonly destroyRef = inject(DestroyRef);
 
   readonly catId = Number(this.route.snapshot.paramMap.get('id'));
@@ -60,6 +65,9 @@ export class MedicalRecordDetailComponent {
 
   readonly activeMedications = signal<PrescribedMedication[]>([]);
   readonly activeMedicationsError = signal<string | null>(null);
+  readonly externalAttendances = signal<ExternalAttendance[]>([]);
+  readonly externalAttendancesError = signal<string | null>(null);
+  readonly externalAttendanceDownloadError = signal<string | null>(null);
 
   readonly canPrescribe = computed(
     () => this.authService.currentUser()?.accessType === 'Veterinarian',
@@ -73,6 +81,7 @@ export class MedicalRecordDetailComponent {
 
     this.loadCat();
     this.loadActiveMedications();
+    this.loadExternalAttendances();
   }
 
   get identityDetails(): string {
@@ -156,6 +165,41 @@ export class MedicalRecordDetailComponent {
             error.status === 404
               ? 'Gatinho não encontrado.'
               : 'Não foi possível carregar o prontuário. Tente novamente.',
+          ),
+      });
+  }
+
+  openExternalAttachment(attendance: ExternalAttendance): void {
+    this.externalAttendanceDownloadError.set(null);
+    this.externalAttendanceService
+      .attachment(attendance.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (blob) => {
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = attendance.attachedFile || 'anexo-atendimento';
+          link.click();
+          URL.revokeObjectURL(url);
+        },
+        error: () =>
+          this.externalAttendanceDownloadError.set(
+            'Não foi possível abrir o anexo do atendimento externo.',
+          ),
+      });
+  }
+
+  private loadExternalAttendances(): void {
+    this.externalAttendancesError.set(null);
+    this.externalAttendanceService
+      .listByCat(this.catId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (attendances) => this.externalAttendances.set(attendances),
+        error: () =>
+          this.externalAttendancesError.set(
+            'Não foi possível carregar os atendimentos externos.',
           ),
       });
   }

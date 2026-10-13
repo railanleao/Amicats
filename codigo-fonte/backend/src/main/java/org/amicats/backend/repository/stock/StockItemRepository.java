@@ -1,12 +1,15 @@
 package org.amicats.backend.repository.stock;
 
+import jakarta.persistence.LockModeType;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import org.amicats.backend.domain.entity.StockItem;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -19,8 +22,8 @@ public interface StockItemRepository extends JpaRepository<StockItem, Integer> {
           + "and ("
           + ":status is null "
           + "or (:status = 'OutOfStock' and s.quantity <= 0) "
-          + "or (:status = 'Low' and s.quantity > 0 and s.quantity <= 10) "
-          + "or (:status = 'Normal' and s.quantity > 10)"
+          + "or (:status = 'Low' and s.quantity > 0 and s.quantity <= s.minimumQuantity) "
+          + "or (:status = 'Normal' and s.quantity > s.minimumQuantity)"
           + ") "
           + "and (:filterExpirationFrom = false or "
           + "(select min(se.expirationDate) from StockEntry se "
@@ -35,7 +38,7 @@ public interface StockItemRepository extends JpaRepository<StockItem, Integer> {
           + "order by "
           + "case "
           + "when s.quantity <= 0 then 0 "
-          + "when s.quantity <= 10 then 1 "
+          + "when s.quantity <= s.minimumQuantity then 1 "
           + "else 2 "
           + "end, "
           + "(select min(se3.expirationDate) from StockEntry se3 "
@@ -58,4 +61,15 @@ public interface StockItemRepository extends JpaRepository<StockItem, Integer> {
 
   @Query("select s from StockItem s where s.updatedAt >= :since")
   List<StockItem> findUpdatedSince(@Param("since") LocalDateTime since);
+
+  @Lock(LockModeType.PESSIMISTIC_WRITE)
+  @Query("select s from StockItem s where s.id = :id")
+  Optional<StockItem> findByIdForUpdate(@Param("id") Integer id);
+
+  @Query(
+      "select s from StockItem s "
+          + "where lower(s.category) = 'medicamento' "
+          + "and s.quantity <= s.minimumQuantity "
+          + "order by s.quantity asc, s.id asc")
+  Page<StockItem> findMedicationAlerts(Pageable pageable);
 }

@@ -1,6 +1,14 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { canSubmitTransfer, occupancySubtitle, transferErrorMessage } from './TransferRoomScreen.logic';
+import type { RoomTransfer } from '../types/roomTransfer';
+import {
+  canSubmitTransfer,
+  currentRoomSubtitle,
+  occupancySubtitle,
+  transferDateTimeLabel,
+  transferErrorMessage,
+  transferFromLabel,
+} from './TransferRoomScreen.logic';
 
 class FakeApiError extends Error {
   constructor(
@@ -12,20 +20,63 @@ class FakeApiError extends Error {
   }
 }
 
+function aTransfer(overrides: Partial<RoomTransfer> = {}): RoomTransfer {
+  return {
+    id: 1,
+    catId: 1,
+    fromRoomId: 4,
+    fromRoomTitle: 'Quarentena',
+    toRoomId: 2,
+    toRoomTitle: 'Observação Intensiva',
+    reason: 'Alta clínica.',
+    createdAt: '2025-12-12T09:00:00',
+    ...overrides,
+  };
+}
+
 describe('occupancySubtitle', () => {
   it('shows occupied/capacity when the room has a max capacity', () => {
-    assert.equal(occupancySubtitle({ id: 1, title: 'Sala 51', occupied: 1, capacity: 6 }), '1/6 ocupada');
+    assert.equal(occupancySubtitle({ occupied: 1, capacity: 6 }), '1/6 ocupada');
   });
 
   it('falls back to a plain cat count when there is no max capacity', () => {
+    assert.equal(occupancySubtitle({ occupied: 1, capacity: null }), '1 gato');
+    assert.equal(occupancySubtitle({ occupied: 3, capacity: null }), '3 gatos');
+  });
+});
+
+describe('currentRoomSubtitle', () => {
+  it('combines occupancy with the room description when there is one', () => {
     assert.equal(
-      occupancySubtitle({ id: 1, title: 'Convivência Livre', occupied: 1, capacity: null }),
-      '1 gato',
+      currentRoomSubtitle({ title: 'Observação Intensiva', description: 'Enfermaria', occupied: 7, capacity: 8 }),
+      '7/8 ocupada · Enfermaria',
     );
+  });
+
+  it('omits the description when the room has none', () => {
     assert.equal(
-      occupancySubtitle({ id: 1, title: 'Convivência Livre', occupied: 3, capacity: null }),
-      '3 gatos',
+      currentRoomSubtitle({ title: 'Convivência Livre', description: null, occupied: 9, capacity: 14 }),
+      '9/14 ocupada',
     );
+  });
+});
+
+describe('transferDateTimeLabel', () => {
+  it('reads the datetime as UTC and formats it as dd/MM/yyyy às HH:mm', () => {
+    const expected = new Date('2025-12-12T14:32:00Z');
+    const formatted = transferDateTimeLabel(aTransfer({ createdAt: '2025-12-12T14:32:00' }));
+    assert.equal(formatted, transferDateTimeLabel(aTransfer({ createdAt: expected.toISOString() })));
+    assert.match(formatted, /^\d{2}\/\d{2}\/2025 às \d{2}:32$/);
+  });
+});
+
+describe('transferFromLabel', () => {
+  it('shows the origin room title when there is one', () => {
+    assert.equal(transferFromLabel(aTransfer({ fromRoomTitle: 'Quarentena' })), 'Quarentena');
+  });
+
+  it('falls back to "Cadastro inicial" for the first entry in a cat\'s history', () => {
+    assert.equal(transferFromLabel(aTransfer({ fromRoomId: null, fromRoomTitle: null })), 'Cadastro inicial');
   });
 });
 

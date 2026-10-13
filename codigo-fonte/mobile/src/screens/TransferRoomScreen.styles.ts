@@ -123,4 +123,58 @@ export const styles = StyleSheet.create({
     color: colors.ink,
     textAlignVertical: 'top',
   },
+  timelineCard: {
+    backgroundColor: colors.surface,
+    borderColor: colors.border,
+    borderWidth: 1,
+    borderRadius: radii.md,
+    padding: spacing.md,
+  },
+  timelineItem: {
+    flexDirection: 'row',
+    gap: spacing.sm + 2,
+  },
+  timelineTrack: {
+    alignItems: 'center',
+    width: 12,
+    paddingTop: 3,
+  },
+  timelineDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: colors.sage300,
+    flexShrink: 0,
+  },
+  timelineDotCurrent: {
+    backgroundColor: colors.primary,
+  },
+  timelineLine: {
+    flex: 1,
+    width: 2,
+    marginTop: spacing.xs,
+    backgroundColor: colors.sage100,
+  },
+  timelineContent: {
+    flex: 1,
+    gap: 2,
+    paddingBottom: spacing.md,
+  },
+  timelineContentLast: {
+    paddingBottom: 0,
+  },
+  timelineRooms: {
+    fontSize: fontSizes.md,
+    fontWeight: '600',
+    color: colors.ink,
+  },
+  timelineDate: {
+    fontSize: fontSizes.xs,
+    color: colors.inkSoft,
+  },
+  timelineReason: {
+    fontSize: fontSizes.sm,
+    color: colors.ink,
+    paddingTop: 2,
+  },
 });

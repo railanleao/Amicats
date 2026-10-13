@@ -7,7 +7,7 @@ import { Observable, catchError, forkJoin, map, of, switchMap } from 'rxjs';
 import { SubmitButtonComponent } from '../../components/submit-button/submit-button.component';
 import { formatAge } from '../../lib/cat-age';
 import { felvResult, fivResult, isNeutered } from '../../lib/cat-health';
-import { parseServerDateTime } from '../../lib/server-date';
+import { transferDateTimeLabel, transferFromLabel } from '../../lib/room-transfer-format';
 import { Cat, HEALTH_STATUS_LABELS, SEX_LABELS } from '../../models/cat.model';
 import { Room } from '../../models/room.model';
 import { RoomTransfer } from '../../models/room-transfer.model';
@@ -54,7 +54,7 @@ export class TransferRoomComponent implements OnInit {
   readonly currentRoomInfo = signal<CurrentRoomInfo | null>(null);
   readonly otherRooms = signal<RoomOption[]>([]);
 
-  readonly lastTransfer = signal<RoomTransfer | null>(null);
+  readonly transferHistory = signal<RoomTransfer[]>([]);
 
   readonly selectedRoomId = signal<number | null>(null);
   reason = '';
@@ -75,8 +75,8 @@ export class TransferRoomComponent implements OnInit {
     });
 
     this.roomTransferService.list(this.catId).subscribe({
-      next: (transfers) => this.lastTransfer.set(transfers[0] ?? null),
-      error: () => this.lastTransfer.set(null),
+      next: (transfers) => this.transferHistory.set(transfers),
+      error: () => this.transferHistory.set([]),
     });
   }
 
@@ -108,9 +108,8 @@ export class TransferRoomComponent implements OnInit {
     return cat.sex === 'Male' ? 'Castrado' : 'Castrada';
   }
 
-  lastTransferDateLabel(transfer: RoomTransfer): string {
-    return new Intl.DateTimeFormat('pt-BR').format(parseServerDateTime(transfer.createdAt));
-  }
+  readonly transferDateTimeLabel = transferDateTimeLabel;
+  readonly transferFromLabel = transferFromLabel;
 
   selectRoom(roomId: number): void {
     this.selectedRoomId.set(roomId);

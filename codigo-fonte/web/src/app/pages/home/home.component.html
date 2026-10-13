@@ -28,9 +28,17 @@
     <div class="quick-actions">
       <a routerLink="/cats/new" class="quick-action">+ Novo gatinho</a>
 
-      <!-- Inert: no form or backend for these yet. -->
+      <!-- No form or backend for these yet — disabled rather than clickable-but-inert. -->
       @for (action of quickActions; track action) {
-        <button type="button" class="quick-action">{{ action }}</button>
+        <button
+          type="button"
+          class="quick-action quick-action--disabled"
+          disabled
+          title="Em breve"
+        >
+          {{ action }}
+          <span class="quick-action__badge">em breve</span>
+        </button>
       }
     </div>
 
@@ -38,6 +46,8 @@
       <section class="card reminders-card">
         <div class="section-title">Lembretes da semana</div>
 
+        <!-- Mock: no vaccine/castration/prescription-schedule entity exists yet, so these are
+             sample data, clearly tagged, rather than presented as real reminders. -->
         @for (reminder of reminders; track reminder.text) {
           <div
             class="reminder-row"
@@ -52,6 +62,7 @@
               [class.reminder-text--danger]="reminder.tone === 'danger'"
             >
               {{ reminder.date }} · {{ reminder.text }}
+              <span class="example-badge">exemplo</span>
             </span>
           </div>
         }
@@ -64,6 +75,8 @@
             </span>
           </div>
         }
+
+        <a routerLink="/stock" class="see-more">Ver estoque →</a>
       </section>
 
       <section class="card occupancy-card">
@@ -95,11 +108,15 @@
 
     <section class="card activity-card">
       <div class="activity-header">
-        <div class="section-title">Últimas alterações · últimos 7 dias</div>
+        <div class="section-title">
+          Últimas alterações · últimos 7 dias
+          <span class="example-badge">exemplo</span>
+        </div>
         <!-- TODO: link to the full audit log once that page exists. -->
-        <span class="see-more see-more--inline">Ver histórico completo →</span>
+        <span class="see-more-disabled" title="Em breve">Ver histórico completo →</span>
       </div>
 
+      <!-- Mock: no audit-log entity exists yet, so this table is sample data. -->
       <div class="activity-table">
         <div class="activity-row activity-row--head">
           <span class="col-when">Quando</span>

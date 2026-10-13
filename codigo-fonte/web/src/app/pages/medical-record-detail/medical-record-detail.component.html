@@ -71,7 +71,47 @@
     <div class="record-grid">
       <section class="card">
         <h2 class="card-title">Linha do tempo</h2>
-        <div class="feedback">Nenhum evento registrado ainda.</div>
+        @if (externalAttendancesError()) {
+          <div class="feedback feedback--error" role="alert">
+            {{ externalAttendancesError() }}
+          </div>
+        }
+        @if (externalAttendanceDownloadError()) {
+          <div class="feedback feedback--error" role="alert">
+            {{ externalAttendanceDownloadError() }}
+          </div>
+        }
+        @for (attendance of externalAttendances(); track attendance.id) {
+          <article class="external-attendance-entry">
+            <h3>{{ attendance.partnerClinic }}</h3>
+            <p>
+              <strong>Data:</strong>
+              {{ attendance.attendanceDate | date: "dd/MM/yyyy" }}
+            </p>
+            <p>
+              <strong>Veterinário:</strong> {{ attendance.veterinarian }} ({{
+                attendance.crmv
+              }})
+            </p>
+            <p>
+              <strong>Diagnóstico / observações:</strong>
+              {{ attendance.diagnosis }}
+            </p>
+            <button
+              type="button"
+              class="secondary-button"
+              (click)="openExternalAttachment(attendance)"
+            >
+              Abrir anexo: {{ attendance.attachedFile }}
+            </button>
+          </article>
+        } @empty {
+          @if (!externalAttendancesError()) {
+            <div class="feedback">
+              Nenhum atendimento externo registrado ainda.
+            </div>
+          }
+        }
       </section>
 
       <div class="record-sidebar">

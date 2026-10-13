@@ -1,4 +1,4 @@
-import { ageInMonths, formatAge } from './cat-age';
+import { ageInMonths, formatAge, parseAgeText } from './cat-age';
 
 describe('cat-age', () => {
   const today = new Date(2026, 9, 2); // 2 de outubro de 2026
@@ -19,5 +19,30 @@ describe('cat-age', () => {
     expect(formatAge(null, today)).toBeNull();
     expect(formatAge('abc', today)).toBeNull();
     expect(formatAge('2027-01-01', today)).toBeNull();
+  });
+
+  it('parses "N anos"/"N ano" back into an estimated birth date', () => {
+    expect(parseAgeText('4 anos', today)).toBe('2022-10-02');
+    expect(parseAgeText('1 ano', today)).toBe('2025-10-02');
+    expect(parseAgeText('4anos', today)).toBe('2022-10-02');
+  });
+
+  it('parses "N meses"/"N mês" back into an estimated birth date', () => {
+    expect(parseAgeText('6 meses', today)).toBe('2026-04-02');
+    expect(parseAgeText('1 mês', today)).toBe('2026-09-02');
+  });
+
+  it('treats a bare number as years', () => {
+    expect(parseAgeText('4', today)).toBe('2022-10-02');
+  });
+
+  it('accepts whatever formatAge produces, even though the date is only approximate', () => {
+    expect(parseAgeText(formatAge('2022-09-01', today) as string, today)).toBe('2022-10-02');
+  });
+
+  it('returns null for blank or unparseable text, leaving the existing date untouched', () => {
+    expect(parseAgeText('', today)).toBeNull();
+    expect(parseAgeText('   ', today)).toBeNull();
+    expect(parseAgeText('filhote', today)).toBeNull();
   });
 });

@@ -144,6 +144,10 @@ Painel administrativo usado pela equipe da ONG (administradores, médicos-veteri
 
 ![Transferência de Sala](img/telas/web/31-transferencia-de-sala.png)
 
+### Histórico de Alterações
+
+![Histórico de Alterações](img/telas/web/33-historico-de-alteracoes.png)
+
 ### Prontuários
 
 ![Prontuários](img/telas/web/32-prontuarios.png)
@@ -235,6 +239,14 @@ Sem conexão, a tela avisa que o envio depende de internet e mantém o botão de
 ### Estoque — Mobile
 
 ![Estoque — Mobile](img/telas/mobile/12-estoque.png)
+
+### Registrar Entrada de Estoque — Mobile
+
+![Registrar Entrada de Estoque — Mobile](img/telas/mobile/29-registrar-entrada-estoque.png)
+
+### Registrar Entrada de Estoque (Novo Medicamento) — Mobile
+
+![Registrar Entrada de Estoque, Novo Medicamento — Mobile](img/telas/mobile/30-registrar-entrada-estoque-novo-medicamento.png)
 
 ### Vacinas — Mobile
 

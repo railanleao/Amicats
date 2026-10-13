@@ -1,9 +1,11 @@
 package org.amicats.backend.domain.entity;
 
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
 import lombok.AccessLevel;
@@ -15,6 +17,7 @@ import org.amicats.backend.domain.enums.PrescribedMedicationStatus;
 import org.amicats.backend.domain.policy.DoseAdministrationTimePolicy;
 import org.amicats.backend.exception.DoseAdministrationConflictException;
 import org.amicats.backend.exception.InvalidDoseAdministrationException;
+import org.amicats.backend.exception.InvalidStockConsumptionException;
 
 @Entity
 @Table(name = "dose_administrations")
@@ -57,6 +60,45 @@ public class DoseAdministration {
   @Enumerated(EnumType.STRING)
   @Column(nullable = false, length = 20, updatable = false)
   private AdministrationRoute route;
+
+  @Column(name = "consumed_quantity", precision = 12, scale = 3, updatable = false)
+  private BigDecimal consumedQuantity;
+
+  @Column(name = "consumed_unit", length = 30, updatable = false)
+  private String consumedUnit;
+
+  @Column(name = "stock_balance_after", precision = 12, scale = 3, updatable = false)
+  private BigDecimal stockBalanceAfter;
+
+  public void prepareConsumption(StockItem item, BigDecimal quantity, String unit) {
+    if (quantity == null
+        || quantity.signum() <= 0
+        || quantity.stripTrailingZeros().scale() > 3
+        || quantity.compareTo(new BigDecimal("999999999.999")) > 0
+        || unit == null
+        || unit.isBlank()
+        || unit.length() > 30) {
+      throw new InvalidStockConsumptionException("Quantidade/unidade consumida inválida.");
+    }
+    if (!item.getUnit().trim().equalsIgnoreCase(unit.trim())) {
+      throw new InvalidStockConsumptionException(
+          "Informe a quantidade na unidade do estoque: " + item.getUnit());
+    }
+    this.consumedQuantity = quantity;
+    this.consumedUnit = unit.trim().toLowerCase(Locale.ROOT);
+    this.stockBalanceAfter = item.getQuantity().subtract(quantity);
+    if (stockBalanceAfter.compareTo(new BigDecimal("-999999999.999")) < 0) {
+      throw new InvalidStockConsumptionException("Saldo resultante excede o limite suportado.");
+    }
+  }
+
+  public boolean matchesConsumption(BigDecimal quantity, String unit) {
+    return (consumedQuantity == null && consumedUnit == null && quantity == null && unit == null)
+        || consumedQuantity != null
+            && quantity != null
+            && consumedQuantity.compareTo(quantity) == 0
+            && Objects.equals(consumedUnit, unit);
+  }
 
   public static DoseAdministration register(
       PrescribedMedication medication,
@@ -106,6 +148,7 @@ public class DoseAdministration {
       throw new InvalidDoseAdministrationException(
           "A aplicação não pode estar mais de 5 minutos no futuro.");
     }
+    // createdAt preserves the validated clinical timestamp, including offline prescriptions.
     if (applied.isBefore(medication.getCreatedAt())
         || !DoseAdministrationTimePolicy.isWithinTreatmentPeriod(
             applied, medication.getStartDate(), medication.getEndDate(), clinicalZone)) {
