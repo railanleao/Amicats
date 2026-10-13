@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import {
   ActivatedRoute,
@@ -6,7 +7,9 @@ import {
 } from '@angular/router';
 import { of, throwError } from 'rxjs';
 
+import { AccessType } from '../../models/auth.model';
 import { Cat } from '../../models/cat.model';
+import { AuthService } from '../../services/resources/auth.service';
 import { CatService } from '../../services/resources/cat.service';
 import { CatDetailComponent } from './cat-detail.component';
 
@@ -14,6 +17,11 @@ describe('CatDetailComponent (unit)', () => {
   let fixture: ComponentFixture<CatDetailComponent>;
   let component: CatDetailComponent;
   let catServiceSpy: jasmine.SpyObj<CatService>;
+  const currentUser = signal<{
+    id: number;
+    name: string;
+    accessType: AccessType;
+  } | null>({ id: 1, name: 'Camila', accessType: 'Administrator' });
 
   function mockCat(overrides: Partial<Cat> = {}): Cat {
     return {
@@ -53,6 +61,7 @@ describe('CatDetailComponent (unit)', () => {
       providers: [
         provideRouter([]),
         { provide: CatService, useValue: catServiceSpy },
+        { provide: AuthService, useValue: { currentUser } },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -72,6 +81,7 @@ describe('CatDetailComponent (unit)', () => {
       'findById',
       'photo',
     ]);
+    currentUser.set({ id: 1, name: 'Camila', accessType: 'Administrator' });
   });
 
   it('loads the cat by the id from the route on init', () => {
@@ -129,42 +139,66 @@ describe('CatDetailComponent (unit)', () => {
     expect(component.felvLabel(notTested)).toBe('Não testado');
   });
 
-  it('computes the age in whole years from the estimated birth date', () => {
+  it('computes the age from the estimated birth date', () => {
     catServiceSpy.findById.and.returnValue(of(mockCat()));
     createComponent();
 
     jasmine.clock().install();
-    jasmine.clock().mockDate(new Date('2026-09-01T00:00:00'));
+    try {
+      jasmine.clock().mockDate(new Date(2026, 8, 1));
 
-    expect(component.ageLabel(mockCat({ estimatedBirthDate: '2022-09-01' }))).toBe(
-      '4 anos',
-    );
-    expect(component.ageLabel(mockCat({ estimatedBirthDate: '2025-09-02' }))).toBe(
-      '0 anos',
-    );
-    expect(component.ageLabel(mockCat({ estimatedBirthDate: null }))).toBe('—');
-
-    jasmine.clock().uninstall();
+      expect(
+        component.ageLabel(mockCat({ estimatedBirthDate: '2022-09-01' })),
+      ).toBe('4 anos');
+      expect(
+        component.ageLabel(mockCat({ estimatedBirthDate: '2025-09-02' })),
+      ).toBe('11 meses');
+      expect(component.ageLabel(mockCat({ estimatedBirthDate: null }))).toBe(
+        '—',
+      );
+    } finally {
+      jasmine.clock().uninstall();
+    }
   });
 
   it('formats createdAt as a pt-BR date', () => {
     catServiceSpy.findById.and.returnValue(of(mockCat()));
     createComponent();
 
-    expect(component.createdAtLabel(mockCat({ createdAt: '2025-12-08T10:00:00' }))).toBe(
-      '08/12/2025',
-    );
+    expect(
+      component.createdAtLabel(mockCat({ createdAt: '2025-12-08T10:00:00' })),
+    ).toBe('08/12/2025');
   });
 
   it('labels neutering status, defaulting to "Não informado" when absent', () => {
     catServiceSpy.findById.and.returnValue(of(mockCat()));
     createComponent();
 
-    expect(component.neuteringLabel(mockCat({ neuteringStatus: 'Neutered' }))).toBe(
-      'Sim',
-    );
+    expect(
+      component.neuteringLabel(mockCat({ neuteringStatus: 'Neutered' })),
+    ).toBe('Sim');
     expect(component.neuteringLabel(mockCat({ neuteringStatus: null }))).toBe(
       'Não informado',
     );
+  });
+
+  it('shows "Transferir de sala" only for Administrator and Veterinarian', () => {
+    catServiceSpy.findById.and.returnValue(of(mockCat()));
+
+    currentUser.set({ id: 1, name: 'Camila', accessType: 'Administrator' });
+    createComponent();
+    expect(component.canTransferRoom).toBeTrue();
+    expect(
+      fixture.nativeElement.querySelector('.action-button'),
+    ).not.toBeNull();
+
+    currentUser.set({ id: 2, name: 'Pedro', accessType: 'Veterinarian' });
+    fixture.detectChanges();
+    expect(component.canTransferRoom).toBeTrue();
+
+    currentUser.set({ id: 3, name: 'Rui', accessType: 'Assistant' });
+    fixture.detectChanges();
+    expect(component.canTransferRoom).toBeFalse();
+    expect(fixture.nativeElement.querySelector('.action-button')).toBeNull();
   });
 });

@@ -1,0 +1,8 @@
+<span
+  class="status-badge"
+  [class.status-badge--normal]="status === 'Normal'"
+  [class.status-badge--low]="status === 'Low'"
+  [class.status-badge--out]="status === 'OutOfStock'"
+>
+  {{ label }}
+</span>

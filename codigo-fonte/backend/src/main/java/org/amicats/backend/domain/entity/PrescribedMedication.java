@@ -1,14 +1,17 @@
 package org.amicats.backend.domain.entity;
 
 import jakarta.persistence.*;
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.amicats.backend.domain.enums.AdministrationRoute;
 import org.amicats.backend.domain.enums.MedicalPrescriptionOrigin;
 import org.amicats.backend.domain.enums.PrescribedMedicationStatus;
+import org.amicats.backend.domain.policy.DoseAdministrationTimePolicy;
 import org.amicats.backend.exception.InvalidPrescribedMedicationException;
 
 @Entity
@@ -69,6 +72,9 @@ public class PrescribedMedication {
 
   @Column(name = "created_at", nullable = false)
   private LocalDateTime createdAt;
+
+  @Column(name = "updated_at", nullable = false)
+  private LocalDateTime updatedAt;
 
   private PrescribedMedication(
       Cat cat,
@@ -136,12 +142,22 @@ public class PrescribedMedication {
   }
 
   public void cancel(User cancelledBy, String reason, LocalDateTime now) {
-    if (!isActiveOn(now.toLocalDate())) {
+    cancel(cancelledBy, reason, now, DoseAdministrationTimePolicy.DEFAULT_CLINICAL_ZONE);
+  }
+
+  public void cancel(User cancelledBy, String reason, LocalDateTime now, ZoneId clinicalZone) {
+    if (!isActiveOn(DoseAdministrationTimePolicy.clinicalDate(now, clinicalZone))) {
       throw new InvalidPrescribedMedicationException("Só é possível cancelar uma medicação ativa.");
     }
     this.status = PrescribedMedicationStatus.Cancelled;
     this.cancelledBy = cancelledBy;
     this.cancelReason = reason;
     this.cancelledAt = now;
+  }
+
+  @PrePersist
+  @PreUpdate
+  private void refreshUpdatedAt() {
+    this.updatedAt = LocalDateTime.now(Clock.systemUTC());
   }
 }

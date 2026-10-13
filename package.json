@@ -3,7 +3,9 @@
   "private": true,
   "description": "Sistema de gestão da ONG Amicats — configuração de lint/format compartilhada e git hooks do monorepo.",
   "scripts": {
-    "prepare": "husky"
+    "prepare": "husky",
+    "format": "lint-staged",
+    "format:branch": "lint-staged --diff=origin/develop...HEAD --diff-filter=ACMR --no-stash"
   },
   "devDependencies": {
     "husky": "^9.1.7",

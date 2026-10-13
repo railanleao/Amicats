@@ -107,7 +107,7 @@ describe('RoomFormComponent', () => {
       expect(component.form.controls.title.touched).toBeTrue();
     });
 
-    it('creates the room with trimmed values, no photo, and opens its edit page', () => {
+    it('creates the room with trimmed values, no photo, and returns to the list', () => {
       roomServiceSpy.create.and.returnValue(of(existingRoom({ id: 9 })));
       const { component } = createComponent('create');
       const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(
@@ -123,9 +123,7 @@ describe('RoomFormComponent', () => {
         maxCapacity: 6,
       });
       expect(roomServiceSpy.uploadPhoto).not.toHaveBeenCalled();
-      expect(navigate).toHaveBeenCalledWith(['/rooms', 9, 'edit'], {
-        state: { created: true, photoFailed: false },
-      });
+      expect(navigate).toHaveBeenCalledWith(['/rooms']);
     });
 
     it('sends null when the optional fields are left blank', () => {
@@ -221,9 +219,7 @@ describe('RoomFormComponent', () => {
       component.onSubmit();
 
       expect(roomServiceSpy.uploadPhoto).toHaveBeenCalledWith(9, file);
-      expect(navigate).toHaveBeenCalledWith(['/rooms', 9, 'edit'], {
-        state: { created: true, photoFailed: false },
-      });
+      expect(navigate).toHaveBeenCalledWith(['/rooms']);
     });
 
     it('still opens the edit page and flags the photo when the upload fails', () => {

@@ -1,20 +1,26 @@
 import { HttpErrorResponse } from '@angular/common/http';
+import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import {
   ActivatedRoute,
+  Router,
   convertToParamMap,
   provideRouter,
 } from '@angular/router';
-import { Observable, Subject, throwError } from 'rxjs';
+import { Observable, Subject, of, throwError } from 'rxjs';
 
 import { Cat } from '../../models/cat.model';
+import { PrescribedMedication } from '../../models/medical-prescription.model';
+import { AuthService } from '../../services/resources/auth.service';
 import { CatService } from '../../services/resources/cat.service';
+import { PrescribedMedicationService } from '../../services/resources/prescribed-medication.service';
 import { MedicalRecordDetailComponent } from './medical-record-detail.component';
 
 describe('MedicalRecordDetailComponent (unit)', () => {
   let fixture: ComponentFixture<MedicalRecordDetailComponent>;
   let component: MedicalRecordDetailComponent;
   let catServiceSpy: jasmine.SpyObj<CatService>;
+  let prescribedMedicationServiceSpy: jasmine.SpyObj<PrescribedMedicationService>;
 
   function mockCat(overrides: Partial<Cat> = {}): Cat {
     return {
@@ -48,15 +54,55 @@ describe('MedicalRecordDetailComponent (unit)', () => {
     };
   }
 
+  function activeMedication(): PrescribedMedication {
+    return {
+      id: 1,
+      origin: 'Internal',
+      medicalPrescriptionId: 3,
+      medicationId: 5,
+      medicationName: 'Interferon felino',
+      medicationStockStatus: 'Normal',
+      dosage: '0,5 ml',
+      route: 'Subcutaneous',
+      intervalHours: 48,
+      durationDays: 90,
+      startDate: '2026-08-19',
+      endDate: '2026-11-16',
+      status: 'Active',
+      stockWarning: null,
+    };
+  }
+
   function createComponent(
-    options: { id?: string; findByIdResult?: Observable<Cat> } = {},
+    options: {
+      id?: string;
+      findByIdResult?: Observable<Cat>;
+      listActiveResult?: Observable<PrescribedMedication[]>;
+      accessType?: string;
+    } = {},
   ): void {
-    const { id = '9', findByIdResult = new Subject<Cat>() } = options;
+    const {
+      id = '9',
+      findByIdResult = new Subject<Cat>(),
+      listActiveResult = of([]),
+      accessType = 'Veterinarian',
+    } = options;
 
     catServiceSpy = jasmine.createSpyObj<CatService>('CatService', [
       'findById',
     ]);
     catServiceSpy.findById.and.returnValue(findByIdResult);
+
+    prescribedMedicationServiceSpy =
+      jasmine.createSpyObj<PrescribedMedicationService>(
+        'PrescribedMedicationService',
+        ['listActive'],
+      );
+    prescribedMedicationServiceSpy.listActive.and.returnValue(listActiveResult);
+
+    const authServiceStub = {
+      currentUser: signal({ id: 1, name: 'Usuária', accessType }),
+    } as unknown as AuthService;
 
     TestBed.configureTestingModule({
       imports: [MedicalRecordDetailComponent],
@@ -67,6 +113,11 @@ describe('MedicalRecordDetailComponent (unit)', () => {
           useValue: { snapshot: { paramMap: convertToParamMap({ id }) } },
         },
         { provide: CatService, useValue: catServiceSpy },
+        {
+          provide: PrescribedMedicationService,
+          useValue: prescribedMedicationServiceSpy,
+        },
+        { provide: AuthService, useValue: authServiceStub },
       ],
     }).compileComponents();
 
@@ -75,10 +126,11 @@ describe('MedicalRecordDetailComponent (unit)', () => {
     fixture.detectChanges();
   }
 
-  it('loads the cat by the route id on init', () => {
+  it('loads the cat and its active medications by the route id on init', () => {
     createComponent();
 
     expect(catServiceSpy.findById).toHaveBeenCalledWith(9);
+    expect(prescribedMedicationServiceSpy.listActive).toHaveBeenCalledWith(9);
   });
 
   it('shows a not-found message when the id is not a number', () => {
@@ -86,6 +138,7 @@ describe('MedicalRecordDetailComponent (unit)', () => {
 
     expect(component.loadError()).toBe('Gatinho não encontrado.');
     expect(catServiceSpy.findById).not.toHaveBeenCalled();
+    expect(prescribedMedicationServiceSpy.listActive).not.toHaveBeenCalled();
   });
 
   it('populates the cat once the request resolves', () => {
@@ -114,6 +167,24 @@ describe('MedicalRecordDetailComponent (unit)', () => {
 
     expect(component.loadError()).toBe(
       'Não foi possível carregar o prontuário. Tente novamente.',
+    );
+  });
+
+  it('fills the active medication card', () => {
+    createComponent({ listActiveResult: of([activeMedication()]) });
+
+    expect(component.activeMedications()).toEqual([activeMedication()]);
+  });
+
+  it('shows a message when the active medications cannot be loaded', () => {
+    createComponent({
+      listActiveResult: throwError(
+        () => new HttpErrorResponse({ status: 500 }),
+      ),
+    });
+
+    expect(component.activeMedicationsError()).toBe(
+      'Não foi possível carregar a medicação ativa.',
     );
   });
 
@@ -174,10 +245,44 @@ describe('MedicalRecordDetailComponent (unit)', () => {
     expect(component.weightLabel).toBe('—');
   });
 
-  it('exposes no-op placeholder handlers for the new-prescription and external-visit buttons', () => {
-    createComponent();
+  it('lets only veterinarians prescribe', () => {
+    createComponent({ accessType: 'Veterinarian' });
+    expect(component.canPrescribe()).toBeTrue();
 
-    expect(() => component.onNewPrescription()).not.toThrow();
-    expect(() => component.onRegisterExternalVisit()).not.toThrow();
+    TestBed.resetTestingModule();
+    createComponent({ accessType: 'Administrator' });
+    expect(component.canPrescribe()).toBeFalse();
+  });
+
+  it('opens the new internal prescription page', () => {
+    createComponent();
+    const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(
+      true,
+    );
+
+    component.onNewPrescription();
+
+    expect(navigate).toHaveBeenCalledWith([
+      '/medical-records',
+      9,
+      'internal-prescriptions',
+      'new',
+    ]);
+  });
+
+  it('opens the new external attendance page', () => {
+    createComponent();
+    const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(
+      true,
+    );
+
+    component.onRegisterExternalVisit();
+
+    expect(navigate).toHaveBeenCalledWith([
+      '/medical-records',
+      9,
+      'external-attendances',
+      'new',
+    ]);
   });
 });

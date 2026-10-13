@@ -29,6 +29,11 @@ public class CatDataProviderImpl implements CatDataProvider {
   }
 
   @Override
+  public Optional<Cat> findByIdForUpdate(Integer id) {
+    return catRepository.findByIdForUpdate(id);
+  }
+
+  @Override
   public PagedResult<Cat> search(CatSearchCriteria criteria) {
     String searchPattern = toSearchPattern(criteria.search());
     Pageable pageable = PageRequest.of(criteria.page(), criteria.size(), Sort.by("name"));

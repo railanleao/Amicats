@@ -1,4 +1,4 @@
-package org.amicats.backend.Controller.auth;
+package org.amicats.backend.controller.auth;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -9,6 +9,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import org.amicats.backend.domain.entity.User;
 import org.amicats.backend.domain.entity.UserAuth;
 import org.amicats.backend.domain.enums.AccessType;
@@ -55,7 +56,13 @@ class AuthControllerTest {
 
     User user =
         new User(
-            "Marina Alves", null, null, AccessType.Administrator, null, null, LocalDateTime.now());
+            "Marina Alves",
+            null,
+            null,
+            AccessType.Administrator,
+            null,
+            null,
+            LocalDateTime.now(ZoneOffset.UTC));
 
     user = userRepository.save(user);
 

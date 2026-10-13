@@ -2,6 +2,7 @@ package org.amicats.backend.service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Optional;
 import org.amicats.backend.domain.entity.User;
 import org.amicats.backend.domain.entity.UserAuth;
@@ -88,14 +89,15 @@ public class PasswordResetService {
     // guarantees the user is never locked out by an SMTP failure.
     auth.changePasswordHash(passwordEncoder.encode(temporaryPassword));
     auth.setMustChangePassword(true);
-    auth.setPasswordResetLastRequestedAt(LocalDateTime.now());
+    auth.setPasswordResetLastRequestedAt(LocalDateTime.now(ZoneOffset.UTC));
     userAuthRepository.save(auth);
   }
 
   private boolean isWithinCooldown(UserAuth auth) {
     LocalDateTime lastRequestedAt = auth.getPasswordResetLastRequestedAt();
     return lastRequestedAt != null
-        && Duration.between(lastRequestedAt, LocalDateTime.now()).compareTo(COOLDOWN) < 0;
+        && Duration.between(lastRequestedAt, LocalDateTime.now(ZoneOffset.UTC)).compareTo(COOLDOWN)
+            < 0;
   }
 
   private String normalize(String email) {

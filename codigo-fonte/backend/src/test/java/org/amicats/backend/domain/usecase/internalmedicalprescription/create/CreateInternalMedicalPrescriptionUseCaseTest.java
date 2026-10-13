@@ -242,6 +242,34 @@ class CreateInternalMedicalPrescriptionUseCaseTest {
         .hasMessageContaining("CRMV");
   }
 
+  @Test
+  void usesTheServerTimestampAndClinicalDate() {
+    givenVeterinarian("12345");
+    givenCat();
+
+    LocalDate expectedClinicalDate = LocalDate.of(2026, 9, 30);
+
+    when(stockItemDataProvider.findById(5))
+        .thenReturn(Optional.of(medication(5, "Interferon felino")));
+
+    when(prescribedMedicationDataProvider.findActiveByCatAndMedication(
+            CAT_ID, 5, expectedClinicalDate))
+        .thenReturn(Optional.empty());
+
+    ReadInternalMedicalPrescriptionOutput output =
+        useCase.execute(
+            CAT_ID,
+            VET_ID,
+            new CreateInternalMedicalPrescriptionInput("Reavaliação", null, medicationWithId(5)));
+
+    assertThat(output.createdAt()).isEqualTo(java.time.LocalDateTime.of(2026, 9, 30, 15, 0));
+
+    assertThat(output.medication().startDate()).isEqualTo(expectedClinicalDate);
+
+    verify(prescribedMedicationDataProvider)
+        .findActiveByCatAndMedication(CAT_ID, 5, expectedClinicalDate);
+  }
+
   private void givenVeterinarian(String crmv) {
     User vet = mock(User.class);
     lenient().when(vet.getAccessType()).thenReturn(AccessType.Veterinarian);

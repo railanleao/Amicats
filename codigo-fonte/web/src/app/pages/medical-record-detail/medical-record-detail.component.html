@@ -24,6 +24,15 @@
     <h1>Prontuário Clínico</h1>
   </header>
 
+  @if (prescriptionCreated) {
+    <div class="notice notice--success" role="status">
+      Atendimento registrado.
+    </div>
+  }
+  @if (stockWarning) {
+    <div class="notice notice--warning" role="alert">{{ stockWarning }}</div>
+  }
+
   @if (cat(); as cat) {
     <div class="record-identity">
       <app-cat-avatar
@@ -39,10 +48,16 @@
       </div>
 
       <div class="record-identity__actions">
-        <button type="button" class="new-button" (click)="onNewPrescription()">
-          <span>＋</span>
-          Nova prescrição
-        </button>
+        @if (canPrescribe()) {
+          <button
+            type="button"
+            class="new-button"
+            (click)="onNewPrescription()"
+          >
+            <span>＋</span>
+            Nova prescrição
+          </button>
+        }
         <button
           type="button"
           class="secondary-button"
@@ -100,7 +115,24 @@
 
         <section class="card">
           <h2 class="card-title">Medicação ativa</h2>
-          <div class="feedback">Nenhuma medicação ativa registrada.</div>
+          @if (activeMedicationsError()) {
+            <div class="feedback">{{ activeMedicationsError() }}</div>
+          } @else {
+            @for (medication of activeMedications(); track medication.id) {
+              <div class="medication-row">
+                <span class="medication-row__name">{{
+                  medication.medicationName
+                }}</span>
+                <span class="medication-row__meta">
+                  {{ medication.dosage }} · a cada
+                  {{ medication.intervalHours }}h · até
+                  {{ medication.endDate | date: "dd/MM/yyyy" }}
+                </span>
+              </div>
+            } @empty {
+              <div class="feedback">Nenhuma medicação ativa registrada.</div>
+            }
+          }
         </section>
       </div>
     </div>

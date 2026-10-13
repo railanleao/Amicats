@@ -9,6 +9,7 @@ import org.amicats.backend.domain.entity.User;
 import org.amicats.backend.domain.interfaces.dataprovider.cat.CatDataProvider;
 import org.amicats.backend.domain.interfaces.dataprovider.internalmedicalprescription.InternalMedicalPrescriptionDataProvider;
 import org.amicats.backend.domain.interfaces.dataprovider.user.UserDataProvider;
+import org.amicats.backend.domain.policy.DoseAdministrationTimePolicy;
 import org.amicats.backend.domain.usecase.common.VeterinarianPolicy;
 import org.amicats.backend.domain.usecase.internalmedicalprescription.read.ReadInternalMedicalPrescriptionOutput;
 import org.amicats.backend.domain.usecase.prescribedmedication.create.CreatePrescribedMedicationUseCase;
@@ -23,17 +24,21 @@ public class CreateInternalMedicalPrescriptionUseCase {
   private UserDataProvider userDataProvider;
   private InternalMedicalPrescriptionDataProvider internalMedicalPrescriptionDataProvider;
   private CreatePrescribedMedicationUseCase createPrescribedMedicationUseCase;
-  @Builder.Default private Clock clock = Clock.systemDefaultZone();
+
+  @Builder.Default private Clock clock = Clock.systemUTC();
 
   @Transactional
   public ReadInternalMedicalPrescriptionOutput execute(
       Integer catId, Integer veterinarianId, CreateInternalMedicalPrescriptionInput input) {
+
     User veterinarian = VeterinarianPolicy.requireVeterinarian(userDataProvider, veterinarianId);
 
     Cat cat =
         catDataProvider
             .findById(catId)
             .orElseThrow(() -> new ResourceNotFoundException("Gato não encontrado."));
+
+    LocalDateTime recordedAt = DoseAdministrationTimePolicy.nowUtc(clock);
 
     InternalMedicalPrescription prescription =
         new InternalMedicalPrescription(
@@ -42,7 +47,8 @@ public class CreateInternalMedicalPrescriptionUseCase {
             input.title().trim(),
             blankToNull(input.notes()),
             input.medication() != null,
-            LocalDateTime.now(clock));
+            recordedAt);
+
     internalMedicalPrescriptionDataProvider.save(prescription);
 
     ReadPrescribedMedicationOutput medication =

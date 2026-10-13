@@ -19,12 +19,12 @@
         routerLinkActive="active"
         [routerLinkActiveOptions]="{ exact: true }"
       >
-        <span class="menu-icon">▦</span>
+        <app-icon class="menu-icon" name="dashboard" />
         <span>Dashboard</span>
       </a>
 
       <a class="menu-item" routerLink="/search" routerLinkActive="active">
-        <span class="menu-icon">⌕</span>
+        <app-icon class="menu-icon" name="search" />
         <span>Busca</span>
       </a>
     </div>
@@ -34,27 +34,27 @@
       <span class="section-title"> CADASTROS </span>
 
       <a class="menu-item" routerLink="/users" routerLinkActive="active">
-        <span class="menu-icon">♙</span>
+        <app-icon class="menu-icon" name="user" />
         <span>Usuários</span>
       </a>
 
       <a class="menu-item" routerLink="/rooms" routerLinkActive="active">
-        <span class="menu-icon">⌂</span>
+        <app-icon class="menu-icon" name="room" />
         <span>Salas</span>
       </a>
 
       <a class="menu-item" routerLink="/cats" routerLinkActive="active">
-        <span class="menu-icon">♟</span>
+        <app-icon class="menu-icon" name="cat" />
         <span>Gatos</span>
       </a>
 
       <a class="menu-item">
-        <span class="menu-icon">♧</span>
+        <app-icon class="menu-icon" name="volunteers" />
         <span>Voluntários</span>
       </a>
 
       <a class="menu-item">
-        <span class="menu-icon">▦</span>
+        <app-icon class="menu-icon" name="partners" />
         <span>Instituições parceiras</span>
       </a>
     </div>
@@ -68,22 +68,24 @@
         routerLink="/medical-records"
         routerLinkActive="active"
       >
-        <span class="menu-icon">▤</span>
+        <app-icon class="menu-icon" name="records" />
         <span>Prontuários</span>
       </a>
 
       <a class="menu-item">
-        <span class="menu-icon">━</span>
+        <app-icon class="menu-icon" name="medication" />
         <span>Medicamentos</span>
       </a>
 
-      <a class="menu-item">
-        <span class="menu-icon">▦</span>
+      @if (canViewStock()) {
+      <a class="menu-item" routerLink="/stock" routerLinkActive="active">
+        <app-icon class="menu-icon" name="stock" />
         <span>Estoque</span>
       </a>
+      }
 
       <a class="menu-item">
-        <span class="menu-icon">♢</span>
+        <app-icon class="menu-icon" name="vaccine" />
         <span>Vacinas</span>
       </a>
     </div>
@@ -93,19 +95,21 @@
       <span class="section-title"> GESTÃO </span>
 
       <a class="menu-item">
-        <span class="menu-icon">♡</span>
+        <app-icon class="menu-icon" name="adoption" />
         <span>Adoções</span>
       </a>
 
       <a class="menu-item">
-        <span class="menu-icon">▥</span>
+        <app-icon class="menu-icon" name="reports" />
         <span>Relatórios</span>
       </a>
 
-      <a class="menu-item">
-        <span class="menu-icon">⌂</span>
-        <span>Sincronização</span>
-      </a>
+      @if (isAdministrator()) {
+        <a class="menu-item" routerLink="/sync" routerLinkActive="active">
+          <app-icon class="menu-icon" name="sync" />
+          <span>Sincronização</span>
+        </a>
+      }
     </div>
   </nav>
 

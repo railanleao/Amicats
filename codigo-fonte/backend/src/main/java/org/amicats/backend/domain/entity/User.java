@@ -9,6 +9,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -78,7 +79,7 @@ public class User {
     this.ufCrmv = ufCrmv;
     this.dateAcceptanceTerms = dateAcceptanceTerms;
     this.active = true;
-    this.createdAt = LocalDateTime.now();
+    this.createdAt = LocalDateTime.now(ZoneOffset.UTC);
   }
 
   public boolean isActive() {
@@ -102,7 +103,7 @@ public class User {
   }
 
   public void acceptTerms() {
-    this.dateAcceptanceTerms = LocalDateTime.now();
+    this.dateAcceptanceTerms = LocalDateTime.now(ZoneOffset.UTC);
   }
 
   public void changeImage(String imageKey) {
@@ -114,7 +115,7 @@ public class User {
   }
 
   public void registerLogin() {
-    this.lastLoginAt = LocalDateTime.now();
+    this.lastLoginAt = LocalDateTime.now(ZoneOffset.UTC);
   }
 
   public void updateProfile(

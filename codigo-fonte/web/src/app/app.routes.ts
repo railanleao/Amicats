@@ -11,15 +11,25 @@ import { LoginComponent } from './pages/login/login.component';
 import { TermsAcceptanceComponent } from './pages/terms-acceptance/terms-acceptance.component';
 import { UsersComponent } from './pages/users/users.component';
 import { adminGuard } from './guards/admin.guard';
+import { roleGuard } from './guards/role.guard';
 import { CatDetailComponent } from './pages/cat-detail/cat-detail.component';
 import { CatFormComponent } from './pages/cat-form/cat-form.component';
 import { CatsComponent } from './pages/cats/cats.component';
 import { UserFormComponent } from './pages/user-form/user-form.component';
 import { RoomsComponent } from './pages/rooms/rooms.component';
+import { SyncComponent } from './pages/sync/sync.component';
 import { RoomFormComponent } from './pages/room-form/room-form.component';
 import { MedicalRecordsComponent } from './pages/medical-records/medical-records.component';
 import { MedicalRecordDetailComponent } from './pages/medical-record-detail/medical-record-detail.component';
+import { StockComponent } from './pages/stock/stock.component';
+import { StockEntryComponent } from './pages/stock-entry/stock-entry.component';
 import { SearchComponent } from './pages/search/search.component';
+import { StockFormComponent } from './pages/stock-form/stock-form.component';
+import { veterinarianGuard } from './guards/veterinarian.guard';
+import { InternalPrescriptionFormComponent } from './pages/internal-prescription-form/internal-prescription-form.component';
+import { ExternalAttendanceFormComponent } from './pages/external-attendance/external-attendance-form.component';
+import { TransferRoomComponent } from './pages/transfer-room/transfer-room.component';
+import { administratorOrVeterinarianGuard } from './guards/administrator-or-veterinarian.guard';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -43,8 +53,9 @@ export const routes: Routes = [
       { path: 'search', component: SearchComponent },
       { path: 'cats', component: CatsComponent },
       // No role guard here (unlike /users/new): cat creation/edit is allowed for Administrator
-      // AND Veterinarian (UC-06), and there's no existing guard for that combination. The backend
-      // enforces it either way; a 403 just shows the form's generic error.
+      // AND Veterinarian (UC-06). administratorOrVeterinarianGuard exists now (added for
+      // transfer-room below) but wasn't retrofitted onto these two — out of scope here. The
+      // backend enforces it either way; a 403 just shows the form's generic error.
       {
         path: 'cats/new',
         component: CatFormComponent,
@@ -55,6 +66,11 @@ export const routes: Routes = [
         path: 'cats/:id/edit',
         component: CatFormComponent,
         data: { mode: 'edit' },
+      },
+      {
+        path: 'cats/:id/transfer-room',
+        component: TransferRoomComponent,
+        canActivate: [administratorOrVeterinarianGuard],
       },
       { path: 'users', component: UsersComponent },
       {
@@ -82,8 +98,45 @@ export const routes: Routes = [
         canActivate: [adminGuard],
         data: { mode: 'edit' },
       },
+      {
+        path: 'sync',
+        component: SyncComponent,
+        canActivate: [adminGuard],
+      },
       { path: 'medical-records', component: MedicalRecordsComponent },
       { path: 'medical-records/:id', component: MedicalRecordDetailComponent },
+      {
+        path: 'stock',
+        component: StockComponent,
+        canActivate: [
+          roleGuard(['Administrator', 'Assistant', 'Veterinarian']),
+        ],
+      },
+      {
+        path: 'stock/:id/edit',
+        component: StockFormComponent,
+        canActivate: [
+          roleGuard(['Administrator', 'Assistant']),
+        ],
+        data: { mode: 'edit' },
+      },
+      {
+        path: 'stock/entries/new',
+        component: StockEntryComponent,
+        canActivate: [
+          roleGuard(['Administrator', 'Assistant']),
+        ],
+      },
+      {
+        path: 'medical-records/:id/internal-prescriptions/new',
+        component: InternalPrescriptionFormComponent,
+        canActivate: [veterinarianGuard],
+      },
+      {
+        path: 'medical-records/:id/external-attendances/new',
+        component: ExternalAttendanceFormComponent,
+        canActivate: [adminGuard],
+      },
     ],
   },
   { path: '**', redirectTo: '' },

@@ -1,20 +1,25 @@
 package org.amicats.backend.application.factory.prescribedmedication;
 
-import lombok.AllArgsConstructor;
+import java.time.ZoneId;
+import lombok.RequiredArgsConstructor;
 import org.amicats.backend.domain.interfaces.dataprovider.prescribedmedication.PrescribedMedicationDataProvider;
 import org.amicats.backend.domain.interfaces.dataprovider.stock.StockItemDataProvider;
 import org.amicats.backend.domain.usecase.prescribedmedication.create.CreatePrescribedMedicationUseCase;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 
 @Configuration
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class CreatePrescribedMedicationFactory {
 
-  private StockItemDataProvider stockItemDataProvider;
-  private PrescribedMedicationDataProvider prescribedMedicationDataProvider;
+  private final StockItemDataProvider stockItemDataProvider;
+  private final PrescribedMedicationDataProvider prescribedMedicationDataProvider;
+
+  @Value("${app.clinical-time-zone:America/Sao_Paulo}")
+  private String clinicalTimeZone;
 
   @Bean("CreatePrescribedMedicationUseCase")
   @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
@@ -22,6 +27,7 @@ public class CreatePrescribedMedicationFactory {
     return CreatePrescribedMedicationUseCase.builder()
         .stockItemDataProvider(stockItemDataProvider)
         .prescribedMedicationDataProvider(prescribedMedicationDataProvider)
+        .clinicalZone(ZoneId.of(clinicalTimeZone))
         .build();
   }
 }

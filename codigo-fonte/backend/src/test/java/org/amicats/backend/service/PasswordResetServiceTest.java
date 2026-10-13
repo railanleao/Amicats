@@ -12,6 +12,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Optional;
 import org.amicats.backend.domain.entity.User;
 import org.amicats.backend.domain.entity.UserAuth;
@@ -71,7 +72,7 @@ class PasswordResetServiceTest {
   @Test
   void doesNothingWhenAResetWasAlreadyRequestedWithinTheCooldown() {
     UserAuth auth = authFor(activeUser());
-    auth.setPasswordResetLastRequestedAt(LocalDateTime.now().minusMinutes(2));
+    auth.setPasswordResetLastRequestedAt(LocalDateTime.now(ZoneOffset.UTC).minusMinutes(2));
     when(userAuthRepository.findByEmail("marina.alves@amicats.org.br"))
         .thenReturn(Optional.of(auth));
 
@@ -84,7 +85,7 @@ class PasswordResetServiceTest {
   @Test
   void allowsANewRequestOnceTheCooldownHasElapsed() throws Exception {
     UserAuth auth = authFor(activeUser());
-    auth.setPasswordResetLastRequestedAt(LocalDateTime.now().minusMinutes(6));
+    auth.setPasswordResetLastRequestedAt(LocalDateTime.now(ZoneOffset.UTC).minusMinutes(6));
     when(userAuthRepository.findByEmail("marina.alves@amicats.org.br"))
         .thenReturn(Optional.of(auth));
     when(temporaryPasswordGenerator.generate()).thenReturn("Temp0rary!Pw");
